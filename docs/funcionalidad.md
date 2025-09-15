@@ -1062,4 +1062,49 @@ public function marcarEntrada(Registro $registro) {
 
 ---
 
-*Última actualización: Corrección de métricas, reglas de 90/120 días y sistema WhatsApp personalizado - 15/09/2025* 
+## **📊 FUNCIONALIDAD S13 - REPORTE OFICIAL (IMPLEMENTADO)**
+
+### **Descripción:**
+Generación de documento PDF oficial S13 "Registro de Asignación de Territorio" con formato exacto según especificaciones oficiales.
+
+### **Funcionalidades:**
+1. **Vista Principal S13** (`/s13`):
+   - ✅ Selector de año de servicio (Septiembre-Agosto)
+   - ✅ Estadísticas de territorios y registros
+   - ✅ Información detallada del contenido del PDF
+   - ✅ Botones de Vista Previa y Generar PDF
+
+2. **Vista Previa HTML** (`/s13/vista-previa`):
+   - ✅ Visualización completa del documento antes de generar PDF
+   - ✅ Formato idéntico al PDF final
+   - ✅ Navegación entre páginas
+   - ✅ Enlaces directos para generar PDF
+
+3. **Generación PDF** (`/s13/generar-pdf`):
+   - ✅ Documento PDF oficial descargable
+   - ✅ Formato A4 portrait con márgenes optimizados
+   - ✅ 20 territorios por página exactos
+   - ✅ Hasta 11 páginas (territorios 1-214)
+
+### **Estructura del Documento:**
+
+#### **Encabezado:**
+```
+| Núm.  | Última fecha | Asignado a  | Asignado a  | Asignado a  | Asignado a  |
+| terr. | completó*    |-------------|-------------|-------------|-------------|
+|       |              | Fecha asign | Fecha asign | Fecha asign | Fecha asign |
+|       |              | Fecha compl | Fecha compl | Fecha compl | Fecha compl |
+```
+
+#### **Contenido por Territorio:**
+- **Fila 1**: Nombres de publicadores asignados
+- **Fila 2**: Fechas de asignación y completado
+- **Distribución**: Hasta 4 asignaciones por territorio en columnas separadas
+- **Continuidad**: Incluye registros activos del año anterior
+
+### **Estado Actual:**
+✅ **COMPLETAMENTE FUNCIONAL** - Implementado el 15/09/2025
+
+---
+
+*Última actualización: Corrección de métricas, reglas de 90/120 días, sistema WhatsApp personalizado y funcionalidad S13 oficial - 15/09/2025* 

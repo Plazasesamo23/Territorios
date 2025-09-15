@@ -33,7 +33,10 @@ Route::get('registros-archivados', [RegistroController::class, 'archivados'])->n
 Route::post('registros/{registro}/marcar-entrada', [RegistroController::class, 'marcarEntrada'])->name('registros.entrada');
 
 // Ruta para S13 (Seguimiento)
+// Rutas para S13
 Route::get('s13', [S13Controller::class, 'index'])->name('s13.index');
+Route::get('s13/generar-pdf', [S13Controller::class, 'generarPdf'])->name('s13.generar-pdf');
+Route::get('s13/vista-previa', [S13Controller::class, 'vistaPrevia'])->name('s13.vista-previa');
 
 // Ruta para configuración (placeholder para futuro)
 Route::get('configuracion', function () {
