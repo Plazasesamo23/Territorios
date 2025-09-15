@@ -626,7 +626,7 @@ public function devolver(Registro $registro) {
 - **Feedback visual**: Estados y acciones claras
 - **Accesibilidad**: Funcional en todos los dispositivos
 
-## 🚀 Estado Actual del Proyecto (Actualizado Diciembre 2024)
+## 🚀 Estado Actual del Proyecto (Actualizado Septiembre 2025)
 
 ### **Sistema Completamente Instalado y Poblado** ✅
 
@@ -653,8 +653,9 @@ public function devolver(Registro $registro) {
 ✅ **Publicadores**: Gestión completa con datos reales importados  
 ✅ **Registros**: Sistema de asignación poblado con 214 registros  
 ✅ **Imágenes**: 214 territorios con mapeo automático funcionando  
-✅ **WhatsApp**: Integración lista para usar con datos reales  
-✅ **Estados dinámicos**: Libre, Activo, Atrasado, Archivo calculados  
+✅ **WhatsApp**: Sistema completo con mensaje personalizado implementado  
+✅ **Estados dinámicos**: Libre, Activo, Atrasado, Archivo - métricas corregidas  
+✅ **Reglas de negocio**: 90 días descanso + 120 días para atrasado  
 ✅ **Sistema responsive**: Funciona perfectamente en móvil y desktop  
 
 #### **Seeder Personalizado Implementado**:
@@ -1029,9 +1030,35 @@ public function marcarEntrada(Registro $registro) {
 - ✅ **Ordenamiento inteligente** (atrasados → activos → libres)
 - ✅ **Diseño coherente** y unificado en todo el sistema
 
+---
+
+## 🆕 **ACTUALIZACIONES SEPTIEMBRE 2025 - CORRECCIÓN MÉTRICAS Y WHATSAPP**
+
+### **Nuevas Reglas de Negocio Implementadas**:
+- ✅ **Regla 90 días descanso**: Territorios devueltos no se pueden reasignar hasta 90 días después
+- ✅ **Métrica atrasado corregida**: Cambio de 80 a 120 días para marcar territorios atrasados
+- ✅ **Disponibilidad inteligente**: Solo territorios realmente disponibles aparecen en asignación
+- ✅ **Paginación con filtros**: Los filtros de estado se mantienen al cambiar páginas
+
+### **Sistema WhatsApp Personalizado**:
+- ✅ **Mensaje personalizado**: Texto completo según especificaciones del usuario
+- ✅ **Modal intuitivo**: Aparece automáticamente después de crear asignación
+- ✅ **Compatible móvil/desktop**: Se abre WhatsApp automáticamente
+- ✅ **Sin dependencia internet**: No incluye URLs que requieran datos móviles
+
+### **Funcionalidades Técnicas**:
+- ✅ **Método `estaDisponibleParaAsignar()`**: Validación completa de disponibilidad
+- ✅ **Cálculo días restantes**: `diasRestantesParaEstarDisponible()` para feedback
+- ✅ **Validaciones backend**: No se pueden asignar territorios no disponibles
+- ✅ **Interface actualizada**: Muestra territorios disponibles vs no disponibles
+
+### **Eliminaciones de Datos**:
+- ✅ **Registros específicos eliminados**: Territorio 7 (Bryan) y 45 (Ana) según solicitud
+- ✅ **Territorios liberados**: Ahora disponibles para nueva asignación
+
 ### **Estado del Sistema**: 
-🟢 **COMPLETAMENTE FUNCIONAL Y OPTIMIZADO**
+🟢 **COMPLETAMENTE FUNCIONAL CON NUEVAS REGLAS DE NEGOCIO**
 
 ---
 
-*Última actualización: Sistema completamente renovado con vistas minimalistas y configuración editable - 29/01/2025* 
+*Última actualización: Corrección de métricas, reglas de 90/120 días y sistema WhatsApp personalizado - 15/09/2025* 

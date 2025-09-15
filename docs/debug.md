@@ -1602,4 +1602,123 @@ foreach ($allTerritorios as $territorio) {
 
 ---
 
-*Documentación actualizada el 15/01/2025 - Sistema de filtros corregido y unificado. Mantener este archivo actualizado con nuevos problemas y soluciones encontradas.* 
+## 🎯 **SESIÓN 15/09/2025: CORRECCIÓN DE MÉTRICAS Y FUNCIONALIDAD WHATSAPP**
+
+### **1. Implementación de Regla de 90 Días de Descanso**
+**Fecha**: 15/09/2025  
+**Problema**: Los territorios devueltos podían ser reasignados inmediatamente, sin período de descanso.
+
+**Solución Implementada**:
+```php
+// En app/Models/Territorio.php
+public function estaDisponibleParaAsignar()
+{
+    $estado = $this->calcularEstado();
+    
+    // Solo está disponible si está en estado 'libre'
+    if ($estado !== 'libre') {
+        return false;
+    }
+    
+    // Verificar si cumple el período de descanso de 90 días
+    $ultimoRegistroDevuelto = $this->registros()
+        ->whereNotNull('fecha_entrada')
+        ->latest('fecha_entrada')
+        ->first();
+    
+    if ($ultimoRegistroDevuelto) {
+        $fechaDevolucion = Carbon::parse($ultimoRegistroDevuelto->fecha_entrada);
+        $diasDesdeDevolucion = $fechaDevolucion->diffInDays(now());
+        
+        // Si han pasado menos de 90 días desde la devolución, NO está disponible
+        if ($diasDesdeDevolucion < 90) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+```
+
+### **2. Cambio de Métrica "Atrasado": De 80 a 120 Días**
+**Problema**: El sistema marcaba territorios como "atrasados" después de 80 días, pero se requería cambiarlo a 120 días.
+
+**Análisis del Error**:
+- La configuración en `config/territorios.php` tenía `dias_limite_activo => 120`
+- Pero `calcularEstado()` usaba `config('territorios.dias_limite_activo', 60)` 
+- **El valor por defecto era 60, no 120**
+
+**Solución**:
+```php
+// En app/Models/Territorio.php - calcularEstado()
+// ANTES (problemático):
+$diasMaximos = config('territorios.dias_limite_activo', 60);
+
+// DESPUÉS (corregido):
+$diasMaximos = 120; // FIJO: 120 días para retrasado
+```
+
+### **3. Funcionalidad WhatsApp Personalizada**
+**Implementación**: Sistema completo de envío de WhatsApp con mensaje personalizado del usuario.
+
+**Características**:
+- **Mensaje personalizado**: "Querido/a hermano/a aquí te mando el territorio asignado..."
+- **Modal visual**: Aparece después de crear asignación
+- **Compatible móvil/desktop**: Se abre WhatsApp automáticamente
+- **Sin dependencia de datos**: No incluye URLs de imágenes que requieran internet
+
+**Código Implementado**:
+```php
+// En config/territorios.php
+'plantilla_asignacion' => "🗺️ *Territorio #{numero}*\n\n📍 *Ubicación:* {nombre}\n\nQuerido/a hermano/a aquí te mando el territorio asignado. Solo recordar que cuando lo termines de trabajar lo borres del teléfono y me avises. También recuerda que este territorio dura 3 meses, por lo tanto, puedes disfrutar y hacer uso de el por todo este tiempo, te animamos a poder trabajarlo a plenitud y tener conversaciones de provecho con las personas, así, podrás disfrutar por completo de tu ministerio 😁😁. Muchas gracias por su gran trabajo.\n\n📸 *La imagen del territorio te la envío por separado*"
+```
+
+### **4. Eliminación de Registros Específicos**
+**Acción**: Eliminados los registros de territorios 7 (Bryan) y 45 (Ana) según solicitud del usuario.
+
+**Resultado**:
+```
+✅ Bryan encontrado: Bryan
+🗑️ Eliminando registro ID 217 - Territorio 7 - Bryan
+✅ Ana encontrada: Ana  
+🗑️ Eliminando registro ID 218 - Territorio 45 - Ana
+```
+
+### **5. Corrección de Paginación con Filtros**
+**Problema**: Al usar filtros de estado, la paginación perdía los parámetros de búsqueda.
+
+**Solución**:
+```php
+// En TerritorioController.php
+$territorios = $query->orderBy('numero')->paginate(12)->appends(request()->query());
+
+// En territorios/index.blade.php
+{{ $territorios->appends(request()->query())->links() }}
+```
+
+### **6. Problemas de Entorno XAMPP vs Artisan Serve**
+**Identificación**: Diferencias en carga de assets CSS entre XAMPP y Laravel serve.
+
+**Solución Adoptada**:
+- **Desarrollo**: Usar Laravel `artisan serve` para testing
+- **Producción**: Copiar archivos a XAMPP para funcionamiento real
+- **Assets**: Mantener archivos CSS compilados en ambos entornos
+
+#### **Archivos Modificados en Esta Sesión**:
+1. `app/Models/Territorio.php` - Lógica de disponibilidad y métricas
+2. `app/Http/Controllers/RegistroController.php` - WhatsApp y validaciones
+3. `resources/views/registros/index.blade.php` - Modal WhatsApp
+4. `resources/views/registros/create.blade.php` - Filtros disponibilidad
+5. `resources/views/territorios/index.blade.php` - Paginación con filtros
+6. `config/territorios.php` - Mensajes WhatsApp y métricas
+
+#### **Testing Verificado**:
+- ✅ **Regla 90 días**: Territorios devueltos hace menos de 90 días NO aparecen disponibles
+- ✅ **Métrica 120 días**: Territorios solo pasan a "atrasado" después de 120 días
+- ✅ **WhatsApp funcional**: Modal aparece y abre WhatsApp con mensaje correcto
+- ✅ **Paginación**: Mantiene filtros al cambiar páginas
+- ✅ **Registros eliminados**: Territorios 7 y 45 liberados correctamente
+
+---
+
+*Documentación actualizada el 15/09/2025 - Corrección de métricas, reglas de negocio y funcionalidad WhatsApp implementada. Sistema totalmente funcional en XAMPP.* 

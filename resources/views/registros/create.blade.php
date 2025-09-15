@@ -33,11 +33,11 @@
                 <label for="territorio_id" style="display: block; font-weight: 600; margin-bottom: 0.5rem;">
                     Territorio Disponible *
                 </label>
-                @if($territoriosLibres->count() > 0)
+                @if($territoriosDisponibles->count() > 0)
                     <select id="territorio_id" name="territorio_id" required
                             style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px;">
                         <option value="">Selecciona un territorio...</option>
-                        @foreach($territoriosLibres as $territorio)
+                        @foreach($territoriosDisponibles as $territorio)
                             <option value="{{ $territorio->id }}" {{ old('territorio_id') == $territorio->id ? 'selected' : '' }}>
                                 #{{ $territorio->numero }} - {{ $territorio->nombre ?? 'Sin nombre' }}
                             </option>
@@ -47,12 +47,12 @@
                         <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">{{ $message }}</div>
                     @enderror
                     <div style="color: #10b981; font-size: 0.875rem; margin-top: 0.25rem;">
-                        ✅ {{ $territoriosLibres->count() }} territorios disponibles para asignar
+                        ✅ {{ $territoriosDisponibles->count() }} territorios disponibles para asignar
                     </div>
                 @else
                     <div class="alert alert-error">
                         <strong>⚠️ No hay territorios disponibles</strong><br>
-                        Todos los territorios están asignados o en período de descanso.
+                        Todos los territorios están asignados o en período de descanso (90 días).
                     </div>
                 @endif
             </div>
@@ -104,7 +104,7 @@
                 <a href="{{ route('registros.index') }}" class="btn btn-secondary">
                     Cancelar
                 </a>
-                @if($territoriosLibres->count() > 0 && $publicadoresActivos->count() > 0)
+                @if($territoriosDisponibles->count() > 0 && $publicadoresActivos->count() > 0)
                     <button type="submit" class="btn btn-primary">
                         Asignar y Enviar WhatsApp
                     </button>
@@ -129,11 +129,11 @@
             </div>
         </div>
 
-        @if($territoriosLibres->count() > 0)
-            <div class="card">
+        @if($territoriosDisponibles->count() > 0)
+            <div class="card mb-4">
                 <div class="card-title">Territorios Disponibles</div>
-                <div style="max-height: 300px; overflow-y: auto;">
-                    @foreach($territoriosLibres->take(10) as $territorio)
+                <div style="max-height: 200px; overflow-y: auto;">
+                    @foreach($territoriosDisponibles->take(8) as $territorio)
                         <div style="border-bottom: 1px solid #e5e7eb; padding: 0.75rem 0;">
                             <div><strong>#{{ $territorio->numero }}</strong></div>
                             @if($territorio->nombre)
@@ -141,9 +141,39 @@
                             @endif
                         </div>
                     @endforeach
-                    @if($territoriosLibres->count() > 10)
+                    @if($territoriosDisponibles->count() > 8)
                         <div class="text-small text-muted text-center" style="padding: 0.75rem;">
-                            ... y {{ $territoriosLibres->count() - 10 }} más
+                            ... y {{ $territoriosDisponibles->count() - 8 }} más
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @endif
+
+        @if($territoriosNoDisponibles->count() > 0)
+            <div class="card">
+                <div class="card-title">
+                    <span style="color: #f59e0b;">⏳ En Período de Descanso</span>
+                </div>
+                <div class="card-description" style="font-size: 0.875rem;">
+                    Territorios que deben esperar 90 días desde su devolución
+                </div>
+                <div style="max-height: 200px; overflow-y: auto;">
+                    @foreach($territoriosNoDisponibles->take(5) as $territorio)
+                        <div style="border-bottom: 1px solid #e5e7eb; padding: 0.75rem 0; background: #fef3c7; margin-bottom: 0.5rem; border-radius: 6px; padding-left: 1rem;">
+                            <div><strong>#{{ $territorio->numero }}</strong></div>
+                            @if($territorio->nombre)
+                                <div class="text-small text-muted">{{ $territorio->nombre }}</div>
+                            @endif
+                            <div style="color: #f59e0b; font-size: 0.8rem; margin-top: 0.25rem;">
+                                📅 Disponible en {{ $territorio->diasRestantesParaEstarDisponible() }} días
+                                ({{ $territorio->fechaDisponible()->format('d/m/Y') }})
+                            </div>
+                        </div>
+                    @endforeach
+                    @if($territoriosNoDisponibles->count() > 5)
+                        <div class="text-small text-muted text-center" style="padding: 0.75rem;">
+                            ... y {{ $territoriosNoDisponibles->count() - 5 }} más en descanso
                         </div>
                     @endif
                 </div>

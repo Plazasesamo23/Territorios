@@ -31,22 +31,27 @@ class TerritorioController extends Controller
             $query->whereIn('id', $territorioIds);
         }
         
-        $territorios = $query->orderBy('numero')->paginate(12);
+        $territorios = $query->orderBy('numero')->paginate(12)->appends(request()->query());
         
-        // Calcular estadísticas de estados (solo los 4 estados válidos)
-        // Obtener todos los territorios con sus registros para calcular estados
+        // Calcular estadísticas de estados con regla de 90 días
         $allTerritoriosForStats = Territorio::with(['registros'])->get();
         $estadisticas = [
             'libre' => 0,
             'activo' => 0,
             'atrasado' => 0,
-            'archivo' => 0
+            'archivo' => 0,
+            'disponibles' => 0  // Territorios realmente asignables
         ];
         
         foreach ($allTerritoriosForStats as $territorio) {
             $estado = $territorio->calcularEstado();
             if (isset($estadisticas[$estado])) {
                 $estadisticas[$estado]++;
+            }
+            
+            // Contar territorios realmente disponibles (libres + que cumplan 90 días)
+            if ($territorio->estaDisponibleParaAsignar()) {
+                $estadisticas['disponibles']++;
             }
         }
         

@@ -109,7 +109,7 @@ php artisan migrate
 
 ## 📊 Estado del Proyecto
 
-**Última Actualización**: 12/09/2025 - Sistema Completamente Instalado y Poblado con Datos Reales
+**Última Actualización**: 15/09/2025 - Corrección de Métricas y Funcionalidad WhatsApp
 
 ### **✅ INSTALACIÓN Y POBLACIÓN COMPLETADAS** 🎉
 
@@ -153,6 +153,10 @@ php artisan migrate
 - **[COMPLETADO]** Importación completa de datos Excel del usuario
 - **[COMPLETADO]** ExcelRegistrosSeeder personalizado y robusto
 - **[COMPLETADO]** Sistema poblado con información real funcionando
+- **[COMPLETADO]** Regla de 90 días de descanso para territorios implementada
+- **[COMPLETADO]** Corrección de métrica "atrasado" de 80 a 120 días
+- **[COMPLETADO]** Sistema WhatsApp personalizado con mensaje del usuario
+- **[COMPLETADO]** Eliminación de registros específicos (territorio 7 y 45)
 
 ### **Problemas Resueltos** 🔧
 - **[FIXED]** Error de validación boolean en campo "activo"

@@ -52,6 +52,11 @@ class DashboardController extends Controller
             $data['territoriosAtrasados'] = $estadisticas['atrasado'];
             $data['territoriosArchivo'] = $estadisticas['archivo'];
             
+            // Territorios realmente disponibles para asignar (cumplen regla de 90 días)
+            $data['territoriosDisponibles'] = $allTerritorios->filter(function($territorio) {
+                return $territorio->estaDisponibleParaAsignar();
+            })->count();
+            
             // Registros activos
             $data['registrosActivos'] = Registro::with(['territorio', 'publicador'])
                 ->whereNull('fecha_entrada')

@@ -20,6 +20,33 @@
     </div>
 </nav>
 
+<!-- Mensajes y WhatsApp Modal -->
+@if(session('success'))
+    <div class="alert alert-success" style="background: #d4edda; color: #155724; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #c3e6cb;">
+        ✅ {{ session('success') }}
+    </div>
+@endif
+
+@if(session('mostrar_whatsapp') && session('whatsapp_url'))
+    <div class="whatsapp-modal" style="background: #e8f5e8; border: 2px solid #25d366; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center;">
+        <div style="font-size: 1.2rem; margin-bottom: 1rem;">
+            📱 <strong>¡Asignación Completada!</strong>
+        </div>
+        <div style="margin-bottom: 1rem; color: #666;">
+            Envía el territorio a <strong>{{ session('whatsapp_publicador') }}</strong> por WhatsApp
+        </div>
+        <a href="{{ session('whatsapp_url') }}" 
+           target="_blank" 
+           class="btn btn-success" 
+           style="background: #25d366; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: bold;">
+            🚀 Enviar WhatsApp Ahora
+        </a>
+        <div style="margin-top: 0.5rem; font-size: 0.875rem; color: #666;">
+            Se abrirá WhatsApp con el mensaje y la imagen del territorio
+        </div>
+    </div>
+@endif
+
 <!-- Estadísticas compactas -->
 <div class="grid grid-4 mb-4">
     <div class="stat-card">
@@ -31,8 +58,8 @@
         <div class="stat-label">Atrasados</div>
     </div>
     <div class="stat-card">
-        <div class="stat-number stat-number-purple">{{ $estadisticas['territorios_libres'] }}</div>
-        <div class="stat-label">Libres</div>
+        <div class="stat-number stat-number-purple">{{ $estadisticas['territorios_disponibles'] }}</div>
+        <div class="stat-label">Disponibles</div>
     </div>
     <div class="stat-card">
         <div class="stat-number stat-number-yellow">{{ round($estadisticas['promedio_dias']) }}</div>

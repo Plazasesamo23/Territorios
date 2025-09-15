@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
+// ÚLTIMA ACTUALIZACIÓN: 15/09/2025 - REGLA 120 DÍAS RETRASADO IMPLEMENTADA
+
 class Territorio extends Model
 {
     protected $table = 'territorios';
@@ -94,8 +96,8 @@ class Territorio extends Model
     public function calcularEstado()
     {
         // Obtener configuración del sistema
-        $diasMaximos = config('territorios.dias_limite_activo', 60);
-        $diasArchivo = config('territorios.dias_archivo', 30);
+        $diasMaximos = 120; // FIJO: 120 días para retrasado
+        $diasArchivo = 90; // FIJO: 90 días de descanso obligatorio
         
         // Buscar el registro más reciente (independientemente de si está cerrado o no)
         $ultimoRegistro = $this->registros()
@@ -112,12 +114,12 @@ class Territorio extends Model
             $fechaDevolucion = Carbon::parse($ultimoRegistro->fecha_entrada);
             $diasDesdeDevolucion = $fechaDevolucion->diffInDays(now());
             
-            // Si no ha pasado el tiempo de archivo = ARCHIVO
+            // Si no ha pasado el tiempo de descanso = ARCHIVO
             if ($diasDesdeDevolucion < $diasArchivo) {
                 return 'archivo';
             }
             
-            // Ya cumplió el descanso = LIBRE
+            // Ya cumplió el descanso de 90 días = LIBRE
             return 'libre';
         }
         
@@ -176,5 +178,106 @@ class Territorio extends Model
     public function estaActivo()
     {
         return $this->activo;
+    }
+
+    /**
+     * Verificar si el territorio está disponible para asignar
+     * Regla: No se puede asignar si fue devuelto hace menos de 90 días
+     */
+    public function estaDisponibleParaAsignar()
+    {
+        $estado = $this->calcularEstado();
+        
+        // Solo está disponible si está en estado 'libre'
+        if ($estado !== 'libre') {
+            return false;
+        }
+        
+        // Verificar si cumple el período de descanso de 90 días
+        $ultimoRegistroDevuelto = $this->registros()
+            ->whereNotNull('fecha_entrada')
+            ->latest('fecha_entrada')
+            ->first();
+        
+        if ($ultimoRegistroDevuelto) {
+            $fechaDevolucion = Carbon::parse($ultimoRegistroDevuelto->fecha_entrada);
+            $diasDesdeDevolucion = $fechaDevolucion->diffInDays(now());
+            
+            // Si han pasado menos de 90 días desde la devolución, NO está disponible
+            if ($diasDesdeDevolucion < 90) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    /**
+     * Obtener los días restantes para que esté disponible
+     * Retorna 0 si ya está disponible
+     */
+    public function diasRestantesParaEstarDisponible()
+    {
+        if ($this->estaDisponibleParaAsignar()) {
+            return 0;
+        }
+        
+        $ultimoRegistroDevuelto = $this->registros()
+            ->whereNotNull('fecha_entrada')
+            ->latest('fecha_entrada')
+            ->first();
+        
+        if ($ultimoRegistroDevuelto) {
+            $fechaDevolucion = Carbon::parse($ultimoRegistroDevuelto->fecha_entrada);
+            $diasDesdeDevolucion = $fechaDevolucion->diffInDays(now());
+            
+            return max(0, 90 - $diasDesdeDevolucion);
+        }
+        
+        return 0;
+    }
+
+    /**
+     * Obtener la fecha cuando estará disponible
+     */
+    public function fechaDisponible()
+    {
+        $ultimoRegistroDevuelto = $this->registros()
+            ->whereNotNull('fecha_entrada')
+            ->latest('fecha_entrada')
+            ->first();
+        
+        if ($ultimoRegistroDevuelto) {
+            return Carbon::parse($ultimoRegistroDevuelto->fecha_entrada)->addDays(90);
+        }
+        
+        return now(); // Si no tiene registros, está disponible ahora
+    }
+
+    /**
+     * Obtener el motivo por el cual no está disponible
+     */
+    public function motivoNoDisponible()
+    {
+        $estado = $this->calcularEstado();
+        
+        if ($estado === 'activo') {
+            $publicador = $this->publicadorActual();
+            return $publicador ? "Asignado a {$publicador->nombre_completo}" : "Territorio actualmente asignado";
+        }
+        
+        if ($estado === 'atrasado') {
+            $publicador = $this->publicadorActual();
+            return $publicador ? "Atrasado con {$publicador->nombre_completo}" : "Territorio atrasado";
+        }
+        
+        if ($estado === 'archivo') {
+            $diasRestantes = $this->diasRestantesParaEstarDisponible();
+            if ($diasRestantes > 0) {
+                return "En descanso ({$diasRestantes} días restantes)";
+            }
+        }
+        
+        return "No disponible";
     }
 }

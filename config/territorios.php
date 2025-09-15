@@ -20,7 +20,7 @@ return [
     | cambiar automáticamente a estado "ATRASADO".
     |
     */
-    'dias_limite_activo' => env('TERRITORIOS_DIAS_LIMITE_ACTIVO', 80),
+    'dias_limite_activo' => env('TERRITORIOS_DIAS_LIMITE_ACTIVO', 120),
 
     /*
     |--------------------------------------------------------------------------
@@ -31,7 +31,7 @@ return [
     | después de ser devuelto antes de poder estar libre nuevamente.
     |
     */
-    'dias_archivo' => env('TERRITORIOS_DIAS_ARCHIVO', 40),
+    'dias_archivo' => env('TERRITORIOS_DIAS_ARCHIVO', 90),
 
     /*
     |--------------------------------------------------------------------------
@@ -42,8 +42,8 @@ return [
     |
     */
     'whatsapp' => [
-        'plantilla_asignacion' => "🗺️ *Territorio #{numero}*\n\n📍 *Ubicación:* {nombre}\n\n📸 *Imagen del territorio:*\n{imagen_url}\n\n¿Te interesa trabajar este territorio?\n\nSaludos cordiales! 😊",
-        'url_base' => env('APP_URL', 'http://localhost:8000'),
+        'plantilla_asignacion' => "🗺️ *Territorio #{numero}*\n\n📍 *Ubicación:* {nombre}\n\nQuerido/a hermano/a aquí te mando el territorio asignado. Solo recordar que cuando lo termines de trabajar lo borres del teléfono y me avises. También recuerda que este territorio dura 3 meses, por lo tanto, puedes disfrutar y hacer uso de el por todo este tiempo, te animamos a poder trabajarlo a plenitud y tener conversaciones de provecho con las personas, así, podrás disfrutar por completo de tu ministerio 😁😁. Muchas gracias por su gran trabajo.\n\n📸 *La imagen del territorio te la envío por separado*",
+        'url_base' => env('APP_URL', 'http://localhost/territorios/public'),
     ],
 
     /*

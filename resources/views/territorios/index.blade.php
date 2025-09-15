@@ -78,15 +78,20 @@
                             </div>
                             <!-- Estado: visible en desktop, oculto en móvil (se mueve a columna 3) -->
                             <div class="territorio-badge-estado territorio-badge-desktop
-                                @if($territorio->calcularEstado() == 'libre') badge-green
+                                @if($territorio->estaDisponibleParaAsignar()) badge-green
                                 @elseif($territorio->calcularEstado() == 'activo') badge-blue
                                 @elseif($territorio->calcularEstado() == 'atrasado') badge-red
                                 @else badge-gray
                                 @endif">
-                                @if($territorio->calcularEstado() == 'libre') Libre
+                                @if($territorio->estaDisponibleParaAsignar()) Disponible
                                 @elseif($territorio->calcularEstado() == 'activo') Activo
                                 @elseif($territorio->calcularEstado() == 'atrasado') Atrasado
                                 @else En Archivo
+                                @endif
+                                @if($territorio->calcularEstado() == 'libre' && !$territorio->estaDisponibleParaAsignar())
+                                    <small style="display: block; font-size: 0.7em; opacity: 0.8;">
+                                        ({{ $territorio->diasRestantesParaEstarDisponible() }} días restantes)
+                                    </small>
                                 @endif
                             </div>
                         </div>
@@ -117,15 +122,20 @@
 
             <!-- Columna 3: Estado en móvil -->
             <div class="territorio-badge-estado territorio-badge-mobile
-                @if($territorio->calcularEstado() == 'libre') badge-green
+                @if($territorio->estaDisponibleParaAsignar()) badge-green
                 @elseif($territorio->calcularEstado() == 'activo') badge-blue
                 @elseif($territorio->calcularEstado() == 'atrasado') badge-red
                 @else badge-gray
                 @endif">
-                @if($territorio->calcularEstado() == 'libre') Libre
+                @if($territorio->estaDisponibleParaAsignar()) Disponible
                 @elseif($territorio->calcularEstado() == 'activo') Activo
                 @elseif($territorio->calcularEstado() == 'atrasado') Atrasado
                 @else En Archivo
+                @endif
+                @if($territorio->calcularEstado() == 'libre' && !$territorio->estaDisponibleParaAsignar())
+                    <small style="display: block; font-size: 0.7em; opacity: 0.8;">
+                        ({{ $territorio->diasRestantesParaEstarDisponible() }} días)
+                    </small>
                 @endif
             </div>
         </div>
@@ -142,7 +152,7 @@
             
             <div style="display: flex; gap: 0.5rem;">
                 @if($territorios->previousPageUrl())
-                    <a href="{{ $territorios->previousPageUrl() }}" class="btn btn-secondary">← Anterior</a>
+                    <a href="{{ $territorios->appends(request()->query())->previousPageUrl() }}" class="btn btn-secondary">← Anterior</a>
                 @endif
                 
                 <span class="btn" style="background: #e5e7eb; color: #374151;">
@@ -150,7 +160,7 @@
                 </span>
                 
                 @if($territorios->nextPageUrl())
-                    <a href="{{ $territorios->nextPageUrl() }}" class="btn btn-secondary">Siguiente →</a>
+                    <a href="{{ $territorios->appends(request()->query())->nextPageUrl() }}" class="btn btn-secondary">Siguiente →</a>
                 @endif
             </div>
         </div>

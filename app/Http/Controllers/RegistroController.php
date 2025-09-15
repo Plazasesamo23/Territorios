@@ -30,8 +30,8 @@ class RegistroController extends Controller
         $estadisticas = [
             'activos_total' => $registrosActivos->count(),
             'atrasados' => $registrosActivos->where('estado_calculado', 'atrasado')->count(),
-            'territorios_libres' => Territorio::get()->filter(function($territorio) {
-                return $territorio->calcularEstado() === 'libre';
+            'territorios_disponibles' => Territorio::get()->filter(function($territorio) {
+                return $territorio->estaDisponibleParaAsignar();
             })->count(),
             'promedio_dias' => $registrosActivos->avg('dias_transcurridos') ? round($registrosActivos->avg('dias_transcurridos'), 1) : 0
         ];
@@ -75,15 +75,20 @@ class RegistroController extends Controller
      */
     public function create()
     {
-        // Solo territorios libres
-        $territoriosLibres = Territorio::get()->filter(function($territorio) {
-            return $territorio->calcularEstado() === 'libre';
+        // Solo territorios disponibles para asignar (que cumplan regla de 90 días)
+        $territoriosDisponibles = Territorio::get()->filter(function($territorio) {
+            return $territorio->estaDisponibleParaAsignar();
+        });
+
+        // Territorios no disponibles (para mostrar información)
+        $territoriosNoDisponibles = Territorio::get()->filter(function($territorio) {
+            return !$territorio->estaDisponibleParaAsignar() && $territorio->calcularEstado() === 'libre';
         });
 
         // Solo publicadores activos
         $publicadoresActivos = Publicador::where('activo', true)->get();
 
-        return view('registros.create', compact('territoriosLibres', 'publicadoresActivos'));
+        return view('registros.create', compact('territoriosDisponibles', 'territoriosNoDisponibles', 'publicadoresActivos'));
     }
 
     /**
@@ -97,12 +102,13 @@ class RegistroController extends Controller
             'notas' => 'nullable|string|max:1000'
         ]);
 
-        // Verificar que el territorio esté libre
+        // Verificar que el territorio esté disponible (libre + cumple 90 días)
         $territorio = Territorio::findOrFail($request->territorio_id);
-        if ($territorio->calcularEstado() !== 'libre') {
+        if (!$territorio->estaDisponibleParaAsignar()) {
+            $motivo = $territorio->motivoNoDisponible();
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'El territorio seleccionado no está disponible para asignar.');
+                ->with('error', "El territorio seleccionado no está disponible para asignar. Motivo: {$motivo}");
         }
 
         // Verificar que el publicador esté activo
@@ -133,11 +139,12 @@ class RegistroController extends Controller
             'notas' => $request->notas
         ]);
 
-        // Enviar WhatsApp automático
+        // Preparar WhatsApp automático
         $this->enviarWhatsAppAsignacion($territorio, $publicador);
 
         return redirect()->route('registros.index')
-            ->with('success', "Territorio #{$territorio->numero} asignado a {$publicador->nombre}. WhatsApp enviado automáticamente.");
+            ->with('success', "Territorio #{$territorio->numero} asignado a {$publicador->nombre}.")
+            ->with('mostrar_whatsapp', true);
     }
 
     /**
@@ -261,9 +268,17 @@ class RegistroController extends Controller
             $territorio->getImagenUrl()
         ], $plantilla);
 
-        // En un sistema real, aquí se enviaría el WhatsApp
-        // Por ahora, solo registramos que se "envió"
-        \Log::info("WhatsApp enviado a {$publicador->telefono}: {$mensaje}");
+        // Limpiar número de teléfono y crear URL de WhatsApp
+        $telefono = preg_replace('/[^0-9]/', '', $publicador->telefono);
+        $whatsappUrl = "https://wa.me/{$telefono}?text=" . urlencode($mensaje);
+        
+        // Guardar la URL en sesión para redirigir después
+        session(['whatsapp_url' => $whatsappUrl]);
+        session(['whatsapp_publicador' => $publicador->nombre_completo]);
+        session(['whatsapp_territorio' => $territorio->numero]);
+        
+        // Registrar el envío
+        \Log::info("WhatsApp preparado para {$publicador->telefono}: {$mensaje}");
         
         return true;
     }
