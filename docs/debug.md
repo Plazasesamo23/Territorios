@@ -1719,6 +1719,46 @@ $territorios = $query->orderBy('numero')->paginate(12)->appends(request()->query
 - ✅ **Paginación**: Mantiene filtros al cambiar páginas
 - ✅ **Registros eliminados**: Territorios 7 y 45 liberados correctamente
 
+### **7. Sistema WhatsApp Optimizado para Móvil**
+**Mejora**: Implementación de dos botones separados para mejor funcionalidad móvil.
+
+**Problema Inicial**: Un solo botón que abría WhatsApp con mensaje preformateado causaba:
+- URLs codificadas con signos +
+- Inclusión de enlaces de imagen
+- Formato difícil de leer
+
+**Solución Final**:
+```javascript
+// Dos botones separados:
+// 1. "Copiar Mensaje y Abrir WhatsApp" - Copia texto limpio al portapapeles
+// 2. "Ver y Copiar Imagen" - Abre imagen del territorio
+
+const mensaje = `Querido/a hermano/a aquí te mando el territorio asignado...
+
+📸 La imagen del territorio te la envío por separado`;
+```
+
+**Resultado**: Experiencia móvil optimizada donde el usuario:
+1. Copia el mensaje limpio
+2. Abre WhatsApp vacío 
+3. Pega el texto formateado
+4. Ve la imagen por separado
+5. Copia y pega la imagen
+
+### **8. Bug Identificado: Regla 90 Días No Se Aplica**
+**Problema Detectado**: El territorio #7 permite asignación aunque fue devuelto hace menos de 90 días.
+
+**Análisis Pendiente**: 
+- `estaDisponibleParaAsignar()` implementado correctamente
+- Validación en `RegistroController` añadida
+- **Posible causa**: Interface no está usando el método correcto
+- **Estado**: Reportado para corrección futura
+
+#### **Testing Requerido**:
+- Verificar que `territoriosDisponibles` use `estaDisponibleParaAsignar()`
+- Confirmar que vista `create.blade.php` filtre correctamente
+- Validar que controlador rechace asignaciones no válidas
+
 ---
 
-*Documentación actualizada el 15/09/2025 - Corrección de métricas, reglas de negocio y funcionalidad WhatsApp implementada. Sistema totalmente funcional en XAMPP.* 
+*Documentación actualizada el 15/09/2025 - Sistema WhatsApp optimizado y bug de 90 días identificado para corrección.* 

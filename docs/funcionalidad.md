@@ -1043,7 +1043,8 @@ public function marcarEntrada(Registro $registro) {
 ### **Sistema WhatsApp Personalizado**:
 - ✅ **Mensaje personalizado**: Texto completo según especificaciones del usuario
 - ✅ **Modal intuitivo**: Aparece automáticamente después de crear asignación
-- ✅ **Compatible móvil/desktop**: Se abre WhatsApp automáticamente
+- ✅ **Optimizado para móvil**: Dos botones separados (mensaje + imagen)
+- ✅ **Portapapeles inteligente**: Copia mensaje formateado sin códigos
 - ✅ **Sin dependencia internet**: No incluye URLs que requieran datos móviles
 
 ### **Funcionalidades Técnicas**:

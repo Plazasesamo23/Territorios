@@ -32,19 +32,85 @@
         <div style="font-size: 1.2rem; margin-bottom: 1rem;">
             📱 <strong>¡Asignación Completada!</strong>
         </div>
-        <div style="margin-bottom: 1rem; color: #666;">
+        <div style="margin-bottom: 1.5rem; color: #666;">
             Envía el territorio a <strong>{{ session('whatsapp_publicador') }}</strong> por WhatsApp
         </div>
-        <a href="{{ session('whatsapp_url') }}" 
-           target="_blank" 
-           class="btn btn-success" 
-           style="background: #25d366; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: bold;">
-            🚀 Enviar WhatsApp Ahora
-        </a>
-        <div style="margin-top: 0.5rem; font-size: 0.875rem; color: #666;">
-            Se abrirá WhatsApp con el mensaje y la imagen del territorio
+        
+        <!-- Botones separados para móvil -->
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem;">
+            <button id="copyMessageBtn" 
+                    onclick="copyMessageAndOpenWhatsApp()" 
+                    class="btn btn-success" 
+                    style="background: #25d366; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                📱 Copiar Mensaje y Abrir WhatsApp
+            </button>
+            
+            <button onclick="openTerritorioImage({{ session('whatsapp_territorio') }})" 
+                    class="btn btn-primary" 
+                    style="background: #1877f2; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                📸 Ver y Copiar Imagen
+            </button>
+        </div>
+        
+        <!-- Mensaje que se copiará -->
+        <div id="mensaje-territorio" style="display: none;">{{ urldecode(parse_url(session('whatsapp_url'), PHP_URL_QUERY)) }}</div>
+        
+        <div style="font-size: 0.875rem; color: #666; line-height: 1.5;">
+            <strong>📱 Para móvil:</strong><br>
+            1️⃣ Copia mensaje y abre WhatsApp<br>
+            2️⃣ Pega el mensaje<br>
+            3️⃣ Ve la imagen del territorio<br>
+            4️⃣ Mantén presionado → "Copiar imagen"<br>
+            5️⃣ Vuelve a WhatsApp y pega la imagen
         </div>
     </div>
+
+    <script>
+        function copyMessageAndOpenWhatsApp() {
+            // Mensaje limpio y formateado directamente desde PHP
+            const mensaje = `Querido/a hermano/a aquí te mando el territorio asignado. Solo recordar que cuando lo termines de trabajar lo borres del teléfono y me avises. También recuerda que este territorio dura 3 meses, por lo tanto, puedes disfrutar y hacer uso de el por todo este tiempo, te animamos a poder trabajarlo a plenitud y tener conversaciones de provecho con las personas, así, podrás disfrutar por completo de tu ministerio 😁😁. Muchas gracias por su gran trabajo.
+
+📸 La imagen del territorio te la envío por separado`;
+            
+            // Copiar mensaje al portapapeles
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(mensaje).then(function() {
+                    // Cambiar texto del botón temporalmente
+                    const btn = document.getElementById('copyMessageBtn');
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '✅ ¡Mensaje Copiado!';
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                    }, 2000);
+                    
+                    // Abrir WhatsApp después de un pequeño delay
+                    setTimeout(() => {
+                        const whatsappUrl = "{{ session('whatsapp_url') }}";
+                        const telefono = whatsappUrl.match(/wa\.me\/(\d+)/)[1];
+                        window.open(`https://wa.me/${telefono}`, '_blank');
+                    }, 500);
+                }).catch(function() {
+                    // Fallback si falla el clipboard
+                    alert('Mensaje listo para copiar:\n\n' + mensaje);
+                    const whatsappUrl = "{{ session('whatsapp_url') }}";
+                    const telefono = whatsappUrl.match(/wa\.me\/(\d+)/)[1];
+                    window.open(`https://wa.me/${telefono}`, '_blank');
+                });
+            } else {
+                // Fallback para navegadores sin soporte de clipboard
+                alert('Mensaje listo para copiar:\n\n' + mensaje);
+                const whatsappUrl = "{{ session('whatsapp_url') }}";
+                const telefono = whatsappUrl.match(/wa\.me\/(\d+)/)[1];
+                window.open(`https://wa.me/${telefono}`, '_blank');
+            }
+        }
+        
+        function openTerritorioImage(numeroTerritorio) {
+            const imageUrl = `{{ asset('imagenes') }}/${numeroTerritorio}.jpg`;
+            window.open(imageUrl, '_blank');
+        }
+    </script>
 @endif
 
 <!-- Estadísticas compactas -->
