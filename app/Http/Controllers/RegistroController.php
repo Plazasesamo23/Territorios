@@ -119,16 +119,8 @@ class RegistroController extends Controller
                 ->with('error', 'El publicador seleccionado no está activo.');
         }
 
-        // Verificar que el publicador no tenga ya un territorio asignado
-        $registroActivo = Registro::where('publicador_id', $request->publicador_id)
-            ->whereNull('fecha_entrada')
-            ->first();
-        
-        if ($registroActivo) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'El publicador ya tiene un territorio asignado.');
-        }
+        // RESTRICCIÓN ELIMINADA: Los publicadores pueden tener múltiples territorios
+        // Algunos hermanos pueden manejar 2-3 territorios simultáneamente
 
         // Crear el registro
         $registro = Registro::create([

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>S13 - Registro de Asignación de Territorio</title>
     <style>
-        @page { margin: 10mm; size: A4 portrait; }
+        @page { margin: 5mm 10mm; size: A4 portrait; }
         
         body { font-family: Arial, sans-serif; font-size: 7pt; margin: 0; padding: 0; }
         
@@ -16,25 +16,25 @@
         
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         
-        th, td { border: 1px solid #000; padding: 3px; text-align: center; vertical-align: top; }
+        th, td { border: 1px solid #000; padding: 4px; text-align: center; vertical-align: middle; }
         
         th { background-color: #f0f0f0; font-weight: bold; font-size: 7pt; }
         
-        .territory-col { width: 40px; font-weight: bold; background-color: #f8f8f8; }
+        .territory-col { width: 45px; font-weight: bold; background-color: #f8f8f8; font-size: 8pt; }
         
-        .date-col { width: 60px; font-size: 6pt; background-color: #f8f8f8; }
+        .date-col { width: 70px; font-size: 6pt; background-color: #f8f8f8; }
         
-        .assign-col { width: 110px; font-size: 6pt; height: 25px; }
+        .assign-col { width: 120px; font-size: 7pt; height: 35px; }
         
-        .sub-col { width: 55px; font-size: 5pt; }
+        .sub-col { width: 60px; font-size: 7pt; }
         
         .name-row { font-size: 6pt; }
         
-        .name { font-weight: bold; margin-bottom: 1px; font-size: 6pt; }
+        .name { font-weight: bold; margin-bottom: 2px; font-size: 7pt; }
         
-        .date-out { border-bottom: 1px solid #000; padding: 0px; margin-bottom: 1px; font-size: 5pt; }
+        .date-out { border-bottom: 1px solid #000; padding: 1px; margin-bottom: 2px; font-size: 6pt; }
         
-        .date-in { padding: 0px; font-size: 5pt; }
+        .date-in { padding: 1px; font-size: 6pt; }
     </style>
 </head>
 <body>

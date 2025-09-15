@@ -1827,4 +1827,49 @@ const mensaje = `Querido/a hermano/a aquí te mando el territorio asignado...
 
 ---
 
-*Documentación actualizada el 15/09/2025 - Sistema WhatsApp optimizado, bug de 90 días identificado y funcionalidad S13 completamente implementada.* 
+---
+
+## SESIÓN 15/09/2025: OPTIMIZACIONES FINALES Y MEJORAS DE USABILIDAD
+
+### **🔧 MEJORAS IMPLEMENTADAS POST-S13**
+
+#### **1. S13 - Lógica de Registros Históricos Mejorada**
+**Problema**: Territorios con registros antiguos (mayo, junio) no aparecían en el S13.
+**Solución**: 
+- ✅ Nueva lógica que incluye CUALQUIER registro histórico
+- ✅ Prioridad: Año actual → Activos anteriores → Históricos → Cualquier registro
+- ✅ Control completo de todos los territorios trabajados alguna vez
+- ✅ Sin territorios vacíos en el reporte
+
+#### **2. Selector de Publicadores Optimizado**
+**Problema**: El desplegable mostraba "Nombre - Teléfono" causando confusión.
+**Solución**:
+- ✅ Cambio a formato "Nombre Apellidos"
+- ✅ Identificación clara sin memorizar teléfonos
+- ✅ Eliminación de confusión entre personas con mismo nombre
+
+#### **3. Restricción de Múltiples Territorios Eliminada**
+**Problema**: Sistema no permitía asignar múltiples territorios a un publicador.
+**Solución**:
+- ✅ Eliminada restricción artificial
+- ✅ Publicadores pueden manejar 2-3 territorios simultáneamente
+- ✅ Flexibilidad para hermanos experimentados
+
+#### **4. Optimización Estética del PDF S13**
+**Mejoras**:
+- ✅ Márgenes optimizados (5mm arriba/abajo)
+- ✅ Altura de filas aumentada (35px)
+- ✅ Tipografía mejorada (7pt nombres, 6pt fechas)
+- ✅ Mejor aprovechamiento del espacio vertical
+
+### **📊 RESULTADOS FINALES:**
+- **S13**: Reporte completo con todos los territorios históricos
+- **UX**: Interface más intuitiva y práctica
+- **Flexibilidad**: Sin limitaciones artificiales del sistema
+- **Estética**: Documento PDF profesional y legible
+
+**Estado**: ✅ **SISTEMA COMPLETAMENTE OPTIMIZADO**
+
+---
+
+*Documentación actualizada el 15/09/2025 - Sistema WhatsApp optimizado, funcionalidad S13 completada y optimizaciones finales de usabilidad implementadas.* 

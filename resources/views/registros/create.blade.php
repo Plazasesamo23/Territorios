@@ -68,7 +68,7 @@
                         <option value="">Selecciona un publicador...</option>
                         @foreach($publicadoresActivos as $publicador)
                             <option value="{{ $publicador->id }}" {{ old('publicador_id') == $publicador->id ? 'selected' : '' }}>
-                                {{ $publicador->nombre }} - {{ $publicador->telefono }}
+                                {{ $publicador->nombre }} {{ $publicador->apellidos }}
                             </option>
                         @endforeach
                     </select>
