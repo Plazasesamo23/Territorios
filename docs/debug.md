@@ -1595,11 +1595,130 @@ foreach ($allTerritorios as $territorio) {
 
 #### **Testing Verificado**:
 - ✅ Filtro "Total": Muestra 10 territorios
-- ✅ Filtro "Libres": Muestra 6 territorios  
+- ✅ Filtro "Libres": Muestra 6 territorios
 - ✅ Filtro "Activos": Muestra 1 territorio
 - ✅ Filtro "Atrasados": Muestra 1 territorio
 - ✅ Filtro "En Archivo": Muestra 2 territorios
 
 ---
+
+## 🎯 **SESIÓN 26/01/2025: CORRECCIÓN S-13 Y SUBIDA A GITHUB**
+
+### **1. Problema Reportado: Lógica Incorrecta en S-13**
+**Fecha**: 26/01/2025
+**Problema**: En el reporte S-13, la columna "Última fecha en que se completó" mostraba fechas de registros anteriores completados, incluso cuando el registro más reciente estaba activo.
+
+**Ejemplo específico:**
+```
+Territorio #45:
+- Registro 1: Laude (completado 29-7-24) ✅
+- Registro 2: Damaris (activo, sin completar) 🔄
+
+ANTES: Mostraba "29-7-24" ❌
+AHORA: Campo vacío hasta que Damaris complete ✅
+```
+
+### **2. Análisis del Código Problemático**
+**Archivos afectados**:
+- `resources/views/s13/pdf-simple.blade.php` (líneas 72-75)
+- `resources/views/s13/pdf.blade.php` (líneas similares)
+
+**Lógica incorrecta identificada**:
+```php
+// PROBLEMA: Busca la fecha máxima de CUALQUIER registro completado
+$ultimaFecha = $territorio->registros->whereNotNull('fecha_entrada')->max('fecha_entrada');
+```
+
+**Por qué era incorrecto:**
+- Ignoraba si el registro más reciente estaba completado o no
+- Mostraba fechas de registros históricos aunque hubiera uno activo más reciente
+
+### **3. Solución Implementada**
+**Nueva lógica aplicada**:
+```php
+// CORRECCIÓN: Solo mostrar fecha si el registro MÁS RECIENTE está completado
+$ultimoRegistro = $territorio->registros->sortByDesc('fecha_salida')->first();
+if($ultimoRegistro && $ultimoRegistro->fecha_entrada) {
+    $ultimaFecha = $ultimoRegistro->fecha_entrada;
+}
+```
+
+**Comportamiento corregido**:
+1. **Identifica el registro más reciente** por fecha_salida
+2. **Verifica si está completado** (tiene fecha_entrada)
+3. **Solo entonces** muestra la fecha de completado
+4. **Si está activo** (sin fecha_entrada), no muestra nada
+
+### **4. Testing de la Corrección**
+**Escenarios verificados**:
+- ✅ Territorio con último registro completado → Muestra fecha
+- ✅ Territorio con último registro activo → Campo vacío
+- ✅ Territorio sin registros → Campo vacío
+- ✅ Ambos archivos PDF corregidos consistentemente
+
+### **5. Subida Completa a GitHub**
+**Proceso ejecutado**:
+```bash
+# Inicialización del repositorio
+git init
+git remote add origin https://github.com/Plazasesamo23/Territorios.git
+
+# Configuración .gitignore personalizada para Laravel
+# Commit inicial con 126 archivos
+git add .
+git commit -m "🎉 Commit inicial: Sistema de Gestión de Territorios"
+
+# Resolución de conflictos con repositorio remoto
+git pull origin main --allow-unrelated-histories
+git checkout --ours .  # Priorizar versión local
+git commit -m "🔄 Merge commit: Integración repositorio remoto"
+
+# Push exitoso
+git push -u origin main
+```
+
+**Estadísticas del upload**:
+- ✅ **126 archivos** subidos correctamente
+- ✅ **Commit inicial** con descripción completa
+- ✅ **Conflictos resueltos** priorizando versión local actualizada
+- ✅ **Push exitoso** sin errores
+
+### **6. Actualización Completa de Documentación**
+**Archivos de documentación actualizados**:
+
+#### **README.md Principal**:
+- ✅ **Badges profesionales** agregados (Laravel, PHP, MySQL, Status)
+- ✅ **Estructura completa** con stack tecnológico
+- ✅ **Instalación paso a paso** actualizada
+- ✅ **Sistema de estados** explicado con tabla visual
+- ✅ **Flujo de trabajo** con diagrama mermaid
+- ✅ **Comandos de mantenimiento** categorizados
+- ✅ **Estado actual** con todas las funcionalidades
+
+#### **docs/funcionalidad.md**:
+- ✅ **Sección nueva** con corrección S-13
+- ✅ **Código antes/después** de la corrección
+- ✅ **Archivos modificados** listados
+
+#### **docs/debug.md**:
+- ✅ **Sesión completa** de corrección S-13 documentada
+- ✅ **Proceso GitHub** paso a paso
+- ✅ **Estadísticas** del commit inicial
+
+### **7. Estado Final del Sistema**
+**URLs operativas**:
+- 🌐 **GitHub**: https://github.com/Plazasesamo23/Territorios
+- 🏠 **Local**: http://localhost:8000 (Laravel Serve)
+- 🏠 **XAMPP**: http://localhost/territorios/public/
+
+**Funcionalidades verificadas**:
+- ✅ **S-13 corregido**: Lógica de fecha completado funcionando correctamente
+- ✅ **Sistema completo**: Todas las funcionalidades operativas
+- ✅ **Documentación actualizada**: README y docs completos
+- ✅ **Repositorio GitHub**: Código respaldado y accesible
+
+---
+
+*Documentación actualizada el 26/01/2025 - Corrección S-13 implementada y proyecto subido completamente a GitHub.*
 
 *Documentación actualizada el 15/01/2025 - Sistema de filtros corregido y unificado. Mantener este archivo actualizado con nuevos problemas y soluciones encontradas.* 

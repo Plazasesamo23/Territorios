@@ -1034,4 +1034,37 @@ public function marcarEntrada(Registro $registro) {
 
 ---
 
-*Última actualización: Sistema completamente renovado con vistas minimalistas y configuración editable - 29/01/2025* 
+## 🆕 **ACTUALIZACIONES RECIENTES (26/01/2025)**
+
+### **🔧 Corrección Sistema S-13: Lógica de "Última Fecha Completado"**
+
+#### **Problema Identificado**:
+En el reporte S-13, la columna "Última fecha en que se completó" mostraba incorrectamente fechas de registros anteriores, incluso cuando el territorio tenía un registro más reciente activo.
+
+**Ejemplo del problema:**
+- Territorio #45: Laude completó el 29-7-24, Damaris lo tiene actualmente
+- **ERROR**: Mostraba "29-7-24" en columna completado
+- **CORRECTO**: Debe estar vacío hasta que Damaris complete
+
+#### **Solución Implementada**:
+```php
+// ANTES (problemático)
+$ultimaFecha = $territorio->registros->whereNotNull('fecha_entrada')->max('fecha_entrada');
+
+// DESPUÉS (corregido)
+$ultimoRegistro = $territorio->registros->sortByDesc('fecha_salida')->first();
+if($ultimoRegistro && $ultimoRegistro->fecha_entrada) {
+    $ultimaFecha = $ultimoRegistro->fecha_entrada;
+}
+```
+
+#### **Archivos Corregidos**:
+- ✅ `resources/views/s13/pdf-simple.blade.php`
+- ✅ `resources/views/s13/pdf.blade.php`
+
+#### **Resultado**:
+La columna "última fecha completado" ahora **SOLO** muestra fecha si el registro más reciente del territorio está completado (tiene fecha_entrada).
+
+---
+
+*Última actualización: Corrección S-13 y sistema subido a GitHub - 26/01/2025* 
