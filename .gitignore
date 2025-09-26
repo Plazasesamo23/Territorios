@@ -1,0 +1,58 @@
+# Laravel
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+
+# Composer
+composer.phar
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+/storage/logs/*
+
+# Cache
+/bootstrap/cache/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+
+# Backups
+*.sql
+*.backup
+
+# Custom - Archivos específicos del proyecto
+/public/imagenes/*
+!/public/imagenes/.gitkeep
+
+# Archivos temporales de Windows
+desktop.ini
+
+# Archivos de configuración local
+.phpunit.cache
