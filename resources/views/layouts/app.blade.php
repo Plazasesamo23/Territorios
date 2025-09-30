@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Gestión de Territorios')</title>
     <meta name="description" content="Sistema de gestión de territorios para la organización">
     @if(app()->environment('production'))
@@ -11,6 +12,8 @@
         <link rel="stylesheet" href="{{ asset('build/assets/app-D7thK3vj.css') }}">
         <script src="{{ asset('build/assets/app-DNxiirP_.js') }}" defer></script>
     @endif
+
+    @stack('styles')
 </head>
 <body>
     <!-- Header -->
@@ -20,8 +23,12 @@
                 <a href="{{ route('dashboard') }}" class="logo">
                     🗺️ Sistema de Territorios
                 </a>
-                
-                <nav class="nav">
+
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Menú">
+                    ☰
+                </button>
+
+                <nav class="nav" id="main-nav">
                     <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                         Dashboard
                     </a>
@@ -37,8 +44,8 @@
                     <a href="{{ route('s13.index') }}" class="nav-link {{ request()->routeIs('s13.*') ? 'active' : '' }}">
                         S13
                     </a>
-                    <a href="{{ route('creador-territorios.visual-editor') }}" class="nav-link {{ request()->routeIs('creador-territorios.*') ? 'active' : '' }}">
-                        Editor Visual
+                    <a href="{{ route('creador-territorios.mapa') }}" class="nav-link {{ request()->routeIs('creador-territorios.mapa') ? 'active' : '' }}">
+                        🗺️ Crear Territorio
                     </a>
                 </nav>
                 
@@ -68,24 +75,25 @@
         </div>
     </footer>
 
-    <!-- Script para el toggle de modo oscuro -->
+    <!-- Script para el toggle de modo oscuro y menú móvil -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Toggle de tema oscuro
             const themeToggle = document.getElementById('theme-toggle');
             const themeIcon = document.getElementById('theme-icon');
             const body = document.body;
-            
+
             // Cargar tema guardado o usar modo claro por defecto
             const savedTheme = localStorage.getItem('theme') || 'light';
             setTheme(savedTheme);
-            
+
             themeToggle.addEventListener('click', function() {
                 const currentTheme = body.getAttribute('data-theme') || 'light';
                 const newTheme = currentTheme === 'light' ? 'dark' : 'light';
                 setTheme(newTheme);
                 localStorage.setItem('theme', newTheme);
             });
-            
+
             function setTheme(theme) {
                 if (theme === 'dark') {
                     body.setAttribute('data-theme', 'dark');
@@ -96,6 +104,42 @@
                     themeIcon.textContent = '🌙';
                     themeToggle.title = 'Cambiar a modo oscuro';
                 }
+            }
+
+            // Toggle de menú móvil
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const mainNav = document.getElementById('main-nav');
+
+            if (mobileMenuToggle && mainNav) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    mainNav.classList.toggle('active');
+
+                    // Cambiar icono
+                    if (mainNav.classList.contains('active')) {
+                        mobileMenuToggle.textContent = '✕';
+                    } else {
+                        mobileMenuToggle.textContent = '☰';
+                    }
+                });
+
+                // Cerrar menú al hacer clic en un enlace
+                const navLinks = mainNav.querySelectorAll('.nav-link');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 768) {
+                            mainNav.classList.remove('active');
+                            mobileMenuToggle.textContent = '☰';
+                        }
+                    });
+                });
+
+                // Cerrar menú si se redimensiona la ventana
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768) {
+                        mainNav.classList.remove('active');
+                        mobileMenuToggle.textContent = '☰';
+                    }
+                });
             }
         });
     </script>

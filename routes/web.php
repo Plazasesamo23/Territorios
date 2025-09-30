@@ -6,6 +6,7 @@ use App\Http\Controllers\TerritorioController;
 use App\Http\Controllers\PublicadorController;
 use App\Http\Controllers\RegistroController;
 use App\Http\Controllers\S13Controller;
+use App\Http\Controllers\TerritorioMapCreatorController;
 
 // Ruta principal - Dashboard (PRIMERA PRIORIDAD)
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -38,12 +39,22 @@ Route::get('s13', [S13Controller::class, 'index'])->name('s13.index');
 Route::get('s13/generar-pdf', [S13Controller::class, 'generarPdf'])->name('s13.generar-pdf');
 Route::get('s13/vista-previa', [S13Controller::class, 'vistaPrevia'])->name('s13.vista-previa');
 
-// Ruta para Creador de Territorios
+// Rutas para Creador de Territorios con Mapa
+Route::get('creador-territorios-mapa', [TerritorioMapCreatorController::class, 'index'])->name('creador-territorios.mapa');
+Route::post('api/territorios/buscar-direccion', [TerritorioMapCreatorController::class, 'buscarDireccion'])->name('api.territorios.buscar-direccion');
+Route::post('api/territorios/guardar-forma', [TerritorioMapCreatorController::class, 'guardarForma'])->name('api.territorios.guardar-forma');
+
+// Test simple de Leaflet
+Route::get('test-leaflet', function () {
+    return view('creador-territorios.test-simple');
+})->name('test.leaflet');
+
+// Ruta para Creador de Territorios (Viejo)
 Route::get('creador-territorios', function () {
     return view('creador-territorios.simple');
 })->name('creador-territorios.index');
 
-// Ruta para Editor Visual de Territorios
+// Ruta para Editor Visual de Territorios (Viejo)
 Route::get('editor-visual-territorios', function () {
     return view('creador-territorios.visual-editor');
 })->name('creador-territorios.visual-editor');

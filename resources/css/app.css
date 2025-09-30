@@ -146,6 +146,59 @@ body {
   align-items: center;
 }
 
+/* Botón de menú móvil */
+.mobile-menu-toggle {
+  display: none;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.mobile-menu-toggle:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Media queries para responsive */
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: block;
+  }
+
+  .nav {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    gap: 0;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: var(--radius-md);
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .nav.active {
+    display: flex;
+  }
+
+  .nav-link {
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem 1rem;
+  }
+
+  .header-actions {
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    font-size: 1.2rem;
+  }
+}
+
 /* ===== BOTONES ===== */
 .btn {
   display: inline-flex;
