@@ -5,8 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Gestión de Territorios')</title>
     <meta name="description" content="Sistema de gestión de territorios para la organización">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <script src="{{ asset('js/app.js') }}" defer></script>
+    
+@if(app()->environment('production'))
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @else
+        <link rel="stylesheet" href="{{ asset('build/assets/app-D7thK3vj.css') }}">
+        <script src="{{ asset('build/assets/app-DNxiirP_.js') }}" defer></script>
+    @endif
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
                 <a href="{{ route('dashboard') }}" class="logo">
                     🗺️ Sistema de Territorios
                 </a>

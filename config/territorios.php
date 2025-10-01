@@ -20,7 +20,7 @@ return [
     | cambiar automáticamente a estado "ATRASADO".
     |
     */
-    'dias_limite_activo' => env('TERRITORIOS_DIAS_LIMITE_ACTIVO', 90),
+    'dias_limite_activo' => env('TERRITORIOS_DIAS_LIMITE_ACTIVO', 120),
 
     /*
     |--------------------------------------------------------------------------
@@ -31,7 +31,7 @@ return [
     | después de ser devuelto antes de poder estar libre nuevamente.
     |
     */
-    'dias_archivo' => env('TERRITORIOS_DIAS_ARCHIVO', 40),
+    'dias_archivo' => env('TERRITORIOS_DIAS_ARCHIVO', 90),
 
     /*
     |--------------------------------------------------------------------------
