@@ -7,6 +7,12 @@
     <meta name="description" content="Sistema de gestión de territorios para la organización">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <script src="{{ asset('js/app.js') }}" defer></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+ <div class="container">
+            <div class="header-content">
                 <a href="{{ route('dashboard') }}" class="logo">
                     🗺️ Sistema de Territorios
                 </a>

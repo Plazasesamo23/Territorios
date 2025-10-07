@@ -18,6 +18,7 @@ Route::get('territorios/{territorio}', [TerritorioController::class, 'show'])->n
 Route::get('territorios/{territorio}/edit', [TerritorioController::class, 'edit'])->name('territorios.edit')->where('territorio', '[0-9]+');
 Route::put('territorios/{territorio}', [TerritorioController::class, 'update'])->name('territorios.update')->where('territorio', '[0-9]+');
 Route::delete('territorios/{territorio}', [TerritorioController::class, 'destroy'])->name('territorios.destroy')->where('territorio', '[0-9]+');
+ Route::delete('registros/{registro}', [RegistroController::class, 'destroy'])->name('registros.destroy')->where('registro', '[0-9]+'); Route::delete('publicadores/{publicador}', [PublicadorController::class, 'destroy'])->name('publicadores.destroy')->where('publicador', '[0-9]+');
 Route::post('territorios/{territorio}/enviar-whatsapp', [TerritorioController::class, 'enviarWhatsapp'])->name('territorios.whatsapp')->where('territorio', '[0-9]+');
 
 // Rutas para Publicadores
