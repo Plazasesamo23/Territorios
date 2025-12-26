@@ -90,7 +90,11 @@
                         </a>
                         
                         <!-- WhatsApp -->
-                        <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $publicador->telefono) }}?text=Hola {{ $publicador->nombre }}, tu territorio #{{ $registro->territorio->numero }} {{ $registro->territorio->nombre ? '(' . $registro->territorio->nombre . ')' : '' }}" 
+                        @php
+                            $congregacion = \App\Models\Congregacion::find(session('congregacion_activa_id'));
+                            $mensajeWhatsapp = $congregacion ? $congregacion->getMensajeWhatsappFormateado($publicador, $registro->territorio) : "Hola " . $publicador->nombre . ", te envío el territorio " . $registro->territorio->numero;
+                        @endphp
+                        <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $publicador->telefono) }}?text={{ urlencode($mensajeWhatsapp) }}"
                            target="_blank" class="btn btn-secondary">
                             💬 WhatsApp
                         </a>
@@ -189,7 +193,11 @@
             <div class="card-title">⚡ Acciones Rápidas</div>
             
             @if($estadisticas['territorio_actual'])
-                <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $publicador->telefono) }}" 
+                @php
+                    $congregacionAcciones = \App\Models\Congregacion::find(session('congregacion_activa_id'));
+                    $mensajeContacto = $congregacionAcciones ? $congregacionAcciones->getMensajeWhatsappFormateado($publicador, $estadisticas['territorio_actual']->territorio) : "Hola " . $publicador->nombre . ", te escribo respecto al territorio " . $estadisticas['territorio_actual']->territorio->numero;
+                @endphp
+                <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $publicador->telefono) }}?text={{ urlencode($mensajeContacto) }}"
                    target="_blank" class="btn btn-primary" style="margin-bottom: 0.5rem; width: 100%;">
                     💬 Contactar por WhatsApp
                 </a>
@@ -199,12 +207,12 @@
                     🗺️ Ver Territorio Actual
                 </a>
             @else
-                <a href="{{ route('registros.create') }}?publicador={{ $publicador->id }}" 
+                <a href="{{ route('registros.create') }}?publicador={{ $publicador->id }}"
                    class="btn btn-primary" style="margin-bottom: 0.5rem; width: 100%;">
                     📋 Asignar Territorio
                 </a>
-                
-                <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $publicador->telefono) }}" 
+
+                <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $publicador->telefono) }}?text={{ urlencode('Hola ' . $publicador->nombre . ', ¿cómo estás?') }}"
                    target="_blank" class="btn btn-secondary" style="margin-bottom: 0.5rem; width: 100%;">
                     💬 Contactar por WhatsApp
                 </a>

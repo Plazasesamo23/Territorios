@@ -15,8 +15,12 @@ class RegistroController extends Controller
      */
     public function index(Request $request)
     {
-        // Consulta base para registros activos (sin fecha de entrada)
+        // Obtener IDs de territorios de la congregación activa
+        $territorioIds = Territorio::pluck('id');
+
+        // Consulta base para registros activos (sin fecha de entrada) de la congregación
         $query = Registro::with(['territorio', 'publicador'])
+            ->whereIn('territorio_id', $territorioIds)
             ->whereNull('fecha_entrada');
 
         // Aplicar búsqueda si se proporciona
@@ -65,8 +69,12 @@ class RegistroController extends Controller
      */
     public function archivados()
     {
-        // Registros archivados (con fecha de entrada)
+        // Obtener IDs de territorios de la congregación activa
+        $territorioIds = Territorio::pluck('id');
+
+        // Registros archivados (con fecha de entrada) de la congregación
         $registrosArchivados = Registro::with(['territorio', 'publicador'])
+            ->whereIn('territorio_id', $territorioIds)
             ->whereNotNull('fecha_entrada')
             ->orderBy('fecha_entrada', 'desc')
             ->get();
@@ -298,11 +306,15 @@ class RegistroController extends Controller
      */
     public function estadisticas()
     {
-        $registrosActivos = Registro::whereNull('fecha_entrada')->count();
+        // Obtener IDs de territorios de la congregación activa
+        $territorioIds = Territorio::pluck('id');
+
+        $registrosActivos = Registro::whereIn('territorio_id', $territorioIds)
+            ->whereNull('fecha_entrada')->count();
         $territoriosLibres = Territorio::get()->filter(function($territorio) {
             return $territorio->calcularEstado() === 'libre';
         })->count();
-        
+
         return response()->json([
             'registros_activos' => $registrosActivos,
             'territorios_libres' => $territoriosLibres,

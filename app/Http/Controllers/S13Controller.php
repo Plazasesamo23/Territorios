@@ -17,12 +17,15 @@ class S13Controller extends Controller
      */
     public function index()
     {
-        // Estadísticas para la página principal
+        // Obtener IDs de territorios de la congregación activa
+        $territorioIds = Territorio::pluck('id');
+
+        // Estadísticas para la página principal (filtradas por congregación)
         $estadisticas = [
             'total_territorios' => Territorio::count(),
-            'territorios_libres' => 0, // Cálculo rápido para evitar errores
-            'territorios_asignados' => Registro::whereNull('fecha_entrada')->count(),
-            'total_registros' => Registro::count(),
+            'territorios_libres' => Territorio::get()->filter(fn($t) => $t->calcularEstado() === 'libre')->count(),
+            'territorios_asignados' => Registro::whereIn('territorio_id', $territorioIds)->whereNull('fecha_entrada')->count(),
+            'total_registros' => Registro::whereIn('territorio_id', $territorioIds)->count(),
             'año_actual' => now()->year,
         ];
 
@@ -38,76 +41,65 @@ class S13Controller extends Controller
         $añoServicio = $request->get('año', now()->year);
         $añoSiguiente = $añoServicio + 1;
 
-        // Obtener todos los territorios del 1 al 214
-        $territorios = Territorio::whereBetween('numero', [1, 214])
-            ->orderBy('numero')
-            ->get();
+        // Obtener todos los territorios de la congregación activa
+        $territorios = Territorio::orderBy('numero')->get();
 
-        // Completar hasta 214 si faltan territorios
+        // Procesar cada territorio
         $territoriosCompletos = collect();
-        for ($i = 1; $i <= 214; $i++) {
-            $territorio = $territorios->where('numero', $i)->first();
-            if (!$territorio) {
-                // Crear territorio virtual si no existe
-                $territorio = (object) [
-                    'numero' => $i,
-                    'registros' => collect([])
-                ];
-            } else {
-                // LÓGICA MEJORADA: Siempre mostrar al menos el último registro del territorio
-                $fechaInicioAñoServicio = Carbon::create($añoServicio, 9, 1);
-                $fechaFinAñoServicio = Carbon::create($añoSiguiente, 8, 31);
-                
-                // 1. Registros del año de servicio actual (prioridad máxima)
-                $registrosAñoActual = $territorio->registros()
-                    ->whereBetween('fecha_salida', [$fechaInicioAñoServicio, $fechaFinAñoServicio])
-                    ->with('publicador')
-                    ->orderBy('fecha_salida')
-                    ->get();
-                
-                // 2. Registros activos del año anterior (sin fecha_entrada)
-                $registrosActivosAnteriores = $territorio->registros()
+        foreach ($territorios as $territorio) {
+            $fechaInicioAñoServicio = Carbon::create($añoServicio, 9, 1);
+            $fechaFinAñoServicio = Carbon::create($añoSiguiente, 8, 31);
+
+            // 1. Registros del año de servicio actual (prioridad máxima)
+            $registrosAñoActual = $territorio->registros()
+                ->whereBetween('fecha_salida', [$fechaInicioAñoServicio, $fechaFinAñoServicio])
+                ->with('publicador')
+                ->orderBy('fecha_salida')
+                ->get();
+
+            // 2. Registros activos del año anterior (sin fecha_entrada)
+            $registrosActivosAnteriores = $territorio->registros()
+                ->where('fecha_salida', '<', $fechaInicioAñoServicio)
+                ->whereNull('fecha_entrada')
+                ->with('publicador')
+                ->orderBy('fecha_salida', 'desc')
+                ->get();
+
+            // 3. Si no hay suficientes registros, obtener los últimos históricos
+            $registrosHistoricos = collect();
+            $totalRegistros = $registrosAñoActual->count() + $registrosActivosAnteriores->count();
+
+            if($totalRegistros < 4) {
+                $registrosHistoricos = $territorio->registros()
                     ->where('fecha_salida', '<', $fechaInicioAñoServicio)
-                    ->whereNull('fecha_entrada')
+                    ->whereNotNull('fecha_entrada')
                     ->with('publicador')
                     ->orderBy('fecha_salida', 'desc')
+                    ->take(4 - $totalRegistros)
                     ->get();
-                
-                // 3. Si no hay suficientes registros, obtener los últimos históricos
-                $registrosHistoricos = collect();
-                $totalRegistros = $registrosAñoActual->count() + $registrosActivosAnteriores->count();
-                
-                if($totalRegistros < 4) {
-                    $registrosHistoricos = $territorio->registros()
-                        ->where('fecha_salida', '<', $fechaInicioAñoServicio)
-                        ->whereNotNull('fecha_entrada') // Solo completados
-                        ->with('publicador')
-                        ->orderBy('fecha_salida', 'desc')
-                        ->take(4 - $totalRegistros) // Completar hasta 4
-                        ->get();
-                }
-                
-                // 4. Si aún no hay registros, tomar CUALQUIER registro histórico
-                if($totalRegistros == 0 && $registrosHistoricos->count() == 0) {
-                    $registrosHistoricos = $territorio->registros()
-                        ->with('publicador')
-                        ->orderBy('fecha_salida', 'desc')
-                        ->take(4) // Últimos 4 registros históricos
-                        ->get();
-                }
-                
-                // Combinar todos los registros en orden cronológico
-                $territorio->registros = $registrosHistoricos
-                    ->concat($registrosActivosAnteriores)
-                    ->concat($registrosAñoActual)
-                    ->sortBy('fecha_salida')
-                    ->take(4) // Máximo 4 asignaciones por territorio
-                    ->values();
             }
+
+            // 4. Si aún no hay registros, tomar CUALQUIER registro histórico
+            if($totalRegistros == 0 && $registrosHistoricos->count() == 0) {
+                $registrosHistoricos = $territorio->registros()
+                    ->with('publicador')
+                    ->orderBy('fecha_salida', 'desc')
+                    ->take(4)
+                    ->get();
+            }
+
+            // Combinar todos los registros en orden cronológico
+            $territorio->registros = $registrosHistoricos
+                ->concat($registrosActivosAnteriores)
+                ->concat($registrosAñoActual)
+                ->sortBy('fecha_salida')
+                ->take(4)
+                ->values();
+
             $territoriosCompletos->push($territorio);
         }
 
-        // Dividir en páginas de 20 territorios exactos
+        // Dividir en páginas de 20 territorios
         $paginas = $territoriosCompletos->chunk(20);
 
         // Configurar dompdf
@@ -133,9 +125,9 @@ class S13Controller extends Controller
 
         // Descargar PDF
         $nombreArchivo = "S13_Registro_Territorios_{$añoServicio}-{$añoSiguiente}.pdf";
-        
+
         return $dompdf->stream($nombreArchivo, [
-            'Attachment' => false // true para descargar, false para ver en navegador
+            'Attachment' => false
         ]);
     }
 
@@ -144,73 +136,65 @@ class S13Controller extends Controller
      */
     public function vistaPrevia(Request $request)
     {
-        // Misma lógica que el PDF pero devolver vista HTML
+        // Obtener año de servicio (por defecto el actual)
         $añoServicio = $request->get('año', now()->year);
         $añoSiguiente = $añoServicio + 1;
 
-        $territorios = Territorio::whereBetween('numero', [1, 214])
-            ->orderBy('numero')
-            ->get();
+        // Obtener todos los territorios de la congregación activa
+        $territorios = Territorio::orderBy('numero')->get();
 
+        // Procesar cada territorio
         $territoriosCompletos = collect();
-        for ($i = 1; $i <= 214; $i++) {
-            $territorio = $territorios->where('numero', $i)->first();
-            if (!$territorio) {
-                $territorio = (object) [
-                    'numero' => $i,
-                    'registros' => collect([])
-                ];
-            } else {
-                // LÓGICA MEJORADA: Siempre mostrar al menos el último registro del territorio (igual que PDF)
-                $fechaInicioAñoServicio = Carbon::create($añoServicio, 9, 1);
-                $fechaFinAñoServicio = Carbon::create($añoSiguiente, 8, 31);
-                
-                // 1. Registros del año de servicio actual (prioridad máxima)
-                $registrosAñoActual = $territorio->registros()
-                    ->whereBetween('fecha_salida', [$fechaInicioAñoServicio, $fechaFinAñoServicio])
-                    ->with('publicador')
-                    ->orderBy('fecha_salida')
-                    ->get();
-                
-                // 2. Registros activos del año anterior (sin fecha_entrada)
-                $registrosActivosAnteriores = $territorio->registros()
+        foreach ($territorios as $territorio) {
+            $fechaInicioAñoServicio = Carbon::create($añoServicio, 9, 1);
+            $fechaFinAñoServicio = Carbon::create($añoSiguiente, 8, 31);
+
+            // 1. Registros del año de servicio actual
+            $registrosAñoActual = $territorio->registros()
+                ->whereBetween('fecha_salida', [$fechaInicioAñoServicio, $fechaFinAñoServicio])
+                ->with('publicador')
+                ->orderBy('fecha_salida')
+                ->get();
+
+            // 2. Registros activos del año anterior
+            $registrosActivosAnteriores = $territorio->registros()
+                ->where('fecha_salida', '<', $fechaInicioAñoServicio)
+                ->whereNull('fecha_entrada')
+                ->with('publicador')
+                ->orderBy('fecha_salida', 'desc')
+                ->get();
+
+            // 3. Registros históricos si faltan
+            $registrosHistoricos = collect();
+            $totalRegistros = $registrosAñoActual->count() + $registrosActivosAnteriores->count();
+
+            if($totalRegistros < 4) {
+                $registrosHistoricos = $territorio->registros()
                     ->where('fecha_salida', '<', $fechaInicioAñoServicio)
-                    ->whereNull('fecha_entrada')
+                    ->whereNotNull('fecha_entrada')
                     ->with('publicador')
                     ->orderBy('fecha_salida', 'desc')
+                    ->take(4 - $totalRegistros)
                     ->get();
-                
-                // 3. Si no hay suficientes registros, obtener los últimos históricos
-                $registrosHistoricos = collect();
-                $totalRegistros = $registrosAñoActual->count() + $registrosActivosAnteriores->count();
-                
-                if($totalRegistros < 4) {
-                    $registrosHistoricos = $territorio->registros()
-                        ->where('fecha_salida', '<', $fechaInicioAñoServicio)
-                        ->whereNotNull('fecha_entrada') // Solo completados
-                        ->with('publicador')
-                        ->orderBy('fecha_salida', 'desc')
-                        ->take(4 - $totalRegistros) // Completar hasta 4
-                        ->get();
-                }
-                
-                // 4. Si aún no hay registros, tomar CUALQUIER registro histórico
-                if($totalRegistros == 0 && $registrosHistoricos->count() == 0) {
-                    $registrosHistoricos = $territorio->registros()
-                        ->with('publicador')
-                        ->orderBy('fecha_salida', 'desc')
-                        ->take(4) // Últimos 4 registros históricos
-                        ->get();
-                }
-                
-                // Combinar todos los registros en orden cronológico
-                $territorio->registros = $registrosHistoricos
-                    ->concat($registrosActivosAnteriores)
-                    ->concat($registrosAñoActual)
-                    ->sortBy('fecha_salida')
-                    ->take(4) // Máximo 4 asignaciones por territorio
-                    ->values();
             }
+
+            // 4. Si no hay registros, tomar cualquier histórico
+            if($totalRegistros == 0 && $registrosHistoricos->count() == 0) {
+                $registrosHistoricos = $territorio->registros()
+                    ->with('publicador')
+                    ->orderBy('fecha_salida', 'desc')
+                    ->take(4)
+                    ->get();
+            }
+
+            // Combinar registros
+            $territorio->registros = $registrosHistoricos
+                ->concat($registrosActivosAnteriores)
+                ->concat($registrosAñoActual)
+                ->sortBy('fecha_salida')
+                ->take(4)
+                ->values();
+
             $territoriosCompletos->push($territorio);
         }
 

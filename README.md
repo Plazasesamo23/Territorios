@@ -1,144 +1,192 @@
-# 🗺️ Sistema de Gestión de Territorios
+# Sistema de Gestion de Territorios
 
-> **Sistema web Laravel 11 para digitalización completa de la gestión territorial con integración WhatsApp y reportes S-13 oficiales**
+> **Sistema web Laravel 11 multi-congregacion para digitalizacion completa de la gestion territorial con integracion WhatsApp y reportes S-13 oficiales**
 
 [![Laravel](https://img.shields.io/badge/Laravel-11-red.svg)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange.svg)](https://mysql.com)
 [![Status](https://img.shields.io/badge/Status-Funcional%20100%25-green.svg)](https://github.com/Plazasesamo23/Territorios)
 
-## 🎯 Objetivo Principal
+## Objetivo Principal
 
-**Reemplazar completamente** los métodos manuales tradicionales (Excel, AppleScript) con una **solución web moderna, automática y completamente funcional** para la gestión de territorios organizacionales.
+**Reemplazar completamente** los metodos manuales tradicionales (Excel, AppleScript) con una **solucion web moderna, automatica y completamente funcional** para la gestion de territorios organizacionales, con soporte para **multiples congregaciones**.
 
-## ✨ Características Principales
+---
 
-### 🏠 **Dashboard Inteligente**
-- **Estadísticas en tiempo real** con datos reales
-- **Alertas automáticas** de territorios que requieren atención (>120 días)
-- **Accesos rápidos** a funciones más utilizadas
+## Caracteristicas Principales
+
+### Dashboard Inteligente
+- **Estadisticas en tiempo real** filtradas por congregacion activa
+- **Alertas automaticas** de territorios que requieren atencion
+- **Accesos rapidos** a funciones mas utilizadas
 - **Actividad reciente** de asignaciones
 
-### 🗺️ **Gestión de Territorios (214 territorios)**
-- **Cards rediseñadas** con navegación simplificada (2 acciones principales)
-- **214 imágenes integradas** con mapeo automático
-- **Filtros dinámicos** por estado con paginación
-- **Estados automáticos** basados en reglas de negocio
-- **Vista detallada** unificada con modo edición
+### Sistema Multi-Congregacion
+- **Aislamiento completo de datos** entre congregaciones
+- **Login simplificado** por nombre de congregacion (ej: "Centro Santa Coloma")
+- **Configuracion independiente** de parametros por congregacion
+- **Selector de congregacion** para superadmin (cambio entre congregaciones)
 
-### 👥 **Gestión de Publicadores**
-- **Vista minimalista** tipo tabla con navegación dual
+### Gestion de Territorios
+- **Cards rediseñadas** con navegacion simplificada
+- **Imagenes integradas** con mapeo automatico por numero
+- **Filtros dinamicos** por estado con paginacion
+- **Estados automaticos** basados en reglas configurables por congregacion
+- **Vista detallada** unificada con modo edicion
+
+### Gestion de Publicadores
+- **Vista minimalista** tipo tabla con navegacion dual
 - **Campos separados**: nombre/apellidos independientes
-- **Gestión completa**: datos básicos + asignación de territorios
-- **20+ publicadores reales** importados desde Excel
+- **Gestion completa**: datos basicos + asignacion de territorios
+- **Aislados por congregacion**
 
-### 📋 **Sistema de Registros**
+### Sistema de Registros
 - **Vista separada**: registros activos vs archivados
-- **Ordenamiento inteligente**: atrasados → activos → libres
-- **214+ registros históricos** importados
-- **Seguimiento completo** de cada asignación
+- **Ordenamiento inteligente**: atrasados -> activos -> libres
+- **Seguimiento completo** de cada asignacion
+- **Filtrado automatico** por congregacion
 
-### 📱 **Integración WhatsApp**
-- **Mensaje personalizado** configurado según especificaciones
-- **Modal automático** tras crear asignación
-- **Compatible móvil/desktop** con dos botones optimizados
-- **Sin dependencia de datos móviles**
+### Integracion WhatsApp
+- **Mensaje personalizado** configurado segun especificaciones
+- **Modal automatico** tras crear asignacion
+- **Compatible movil/desktop** con dos botones optimizados
 
-### 📊 **Reportes S-13 Oficiales**
-- **Generación automática** de PDFs oficiales
+### Reportes S-13 Oficiales
+- **Generacion automatica** de PDFs oficiales con Dompdf
 - **Vista previa** antes de generar
 - **Formato oficial** con todas las asignaciones
-- **Lógica corregida**: solo muestra fecha completado si el último registro está cerrado
+- **Estadisticas por congregacion**
 
-## 🛠️ Stack Tecnológico
+### Sistema de Configuracion
+- **Parametros editables por congregacion**:
+  - Dias limite activo (cuando pasa a "atrasado")
+  - Dias en archivo (tiempo de descanso obligatorio)
+- **Cada congregacion puede tener diferentes valores**
 
-### **Backend**
+---
+
+## Stack Tecnologico
+
+### Backend
 - **Laravel 11** - Framework PHP moderno
 - **MySQL 8.0+** - Base de datos relacional
 - **Eloquent ORM** - Relaciones y consultas optimizadas
 - **Carbon** - Manejo avanzado de fechas
+- **Dompdf** - Generacion de PDFs
 
-### **Frontend**
-- **CSS Personalizado** - Sistema unificado (migrado desde TailwindCSS)
+### Frontend
+- **CSS Personalizado** - Sistema unificado con tema claro/oscuro
 - **Blade Templates** - Vistas server-side rendering
 - **JavaScript Vanilla** - Funcionalidades interactivas
-- **Responsive Design** - Adaptación móvil/desktop completa
+- **Responsive Design** - Adaptacion movil/desktop completa
 
-### **Infraestructura**
+### Infraestructura
 - **XAMPP** - Servidor local de desarrollo
-- **Composer** - Gestión de dependencias PHP
-- **NPM/Vite** - Build system y assets
+- **OVH Hosting** - Servidor de produccion
+- **Composer** - Gestion de dependencias PHP
 - **Git** - Control de versiones
 
-## 🔄 Sistema de Estados Automático
+---
 
-### **Estados Calculados Dinámicamente**
-Los estados se calculan automáticamente basándose en fechas y reglas de negocio, **no se almacenan en base de datos**.
+## Arquitectura Multi-Congregacion
 
-| Estado | Condición | Descripción |
-|--------|-----------|-------------|
-| **🟢 LIBRE** | Sin registros activos o cumplió 90 días descanso | Disponible para asignación |
-| **🔵 ACTIVO** | Asignado hace menos de 120 días | En trabajo normal |
-| **🔴 ATRASADO** | Asignado hace más de 120 días | Requiere seguimiento urgente |
-| **⚫ ARCHIVO** | Devuelto hace menos de 90 días | En período de descanso obligatorio |
+### Modelo de Datos
 
-### **Reglas de Negocio**
-- **120 días máximo** antes de marcar como "atrasado"
-- **90 días de descanso** obligatorio después de devolución
-- **Configuración editable** desde interfaz web
-
-## 📊 Estructura de Base de Datos
-
-### **Tablas Principales**
-
-```sql
--- Territorios con campos extendidos
-territorios:
-├── numero (unique)
+```
+congregaciones
+├── id
 ├── nombre
-├── descripcion
+├── codigo (unique)
+├── ciudad
+├── password (hash)
+├── dias_limite_activo (default: 60)
+├── dias_archivo (default: 90)
+├── activa (boolean)
+└── timestamps
+
+users
+├── id
+├── congregacion_id (FK nullable)
+├── name (usado para login)
+├── email
+├── password
+├── role (user|admin|superadmin)
+└── timestamps
+
+territorios
+├── id
+├── congregacion_id (FK)
+├── numero (unique por congregacion)
+├── nombre, descripcion, imagen_url
 ├── coordenadas_lat/lng
-├── imagen_url
-├── estado
-├── activo (boolean)
-├── notas
+├── estado, activo, notas
 └── timestamps
 
--- Publicadores con apellidos separados
-publicadores:
-├── nombre
-├── apellidos
-├── telefono (unique)
-├── activo (boolean)
-├── notas
+publicadores
+├── id
+├── congregacion_id (FK)
+├── nombre, apellidos
+├── telefono, activo, notas
 └── timestamps
 
--- Registros de asignación
-registros:
+registros
+├── id
 ├── territorio_id (FK)
 ├── publicador_id (FK)
-├── fecha_salida
-├── fecha_entrada (nullable)
-├── entrada_prevista
-├── notas
+├── fecha_salida, fecha_entrada
+├── entrada_prevista, notas
 └── timestamps
 ```
 
-### **Relaciones**
-- **Territorio** `1:N` **Registro**
-- **Publicador** `1:N` **Registro**
-- **Registro** `N:1` **Territorio**, `N:1` **Publicador**
+### Aislamiento de Datos
 
-## 🚀 Instalación y Configuración
+El sistema usa **Global Scopes** en Laravel para filtrar automaticamente todos los datos por congregacion:
 
-### **📋 Requisitos Previos**
-- **PHP 8.2+** con extensiones: mbstring, openssl, PDO, tokenizer, XML, ctype, JSON
+```php
+// Trait BelongsToCongregacion aplicado a Territorio y Publicador
+// Filtra automaticamente por session('congregacion_activa_id')
+```
+
+### Usuarios del Sistema
+
+| Usuario | Rol | Acceso |
+|---------|-----|--------|
+| Centro Santa Coloma | admin | Solo datos de Centro SC |
+| Sabadell Este | admin | Solo datos de Sabadell Este |
+| Administrador | superadmin | Todas las congregaciones |
+
+---
+
+## Sistema de Estados Automatico
+
+### Estados Calculados Dinamicamente
+
+Los estados se calculan automaticamente usando los parametros de cada congregacion:
+
+| Estado | Condicion | Descripcion |
+|--------|-----------|-------------|
+| **LIBRE** | Sin registros o cumplio dias_archivo | Disponible para asignacion |
+| **ACTIVO** | Asignado hace menos de dias_limite_activo | En trabajo normal |
+| **ATRASADO** | Asignado hace mas de dias_limite_activo | Requiere seguimiento |
+| **ARCHIVO** | Devuelto hace menos de dias_archivo | Periodo de descanso |
+
+### Configuracion por Congregacion
+
+Cada congregacion puede configurar:
+- **dias_limite_activo**: Dias maximos antes de marcar como atrasado (default: 60)
+- **dias_archivo**: Dias de descanso obligatorio tras devolucion (default: 90)
+
+---
+
+## Instalacion y Configuracion
+
+### Requisitos Previos
+- **PHP 8.2+** con extensiones: mbstring, openssl, PDO, tokenizer, XML
 - **MySQL 8.0+** o MariaDB 10.3+
-- **Composer 2.0+** para dependencias PHP
-- **Node.js 18+** y **NPM** para assets
+- **Composer 2.0+**
 - **XAMPP** (recomendado para Windows)
 
-### **⚡ Instalación Rápida**
+### Instalacion Rapida
 
 ```bash
 # 1. Clonar repositorio
@@ -147,7 +195,6 @@ cd Territorios
 
 # 2. Instalar dependencias
 composer install
-npm install
 
 # 3. Configurar entorno
 cp .env.example .env
@@ -158,178 +205,133 @@ php artisan key:generate
 # DB_USERNAME=root
 # DB_PASSWORD=
 
-# 5. Crear base de datos
-mysql -u root -p -e "CREATE DATABASE territorios;"
-
-# 6. Ejecutar migraciones y poblar con datos
+# 5. Crear base de datos y migrar
 php artisan migrate --seed
 
-# 7. Compilar assets (desarrollo)
-npm run dev
-# O para producción:
-npm run build
-
-# 8. Iniciar servidor
+# 6. Iniciar servidor
 php artisan serve
 ```
 
-### **🌐 URLs de Acceso**
-- **Laravel Serve**: `http://localhost:8000`
+### URLs de Acceso
+- **Desarrollo**: `http://localhost:8000`
 - **XAMPP**: `http://localhost/territorios/public/`
 
-### **📁 Configuración de Imágenes**
-Las imágenes de territorios deben ubicarse en `public/imagenes/` con el formato `{numero}.jpg`:
-```
-public/imagenes/
-├── 1.jpg
-├── 2.jpg
-├── ...
-└── 214.jpg
-```
+---
 
-## ✅ Estado Actual del Sistema (Enero 2025)
+## Congregaciones Actuales
 
-### **🚀 Sistema 100% Funcional y Optimizado**
+### Centro Santa Coloma
+- **214 territorios** con imagenes
+- **20+ publicadores** activos
+- **Registros historicos** completos
 
-#### **✅ Funcionalidades Implementadas**
-- 🏠 **Dashboard**: Estadísticas en tiempo real con datos reales
-- 🗺️ **Territorios**: 214 territorios con imágenes y estados automáticos
-- 👥 **Publicadores**: 20+ publicadores reales con gestión completa
-- 📋 **Registros**: 214+ registros históricos con separación activos/archivados
-- 📱 **WhatsApp**: Mensaje personalizado y modal optimizado
-- 📊 **S-13**: Reportes oficiales con lógica corregida
-- ⚙️ **Configuración**: Sistema editable desde interfaz web
+### Sabadell Este
+- **Nueva congregacion** (vacia)
+- **Lista para agregar** territorios y publicadores
+- **Configuracion independiente**
 
-#### **✅ Datos Reales Poblados**
-- **214 registros** importados desde Excel del usuario
-- **170+ territorios únicos** con numeración real
-- **20+ publicadores** con nombres/apellidos separados
-- **Estados calculados** automáticamente según reglas de negocio
-- **214 imágenes** mapeadas automáticamente
+---
 
-#### **✅ Mejoras Técnicas Recientes**
-- **Corrección S-13**: Fecha completado solo si último registro cerrado
-- **Reglas de negocio**: 120 días atrasado, 90 días descanso
-- **Sistema CSS**: Migrado a CSS personalizado unificado
-- **Navegación**: Simplificada a 2 acciones principales por territorio
-- **UX minimalista**: Tablas limpias y navegación intuitiva
+## Rutas Principales
 
-### **🌐 URLs de Acceso**
-- **Desarrollo**: `http://localhost:8000` (Laravel Serve)
-- **Local**: `http://localhost/territorios/public/` (XAMPP)
+| Ruta | Descripcion |
+|------|-------------|
+| `/` | Dashboard principal |
+| `/territorios` | Gestion de territorios |
+| `/publicadores` | Gestion de publicadores |
+| `/registros` | Registros activos |
+| `/registros-archivados` | Registros archivados |
+| `/s13` | Reportes S-13 |
+| `/configuracion` | Configuracion de congregacion |
+| `/perfil` | Perfil de usuario |
+| `/congregaciones` | Gestion de congregaciones (superadmin) |
 
-## 📱 Flujo de Trabajo Típico
+---
 
-### **👤 Para el Administrador**
-```mermaid
-graph LR
-    A[Dashboard] --> B[Ver territorios libres]
-    B --> C[Asignar a publicador]
-    C --> D[WhatsApp automático]
-    D --> E[Seguimiento S-13]
-    E --> F[Marcar devolución]
-    F --> G[Territorio en archivo]
-    G --> H[90 días después: Libre]
-```
+## Comandos de Mantenimiento
 
-### **📱 Para el Publicador**
-1. **Recibe WhatsApp** con mensaje personalizado
-2. **Ve imagen del territorio** por separado
-3. **Trabaja el territorio** hasta 120 días máximo
-4. **Contacta para devolver** cuando termine
-5. **Territorio va a archivo** por 90 días obligatorios
-
-## 🛠️ Comandos de Mantenimiento
-
-### **Durante Desarrollo**
+### Durante Desarrollo
 ```bash
 # Servidor de desarrollo
-php artisan serve --host=127.0.0.1 --port=8000
+php artisan serve
 
-# Limpiar cache después de cambios
+# Limpiar cache
 php artisan config:clear
 php artisan view:clear
 php artisan cache:clear
-
-# Recompilar assets
-npm run dev
 ```
 
-### **Base de Datos**
+### Base de Datos
 ```bash
-# Reimportar datos reales del usuario
-php artisan db:seed --class=ExcelRegistrosSeeder
-
-# Reset completo con datos
+# Reset completo
 php artisan migrate:fresh --seed
 
 # Solo migraciones nuevas
 php artisan migrate
 ```
 
-### **Para Producción**
-```bash
-# Deploy optimizado
-git pull origin main
-composer install --optimize-autoloader --no-dev
-npm run build
-php artisan migrate --force
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+---
+
+## Estructura del Proyecto
+
 ```
+app/
+├── Http/
+│   ├── Controllers/
+│   │   ├── DashboardController.php
+│   │   ├── TerritorioController.php
+│   │   ├── PublicadorController.php
+│   │   ├── RegistroController.php
+│   │   ├── S13Controller.php
+│   │   ├── CongregacionController.php
+│   │   └── PerfilController.php
+│   └── Middleware/
+│       └── EnsureCongregacion.php
+├── Models/
+│   ├── Congregacion.php
+│   ├── User.php
+│   ├── Territorio.php
+│   ├── Publicador.php
+│   └── Registro.php
+└── Traits/
+    └── BelongsToCongregacion.php
 
-## 📚 Documentación Completa
-
-- **[📘 Funcionalidad Completa](docs/funcionalidad.md)** - Documentación exhaustiva de todas las características
-- **[🛠️ Debug y Desarrollo](docs/debug.md)** - Historial de problemas y soluciones técnicas
-- **[📋 Plan de Mejoras](docs/Plan_de_Mejoras_estructuradas.md)** - Roadmap de mejoras futuras
-
-## 🚀 Características Destacadas
-
-### **💡 Innovaciones Técnicas**
-- **Estados calculados dinámicamente** (no almacenados en BD)
-- **Reglas de negocio configurable** desde interfaz web
-- **Sistema de imágenes inteligente** con fallback SVG
-- **WhatsApp optimizado móvil** con dos botones separados
-
-### **🎯 Beneficios de Digitalización**
-- ❌ **Eliminado**: Excel manual + AppleScript
-- ✅ **Implementado**: Sistema web 100% automático
-- ⚡ **2 clics máximo** para cualquier acción
-- 📱 **Acceso universal** desde cualquier dispositivo
-- 🔍 **Trazabilidad completa** de cada movimiento
-
-## 🤝 Contribuir al Proyecto
-
-```bash
-# Fork del repositorio
-git clone https://github.com/tu-usuario/Territorios.git
-
-# Crear rama para feature
-git checkout -b feature/nueva-funcionalidad
-
-# Hacer cambios y commit
-git commit -m "feat: nueva funcionalidad increíble"
-
-# Push y crear Pull Request
-git push origin feature/nueva-funcionalidad
+resources/views/
+├── layouts/app.blade.php
+├── dashboard.blade.php
+├── territorios/
+├── publicadores/
+├── registros/
+├── s13/
+├── configuracion.blade.php
+├── perfil/
+└── congregaciones/
 ```
-
-## 📄 Licencia
-
-**MIT License** - Proyecto desarrollado específicamente para gestión territorial organizacional.
 
 ---
 
-## 🏆 Créditos
+## Documentacion Adicional
 
-**Desarrollado con 💙 usando:**
-- 🔧 **Laravel 11** - Framework PHP robusto
-- 🎨 **CSS Personalizado** - Sistema de diseño unificado
-- 📱 **Responsive Design** - Adaptación universal
-- 🔗 **GitHub** - Control de versiones y colaboración
+- **[docs/funcionalidad.md](docs/funcionalidad.md)** - Funcionalidades detalladas
+- **[docs/debug.md](docs/debug.md)** - Historial de problemas y soluciones
+- **[docs/ERRORES_SOLUCIONADOS.md](docs/ERRORES_SOLUCIONADOS.md)** - Errores resueltos
 
-**Estado del Proyecto:** ✅ **Completamente funcional y optimizado**
+---
 
-**Última actualización:** Enero 2025 - Sistema S-13 corregido y subido a GitHub
+## Ultima Actualizacion
+
+**Diciembre 2025** - Sistema multi-congregacion completamente funcional
+
+### Cambios Recientes
+- Sistema multi-congregacion con aislamiento de datos
+- Login simplificado por nombre de congregacion
+- Configuracion de parametros por congregacion
+- Selector de congregacion para superadmin
+- Perfil de usuario con cambio de contraseña
+- Botones de perfil y logout rediseñados
+- Correccion de estadisticas S-13 por congregacion
+- Instalacion de Dompdf para PDFs
+
+---
+
+**Desarrollado con Laravel 11 y PHP 8.2+**

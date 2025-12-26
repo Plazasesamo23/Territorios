@@ -156,7 +156,11 @@
                     <a href="{{ route('publicadores.show', $registro->publicador) }}" class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
                         👤 Publicador
                     </a>
-                    <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $registro->publicador->telefono) }}" 
+                    @php
+                        $congregacion = \App\Models\Congregacion::find(session('congregacion_activa_id'));
+                        $mensajeWhatsapp = $congregacion ? $congregacion->getMensajeWhatsappFormateado($registro->publicador, $registro->territorio) : "Hola " . $registro->publicador->nombre . ", te envío el territorio " . $registro->territorio->numero;
+                    @endphp
+                    <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $registro->publicador->telefono) }}?text={{ urlencode($mensajeWhatsapp) }}"
                        target="_blank" class="btn btn-success" style="padding: 0.5rem 0.75rem;">
                         💬 WhatsApp
                     </a>

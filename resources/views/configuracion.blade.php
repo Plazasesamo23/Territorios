@@ -22,13 +22,22 @@
     </div>
 @endif
 
+@if(session('error'))
+    <div style="padding: 1rem; background: #fee2e2; border: 1px solid #fecaca; border-radius: 8px; margin-bottom: 1rem; color: #991b1b;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span>❌</span>
+            <span>{{ session('error') }}</span>
+        </div>
+    </div>
+@endif
+
 <!-- Configuración General -->
 <div class="card mb-4">
-    <div class="card-title">⚙️ Configuración General</div>
-    <div class="card-description">Administra la configuración del sistema de territorios</div>
-    
-    <h3 style="font-weight: 600; margin-bottom: 1rem; color: #374151;">Configuración Básica</h3>
-    
+    <div class="card-title">⚙️ Configuración de {{ $congregacion->nombre ?? 'Congregación' }}</div>
+    <div class="card-description">Administra los parámetros de asignación de territorios para tu congregación</div>
+
+    <h3 style="font-weight: 600; margin-bottom: 1rem; color: #374151;">Parámetros de Territorios</h3>
+
     <form method="POST" action="{{ route('configuracion.guardar') }}">
         @csrf
         <div style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 2rem;">
@@ -36,26 +45,26 @@
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e5e7eb;">
             <div>
                 <div style="font-weight: 600; color: #374151; margin-bottom: 0.25rem;">Tiempo límite de territorios activos</div>
-                <div style="font-size: 0.875rem; color: #6b7280;">Días máximos que un territorio puede estar asignado (activo → atrasado)</div>
+                <div style="font-size: 0.875rem; color: #6b7280;">Días máximos que un territorio puede estar asignado antes de marcarse como atrasado</div>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <input type="number" name="dias_limite_activo" value="{{ config('territorios.dias_limite_activo', 60) }}" style="width: 80px; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; text-align: center;" min="1" max="365">
+                <input type="number" name="dias_limite_activo" value="{{ $congregacion->dias_limite_activo ?? 60 }}" style="width: 80px; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; text-align: center;" min="1" max="365">
                 <span style="font-size: 0.875rem; color: #6b7280;">días</span>
             </div>
         </div>
-        
+
         <!-- Tiempo archivo -->
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e5e7eb;">
             <div>
                 <div style="font-weight: 600; color: #374151; margin-bottom: 0.25rem;">Tiempo en archivo</div>
-                <div style="font-size: 0.875rem; color: #6b7280;">Días que un territorio devuelto permanece archivado antes de estar libre</div>
+                <div style="font-size: 0.875rem; color: #6b7280;">Días que un territorio devuelto permanece en archivo antes de estar disponible</div>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <input type="number" name="dias_archivo" value="{{ config('territorios.dias_archivo', 30) }}" style="width: 80px; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; text-align: center;" min="1" max="365">
+                <input type="number" name="dias_archivo" value="{{ $congregacion->dias_archivo ?? 90 }}" style="width: 80px; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; text-align: center;" min="1" max="365">
                 <span style="font-size: 0.875rem; color: #6b7280;">días</span>
             </div>
         </div>
-        
+
         <!-- Botón guardar -->
         <div style="margin-top: 1.5rem;">
             <button type="submit" class="btn btn-primary">
@@ -91,35 +100,87 @@
 <!-- Configuración de WhatsApp -->
 <div class="card mb-4">
     <div class="card-title">💬 Configuración de WhatsApp</div>
-    
-    <!-- Estado WhatsApp -->
-    <div style="padding: 1rem; background: #dcfce7; border: 1px solid #bbf7d0; border-radius: 8px; margin-bottom: 1rem;">
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <div style="color: #16a34a; font-size: 1.25rem;">✅</div>
-            <div>
-                <div style="font-weight: 600; color: #15803d;">WhatsApp habilitado</div>
-                <div style="font-size: 0.875rem; color: #166534;">Los territorios con imagen pueden enviarse directamente por WhatsApp</div>
+    <div class="card-description">Personaliza el mensaje que se envía al asignar territorios</div>
+
+    <form method="POST" action="{{ route('configuracion.guardar-whatsapp') }}">
+        @csrf
+
+        <!-- Estado WhatsApp -->
+        <div style="padding: 1rem; background: #dcfce7; border: 1px solid #bbf7d0; border-radius: 8px; margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="color: #16a34a; font-size: 1.25rem;">✅</div>
+                <div>
+                    <div style="font-weight: 600; color: #15803d;">WhatsApp habilitado</div>
+                    <div style="font-size: 0.875rem; color: #166534;">Los territorios con imagen pueden enviarse directamente por WhatsApp</div>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Plantilla mensaje -->
-    <div>
-        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Plantilla de mensaje</label>
-        <textarea rows="4" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem;" placeholder="Territorio #{numero}
 
-Imagen: {imagen_url}
+        <!-- Plantilla mensaje -->
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Plantilla de mensaje</label>
+            <textarea name="mensaje_whatsapp" rows="6" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem; font-family: monospace;">{{ $congregacion->mensaje_whatsapp ?? \App\Models\Congregacion::getMensajeWhatsappDefault() }}</textarea>
 
-Saludos!">Territorio #{numero}
-
-Imagen: {imagen_url}
-
-¡Que tengas un buen día en el servicio!</textarea>
-        <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #6b7280;">
-            Variables disponibles: {numero}, {imagen_url}, {notas}
+            <div style="margin-top: 0.75rem; padding: 1rem; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px;">
+                <div style="font-weight: 600; color: #0369a1; margin-bottom: 0.5rem;">Variables disponibles:</div>
+                <div style="font-size: 0.875rem; color: #0c4a6e; display: grid; gap: 0.25rem;">
+                    <div><code style="background: #e0f2fe; padding: 0.125rem 0.375rem; border-radius: 3px;">{nombre}</code> - Nombre del publicador</div>
+                    <div><code style="background: #e0f2fe; padding: 0.125rem 0.375rem; border-radius: 3px;">{nombre_completo}</code> - Nombre y apellidos</div>
+                    <div><code style="background: #e0f2fe; padding: 0.125rem 0.375rem; border-radius: 3px;">{numero}</code> - Número del territorio</div>
+                    <div><code style="background: #e0f2fe; padding: 0.125rem 0.375rem; border-radius: 3px;">{territorio_nombre}</code> - Nombre del territorio</div>
+                    <div><code style="background: #e0f2fe; padding: 0.125rem 0.375rem; border-radius: 3px;">{imagen_url}</code> - URL de la imagen</div>
+                </div>
+            </div>
         </div>
-    </div>
+
+        <!-- Vista previa -->
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Vista previa del mensaje:</label>
+            <div id="preview-mensaje" style="padding: 1rem; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 0.875rem; white-space: pre-wrap; color: #374151;">
+                {{ str_replace(['{nombre}', '{nombre_completo}', '{numero}', '{territorio_nombre}', '{imagen_url}'], ['Juan', 'Juan Pérez', '42', 'Centro Ciudad', 'https://example.com/imagen.jpg'], $congregacion->mensaje_whatsapp ?? \App\Models\Congregacion::getMensajeWhatsappDefault()) }}
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button type="submit" class="btn btn-success">
+                💾 Guardar Mensaje
+            </button>
+            <button type="button" onclick="restaurarMensajeDefault()" class="btn btn-secondary">
+                🔄 Restaurar por Defecto
+            </button>
+        </div>
+    </form>
 </div>
+
+<script>
+    // Actualizar vista previa en tiempo real
+    const textarea = document.querySelector('textarea[name="mensaje_whatsapp"]');
+    const preview = document.getElementById('preview-mensaje');
+
+    if (textarea && preview) {
+        textarea.addEventListener('input', function() {
+            let mensaje = this.value;
+            mensaje = mensaje.replace(/{nombre}/g, 'Juan');
+            mensaje = mensaje.replace(/{nombre_completo}/g, 'Juan Pérez');
+            mensaje = mensaje.replace(/{numero}/g, '42');
+            mensaje = mensaje.replace(/{territorio_nombre}/g, 'Centro Ciudad');
+            mensaje = mensaje.replace(/{imagen_url}/g, 'https://example.com/imagen.jpg');
+            preview.textContent = mensaje;
+        });
+    }
+
+    function restaurarMensajeDefault() {
+        const mensajeDefault = `Querido/a {nombre}, aquí te mando el territorio asignado. Solo recordar que cuando lo termines de trabajar lo borres del teléfono y me avises. También recuerda que este territorio dura 3 meses, por lo tanto, puedes disfrutar y hacer uso de el por todo este tiempo, te animamos a poder trabajarlo a plenitud y tener conversaciones de provecho con las personas, así, podrás disfrutar por completo de tu ministerio.
+
+Territorio #{numero}
+
+Imagen del territorio:
+{imagen_url}`;
+        textarea.value = mensajeDefault;
+        textarea.dispatchEvent(new Event('input'));
+    }
+</script>
 
 <!-- Estadísticas del Sistema -->
 <div class="card mb-4">

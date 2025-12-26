@@ -417,12 +417,18 @@ function setupMap() {
     if (!mapElement) return;
 
     // Inicializar mapa centrado en Santa Coloma de Gramenet
-    map = L.map('interactive-map').setView(territoryData.center, 16);
+    map = L.map('interactive-map').setView(territoryData.center, 18);
 
-    // Capa base de OpenStreetMap
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
+    // Capa satelital de Esri
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles © Esri',
         maxZoom: 19
+    }).addTo(map);
+
+    // Capa de etiquetas de calles (transparente sobre el satélite)
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+        opacity: 0.7
     }).addTo(map);
 
     // Eventos del mapa
@@ -433,22 +439,42 @@ function setupMap() {
     loadBuildingData();
 
     updatePreview();
+
+    console.log('🗺️ Mapa inicializado correctamente');
 }
 
 // Cambiar modo del mapa
 function setMapMode(mode) {
     currentMapMode = mode;
     document.querySelectorAll('.map-tool-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+    const activeBtn = document.querySelector(`[data-mode="${mode}"]`);
+    if (activeBtn) activeBtn.classList.add('active');
 
     // Cambiar cursor del mapa según el modo
-    const mapContainer = document.getElementById('interactive-map');
-    mapContainer.style.cursor = mode === 'select' ? 'pointer' :
-                                mode === 'polygon' ? 'crosshair' : 'default';
+    const mapContainer = document.querySelector('.leaflet-container');
+    if (mapContainer) {
+        mapContainer.style.cursor = mode === 'select' ? 'pointer' :
+                                    mode === 'polygon' ? 'crosshair' : 'default';
+    }
+
+    // Mostrar instrucciones según modo
+    const instrucciones = {
+        'select': '🖱️ Haz clic en los círculos para seleccionar edificios',
+        'polygon': '📐 Haz clic para añadir puntos. Clic derecho para terminar',
+        'auto': '🤖 Haz clic en el mapa para detectar edificios cercanos'
+    };
+
+    showNotification(instrucciones[mode] || 'Modo: ' + mode, 'info');
+    console.log('Modo cambiado a:', mode);
 }
 
 // Cargar datos de edificios usando Overpass API (OpenStreetMap)
 async function loadBuildingData() {
+    showNotification('🔄 Cargando edificios del área...', 'info');
+
+    // Siempre cargar edificios de ejemplo primero para que funcione inmediatamente
+    loadExampleBuildings();
+
     try {
         // Obtener bounds del área visible
         const bounds = map.getBounds();
@@ -469,46 +495,93 @@ async function loadBuildingData() {
         });
 
         const data = await response.json();
-        processBuildings(data.elements);
-
-        showNotification('🏢 Edificios cargados del área', 'success');
+        if (data.elements && data.elements.length > 0) {
+            processBuildings(data.elements);
+            showNotification(`🏢 ${data.elements.length} edificios cargados de OpenStreetMap`, 'success');
+        }
     } catch (error) {
-        console.log('Usando datos de ejemplo para demostración');
-        loadExampleBuildings();
+        console.log('API no disponible, usando datos de ejemplo');
     }
 }
 
 // Datos de ejemplo para demostración (cuando no hay API disponible)
 function loadExampleBuildings() {
     const exampleBuildings = [
+        // Carrer Sant Carles
         { lat: 41.4534, lng: 2.2081, address: "50", street: "Carrer Sant Carles" },
-        { lat: 41.4536, lng: 2.2083, address: "64", street: "Carrer Sant Carles" },
-        { lat: 41.4532, lng: 2.2079, address: "23", street: "Carrer President Lluís Companys" },
-        { lat: 41.4538, lng: 2.2085, address: "25", street: "Carrer Safareig" },
-        { lat: 41.4540, lng: 2.2087, address: "38-40", street: "Calle Irlanda" },
-        { lat: 41.4530, lng: 2.2077, address: "7", street: "Calle San Silvestre" }
+        { lat: 41.4535, lng: 2.2082, address: "52", street: "Carrer Sant Carles" },
+        { lat: 41.4536, lng: 2.2083, address: "54", street: "Carrer Sant Carles" },
+        { lat: 41.4537, lng: 2.2084, address: "56", street: "Carrer Sant Carles" },
+        { lat: 41.4538, lng: 2.2085, address: "58", street: "Carrer Sant Carles" },
+        { lat: 41.4539, lng: 2.2086, address: "60", street: "Carrer Sant Carles" },
+        { lat: 41.4540, lng: 2.2087, address: "62", street: "Carrer Sant Carles" },
+        { lat: 41.4541, lng: 2.2088, address: "64", street: "Carrer Sant Carles" },
+        // Carrer President Lluís Companys
+        { lat: 41.4532, lng: 2.2079, address: "23", street: "C. President Lluís Companys" },
+        { lat: 41.4531, lng: 2.2078, address: "25", street: "C. President Lluís Companys" },
+        { lat: 41.4530, lng: 2.2077, address: "27", street: "C. President Lluís Companys" },
+        { lat: 41.4529, lng: 2.2076, address: "29", street: "C. President Lluís Companys" },
+        { lat: 41.4528, lng: 2.2075, address: "31", street: "C. President Lluís Companys" },
+        { lat: 41.4527, lng: 2.2074, address: "33", street: "C. President Lluís Companys" },
+        // Carrer Safareig
+        { lat: 41.4542, lng: 2.2089, address: "10", street: "Carrer Safareig" },
+        { lat: 41.4543, lng: 2.2090, address: "12", street: "Carrer Safareig" },
+        { lat: 41.4544, lng: 2.2091, address: "14", street: "Carrer Safareig" },
+        { lat: 41.4545, lng: 2.2092, address: "16", street: "Carrer Safareig" },
+        // Calle Irlanda
+        { lat: 41.4533, lng: 2.2090, address: "38", street: "Calle Irlanda" },
+        { lat: 41.4534, lng: 2.2091, address: "40", street: "Calle Irlanda" },
+        { lat: 41.4535, lng: 2.2092, address: "42", street: "Calle Irlanda" },
+        { lat: 41.4536, lng: 2.2093, address: "44", street: "Calle Irlanda" },
+        // Calle San Silvestre
+        { lat: 41.4526, lng: 2.2080, address: "5", street: "Calle San Silvestre" },
+        { lat: 41.4525, lng: 2.2081, address: "7", street: "Calle San Silvestre" },
+        { lat: 41.4524, lng: 2.2082, address: "9", street: "Calle San Silvestre" },
+        { lat: 41.4523, lng: 2.2083, address: "11", street: "Calle San Silvestre" }
     ];
 
     exampleBuildings.forEach(building => {
         const marker = L.circleMarker([building.lat, building.lng], {
             color: '#3b82f6',
             fillColor: '#dbeafe',
-            fillOpacity: 0.7,
-            radius: 8
+            fillOpacity: 0.8,
+            radius: 12,
+            weight: 3
         }).addTo(map);
 
-        marker.bindTooltip(`${building.address} ${building.street}`, {
+        marker.bindTooltip(`<strong>${building.address}</strong><br>${building.street}`, {
             permanent: false,
-            direction: 'top'
+            direction: 'top',
+            className: 'building-tooltip'
         });
 
         marker.building = building;
         marker.on('click', selectBuilding);
+
+        // Efecto hover
+        marker.on('mouseover', function() {
+            if (!selectedBuildings.find(b => b.address === building.address && b.street === building.street)) {
+                this.setStyle({ fillColor: '#93c5fd', radius: 14 });
+            }
+        });
+        marker.on('mouseout', function() {
+            if (!selectedBuildings.find(b => b.address === building.address && b.street === building.street)) {
+                this.setStyle({ fillColor: '#dbeafe', radius: 12 });
+            }
+        });
     });
+
+    showNotification(`✅ ${exampleBuildings.length} edificios cargados. Haz clic para seleccionar.`, 'success');
 }
+
+// Variables para dibujo de polígonos
+let polygonMarkers = [];
+let currentPolygonLine = null;
 
 // Manejar clics en el mapa
 function handleMapClick(e) {
+    console.log('Click en mapa, modo:', currentMapMode);
+
     if (currentMapMode === 'polygon') {
         addPolygonPoint(e.latlng);
     } else if (currentMapMode === 'auto') {
@@ -517,9 +590,74 @@ function handleMapClick(e) {
 }
 
 function handleRightClick(e) {
+    e.originalEvent.preventDefault();
     if (currentMapMode === 'polygon' && drawingPolygon.length > 2) {
         finishPolygon();
     }
+}
+
+// Añadir punto al polígono
+function addPolygonPoint(latlng) {
+    drawingPolygon.push(latlng);
+
+    // Añadir marcador visual del punto
+    const marker = L.circleMarker(latlng, {
+        color: '#ef4444',
+        fillColor: '#fecaca',
+        fillOpacity: 1,
+        radius: 6,
+        weight: 2
+    }).addTo(map);
+    polygonMarkers.push(marker);
+
+    // Dibujar línea temporal
+    if (drawingPolygon.length > 1) {
+        if (currentPolygonLine) {
+            map.removeLayer(currentPolygonLine);
+        }
+        currentPolygonLine = L.polyline(drawingPolygon, {
+            color: '#ef4444',
+            weight: 3,
+            dashArray: '5, 10'
+        }).addTo(map);
+    }
+
+    showNotification(`📍 Punto ${drawingPolygon.length} añadido. ${drawingPolygon.length < 3 ? 'Mínimo 3 puntos.' : 'Clic derecho para terminar.'}`, 'info');
+}
+
+// Terminar el polígono
+function finishPolygon() {
+    if (drawingPolygon.length < 3) {
+        showNotification('❌ Necesitas al menos 3 puntos', 'error');
+        return;
+    }
+
+    // Crear polígono final
+    const polygon = L.polygon(drawingPolygon, {
+        color: '#16a34a',
+        fillColor: '#bbf7d0',
+        fillOpacity: 0.5,
+        weight: 3
+    }).addTo(map);
+
+    // Limpiar marcadores temporales
+    polygonMarkers.forEach(m => map.removeLayer(m));
+    polygonMarkers = [];
+    if (currentPolygonLine) {
+        map.removeLayer(currentPolygonLine);
+        currentPolygonLine = null;
+    }
+
+    // Guardar polígono
+    territoryData.boundaryPolygon = drawingPolygon.map(p => [p.lat, p.lng]);
+
+    showNotification(`✅ Polígono creado con ${drawingPolygon.length} puntos`, 'success');
+
+    // Resetear
+    drawingPolygon = [];
+
+    // Volver a modo selección
+    setMapMode('select');
 }
 
 // Seleccionar edificio
@@ -529,12 +667,14 @@ function selectBuilding(e) {
 
     if (selectedBuildings.find(b => b.address === building.address && b.street === building.street)) {
         // Deseleccionar
-        marker.setStyle({ color: '#3b82f6', fillColor: '#dbeafe' });
+        marker.setStyle({ color: '#3b82f6', fillColor: '#dbeafe', radius: 12 });
         selectedBuildings = selectedBuildings.filter(b => !(b.address === building.address && b.street === building.street));
+        showNotification(`❌ Edificio ${building.address} deseleccionado`, 'info');
     } else {
         // Seleccionar
-        marker.setStyle({ color: '#eab308', fillColor: '#fef3c7' });
+        marker.setStyle({ color: '#16a34a', fillColor: '#bbf7d0', radius: 15, weight: 4 });
         selectedBuildings.push(building);
+        showNotification(`✅ Edificio ${building.address} (${building.street}) seleccionado`, 'success');
     }
 
     updateDetectionInfo();
@@ -1733,6 +1873,29 @@ document.addEventListener('DOMContentLoaded', function() {
 [data-theme="dark"] .territory-card-generated {
     background: white;
     color: black;
+}
+
+/* Tooltip de edificios */
+.building-tooltip {
+    background: rgba(0, 0, 0, 0.85) !important;
+    border: none !important;
+    border-radius: 6px !important;
+    color: white !important;
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+}
+
+.building-tooltip::before {
+    border-top-color: rgba(0, 0, 0, 0.85) !important;
+}
+
+/* Cursor personalizado para el mapa */
+#interactive-map {
+    cursor: pointer;
+}
+
+.leaflet-container {
+    cursor: pointer !important;
 }
 </style>
 @endsection

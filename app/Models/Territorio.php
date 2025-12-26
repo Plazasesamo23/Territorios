@@ -3,15 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
+use App\Traits\BelongsToCongregacion;
 
-// ÚLTIMA ACTUALIZACIÓN: 15/09/2025 - REGLA 120 DÍAS RETRASADO IMPLEMENTADA
+// ÚLTIMA ACTUALIZACIÓN: 26/12/2025 - SOPORTE MULTI-CONGREGACIÓN
 
 class Territorio extends Model
 {
+    use BelongsToCongregacion;
+
     protected $table = 'territorios';
 
     protected $fillable = [
+        'congregacion_id',
         'numero',
         'nombre',
         'descripcion',
@@ -30,6 +35,14 @@ class Territorio extends Model
         'coordenadas_lat' => 'decimal:8',
         'coordenadas_lng' => 'decimal:8',
     ];
+
+    /**
+     * Relación: Un territorio pertenece a una congregación
+     */
+    public function congregacion(): BelongsTo
+    {
+        return $this->belongsTo(Congregacion::class);
+    }
 
     /**
      * Relación: Un territorio tiene muchos registros
@@ -90,48 +103,49 @@ class Territorio extends Model
     }
 
     /**
-     * Calcular el estado actual del territorio basado en fechas y configuración
+     * Calcular el estado actual del territorio basado en fechas y configuración de la congregación
      * Nueva lógica automática basada en registros
      */
     public function calcularEstado()
     {
-        // Obtener configuración del sistema
-        $diasMaximos = 120; // FIJO: 120 días para retrasado
-        $diasArchivo = 90; // FIJO: 90 días de descanso obligatorio
-        
+        // Obtener configuración de la congregación
+        $congregacion = $this->congregacion;
+        $diasMaximos = $congregacion ? ($congregacion->dias_limite_activo ?? 60) : 60;
+        $diasArchivo = $congregacion ? ($congregacion->dias_archivo ?? 90) : 90;
+
         // Buscar el registro más reciente (independientemente de si está cerrado o no)
         $ultimoRegistro = $this->registros()
             ->latest('fecha_salida')
             ->first();
-        
+
         // Sin registros = LIBRE
         if (!$ultimoRegistro) {
             return 'libre';
         }
-        
+
         // Si el último registro tiene fecha_entrada = fue devuelto
         if ($ultimoRegistro->fecha_entrada) {
             $fechaDevolucion = Carbon::parse($ultimoRegistro->fecha_entrada);
             $diasDesdeDevolucion = $fechaDevolucion->diffInDays(now());
-            
+
             // Si no ha pasado el tiempo de descanso = ARCHIVO
             if ($diasDesdeDevolucion < $diasArchivo) {
                 return 'archivo';
             }
-            
-            // Ya cumplió el descanso de 90 días = LIBRE
+
+            // Ya cumplió el descanso = LIBRE
             return 'libre';
         }
-        
+
         // No tiene fecha_entrada = está asignado actualmente
         $fechaSalida = Carbon::parse($ultimoRegistro->fecha_salida);
         $diasAsignado = $fechaSalida->diffInDays(now());
-        
+
         // Verificar si excedió el tiempo límite
         if ($diasAsignado > $diasMaximos) {
             return 'atrasado';
         }
-        
+
         // Dentro del tiempo normal = ACTIVO
         return 'activo';
     }
@@ -181,34 +195,45 @@ class Territorio extends Model
     }
 
     /**
+     * Obtener los días de archivo configurados para esta congregación
+     */
+    protected function getDiasArchivo()
+    {
+        $congregacion = $this->congregacion;
+        return $congregacion ? ($congregacion->dias_archivo ?? 90) : 90;
+    }
+
+    /**
      * Verificar si el territorio está disponible para asignar
-     * Regla: No se puede asignar si fue devuelto hace menos de 90 días
+     * Regla: No se puede asignar si fue devuelto hace menos de los días de archivo configurados
      */
     public function estaDisponibleParaAsignar()
     {
         $estado = $this->calcularEstado();
-        
+
         // Solo está disponible si está en estado 'libre'
         if ($estado !== 'libre') {
             return false;
         }
-        
-        // Verificar si cumple el período de descanso de 90 días
+
+        $diasArchivo = $this->getDiasArchivo();
+
+        // Verificar si cumple el período de descanso
         $ultimoRegistroDevuelto = $this->registros()
             ->whereNotNull('fecha_entrada')
             ->latest('fecha_entrada')
             ->first();
-        
+
         if ($ultimoRegistroDevuelto) {
             $fechaDevolucion = Carbon::parse($ultimoRegistroDevuelto->fecha_entrada);
             $diasDesdeDevolucion = $fechaDevolucion->diffInDays(now());
-            
-            // Si han pasado menos de 90 días desde la devolución, NO está disponible
-            if ($diasDesdeDevolucion < 90) {
+
+            // Si no han pasado los días de archivo, NO está disponible
+            if ($diasDesdeDevolucion < $diasArchivo) {
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -221,19 +246,21 @@ class Territorio extends Model
         if ($this->estaDisponibleParaAsignar()) {
             return 0;
         }
-        
+
+        $diasArchivo = $this->getDiasArchivo();
+
         $ultimoRegistroDevuelto = $this->registros()
             ->whereNotNull('fecha_entrada')
             ->latest('fecha_entrada')
             ->first();
-        
+
         if ($ultimoRegistroDevuelto) {
             $fechaDevolucion = Carbon::parse($ultimoRegistroDevuelto->fecha_entrada);
             $diasDesdeDevolucion = $fechaDevolucion->diffInDays(now());
-            
-            return max(0, 90 - $diasDesdeDevolucion);
+
+            return max(0, $diasArchivo - $diasDesdeDevolucion);
         }
-        
+
         return 0;
     }
 
@@ -242,15 +269,17 @@ class Territorio extends Model
      */
     public function fechaDisponible()
     {
+        $diasArchivo = $this->getDiasArchivo();
+
         $ultimoRegistroDevuelto = $this->registros()
             ->whereNotNull('fecha_entrada')
             ->latest('fecha_entrada')
             ->first();
-        
+
         if ($ultimoRegistroDevuelto) {
-            return Carbon::parse($ultimoRegistroDevuelto->fecha_entrada)->addDays(90);
+            return Carbon::parse($ultimoRegistroDevuelto->fecha_entrada)->addDays($diasArchivo);
         }
-        
+
         return now(); // Si no tiene registros, está disponible ahora
     }
 

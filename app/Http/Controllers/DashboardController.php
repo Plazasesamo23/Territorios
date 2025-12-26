@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Territorio;
 use App\Models\Publicador;
 use App\Models\Registro;
+use App\Models\Congregacion;
 
 class DashboardController extends Controller
 {
@@ -73,7 +74,18 @@ class DashboardController extends Controller
     }
 
     /**
-     * Guardar configuración del sistema
+     * Mostrar página de configuración
+     */
+    public function configuracion()
+    {
+        $congregacionId = session('congregacion_activa_id');
+        $congregacion = Congregacion::find($congregacionId);
+
+        return view('configuracion', compact('congregacion'));
+    }
+
+    /**
+     * Guardar configuración de la congregación
      */
     public function guardarConfiguracion(Request $request)
     {
@@ -82,29 +94,49 @@ class DashboardController extends Controller
             'dias_archivo' => 'required|integer|min:1|max:365'
         ]);
 
-        // Actualizar el archivo de configuración
-        $configPath = config_path('territorios.php');
-        $configContent = file_get_contents($configPath);
+        // Obtener la congregación activa
+        $congregacionId = session('congregacion_activa_id');
+        $congregacion = Congregacion::find($congregacionId);
 
-        // Reemplazar los valores en el archivo
-        $configContent = preg_replace(
-            "/'dias_limite_activo' => env\('TERRITORIOS_DIAS_LIMITE_ACTIVO', \d+\)/",
-            "'dias_limite_activo' => env('TERRITORIOS_DIAS_LIMITE_ACTIVO', {$request->dias_limite_activo})",
-            $configContent
-        );
+        if (!$congregacion) {
+            return redirect()->route('configuracion')
+                ->with('error', 'No se encontró la congregación activa.');
+        }
 
-        $configContent = preg_replace(
-            "/'dias_archivo' => env\('TERRITORIOS_DIAS_ARCHIVO', \d+\)/",
-            "'dias_archivo' => env('TERRITORIOS_DIAS_ARCHIVO', {$request->dias_archivo})",
-            $configContent
-        );
-
-        file_put_contents($configPath, $configContent);
-
-        // Limpiar cache de configuración
-        \Artisan::call('config:clear');
+        // Actualizar los valores en la congregación
+        $congregacion->update([
+            'dias_limite_activo' => $request->dias_limite_activo,
+            'dias_archivo' => $request->dias_archivo,
+        ]);
 
         return redirect()->route('configuracion')
-            ->with('success', 'Configuración actualizada correctamente.');
+            ->with('success', 'Configuración de ' . $congregacion->nombre . ' actualizada correctamente.');
+    }
+
+    /**
+     * Guardar mensaje de WhatsApp personalizado
+     */
+    public function guardarMensajeWhatsapp(Request $request)
+    {
+        $request->validate([
+            'mensaje_whatsapp' => 'required|string|max:2000'
+        ]);
+
+        // Obtener la congregación activa
+        $congregacionId = session('congregacion_activa_id');
+        $congregacion = Congregacion::find($congregacionId);
+
+        if (!$congregacion) {
+            return redirect()->route('configuracion')
+                ->with('error', 'No se encontró la congregación activa.');
+        }
+
+        // Actualizar el mensaje de WhatsApp
+        $congregacion->update([
+            'mensaje_whatsapp' => $request->mensaje_whatsapp,
+        ]);
+
+        return redirect()->route('configuracion')
+            ->with('success', 'Mensaje de WhatsApp actualizado correctamente.');
     }
 }

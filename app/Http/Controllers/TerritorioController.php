@@ -85,8 +85,24 @@ class TerritorioController extends Controller
      */
     public function store(Request $request)
     {
+        $congregacionId = session('congregacion_activa_id');
+
         $request->validate([
-            'numero' => 'required|integer|unique:territorios,numero',
+            'numero' => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) use ($congregacionId) {
+                    // Verificar unicidad solo dentro de la congregación activa
+                    $exists = Territorio::withoutGlobalScope('congregacion')
+                        ->where('congregacion_id', $congregacionId)
+                        ->where('numero', $value)
+                        ->exists();
+
+                    if ($exists) {
+                        $fail('El número de territorio ya existe en esta congregación.');
+                    }
+                },
+            ],
             'nombre' => 'nullable|string|max:255',
             'descripcion' => 'nullable|string',
             'coordenadas_lat' => 'nullable|numeric|between:-90,90',
@@ -142,8 +158,26 @@ class TerritorioController extends Controller
      */
     public function update(Request $request, Territorio $territorio)
     {
+        $congregacionId = session('congregacion_activa_id');
+        $territorioId = $territorio->id;
+
         $request->validate([
-            'numero' => 'required|integer|unique:territorios,numero,' . $territorio->id,
+            'numero' => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) use ($congregacionId, $territorioId) {
+                    // Verificar unicidad solo dentro de la congregación activa, excluyendo el actual
+                    $exists = Territorio::withoutGlobalScope('congregacion')
+                        ->where('congregacion_id', $congregacionId)
+                        ->where('numero', $value)
+                        ->where('id', '!=', $territorioId)
+                        ->exists();
+
+                    if ($exists) {
+                        $fail('El número de territorio ya existe en esta congregación.');
+                    }
+                },
+            ],
             'nombre' => 'nullable|string|max:255',
             'descripcion' => 'nullable|string',
             'coordenadas_lat' => 'nullable|numeric|between:-90,90',
