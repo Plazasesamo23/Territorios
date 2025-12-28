@@ -14,7 +14,7 @@ class DashboardController extends Controller
     {
         // DEBUG: Verificar que este controlador se está ejecutando
         \Log::info('DashboardController::index ejecutándose');
-        
+
         // Datos básicos y seguros
         $data = [
             'totalTerritorios' => 0,
@@ -26,12 +26,12 @@ class DashboardController extends Controller
             'territoriosAtrasados' => 0,
             'territoriosArchivo' => 0
         ];
-        
+
         try {
             $data['totalTerritorios'] = Territorio::count();
             $data['publicadoresActivos'] = Publicador::count();
             $data['totalRegistros'] = Registro::count();
-            
+
             // Calcular estadísticas de estados
             $allTerritorios = Territorio::all();
             $estadisticas = [
@@ -40,35 +40,35 @@ class DashboardController extends Controller
                 'atrasado' => 0,
                 'archivo' => 0
             ];
-            
+
             foreach ($allTerritorios as $territorio) {
                 $estado = $territorio->calcularEstado();
                 if (isset($estadisticas[$estado])) {
                     $estadisticas[$estado]++;
                 }
             }
-            
+
             $data['territoriosLibres'] = $estadisticas['libre'];
             $data['territoriosActivos'] = $estadisticas['activo'];
             $data['territoriosAtrasados'] = $estadisticas['atrasado'];
             $data['territoriosArchivo'] = $estadisticas['archivo'];
-            
+
             // Territorios realmente disponibles para asignar (cumplen regla de 90 días)
             $data['territoriosDisponibles'] = $allTerritorios->filter(function($territorio) {
                 return $territorio->estaDisponibleParaAsignar();
             })->count();
-            
+
             // Registros activos
             $data['registrosActivos'] = Registro::with(['territorio', 'publicador'])
                 ->whereNull('fecha_entrada')
                 ->latest('fecha_salida')
                 ->take(5)
                 ->get();
-                
+
         } catch (\Exception $e) {
             \Log::error('Error en DashboardController: ' . $e->getMessage());
         }
-        
+
         // FORZAR la vista dashboard
         return response()->view('dashboard', $data);
     }
@@ -91,7 +91,11 @@ class DashboardController extends Controller
     {
         $request->validate([
             'dias_limite_activo' => 'required|integer|min:1|max:365',
-            'dias_archivo' => 'required|integer|min:1|max:365'
+            'dias_archivo' => 'required|integer|min:1|max:365',
+            'dias_limite_activo_campana' => 'required|integer|min:1|max:365',
+            'dias_archivo_campana' => 'required|integer|min:1|max:365',
+            'dias_limite_activo_negocios' => 'required|integer|min:1|max:365',
+            'dias_archivo_negocios' => 'required|integer|min:1|max:365',
         ]);
 
         // Obtener la congregación activa
@@ -107,6 +111,10 @@ class DashboardController extends Controller
         $congregacion->update([
             'dias_limite_activo' => $request->dias_limite_activo,
             'dias_archivo' => $request->dias_archivo,
+            'dias_limite_activo_campana' => $request->dias_limite_activo_campana,
+            'dias_archivo_campana' => $request->dias_archivo_campana,
+            'dias_limite_activo_negocios' => $request->dias_limite_activo_negocios,
+            'dias_archivo_negocios' => $request->dias_archivo_negocios,
         ]);
 
         return redirect()->route('configuracion')

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
 use App\Traits\BelongsToCongregacion;
 
-// ÚLTIMA ACTUALIZACIÓN: 26/12/2025 - SOPORTE MULTI-CONGREGACIÓN
+// ULTIMA ACTUALIZACION: 28/12/2025 - TIPOS DE TERRITORIO + TIEMPOS POR TIPO
 
 class Territorio extends Model
 {
@@ -15,9 +15,29 @@ class Territorio extends Model
 
     protected $table = 'territorios';
 
+    // Constantes para los tipos de territorio
+    const TIPO_NORMAL = 'normal';
+    const TIPO_CAMPANA = 'campana';
+    const TIPO_NEGOCIOS = 'negocios';
+
+    // Prefijos para mostrar los numeros
+    const PREFIJOS = [
+        'normal' => '',
+        'campana' => 'C-',
+        'negocios' => 'N-'
+    ];
+
+    // Nombres legibles de los tipos
+    const TIPOS_NOMBRES = [
+        'normal' => 'Normal',
+        'campana' => 'Campana',
+        'negocios' => 'Negocios'
+    ];
+
     protected $fillable = [
         'congregacion_id',
         'numero',
+        'tipo',
         'nombre',
         'descripcion',
         'coordenadas_lat',
@@ -37,7 +57,105 @@ class Territorio extends Model
     ];
 
     /**
-     * Relación: Un territorio pertenece a una congregación
+     * Obtener el numero con prefijo segun el tipo
+     * Ej: 1, C-1, N-1
+     */
+    public function getNumeroCompletoAttribute()
+    {
+        $prefijo = self::PREFIJOS[$this->tipo] ?? '';
+        return $prefijo . $this->numero;
+    }
+
+    /**
+     * Obtener el nombre del tipo legible
+     */
+    public function getTipoNombreAttribute()
+    {
+        return self::TIPOS_NOMBRES[$this->tipo] ?? 'Normal';
+    }
+
+    /**
+     * Verificar si el territorio va al S-13
+     * Solo los normales van al S-13
+     */
+    public function vaAlS13()
+    {
+        return $this->tipo === self::TIPO_NORMAL;
+    }
+
+    /**
+     * Verificar si es territorio de campana
+     */
+    public function esCampana()
+    {
+        return $this->tipo === self::TIPO_CAMPANA;
+    }
+
+    /**
+     * Verificar si es territorio de negocios
+     */
+    public function esNegocios()
+    {
+        return $this->tipo === self::TIPO_NEGOCIOS;
+    }
+
+    /**
+     * Verificar si es territorio normal
+     */
+    public function esNormal()
+    {
+        return $this->tipo === self::TIPO_NORMAL;
+    }
+
+    /**
+     * Obtener el color del badge segun el tipo
+     */
+    public function getColorTipo()
+    {
+        return match($this->tipo) {
+            self::TIPO_CAMPANA => 'badge-yellow',
+            self::TIPO_NEGOCIOS => 'badge-blue',
+            default => 'badge-gray'
+        };
+    }
+
+    /**
+     * Scope para filtrar por tipo
+     */
+    public function scopeTipo($query, $tipo)
+    {
+        if ($tipo && $tipo !== 'todos') {
+            return $query->where('tipo', $tipo);
+        }
+        return $query;
+    }
+
+    /**
+     * Scope para obtener solo territorios normales (para S-13)
+     */
+    public function scopeNormales($query)
+    {
+        return $query->where('tipo', self::TIPO_NORMAL);
+    }
+
+    /**
+     * Scope para obtener territorios de campana
+     */
+    public function scopeCampana($query)
+    {
+        return $query->where('tipo', self::TIPO_CAMPANA);
+    }
+
+    /**
+     * Scope para obtener territorios de negocios
+     */
+    public function scopeNegocios($query)
+    {
+        return $query->where('tipo', self::TIPO_NEGOCIOS);
+    }
+
+    /**
+     * Relacion: Un territorio pertenece a una congregacion
      */
     public function congregacion(): BelongsTo
     {
@@ -45,7 +163,7 @@ class Territorio extends Model
     }
 
     /**
-     * Relación: Un territorio tiene muchos registros
+     * Relacion: Un territorio tiene muchos registros
      */
     public function registros()
     {
@@ -53,7 +171,7 @@ class Territorio extends Model
     }
 
     /**
-     * Obtener el último registro del territorio
+     * Obtener el ultimo registro del territorio
      */
     public function ultimoRegistro()
     {
@@ -82,15 +200,50 @@ class Territorio extends Model
      */
     public function getImagenUrl()
     {
-        $imagenPath = "imagenes/{$this->numero}.jpg";
-        $fullPath = public_path($imagenPath);
-        
-        if (file_exists($fullPath)) {
+        // 1. Buscar archivo local primero (incluye tipo en el nombre para evitar conflictos)
+        $tipoSuffix = $this->tipo !== 'normal' ? '_' . $this->tipo : '';
+        $imagenPath = "imagenes/" . $this->congregacion_id . "_" . $this->numero . $tipoSuffix . ".jpg";
+        if (file_exists(public_path($imagenPath))) {
             return asset($imagenPath);
         }
-        
-        // URL por defecto con gradiente SVG
-        return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%234f46e5;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%237c3aed;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Ctext x='50%25' y='40%25' font-family='Arial,sans-serif' font-size='48' fill='white' text-anchor='middle' dominant-baseline='middle'%3E🗺️%3C/text%3E%3Ctext x='50%25' y='60%25' font-family='Arial,sans-serif' font-size='18' fill='white' text-anchor='middle' dominant-baseline='middle'%3ETerritorio " . $this->numero . "%3C/text%3E%3Ctext x='50%25' y='75%25' font-family='Arial,sans-serif' font-size='12' fill='rgba(255,255,255,0.8)' text-anchor='middle' dominant-baseline='middle'%3ESin imagen disponible%3C/text%3E%3C/svg%3E";
+
+        // Fallback: buscar sin sufijo de tipo (compatibilidad con imagenes existentes)
+        $imagenPathLegacy = "imagenes/" . $this->congregacion_id . "_" . $this->numero . ".jpg";
+        if (file_exists(public_path($imagenPathLegacy))) {
+            return asset($imagenPathLegacy);
+        }
+
+        // 2. Usar URL de la base de datos si existe
+        if (!empty($this->imagen_url)) {
+            return $this->convertirUrlDirecta($this->imagen_url);
+        }
+
+        // 3. SVG por defecto
+        $numeroCompleto = $this->numero_completo;
+        return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%234f46e5' width='100%25' height='100%25'/%3E%3Ctext x='50%25' y='50%25' fill='white' text-anchor='middle' font-size='18'%3ETerritorio " . $numeroCompleto . "%3C/text%3E%3C/svg%3E";
+    }
+
+    /**
+     * Convertir URLs de Dropbox/Drive a URLs directas
+     */
+    private function convertirUrlDirecta($url)
+    {
+        if (strpos($url, 'dropbox.com') !== false) {
+            $url = str_replace('www.dropbox.com', 'dl.dropboxusercontent.com', $url);
+            $url = preg_replace('/\?dl=.*/', '', $url);
+            return $url;
+        }
+
+        if (strpos($url, 'drive.google.com') !== false) {
+            if (preg_match('/\/d\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
+                return 'https://lh3.googleusercontent.com/d/' . $matches[1];
+            }
+            if (preg_match('/id=([a-zA-Z0-9_-]+)/', $url, $matches)) {
+                return 'https://lh3.googleusercontent.com/d/' . $matches[1];
+            }
+        }
+
+        return $url;
     }
 
     /**
@@ -98,55 +251,47 @@ class Territorio extends Model
      */
     public function tieneImagen()
     {
-        $imagenPath = public_path("imagenes/{$this->numero}.jpg");
-        return file_exists($imagenPath);
+        $tipoSuffix = $this->tipo !== 'normal' ? '_' . $this->tipo : '';
+        $imagenPath = public_path("imagenes/" . $this->congregacion_id . "_" . $this->numero . $tipoSuffix . ".jpg");
+        $imagenPathLegacy = public_path("imagenes/" . $this->congregacion_id . "_" . $this->numero . ".jpg");
+        return file_exists($imagenPath) || file_exists($imagenPathLegacy) || !empty($this->imagen_url);
     }
 
     /**
-     * Calcular el estado actual del territorio basado en fechas y configuración de la congregación
-     * Nueva lógica automática basada en registros
+     * Calcular el estado actual del territorio basado en fechas y configuracion de la congregacion
+     * Ahora usa tiempos especificos por tipo de territorio
      */
     public function calcularEstado()
     {
-        // Obtener configuración de la congregación
-        $congregacion = $this->congregacion;
-        $diasMaximos = $congregacion ? ($congregacion->dias_limite_activo ?? 60) : 60;
-        $diasArchivo = $congregacion ? ($congregacion->dias_archivo ?? 90) : 90;
+        $diasMaximos = $this->getDiasLimiteActivo();
+        $diasArchivo = $this->getDiasArchivo();
 
-        // Buscar el registro más reciente (independientemente de si está cerrado o no)
         $ultimoRegistro = $this->registros()
             ->latest('fecha_salida')
             ->first();
 
-        // Sin registros = LIBRE
         if (!$ultimoRegistro) {
             return 'libre';
         }
 
-        // Si el último registro tiene fecha_entrada = fue devuelto
         if ($ultimoRegistro->fecha_entrada) {
             $fechaDevolucion = Carbon::parse($ultimoRegistro->fecha_entrada);
             $diasDesdeDevolucion = $fechaDevolucion->diffInDays(now());
 
-            // Si no ha pasado el tiempo de descanso = ARCHIVO
             if ($diasDesdeDevolucion < $diasArchivo) {
                 return 'archivo';
             }
 
-            // Ya cumplió el descanso = LIBRE
             return 'libre';
         }
 
-        // No tiene fecha_entrada = está asignado actualmente
         $fechaSalida = Carbon::parse($ultimoRegistro->fecha_salida);
         $diasAsignado = $fechaSalida->diffInDays(now());
 
-        // Verificar si excedió el tiempo límite
         if ($diasAsignado > $diasMaximos) {
             return 'atrasado';
         }
 
-        // Dentro del tiempo normal = ACTIVO
         return 'activo';
     }
 
@@ -156,7 +301,7 @@ class Territorio extends Model
     public function getClaseEstado()
     {
         $estado = $this->calcularEstado();
-        
+
         return match($estado) {
             'activo' => 'estado-activo',
             'libre' => 'estado-libre',
@@ -167,7 +312,7 @@ class Territorio extends Model
     }
 
     /**
-     * Verificar si tiene coordenadas válidas
+     * Verificar si tiene coordenadas validas
      */
     public function tieneCoordenadasValidas()
     {
@@ -182,12 +327,12 @@ class Territorio extends Model
         if (!$this->tieneCoordenadasValidas()) {
             return null;
         }
-        
+
         return "https://www.google.com/maps?q={$this->coordenadas_lat},{$this->coordenadas_lng}";
     }
 
     /**
-     * Verificar si el territorio está activo
+     * Verificar si el territorio esta activo
      */
     public function estaActivo()
     {
@@ -195,30 +340,52 @@ class Territorio extends Model
     }
 
     /**
-     * Obtener los días de archivo configurados para esta congregación
+     * Obtener los dias de archivo configurados para este tipo de territorio
      */
     protected function getDiasArchivo()
     {
         $congregacion = $this->congregacion;
-        return $congregacion ? ($congregacion->dias_archivo ?? 90) : 90;
+        if (!$congregacion) {
+            return 90;
+        }
+
+        return match($this->tipo) {
+            self::TIPO_CAMPANA => $congregacion->dias_archivo_campana ?? 30,
+            self::TIPO_NEGOCIOS => $congregacion->dias_archivo_negocios ?? 60,
+            default => $congregacion->dias_archivo ?? 90,
+        };
     }
 
     /**
-     * Verificar si el territorio está disponible para asignar
-     * Regla: No se puede asignar si fue devuelto hace menos de los días de archivo configurados
+     * Obtener los dias limite activo configurados para este tipo de territorio
+     */
+    protected function getDiasLimiteActivo()
+    {
+        $congregacion = $this->congregacion;
+        if (!$congregacion) {
+            return 60;
+        }
+
+        return match($this->tipo) {
+            self::TIPO_CAMPANA => $congregacion->dias_limite_activo_campana ?? 30,
+            self::TIPO_NEGOCIOS => $congregacion->dias_limite_activo_negocios ?? 60,
+            default => $congregacion->dias_limite_activo ?? 120,
+        };
+    }
+
+    /**
+     * Verificar si el territorio esta disponible para asignar
      */
     public function estaDisponibleParaAsignar()
     {
         $estado = $this->calcularEstado();
 
-        // Solo está disponible si está en estado 'libre'
         if ($estado !== 'libre') {
             return false;
         }
 
         $diasArchivo = $this->getDiasArchivo();
 
-        // Verificar si cumple el período de descanso
         $ultimoRegistroDevuelto = $this->registros()
             ->whereNotNull('fecha_entrada')
             ->latest('fecha_entrada')
@@ -228,7 +395,6 @@ class Territorio extends Model
             $fechaDevolucion = Carbon::parse($ultimoRegistroDevuelto->fecha_entrada);
             $diasDesdeDevolucion = $fechaDevolucion->diffInDays(now());
 
-            // Si no han pasado los días de archivo, NO está disponible
             if ($diasDesdeDevolucion < $diasArchivo) {
                 return false;
             }
@@ -238,8 +404,7 @@ class Territorio extends Model
     }
 
     /**
-     * Obtener los días restantes para que esté disponible
-     * Retorna 0 si ya está disponible
+     * Obtener los dias restantes para que este disponible
      */
     public function diasRestantesParaEstarDisponible()
     {
@@ -265,7 +430,7 @@ class Territorio extends Model
     }
 
     /**
-     * Obtener la fecha cuando estará disponible
+     * Obtener la fecha cuando estara disponible
      */
     public function fechaDisponible()
     {
@@ -280,33 +445,45 @@ class Territorio extends Model
             return Carbon::parse($ultimoRegistroDevuelto->fecha_entrada)->addDays($diasArchivo);
         }
 
-        return now(); // Si no tiene registros, está disponible ahora
+        return now();
     }
 
     /**
-     * Obtener el motivo por el cual no está disponible
+     * Obtener el motivo por el cual no esta disponible
      */
     public function motivoNoDisponible()
     {
         $estado = $this->calcularEstado();
-        
+
         if ($estado === 'activo') {
             $publicador = $this->publicadorActual();
             return $publicador ? "Asignado a {$publicador->nombre_completo}" : "Territorio actualmente asignado";
         }
-        
+
         if ($estado === 'atrasado') {
             $publicador = $this->publicadorActual();
             return $publicador ? "Atrasado con {$publicador->nombre_completo}" : "Territorio atrasado";
         }
-        
+
         if ($estado === 'archivo') {
             $diasRestantes = $this->diasRestantesParaEstarDisponible();
             if ($diasRestantes > 0) {
-                return "En descanso ({$diasRestantes} días restantes)";
+                return "En descanso ({$diasRestantes} dias restantes)";
             }
         }
-        
+
         return "No disponible";
+    }
+
+    /**
+     * Obtener el siguiente numero disponible para un tipo de territorio
+     */
+    public static function getSiguienteNumero($congregacionId, $tipo = 'normal')
+    {
+        $ultimoNumero = self::where('congregacion_id', $congregacionId)
+            ->where('tipo', $tipo)
+            ->max('numero');
+
+        return ($ultimoNumero ?? 0) + 1;
     }
 }

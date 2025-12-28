@@ -9,6 +9,9 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <link rel="apple-touch-icon" href="{{ asset('favicon.svg') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dark-theme.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/fixes.css') }}">
     <script src="{{ asset('js/app.js') }}" defer></script>
     <style>
         .congregacion-badge {
@@ -166,7 +169,7 @@
         <div class="container">
             <div class="header-content">
                 <a href="{{ route('dashboard') }}" class="logo">
-                    🗺️ Sistema de Territorios
+                    <img src="{{ asset('favicon.svg') }}" alt="Logo" style="height: 1.5rem; width: 1.5rem;"> Sistema de Territorios
                 </a>
 
                 <nav class="nav">
@@ -185,9 +188,14 @@
                     <a href="{{ route('s13.index') }}" class="nav-link {{ request()->routeIs('s13.*') ? 'active' : '' }}">
                         S13
                     </a>
+                    @if(Auth::check() && Auth::user()->isAdmin())
                     <a href="{{ route('creador-territorios.index') }}" class="nav-link {{ request()->routeIs('creador-territorios.*') ? 'active' : '' }}">
                         Creador
                     </a>
+                    <a href="{{ route('usuarios.index') }}" class="nav-link {{ request()->routeIs('usuarios.*') ? 'active' : '' }}">
+                        Usuarios
+                    </a>
+                    @endif
                     @can('superadmin')
                     <a href="{{ route('congregaciones.index') }}" class="nav-link {{ request()->routeIs('congregaciones.*') ? 'active' : '' }}">
                         Congregaciones
@@ -222,10 +230,12 @@
                             </div>
                         @endif
 
-                        {{-- Botón de configuración --}}
+                        {{-- Botón de configuración (solo admin) --}}
+                        @if(Auth::user()->isAdmin())
                         <a href="{{ route('configuracion') }}" class="config-btn" title="Configuración">
                             <span class="config-icon">⚙️</span>
                         </a>
+                        @endif
 
                         {{-- Botón de perfil con icono --}}
                         <a href="{{ route('perfil.index') }}" class="profile-btn" title="Mi perfil - {{ Auth::user()->name }}">

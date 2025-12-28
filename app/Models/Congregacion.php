@@ -20,6 +20,10 @@ class Congregacion extends Model
         'password_plain',
         'dias_limite_activo',
         'dias_archivo',
+        'dias_limite_activo_campana',
+        'dias_archivo_campana',
+        'dias_limite_activo_negocios',
+        'dias_archivo_negocios',
         'mensaje_whatsapp',
         'activa',
     ];
@@ -84,5 +88,29 @@ class Congregacion extends Model
     public static function getMensajeWhatsappDefault(): string
     {
         return "Querido/a {nombre}, aquí te mando el territorio asignado. Solo recordar que cuando lo termines de trabajar lo borres del teléfono y me avises. También recuerda que este territorio dura 3 meses, por lo tanto, puedes disfrutar y hacer uso de el por todo este tiempo, te animamos a poder trabajarlo a plenitud y tener conversaciones de provecho con las personas, así, podrás disfrutar por completo de tu ministerio.\n\nTerritorio #{numero}\n\nImagen del territorio:\n{imagen_url}";
+    }
+
+    /**
+     * Obtiene los días límite activo según el tipo de territorio
+     */
+    public function getDiasLimiteActivoPorTipo(string $tipo): int
+    {
+        return match($tipo) {
+            'campana' => $this->dias_limite_activo_campana ?? 30,
+            'negocios' => $this->dias_limite_activo_negocios ?? 60,
+            default => $this->dias_limite_activo ?? 120,
+        };
+    }
+
+    /**
+     * Obtiene los días de archivo según el tipo de territorio
+     */
+    public function getDiasArchivoPorTipo(string $tipo): int
+    {
+        return match($tipo) {
+            'campana' => $this->dias_archivo_campana ?? 30,
+            'negocios' => $this->dias_archivo_negocios ?? 60,
+            default => $this->dias_archivo ?? 120,
+        };
     }
 }

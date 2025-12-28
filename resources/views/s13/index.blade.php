@@ -3,28 +3,23 @@
 @section('title', 'S13 - Gestión de Territorios')
 
 @section('content')
-<!-- Navegación y acciones en una sola línea -->
+<!-- Navegación -->
 <div class="page-nav">
     <div class="page-breadcrumbs">
         <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
         <span class="breadcrumb-sep">›</span>
         <span class="breadcrumb-current">S13</span>
-    </div>
-    
-    <div class="page-actions">
-        <a href="{{ route('s13.vista-previa') }}" class="btn btn-secondary">
-            👁️ Vista Previa
-        </a>
-        <a href="{{ route('s13.generar-pdf') }}" class="btn btn-primary" target="_blank">
-            📄 Generar PDF
-        </a>
+        @if(isset($congregacionActiva))
+        <span class="breadcrumb-sep">|</span>
+        <span style="color:#0d6efd;font-weight:bold;">{{ $congregacionActiva->nombre }}</span>
+        @endif
     </div>
 </div>
 
 <!-- Configuración del reporte -->
 <div class="card mb-4">
     <div class="card-title">📊 Configuración del Reporte S13</div>
-    <form method="GET" action="{{ route('s13.generar-pdf') }}" id="form-s13">
+    <form method="GET" action="{{ route('s13.generar-pdf') }}" id="form-s13" target="_blank">
         <div class="form-group mb-4">
             <label for="año" class="form-label">Año de Servicio:</label>
             <select name="año" id="año" class="form-input" style="width: 200px;">
@@ -38,7 +33,7 @@
                 El año de servicio va de septiembre a agosto del año siguiente
             </div>
         </div>
-        
+
         <div class="form-actions">
             <button type="button" onclick="vistaPrevia()" class="btn btn-secondary">
                 👁️ Vista Previa
@@ -57,7 +52,7 @@
         <div>
             <h4 style="margin-bottom: 0.5rem;">Contenido del PDF:</h4>
             <ul style="margin: 0; padding-left: 1.5rem; color: #666;">
-                <li>214 territorios divididos en 11 páginas</li>
+                <li>{{ $estadisticas['total_territorios'] }} territorios divididos en {{ ceil($estadisticas['total_territorios'] / 20) }} páginas</li>
                 <li>20 territorios por página</li>
                 <li>Registros del año de servicio seleccionado</li>
                 <li>Formato oficial S13</li>
@@ -69,7 +64,7 @@
                 <li>Fecha de asignación</li>
                 <li>Nombre del publicador</li>
                 <li>Fecha de devolución</li>
-                <li>Hasta 5 asignaciones por territorio</li>
+                <li>Hasta 4 asignaciones por territorio</li>
             </ul>
         </div>
     </div>
@@ -101,12 +96,5 @@ function vistaPrevia() {
     const url = "{{ route('s13.vista-previa') }}?año=" + año;
     window.open(url, '_blank');
 }
-
-// Actualizar enlaces cuando cambie el año
-document.getElementById('año').addEventListener('change', function() {
-    const año = this.value;
-    document.querySelector('a[href*="vista-previa"]').href = "{{ route('s13.vista-previa') }}?año=" + año;
-    document.querySelector('a[href*="generar-pdf"]').href = "{{ route('s13.generar-pdf') }}?año=" + año;
-});
 </script>
-@endsection 
+@endsection

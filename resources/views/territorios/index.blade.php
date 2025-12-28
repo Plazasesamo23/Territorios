@@ -1,22 +1,72 @@
 @extends('layouts.app')
 
-@section('title', 'Territorios - Gestión de Territorios')
+@section('title', 'Territorios - Gestion de Territorios')
 
 @section('content')
-<!-- Navegación y acciones en una sola línea -->
+<!-- Navegacion y acciones -->
 <div class="page-nav">
     <div class="page-breadcrumbs">
         <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
-        <span class="breadcrumb-sep">›</span>
+        <span class="breadcrumb-sep">></span>
         <span class="breadcrumb-current">Territorios</span>
     </div>
-    
+
     <div class="page-actions">
-        <a href="{{ route('territorios.create') }}" class="btn btn-primary">
-            ➕ Nuevo Territorio
-        </a>
+        <!-- Dropdown para crear nuevo territorio -->
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownCrear" onclick="toggleDropdown('dropdownMenuCrear')">
+                + Nuevo Territorio
+            </button>
+            <div class="dropdown-menu" id="dropdownMenuCrear">
+                <a href="{{ route('territorios.create', ['tipo' => 'normal']) }}" class="dropdown-item">
+                    <span class="dropdown-icon">&#128203;</span> Territorio Normal
+                </a>
+                <a href="{{ route('territorios.create', ['tipo' => 'campana']) }}" class="dropdown-item">
+                    <span class="dropdown-icon">&#128227;</span> Territorio Campana (C-)
+                </a>
+                <a href="{{ route('territorios.create', ['tipo' => 'negocios']) }}" class="dropdown-item">
+                    <span class="dropdown-icon">&#127970;</span> Territorio Negocios (N-)
+                </a>
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- Filtros por tipo de territorio -->
+<div class="tipo-filtros mb-4">
+    <a href="{{ route('territorios.index', array_merge(request()->except('tipo'), ['tipo' => 'todos'])) }}"
+       class="tipo-filtro {{ ($tipoFiltro ?? 'todos') === 'todos' ? 'active' : '' }}">
+        <span class="tipo-icono">&#128506;</span>
+        <span class="tipo-nombre">Todos</span>
+        <span class="tipo-count">{{ $conteoTipos['todos'] ?? 0 }}</span>
+    </a>
+    <a href="{{ route('territorios.index', array_merge(request()->except('tipo'), ['tipo' => 'normal'])) }}"
+       class="tipo-filtro {{ ($tipoFiltro ?? '') === 'normal' ? 'active' : '' }}">
+        <span class="tipo-icono">&#128203;</span>
+        <span class="tipo-nombre">Normales</span>
+        <span class="tipo-count">{{ $conteoTipos['normal'] ?? 0 }}</span>
+    </a>
+    <a href="{{ route('territorios.index', array_merge(request()->except('tipo'), ['tipo' => 'campana'])) }}"
+       class="tipo-filtro tipo-campana {{ ($tipoFiltro ?? '') === 'campana' ? 'active' : '' }}">
+        <span class="tipo-icono">&#128227;</span>
+        <span class="tipo-nombre">Campana</span>
+        <span class="tipo-count">{{ $conteoTipos['campana'] ?? 0 }}</span>
+    </a>
+    <a href="{{ route('territorios.index', array_merge(request()->except('tipo'), ['tipo' => 'negocios'])) }}"
+       class="tipo-filtro tipo-negocios {{ ($tipoFiltro ?? '') === 'negocios' ? 'active' : '' }}">
+        <span class="tipo-icono">&#127970;</span>
+        <span class="tipo-nombre">Negocios</span>
+        <span class="tipo-count">{{ $conteoTipos['negocios'] ?? 0 }}</span>
+    </a>
+</div>
+
+<!-- Nota informativa sobre tipos -->
+@if(($tipoFiltro ?? 'todos') === 'campana' || ($tipoFiltro ?? 'todos') === 'negocios')
+<div class="alert-info-tipo mb-4">
+    <span class="alert-icon">&#9432;</span>
+    <span>Los territorios de <strong>{{ ($tipoFiltro ?? '') === 'campana' ? 'Campana' : 'Negocios' }}</strong> NO se incluyen en el reporte S-13.</span>
+</div>
+@endif
 
 <!-- Buscador -->
 <div class="card mb-4">
@@ -25,76 +75,85 @@
             <input type="text"
                    name="search"
                    value="{{ request('search') }}"
-                   placeholder="Buscar territorio por número, nombre, descripción..."
+                   placeholder="Buscar territorio por numero, nombre, descripcion..."
                    class="search-input">
             <input type="hidden" name="estado" value="{{ request('estado') }}">
-            <button type="submit" class="search-btn">🔍</button>
+            <input type="hidden" name="tipo" value="{{ $tipoFiltro ?? 'todos' }}">
+            <button type="submit" class="search-btn">&#128269;</button>
             @if(request('search'))
-                <a href="{{ route('territorios.index', ['estado' => request('estado')]) }}" class="search-clear">✖</a>
+                <a href="{{ route('territorios.index', ['estado' => request('estado'), 'tipo' => $tipoFiltro ?? 'todos']) }}" class="search-clear">&#10006;</a>
             @endif
         </div>
     </form>
 </div>
 
-<!-- Estadísticas rápidas - Funcionan como filtros -->
+<!-- Estadisticas rapidas - Filtros por estado -->
 <div class="grid grid-5 mb-4">
-    <a href="{{ route('territorios.index', ['search' => request('search')]) }}" class="stat-card filter-stat-btn {{ !request('estado') ? 'active' : '' }}">
+    <a href="{{ route('territorios.index', ['search' => request('search'), 'tipo' => $tipoFiltro ?? 'todos']) }}" class="stat-card filter-stat-btn {{ !request('estado') ? 'active' : '' }}">
         <div class="stat-number">{{ $allTerritorios->count() }}</div>
         <div class="stat-label">Total</div>
     </a>
-    <a href="{{ route('territorios.index', ['estado' => 'libre', 'search' => request('search')]) }}" class="stat-card filter-stat-btn {{ request('estado') == 'libre' ? 'active' : '' }}">
+    <a href="{{ route('territorios.index', ['estado' => 'libre', 'search' => request('search'), 'tipo' => $tipoFiltro ?? 'todos']) }}" class="stat-card filter-stat-btn {{ request('estado') == 'libre' ? 'active' : '' }}">
         <div class="stat-number" style="color: #10b981;">{{ $estadisticas['libre'] }}</div>
         <div class="stat-label">Libres</div>
     </a>
-    <a href="{{ route('territorios.index', ['estado' => 'activo', 'search' => request('search')]) }}" class="stat-card filter-stat-btn {{ request('estado') == 'activo' ? 'active' : '' }}">
+    <a href="{{ route('territorios.index', ['estado' => 'activo', 'search' => request('search'), 'tipo' => $tipoFiltro ?? 'todos']) }}" class="stat-card filter-stat-btn {{ request('estado') == 'activo' ? 'active' : '' }}">
         <div class="stat-number" style="color: #3b82f6;">{{ $estadisticas['activo'] }}</div>
         <div class="stat-label">Activos</div>
     </a>
-    <a href="{{ route('territorios.index', ['estado' => 'atrasado', 'search' => request('search')]) }}" class="stat-card filter-stat-btn {{ request('estado') == 'atrasado' ? 'active' : '' }}">
+    <a href="{{ route('territorios.index', ['estado' => 'atrasado', 'search' => request('search'), 'tipo' => $tipoFiltro ?? 'todos']) }}" class="stat-card filter-stat-btn {{ request('estado') == 'atrasado' ? 'active' : '' }}">
         <div class="stat-number" style="color: #ef4444;">{{ $estadisticas['atrasado'] }}</div>
         <div class="stat-label">Atrasados</div>
     </a>
-    <a href="{{ route('territorios.index', ['estado' => 'archivo', 'search' => request('search')]) }}" class="stat-card filter-stat-btn {{ request('estado') == 'archivo' ? 'active' : '' }}">
+    <a href="{{ route('territorios.index', ['estado' => 'archivo', 'search' => request('search'), 'tipo' => $tipoFiltro ?? 'todos']) }}" class="stat-card filter-stat-btn {{ request('estado') == 'archivo' ? 'active' : '' }}">
         <div class="stat-number" style="color: #6b7280;">{{ $estadisticas['archivo'] }}</div>
         <div class="stat-label">En Archivo</div>
     </a>
 </div>
 
-
-
 <!-- Grid de territorios -->
 @if($territorios->count() > 0)
     <div class="territorio-grid">
         @foreach($territorios as $territorio)
-        <div class="territorio-card">
+        <div class="territorio-card {{ $territorio->tipo !== 'normal' ? 'territorio-especial territorio-' . $territorio->tipo : '' }}">
             <!-- Columna 1: Imagen -->
             <div class="territorio-image-half">
                 @if($territorio->tieneImagen())
-                    <img src="{{ $territorio->getImagenUrl() }}" 
-                         alt="Territorio {{ $territorio->numero }}" 
+                    <img src="{{ $territorio->getImagenUrl() }}" referrerpolicy="no-referrer"
+                         alt="Territorio {{ $territorio->numero_completo }}"
                          loading="lazy">
                 @else
                     <div class="territorio-image-placeholder">
-                        🗺️
+                        @if($territorio->tipo === 'campana')
+                            &#128227;
+                        @elseif($territorio->tipo === 'negocios')
+                            &#127970;
+                        @else
+                            &#128506;
+                        @endif
                     </div>
+                @endif
+                <!-- Badge de tipo para territorios especiales -->
+                @if($territorio->tipo !== 'normal')
+                <div class="territorio-tipo-badge {{ $territorio->tipo }}">
+                    {{ $territorio->tipo === 'campana' ? 'C' : 'N' }}
+                </div>
                 @endif
             </div>
 
             <!-- Columna 2: Contenido principal -->
             <div class="territorio-content">
-                <!-- Header reorganizado: Desktop vs Móvil -->
                 <div>
-                    <!-- Línea 1: Número + Estado (Desktop) / Número + Nombre (Móvil) -->
                     <div class="territorio-header-superior">
-                        <div class="territorio-numero-destacado">{{ $territorio->numero }}</div>
+                        <div class="territorio-numero-destacado {{ $territorio->tipo !== 'normal' ? 'numero-' . $territorio->tipo : '' }}">
+                            {{ $territorio->numero_completo }}
+                        </div>
                         <div class="territorio-info-superior">
-                            <!-- Nombre: visible en móvil, oculto en desktop -->
                             <div class="territorio-nombre-container">
                                 @if($territorio->nombre)
                                     <div class="territorio-nombre territorio-nombre-mobile">{{ $territorio->nombre }}</div>
                                 @endif
                             </div>
-                            <!-- Estado: visible en desktop, oculto en móvil (se mueve a columna 3) -->
                             <div class="territorio-badge-estado territorio-badge-desktop
                                 @if($territorio->estaDisponibleParaAsignar()) badge-green
                                 @elseif($territorio->calcularEstado() == 'activo') badge-blue
@@ -106,16 +165,10 @@
                                 @elseif($territorio->calcularEstado() == 'atrasado') Atrasado
                                 @else En Archivo
                                 @endif
-                                @if($territorio->calcularEstado() == 'libre' && !$territorio->estaDisponibleParaAsignar())
-                                    <small style="display: block; font-size: 0.7em; opacity: 0.8;">
-                                        ({{ $territorio->diasRestantesParaEstarDisponible() }} días restantes)
-                                    </small>
-                                @endif
                             </div>
                         </div>
                     </div>
 
-                    <!-- Línea 2: Nombre y Descripción (Desktop) -->
                     <div class="territorio-content-desktop">
                         @if($territorio->nombre)
                             <div class="territorio-nombre-desktop">{{ $territorio->nombre }}</div>
@@ -126,19 +179,17 @@
                     </div>
                 </div>
 
-                <!-- Acciones en grid -->
                 <div class="territorio-actions-grid">
                     <button type="button" onclick="window.location.href='{{ route('territorios.show', $territorio) }}'" class="btn-icon">
-                        👁️ Ver
+                        &#128065; Ver
                     </button>
-                    
                     <button type="button" onclick="window.location.href='{{ route('registros.create') }}?territorio_id={{ $territorio->id }}'" class="btn-icon">
-                        📋 Registrar
+                        &#128203; Registrar
                     </button>
                 </div>
             </div>
 
-            <!-- Columna 3: Estado en móvil -->
+            <!-- Columna 3: Estado en movil -->
             <div class="territorio-badge-estado territorio-badge-mobile
                 @if($territorio->estaDisponibleParaAsignar()) badge-green
                 @elseif($territorio->calcularEstado() == 'activo') badge-blue
@@ -148,91 +199,248 @@
                 @if($territorio->estaDisponibleParaAsignar()) Disponible
                 @elseif($territorio->calcularEstado() == 'activo') Activo
                 @elseif($territorio->calcularEstado() == 'atrasado') Atrasado
-                @else En Archivo
-                @endif
-                @if($territorio->calcularEstado() == 'libre' && !$territorio->estaDisponibleParaAsignar())
-                    <small style="display: block; font-size: 0.7em; opacity: 0.8;">
-                        ({{ $territorio->diasRestantesParaEstarDisponible() }} días)
-                    </small>
+                @else Archivo
                 @endif
             </div>
         </div>
         @endforeach
     </div>
 
-    <!-- Paginación simple -->
+    <!-- Paginacion -->
     @if($territorios->hasPages())
     <div class="card text-center">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
             <div class="text-muted">
                 Mostrando {{ $territorios->firstItem() }}-{{ $territorios->lastItem() }} de {{ $territorios->total() }} territorios
             </div>
-            
             <div style="display: flex; gap: 0.5rem;">
                 @if($territorios->previousPageUrl())
-                    <a href="{{ $territorios->appends(request()->query())->previousPageUrl() }}" class="btn btn-secondary">← Anterior</a>
+                    <a href="{{ $territorios->appends(request()->query())->previousPageUrl() }}" class="btn btn-secondary">Anterior</a>
                 @endif
-                
                 <span class="btn" style="background: #e5e7eb; color: #374151;">
-                    Página {{ $territorios->currentPage() }} de {{ $territorios->lastPage() }}
+                    Pagina {{ $territorios->currentPage() }} de {{ $territorios->lastPage() }}
                 </span>
-                
                 @if($territorios->nextPageUrl())
-                    <a href="{{ $territorios->appends(request()->query())->nextPageUrl() }}" class="btn btn-secondary">Siguiente →</a>
+                    <a href="{{ $territorios->appends(request()->query())->nextPageUrl() }}" class="btn btn-secondary">Siguiente</a>
                 @endif
             </div>
         </div>
     </div>
     @endif
 @else
-    <!-- Estado vacío -->
     <div class="card text-center" style="padding: 3rem;">
-        <div style="font-size: 4rem; margin-bottom: 1rem;">🗺️</div>
+        <div style="font-size: 4rem; margin-bottom: 1rem;">&#128506;</div>
         <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: #1f2937;">No hay territorios disponibles</h3>
-        <p class="text-muted mb-4">Comienza agregando el primer territorio a tu sistema.</p>
-        <a href="{{ route('territorios.create') }}" class="btn btn-primary">
-            ➕ Crear Primer Territorio
+        <p class="text-muted mb-4">
+            @if(($tipoFiltro ?? 'todos') !== 'todos')
+                No hay territorios de tipo "{{ ucfirst($tipoFiltro ?? '') }}" en esta congregacion.
+            @else
+                Comienza agregando el primer territorio a tu sistema.
+            @endif
+        </p>
+        <a href="{{ route('territorios.create', ['tipo' => ($tipoFiltro ?? 'todos') !== 'todos' ? $tipoFiltro : 'normal']) }}" class="btn btn-primary">
+            + Crear Territorio
         </a>
     </div>
 @endif
 
 <script>
-// Navegación simplificada con 2 acciones principales:
-// - "Ver": Lleva a la página completa del territorio (editar, eliminar, historial, etc.)
-// - "Registrar": Lleva a la página de gestión de registros (asignar, devolver, WhatsApp, etc.)
+function toggleDropdown(menuId) {
+    const menu = document.getElementById(menuId);
+    const allMenus = document.querySelectorAll('.dropdown-menu');
+
+    allMenus.forEach(m => {
+        if (m.id !== menuId) m.classList.remove('show');
+    });
+
+    menu.classList.toggle('show');
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.dropdown')) {
+        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+    }
+});
 </script>
 
 <style>
-/* Grid responsive para territorios */
+/* Filtros por tipo */
+.tipo-filtros {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.tipo-filtro {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--bg-card, #fff);
+    border: 2px solid var(--border-color, #e5e7eb);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all 0.2s;
+    font-weight: 500;
+}
+.tipo-filtro:hover {
+    border-color: var(--color-primary);
+    background: #f8fafc;
+}
+.tipo-filtro.active {
+    border-color: var(--color-primary);
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    color: var(--color-primary);
+}
+.tipo-filtro.tipo-campana.active {
+    border-color: #f59e0b;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    color: #b45309;
+}
+.tipo-filtro.tipo-negocios.active {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    color: #1d4ed8;
+}
+.tipo-icono {
+    font-size: 1.25rem;
+}
+.tipo-nombre {
+    font-size: 0.9rem;
+}
+.tipo-count {
+    background: var(--color-gray-200, #e5e7eb);
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.tipo-filtro.active .tipo-count {
+    background: rgba(255,255,255,0.8);
+}
+
+/* Alerta informativa */
+.alert-info-tipo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    color: #92400e;
+    font-size: 0.875rem;
+}
+.alert-icon {
+    font-size: 1.25rem;
+}
+
+/* Dropdown */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+.dropdown-toggle {
+    cursor: pointer;
+}
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 0.5rem;
+    background: var(--bg-card, #fff);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    min-width: 220px;
+    z-index: 100;
+    overflow: hidden;
+}
+.dropdown-menu.show {
+    display: block;
+}
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.dropdown-item:hover {
+    background: var(--color-gray-100);
+}
+.dropdown-icon {
+    font-size: 1.25rem;
+}
+
+/* Territorios especiales */
+.territorio-especial {
+    border-left: 4px solid;
+}
+.territorio-campana {
+    border-left-color: #f59e0b;
+}
+.territorio-negocios {
+    border-left-color: #3b82f6;
+}
+.territorio-tipo-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: white;
+}
+.territorio-tipo-badge.campana {
+    background: #f59e0b;
+}
+.territorio-tipo-badge.negocios {
+    background: #3b82f6;
+}
+.numero-campana {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+}
+.numero-negocios {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+}
+.territorio-image-half {
+    position: relative;
+}
+
+/* Grid responsive */
 .territorio-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
-
-/* Estructura del header reorganizado */
 .territorio-header-superior {
     display: flex;
     align-items: center;
     gap: 1rem;
     margin-bottom: 0.5rem;
 }
-
 .territorio-info-superior {
     flex: 1;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
-    min-width: 0; /* Para truncate */
+    min-width: 0;
 }
-
 .territorio-nombre-container {
     flex: 1;
-    min-width: 0; /* Para truncate */
+    min-width: 0;
 }
-
 .territorio-nombre {
     font-weight: 600;
     color: #374151;
@@ -241,26 +449,18 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
-/* Desktop: nombre en línea superior oculto, contenido en línea 2 */
 .territorio-nombre-mobile {
     display: none;
 }
-
 .territorio-content-desktop {
     display: block;
 }
-
 .territorio-nombre-desktop {
     font-weight: 600;
     color: #374151;
     font-size: 1rem;
     margin-bottom: 0.25rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
-
 .territorio-description {
     color: #6b7280;
     font-size: 0.85rem;
@@ -271,278 +471,131 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
-
-/* Estados: Desktop vs Mobile */
 .territorio-badge-mobile {
     display: none;
 }
-
 .territorio-badge-desktop {
     display: inline-flex;
 }
 
 @media (max-width: 768px) {
+    .tipo-filtros {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 0.5rem;
+    }
+    .tipo-filtro {
+        flex-shrink: 0;
+        padding: 0.5rem 0.75rem;
+    }
+    .tipo-nombre {
+        font-size: 0.8rem;
+    }
     .territorio-grid {
         grid-template-columns: 1fr;
         gap: 1rem;
     }
-    
-    /* MEJORA MÓVIL: 45/55 ratio - Imagen más grande */
     .territorio-card {
-        flex-direction: row;
-        min-height: 130px;
         display: grid;
-        grid-template-columns: 140px 1fr auto; /* 45% imagen + contenido + estado */
+        grid-template-columns: 140px 1fr auto;
         gap: 0.75rem;
         align-items: center;
+        min-height: 130px;
     }
-    
     .territorio-image-half {
         width: 140px;
         height: 110px;
         padding: 0.25rem;
-        flex-shrink: 0;
     }
-    
-    .territorio-image-half img {
-        border: 1px solid #fff;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-    }
-    
     .territorio-content {
-        width: auto;
         padding: 0.75rem 0;
-        min-width: 0; /* Para text truncate */
     }
-    
-    /* Header reorganizado para móvil */
     .territorio-header-superior {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.25rem;
-        margin-bottom: 0.25rem;
     }
-    
     .territorio-info-superior {
         width: 100%;
         flex-direction: column;
         align-items: flex-start;
-        gap: 0.25rem;
-        justify-content: flex-start;
     }
-    
-    .territorio-nombre-container {
-        width: 100%;
-    }
-    
-    /* CÍRCULO PROTEGIDO: Tamaño fijo sin deformación */
     .territorio-numero-destacado {
-        width: 2.25rem !important;
-        height: 2.25rem !important;
-        font-size: 1rem !important;
-        font-weight: 800 !important;
-        flex-shrink: 0; /* CLAVE: No se achata */
-        border-radius: 50% !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+        width: 2.5rem !important;
+        height: 2.5rem !important;
+        font-size: 0.85rem !important;
+        flex-shrink: 0;
     }
-    
-    /* Móvil: ocultar contenido desktop y mostrar móvil */
     .territorio-content-desktop {
         display: none !important;
     }
-    
     .territorio-nombre-mobile {
         display: block !important;
         font-size: 0.85rem;
-        font-weight: 600;
-        max-width: 150px;
-        line-height: 1.2;
     }
-    
-    /* Descripción visible pero compacta */
-    .territorio-description {
-        font-size: 0.75rem;
-        line-height: 1.3;
-        color: #9ca3af;
-        -webkit-line-clamp: 1; /* Solo 1 línea en móvil */
-        margin-top: 0.25rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    /* Alternar visibilidad de estados */
     .territorio-badge-desktop {
         display: none !important;
     }
-    
     .territorio-badge-mobile {
         display: flex !important;
         writing-mode: vertical-lr;
-        text-orientation: mixed;
         padding: 0.5rem 0.3rem;
         font-size: 0.65rem;
         font-weight: 600;
-        border-width: 1px;
         align-self: stretch;
         align-items: center;
         justify-content: center;
         min-width: 50px;
     }
-    
     .territorio-actions-grid {
         grid-template-columns: 1fr 1fr;
         gap: 0.4rem;
         margin-top: 0.5rem;
     }
-    
     .btn-icon {
         padding: 0.4rem 0.6rem;
         font-size: 0.7rem;
-        border-radius: 6px;
     }
 }
 
-@media (max-width: 480px) {
-    /* MÓVIL PEQUEÑO: 35/65 ratio - Imagen más visible */
-    .territorio-card {
-        grid-template-columns: 110px 1fr auto; /* 35% imagen + contenido + estado */
-        gap: 0.5rem;
-        min-height: 120px;
-    }
-    
-    .territorio-image-half {
-        width: 110px;
-        height: 90px;
-    }
-    
-    /* Círculo ligeramente más pequeño pero protegido */
-    .territorio-numero-destacado {
-        width: 2rem !important;
-        height: 2rem !important;
-        font-size: 0.9rem !important;
-    }
-    
-    .territorio-nombre-mobile {
-        font-size: 0.8rem !important;
-        max-width: 120px !important;
-    }
-    
-    .territorio-description {
-        font-size: 0.7rem;
-    }
-    
-    .territorio-badge-mobile {
-        font-size: 0.6rem !important;
-        min-width: 45px !important;
-        padding: 0.4rem 0.25rem !important;
-    }
-    
-    /* Para pantallas muy pequeñas: botones verticales */
-    .territorio-actions-grid {
-        grid-template-columns: 1fr;
-        gap: 0.3rem;
-    }
-    
-    .btn-icon {
-        justify-content: center;
-    }
-}
+/* Badges */
+.badge-blue { background: #dbeafe; color: #1e40af; }
+.badge-green { background: #dcfce7; color: #166534; }
+.badge-yellow { background: #fef3c7; color: #92400e; }
+.badge-red { background: #fee2e2; color: #991b1b; }
+.badge-gray { background: #f3f4f6; color: #374151; }
 
-/* Badges específicos para estados */
-.badge-blue {
-    background: #dbeafe;
-    color: #1e40af;
-}
-
-.badge-green {
-    background: #dcfce7;
-    color: #166534;
-}
-
-.badge-yellow {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.badge-red {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.badge-gray {
-    background: #f3f4f6;
-    color: #374151;
-}
-
-/* Estilos del buscador */
-.search-form {
-    padding: 0;
-}
-
+/* Buscador */
 .search-container {
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
-
 .search-input {
     flex: 1;
     padding: 0.75rem 1rem;
     border: 2px solid #e5e7eb;
     border-radius: 8px;
     font-size: 1rem;
-    transition: border-color 0.3s;
 }
-
 .search-input:focus {
     outline: none;
     border-color: #3b82f6;
 }
-
 .search-btn {
     padding: 0.75rem 1rem;
     background: #3b82f6;
     color: white;
     border: none;
     border-radius: 8px;
-    font-size: 1rem;
     cursor: pointer;
-    transition: background-color 0.3s;
 }
-
-.search-btn:hover {
-    background: #2563eb;
-}
-
 .search-clear {
     padding: 0.75rem 1rem;
     background: #ef4444;
     color: white;
     text-decoration: none;
     border-radius: 8px;
-    font-size: 1rem;
-    transition: background-color 0.3s;
-}
-
-.search-clear:hover {
-    background: #dc2626;
-}
-
-@media (max-width: 768px) {
-    .search-container {
-        flex-direction: column;
-    }
-
-    .search-input {
-        width: 100%;
-    }
-
-    .search-btn,
-    .search-clear {
-        width: 100%;
-        text-align: center;
-    }
 }
 </style>
-@endsection 
+@endsection

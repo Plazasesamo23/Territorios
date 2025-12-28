@@ -1,71 +1,95 @@
 @extends('layouts.app')
 
-@section('title', 'Nuevo Territorio - Gestión de Territorios')
+@php
+    $tipoActual = $tipo ?? 'normal';
+    $prefijo = \App\Models\Territorio::PREFIJOS[$tipoActual] ?? '';
+    $tipoNombre = \App\Models\Territorio::TIPOS_NOMBRES[$tipoActual] ?? 'Normal';
+@endphp
+
+@section('title', 'Nuevo Territorio {{ $tipoNombre }} - Gestion de Territorios')
 
 @section('content')
-<!-- Navegación y acciones en una sola línea -->
+<!-- Navegacion y acciones en una sola linea -->
 <div class="page-nav">
     <div class="page-breadcrumbs">
         <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
-        <span class="breadcrumb-sep">›</span>
-        <a href="{{ route('territorios.index') }}" class="breadcrumb-link">Territorios</a>
-        <span class="breadcrumb-sep">›</span>
-        <span class="breadcrumb-current">Nuevo Territorio</span>
+        <span class="breadcrumb-sep">></span>
+        <a href="{{ route('territorios.index', ['tipo' => $tipoActual]) }}" class="breadcrumb-link">Territorios</a>
+        <span class="breadcrumb-sep">></span>
+        <span class="breadcrumb-current">Nuevo Territorio {{ $tipoNombre }}</span>
     </div>
-    
+
     <div class="page-actions">
-        <a href="{{ route('territorios.index') }}" class="btn btn-secondary">
-            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
+        <a href="{{ route('territorios.index', ['tipo' => $tipoActual]) }}" class="btn btn-secondary">
             Volver
         </a>
     </div>
 </div>
 
+<!-- Indicador de tipo -->
+@if($tipoActual !== 'normal')
+<div class="tipo-indicator tipo-{{ $tipoActual }} mb-4">
+    <span class="tipo-icon">
+        @if($tipoActual === 'campana')
+            &#128227;
+        @else
+            &#127970;
+        @endif
+    </span>
+    <span class="tipo-text">
+        Creando territorio de <strong>{{ $tipoNombre }}</strong>
+        @if($tipoActual === 'campana' || $tipoActual === 'negocios')
+            - Este territorio NO se incluira en el S-13
+        @endif
+    </span>
+</div>
+@endif
+
 <!-- Formulario principal -->
     <div class="card has-header">
         <div class="card-header">
-            <h2 class="card-title">Información del Territorio</h2>
+            <h2 class="card-title">
+                @if($tipoActual === 'campana')
+                    &#128227; Nuevo Territorio de Campana
+                @elseif($tipoActual === 'negocios')
+                    &#127970; Nuevo Territorio de Negocios
+                @else
+                    &#128203; Nuevo Territorio Normal
+                @endif
+            </h2>
             <p class="card-subtitle">Completa los datos para crear un nuevo territorio</p>
         </div>
 
-        <form action="{{ route('territorios.store') }}" method="POST" class="card-body">
+        <form action="{{ route('territorios.store') }}" method="POST" class="card-body" enctype="multipart/form-data">
             @csrf
-            
+            <input type="hidden" name="tipo" value="{{ $tipoActual }}">
+
             <div class="grid grid-2">
-                <!-- Número del Territorio -->
+                <!-- Numero del Territorio -->
                 <div class="form-group">
                     <label for="numero" class="form-label required">
-                        Número del Territorio
+                        Numero del Territorio
                     </label>
-                    <div class="input-group">
-                        <input 
-                            type="number" 
-                            id="numero" 
-                            name="numero" 
-                            value="{{ old('numero') }}"
+                    <div class="input-group numero-input-group">
+                        @if($prefijo)
+                        <span class="numero-prefijo">{{ $prefijo }}</span>
+                        @endif
+                        <input
+                            type="number"
+                            id="numero"
+                            name="numero"
+                            value="{{ old('numero', $siguienteNumero ?? '') }}"
                             required
                             min="1"
-                            class="form-input @error('numero') error @enderror"
+                            class="form-input @error('numero') error @enderror {{ $prefijo ? 'con-prefijo' : '' }}"
                             placeholder="Ej: 1, 2, 3..."
                         >
-                        <div class="input-icon">
-                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
-                            </svg>
-                        </div>
                     </div>
                     @error('numero')
-                        <p class="form-error">
-                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                            </svg>
-                            {{ $message }}
-                        </p>
+                        <p class="form-error">{{ $message }}</p>
                     @enderror
                     <p class="form-help">
-                        Debe ser un número único en el sistema
+                        Siguiente numero sugerido: <strong>{{ $prefijo }}{{ $siguienteNumero ?? '1' }}</strong>
                     </p>
                 </div>
 
@@ -139,36 +163,68 @@
                     </p>
                 </div>
 
-                <!-- URL de Imagen -->
+                <!-- Imagen del Territorio -->
                 <div class="form-group full-width">
-                    <label for="imagen_url" class="form-label">
-                        URL de la Imagen del Territorio
+                    <label class="form-label">
+                        Imagen del Territorio
                     </label>
-                    <div class="input-group">
-                        <input 
-                            type="url" 
-                            id="imagen_url" 
-                            name="imagen_url" 
+
+                    <!-- Selector de metodo -->
+                    <div class="imagen-metodo-selector mb-3">
+                        <button type="button" class="metodo-btn active" data-metodo="local" onclick="cambiarMetodoImagen('local')">
+                            &#128194; Subir Archivo
+                        </button>
+                        <button type="button" class="metodo-btn" data-metodo="url" onclick="cambiarMetodoImagen('url')">
+                            &#128279; Usar URL
+                        </button>
+                    </div>
+
+                    <!-- Opcion: Subir archivo local -->
+                    <div id="imagen-local-container" class="imagen-container">
+                        <div class="upload-area" id="upload-area" onclick="document.getElementById('imagen').click()">
+                            <div class="upload-icon">&#128247;</div>
+                            <div class="upload-text">
+                                <strong>Haz clic para seleccionar</strong> o arrastra una imagen aqui
+                            </div>
+                            <div class="upload-hint">JPG, JPEG o PNG. Maximo 2MB</div>
+                        </div>
+                        <input
+                            type="file"
+                            id="imagen"
+                            name="imagen"
+                            accept=".jpg,.jpeg,.png"
+                            class="file-input-hidden"
+                            onchange="previewImagen(this)"
+                        >
+                        <div id="imagen-preview" class="imagen-preview hidden">
+                            <img id="preview-img" src="" alt="Preview">
+                            <button type="button" class="remove-image-btn" onclick="removeImagen()">&#10006;</button>
+                        </div>
+                        @error('imagen')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Opcion: URL externa -->
+                    <div id="imagen-url-container" class="imagen-container hidden">
+                        <input
+                            type="url"
+                            id="imagen_url"
+                            name="imagen_url"
                             value="{{ old('imagen_url') }}"
                             class="form-input @error('imagen_url') error @enderror"
                             placeholder="https://ejemplo.com/imagen-territorio.jpg"
                         >
-                        <div class="input-icon">
-                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    @error('imagen_url')
-                        <p class="form-error">
-                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                            </svg>
-                            {{ $message }}
+                        @error('imagen_url')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                        <p class="form-help">
+                            Soporta enlaces de Dropbox y Google Drive
                         </p>
-                    @enderror
-                    <p class="form-help">
-                        Opcional: URL de la imagen o mapa del territorio para facilitar la identificación
+                    </div>
+
+                    <p class="form-help mt-2">
+                        La imagen ayuda a identificar el territorio y se envia por WhatsApp
                     </p>
                 </div>
 
@@ -232,10 +288,243 @@
                     <li><strong>Número único:</strong> Cada territorio debe tener un número único que no se repita en el sistema</li>
                     <li><strong>Imagen recomendada:</strong> Sube una imagen del mapa del territorio para facilitar su identificación</li>
                     <li><strong>Estado inicial:</strong> La mayoría de territorios nuevos se crean como "Libre" para estar disponibles</li>
-                    <li><strong>Notas útiles:</strong> Incluye información sobre dificultades, horarios recomendados, o características especiales</li>
-                    <li><strong>Acceso por WhatsApp:</strong> Si incluyes una imagen, podrás enviar el territorio por WhatsApp automáticamente</li>
+                    <li><strong>Notas utiles:</strong> Incluye informacion sobre dificultades, horarios recomendados, o caracteristicas especiales</li>
+                    <li><strong>Acceso por WhatsApp:</strong> Si incluyes una imagen, podras enviar el territorio por WhatsApp automaticamente</li>
+                    @if($tipoActual !== 'normal')
+                    <li><strong>Tipo {{ $tipoNombre }}:</strong> Los territorios de campana y negocios NO se incluyen en el reporte S-13</li>
+                    @endif
                 </ul>
             </div>
         </div>
     </div>
+
+<style>
+.tipo-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+}
+.tipo-indicator.tipo-campana {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 2px solid #f59e0b;
+    color: #92400e;
+}
+.tipo-indicator.tipo-negocios {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border: 2px solid #3b82f6;
+    color: #1e40af;
+}
+.tipo-icon {
+    font-size: 1.5rem;
+}
+.numero-input-group {
+    display: flex;
+    align-items: center;
+}
+.numero-prefijo {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+    padding: 0.75rem 1rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-radius: 8px 0 0 8px;
+    border: 2px solid #4f46e5;
+    border-right: none;
+}
+.form-input.con-prefijo {
+    border-radius: 0 8px 8px 0;
+}
+
+/* Selector de metodo de imagen */
+.imagen-metodo-selector {
+    display: flex;
+    gap: 0.5rem;
+}
+.metodo-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+    color: #6b7280;
+}
+.metodo-btn:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+.metodo-btn.active {
+    border-color: #3b82f6;
+    background: #3b82f6;
+    color: white;
+}
+
+/* Area de upload */
+.upload-area {
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fafafa;
+}
+.upload-area:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+.upload-area.dragover {
+    border-color: #3b82f6;
+    background: #dbeafe;
+}
+.upload-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+.upload-text {
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+.upload-hint {
+    color: #9ca3af;
+    font-size: 0.85rem;
+}
+.file-input-hidden {
+    display: none;
+}
+
+/* Preview de imagen */
+.imagen-preview {
+    position: relative;
+    margin-top: 1rem;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid #e5e7eb;
+}
+.imagen-preview img {
+    width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+    background: #f3f4f6;
+}
+.remove-image-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 32px;
+    height: 32px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.remove-image-btn:hover {
+    background: #dc2626;
+}
+
+.imagen-container.hidden {
+    display: none;
+}
+.hidden {
+    display: none !important;
+}
+.mt-2 {
+    margin-top: 0.5rem;
+}
+.mb-3 {
+    margin-bottom: 0.75rem;
+}
+</style>
+
+<script>
+function cambiarMetodoImagen(metodo) {
+    // Actualizar botones
+    document.querySelectorAll('.metodo-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector('[data-metodo="' + metodo + '"]').classList.add('active');
+
+    // Mostrar/ocultar contenedores
+    if (metodo === 'local') {
+        document.getElementById('imagen-local-container').classList.remove('hidden');
+        document.getElementById('imagen-url-container').classList.add('hidden');
+        document.getElementById('imagen_url').value = '';
+    } else {
+        document.getElementById('imagen-local-container').classList.add('hidden');
+        document.getElementById('imagen-url-container').classList.remove('hidden');
+        removeImagen();
+    }
+}
+
+function previewImagen(input) {
+    if (input.files && input.files[0]) {
+        var file = input.files[0];
+
+        // Validar tamaño (2MB max)
+        if (file.size > 2 * 1024 * 1024) {
+            alert('La imagen es demasiado grande. Maximo 2MB.');
+            input.value = '';
+            return;
+        }
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('preview-img').src = e.target.result;
+            document.getElementById('imagen-preview').classList.remove('hidden');
+            document.getElementById('upload-area').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function removeImagen() {
+    document.getElementById('imagen').value = '';
+    document.getElementById('preview-img').src = '';
+    document.getElementById('imagen-preview').classList.add('hidden');
+    document.getElementById('upload-area').style.display = 'block';
+}
+
+// Drag and drop
+document.addEventListener('DOMContentLoaded', function() {
+    var uploadArea = document.getElementById('upload-area');
+    var fileInput = document.getElementById('imagen');
+
+    if (uploadArea) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'), false);
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            var files = e.dataTransfer.files;
+            if (files.length) {
+                fileInput.files = files;
+                previewImagen(fileInput);
+            }
+        }, false);
+    }
+});
+</script>
 @endsection 

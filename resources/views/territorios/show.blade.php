@@ -1,46 +1,61 @@
 @extends('layouts.app')
 
-@section('title', 'Territorio #{{ $territorio->numero ?? "N/A" }} - Gestión de Territorios')
+@php
+    $tipoActual = $territorio->tipo ?? 'normal';
+    $prefijo = \App\Models\Territorio::PREFIJOS[$tipoActual] ?? '';
+    $tipoNombre = \App\Models\Territorio::TIPOS_NOMBRES[$tipoActual] ?? 'Normal';
+@endphp
+
+@section('title', 'Territorio {{ $territorio->numero_completo ?? "N/A" }} - Gestion de Territorios')
 
 @section('content')
 
 @if(!isset($territorio) || !$territorio || !$territorio->id)
     <div class="card text-center" style="padding: 3rem;">
-        <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
+        <div style="font-size: 4rem; margin-bottom: 1rem;">&#9888;</div>
         <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: #dc2626;">Error: Territorio no encontrado</h3>
         <p class="text-muted mb-4">El territorio que intentas acceder no existe o no se pudo cargar.</p>
         <a href="{{ route('territorios.index') }}" class="btn btn-primary">
-            ↩️ Volver a Territorios
+            Volver a Territorios
         </a>
     </div>
 @else
 
-<!-- Navegación de página minimalista -->
+<!-- Navegacion de pagina minimalista -->
 <div class="page-nav">
     <div class="page-breadcrumbs">
         <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
-        <span class="breadcrumb-sep">›</span>
-        <a href="{{ route('territorios.index') }}" class="breadcrumb-link">Territorios</a>
-        <span class="breadcrumb-sep">›</span>
-        <span class="breadcrumb-current">Territorio #{{ $territorio->numero }}</span>
+        <span class="breadcrumb-sep">></span>
+        <a href="{{ route('territorios.index', ['tipo' => $tipoActual]) }}" class="breadcrumb-link">Territorios</a>
+        <span class="breadcrumb-sep">></span>
+        <span class="breadcrumb-current">Territorio {{ $territorio->numero_completo }}</span>
     </div>
-    
+
     <div class="page-actions">
-        <a href="{{ route('territorios.index') }}" class="btn btn-secondary">
-            ↩️ Volver al Listado
+        <a href="{{ route('territorios.index', ['tipo' => $tipoActual]) }}" class="btn btn-secondary">
+            Volver al Listado
         </a>
     </div>
 </div>
 
 <div class="territorio-detail-container">
-    <!-- Header con botones de acción -->
-    <div class="detail-header">
+    <!-- Header con botones de accion -->
+    <div class="detail-header {{ $tipoActual !== 'normal' ? 'header-tipo-' . $tipoActual : '' }}">
         <div class="header-info">
             <div class="territorio-title">
-                <div class="numero-circle">{{ $territorio->numero }}</div>
+                <div class="numero-circle {{ $tipoActual !== 'normal' ? 'numero-' . $tipoActual : '' }}">{{ $territorio->numero_completo }}</div>
                 <div class="title-content">
-                    <h1 id="titulo-territorio">Territorio #{{ $territorio->numero }}</h1>
+                    <h1 id="titulo-territorio">Territorio {{ $territorio->numero_completo }}</h1>
                     <div class="status-badges">
+                        @if($tipoActual !== 'normal')
+                        <span class="tipo-badge tipo-badge-{{ $tipoActual }}">
+                            @if($tipoActual === 'campana')
+                                &#128227; Campana
+                            @else
+                                &#127970; Negocios
+                            @endif
+                        </span>
+                        @endif
                         <span class="estado-badge estado-{{ $territorio->calcularEstado() }}">
                             {{ ucfirst($territorio->calcularEstado()) }}
                         </span>
@@ -79,7 +94,7 @@
                  <h3><i class="icon">🖼️</i> Imagen del Territorio</h3>
                 
                 <div class="image-container">
-                    <img id="imagen-territorio" src="{{ $territorio->getImagenUrl() }}" alt="Territorio {{ $territorio->numero }}">
+                    <img id="imagen-territorio" src="{{ $territorio->getImagenUrl() }}" referrerpolicy="no-referrer" alt="Territorio {{ $territorio->numero }}">
                     
                     <!-- Input para subir imagen (oculto por defecto) -->
                     <div id="upload-container" class="upload-container hidden">
@@ -267,6 +282,36 @@
     font-size: 1.5rem;
     font-weight: 900;
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+.numero-circle.numero-campana {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+.numero-circle.numero-negocios {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+.tipo-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.tipo-badge-campana {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #f59e0b;
+}
+.tipo-badge-negocios {
+    background: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #3b82f6;
+}
+.header-tipo-campana {
+    border-left: 4px solid #f59e0b;
+}
+.header-tipo-negocios {
+    border-left: 4px solid #3b82f6;
 }
 
 .title-content h1 {

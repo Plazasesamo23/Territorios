@@ -691,6 +691,416 @@
         }
         .control-section-content.collapsed {
             display: none;
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 1024px) {
+            .editor-layout {
+                flex-direction: column;
+            }
+            .tools-panel {
+                width: 100%;
+                max-height: 200px;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            .properties-panel {
+                width: 100%;
+                max-height: 200px;
+                border-left: none;
+                border-top: 1px solid #e0e0e0;
+            }
+            .editor-canvas-area {
+                min-height: 400px;
+            }
+            .export-layout {
+                flex-direction: column;
+            }
+            .export-panel {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 0.75rem 1rem;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            .header h1 {
+                font-size: 1.2rem;
+                text-align: center;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: center;
+            }
+            .steps-container {
+                padding: 0.75rem 1rem;
+                overflow-x: auto;
+            }
+            .steps {
+                min-width: max-content;
+                gap: 0;
+                justify-content: flex-start;
+            }
+            .step {
+                padding: 0.5rem 0.75rem;
+                flex-shrink: 0;
+            }
+            .step-text {
+                font-size: 0.75rem;
+            }
+            .step-number {
+                width: 26px;
+                height: 26px;
+                font-size: 0.75rem;
+            }
+            .step::after {
+                width: 20px;
+                right: -10px;
+            }
+            #step1 {
+                flex-direction: column;
+                height: auto;
+                min-height: calc(100vh - 130px);
+            }
+            #map {
+                height: 50vh;
+                min-height: 300px;
+            }
+            .map-panel {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid #e0e0e0;
+                max-height: none;
+            }
+            #step2 {
+                height: auto;
+                min-height: calc(100vh - 130px);
+            }
+            .tools-panel {
+                width: 100%;
+                max-height: none;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+                padding: 0.75rem;
+            }
+            .tool-group {
+                margin-bottom: 1rem;
+            }
+            .tool-btn {
+                padding: 0.625rem 0.75rem;
+            }
+            .properties-panel {
+                width: 100%;
+                max-height: none;
+                border-left: none;
+                border-top: 1px solid #e0e0e0;
+                order: 3;
+            }
+            .editor-canvas-area {
+                min-height: 50vh;
+                padding: 1rem;
+                order: 2;
+            }
+            #editorCanvas {
+                transform: scale(0.6);
+                transform-origin: top left;
+            }
+            #step3 {
+                height: auto;
+                min-height: calc(100vh - 130px);
+            }
+            .export-canvas-area {
+                min-height: 400px;
+                padding: 1rem;
+            }
+            #previewCanvas, #s12Card {
+                transform: scale(0.45);
+                transform-origin: top left;
+            }
+            .btn {
+                padding: 0.625rem 1rem;
+                font-size: 0.8rem;
+            }
+            .btn-lg {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1rem;
+            }
+            .steps-container {
+                padding: 0.5rem;
+            }
+            .step {
+                padding: 0.4rem 0.5rem;
+            }
+            .step-text {
+                font-size: 0.65rem;
+            }
+            .step-number {
+                width: 22px;
+                height: 22px;
+                font-size: 0.65rem;
+            }
+            .panel-title {
+                font-size: 1rem;
+            }
+            .help-card {
+                padding: 1rem;
+            }
+            .help-card h4 {
+                font-size: 0.9rem;
+            }
+            .help-card ol {
+                font-size: 0.8rem;
+            }
+            .stats-number {
+                font-size: 2.5rem;
+            }
+            #editorCanvas {
+                transform: scale(0.4);
+            }
+            #previewCanvas, #s12Card {
+                transform: scale(0.35);
+            }
+            .tool-group-title {
+                font-size: 0.7rem;
+            }
+            .rotation-control {
+                padding: 0.75rem;
+            }
+            .rotation-buttons button {
+                padding: 0.4rem;
+                font-size: 0.75rem;
+            }
+        }
+            display: none;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 1024px) {
+            /* Editor layout en tablet */
+            .editor-layout {
+                flex-direction: column;
+            }
+            .tools-panel {
+                width: 100%;
+                max-height: 200px;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            .properties-panel {
+                width: 100%;
+                max-height: 200px;
+                border-left: none;
+                border-top: 1px solid #e0e0e0;
+            }
+            .editor-canvas-area {
+                min-height: 400px;
+            }
+            /* Export layout */
+            .export-layout {
+                flex-direction: column;
+            }
+            .export-panel {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            /* Header responsive */
+            .header {
+                padding: 0.75rem 1rem;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            .header h1 {
+                font-size: 1.2rem;
+                text-align: center;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* Steps responsive - horizontal scroll en móvil */
+            .steps-container {
+                padding: 0.75rem 1rem;
+                overflow-x: auto;
+            }
+            .steps {
+                min-width: max-content;
+                gap: 0;
+                justify-content: flex-start;
+            }
+            .step {
+                padding: 0.5rem 0.75rem;
+                flex-shrink: 0;
+            }
+            .step-text {
+                font-size: 0.75rem;
+            }
+            .step-number {
+                width: 26px;
+                height: 26px;
+                font-size: 0.75rem;
+            }
+            .step::after {
+                width: 20px;
+                right: -10px;
+            }
+
+            /* Paso 1: Mapa */
+            #step1 {
+                flex-direction: column;
+                height: auto;
+                min-height: calc(100vh - 130px);
+            }
+            #map {
+                height: 50vh;
+                min-height: 300px;
+            }
+            .map-panel {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid #e0e0e0;
+                max-height: none;
+            }
+
+            /* Paso 2: Editor */
+            #step2 {
+                height: auto;
+                min-height: calc(100vh - 130px);
+            }
+            .editor-layout {
+                flex-direction: column;
+            }
+            .tools-panel {
+                width: 100%;
+                max-height: none;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+                padding: 0.75rem;
+            }
+            .tool-group {
+                margin-bottom: 1rem;
+            }
+            .tool-btn {
+                padding: 0.625rem 0.75rem;
+            }
+            .color-palette {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            .properties-panel {
+                width: 100%;
+                max-height: none;
+                border-left: none;
+                border-top: 1px solid #e0e0e0;
+                order: 3;
+            }
+            .editor-canvas-area {
+                min-height: 50vh;
+                padding: 1rem;
+                order: 2;
+            }
+            #editorCanvas {
+                transform: scale(0.6);
+                transform-origin: top left;
+            }
+
+            /* Paso 3: Exportar */
+            #step3 {
+                height: auto;
+                min-height: calc(100vh - 130px);
+            }
+            .export-layout {
+                flex-direction: column;
+            }
+            .export-panel {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            .export-canvas-area {
+                min-height: 400px;
+                padding: 1rem;
+            }
+            #previewCanvas, #s12Card {
+                transform: scale(0.45);
+                transform-origin: top left;
+            }
+
+            /* Botones responsive */
+            .btn {
+                padding: 0.625rem 1rem;
+                font-size: 0.8rem;
+            }
+            .btn-lg {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            /* Móviles pequeños */
+            .header h1 {
+                font-size: 1rem;
+            }
+            .steps-container {
+                padding: 0.5rem;
+            }
+            .step {
+                padding: 0.4rem 0.5rem;
+            }
+            .step-text {
+                font-size: 0.65rem;
+            }
+            .step-number {
+                width: 22px;
+                height: 22px;
+                font-size: 0.65rem;
+            }
+            .panel-title {
+                font-size: 1rem;
+            }
+            .help-card {
+                padding: 1rem;
+            }
+            .help-card h4 {
+                font-size: 0.9rem;
+            }
+            .help-card ol {
+                font-size: 0.8rem;
+            }
+            .stats-number {
+                font-size: 2.5rem;
+            }
+            #editorCanvas {
+                transform: scale(0.4);
+            }
+            #previewCanvas, #s12Card {
+                transform: scale(0.35);
+            }
+            .tool-group-title {
+                font-size: 0.7rem;
+            }
+            .rotation-control {
+                padding: 0.75rem;
+            }
+            .rotation-buttons button {
+                padding: 0.4rem;
+                font-size: 0.75rem;
+            }
+        }
         }
     </style>
 </head>

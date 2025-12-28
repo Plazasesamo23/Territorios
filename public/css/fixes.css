@@ -1,0 +1,858 @@
+/* ========================================
+   CORRECCIONES ESTETICAS GLOBALES
+   Sistema de Gestion de Territorios
+   ======================================== */
+
+/* ==========================================
+   1. BOTONES - ARREGLOS DE TAMANIO Y TEXTO
+   ========================================== */
+
+/* Base de botones - evitar overflow */
+.btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.4rem !important;
+    padding: 0.65rem 1.2rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    min-height: 42px !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Boton pequeno */
+.btn-sm {
+    padding: 0.45rem 0.9rem !important;
+    font-size: 0.8rem !important;
+    min-height: 36px !important;
+    gap: 0.3rem !important;
+}
+
+/* Iconos dentro de botones - tamano consistente */
+.btn span,
+.btn svg,
+.btn img {
+    flex-shrink: 0 !important;
+    font-size: 1em !important;
+    width: auto !important;
+    height: auto !important;
+    max-width: 1.2em !important;
+    max-height: 1.2em !important;
+}
+
+/* Botones de icono circular (perfil, config, logout) */
+.config-btn,
+.profile-btn,
+.logout-btn {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.config-icon,
+.profile-icon,
+.logout-btn {
+    font-size: 1.1rem !important;
+    line-height: 1 !important;
+}
+
+/* Botones de accion en cards */
+.btn-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.35rem !important;
+    padding: 0.5rem 0.8rem !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    min-height: 36px !important;
+    background: var(--bg-card, #fff) !important;
+    border: 1px solid var(--border-color, #e5e7eb) !important;
+    border-radius: 6px !important;
+    color: var(--text-primary, #374151) !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-icon:hover {
+    background: var(--color-gray-100, #f3f4f6) !important;
+    border-color: var(--color-primary, #3b82f6) !important;
+    color: var(--color-primary, #3b82f6) !important;
+}
+
+[data-theme="dark"] .btn-icon {
+    background: #1a1a1a !important;
+    border-color: #333333 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .btn-icon:hover {
+    background: #262626 !important;
+    border-color: #f97316 !important;
+    color: #f97316 !important;
+}
+
+/* ==========================================
+   2. CIRCULOS DE NUMEROS DE TERRITORIO
+   ========================================== */
+
+/* Numero destacado - adaptable al contenido */
+.territorio-numero-destacado {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 2.8rem !important;
+    height: 2.8rem !important;
+    padding: 0 0.5rem !important;
+    border-radius: 2rem !important;
+    font-weight: 800 !important;
+    font-size: 1rem !important;
+    line-height: 1 !important;
+    color: #fff !important;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4) !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+}
+
+/* Numeros con prefijo (C-, N-) - mas anchos */
+.territorio-numero-destacado.numero-campana,
+.numero-campana {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4) !important;
+    min-width: 3.2rem !important;
+    font-size: 0.9rem !important;
+}
+
+.territorio-numero-destacado.numero-negocios,
+.numero-negocios {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4) !important;
+    min-width: 3.2rem !important;
+    font-size: 0.9rem !important;
+}
+
+/* Dark mode - circulos */
+[data-theme="dark"] .territorio-numero-destacado {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.5) !important;
+}
+
+[data-theme="dark"] .numero-campana {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.5) !important;
+}
+
+[data-theme="dark"] .numero-negocios {
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
+    box-shadow: 0 2px 8px rgba(96, 165, 250, 0.5) !important;
+}
+
+/* ==========================================
+   3. BADGES - CONSISTENCIA DE ESTILOS
+   ========================================== */
+
+.badge,
+.territorio-badge-estado {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0.35rem 0.75rem !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.025em !important;
+    border-radius: 1rem !important;
+    white-space: nowrap !important;
+    line-height: 1 !important;
+}
+
+.badge-green, .badge-success {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+}
+
+.badge-blue {
+    background: #dbeafe !important;
+    color: #1e40af !important;
+}
+
+.badge-yellow, .badge-warning {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+}
+
+.badge-red, .badge-danger {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+}
+
+.badge-gray {
+    background: #f3f4f6 !important;
+    color: #4b5563 !important;
+}
+
+/* Dark mode badges */
+[data-theme="dark"] .badge-green {
+    background: rgba(34, 197, 94, 0.15) !important;
+    color: #4ade80 !important;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+[data-theme="dark"] .badge-blue {
+    background: rgba(249, 115, 22, 0.15) !important;
+    color: #f97316 !important;
+    border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+[data-theme="dark"] .badge-yellow {
+    background: rgba(251, 191, 36, 0.15) !important;
+    color: #fbbf24 !important;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+[data-theme="dark"] .badge-red {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #f87171 !important;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+[data-theme="dark"] .badge-gray {
+    background: #262626 !important;
+    color: #a3a3a3 !important;
+    border: 1px solid #404040;
+}
+
+/* ==========================================
+   4. HEADER RESPONSIVE
+   ========================================== */
+
+.header-content {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.75rem !important;
+}
+
+.header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    flex-wrap: wrap !important;
+}
+
+.congregacion-badge {
+    max-width: 180px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 0.75rem !important;
+}
+
+/* Navegacion responsive */
+.nav {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.35rem !important;
+    align-items: center !important;
+}
+
+.nav-link {
+    padding: 0.45rem 0.8rem !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease !important;
+}
+
+/* ==========================================
+   5. CARDS DE TERRITORIO - LAYOUT MEJORADO
+   ========================================== */
+
+.territorio-card {
+    display: flex !important;
+    background: var(--bg-card, #fff) !important;
+    border: 1px solid var(--border-color, #e5e7eb) !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    min-height: 140px !important;
+    transition: all 0.2s ease !important;
+}
+
+.territorio-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    border-color: var(--color-primary, #3b82f6) !important;
+}
+
+.territorio-image-half {
+    width: 45% !important;
+    min-width: 140px !important;
+    max-width: 200px !important;
+    padding: 0.75rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: var(--color-gray-50, #f9fafb) !important;
+    position: relative !important;
+}
+
+.territorio-image-half img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 8px !important;
+    border: 2px solid #fff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.territorio-content {
+    flex: 1 !important;
+    padding: 1rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    min-width: 0 !important;
+}
+
+/* Header del territorio */
+.territorio-header-superior {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.territorio-info-superior {
+    flex: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
+    min-width: 0 !important;
+}
+
+/* Acciones en grid */
+.territorio-actions-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+    margin-top: auto !important;
+}
+
+/* ==========================================
+   6. STAT CARDS - TAMANO UNIFORME
+   ========================================== */
+
+.stat-card {
+    text-align: center !important;
+    padding: 1rem 0.75rem !important;
+    min-height: 80px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.stat-number {
+    font-size: 1.75rem !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    margin-bottom: 0.25rem !important;
+}
+
+.stat-label {
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    color: var(--text-secondary) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* ==========================================
+   7. FORMULARIOS - MEJORAS
+   ========================================== */
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100% !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.95rem !important;
+    border: 2px solid var(--border-color, #e5e7eb) !important;
+    border-radius: 8px !important;
+    background: var(--bg-card, #fff) !important;
+    color: var(--text-primary, #333) !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    border-color: var(--color-primary, #3b82f6) !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+    outline: none !important;
+}
+
+/* ==========================================
+   8. DROPDOWNS - ESTILOS UNIFORMES
+   ========================================== */
+
+.dropdown {
+    position: relative !important;
+    display: inline-block !important;
+}
+
+.dropdown-menu {
+    position: absolute !important;
+    top: 100% !important;
+    right: 0 !important;
+    margin-top: 0.5rem !important;
+    min-width: 200px !important;
+    background: var(--bg-card, #fff) !important;
+    border: 1px solid var(--border-color, #e5e7eb) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    z-index: 1000 !important;
+    display: none !important;
+    overflow: hidden !important;
+}
+
+.dropdown-menu.show {
+    display: block !important;
+}
+
+.dropdown-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    padding: 0.75rem 1rem !important;
+    color: var(--text-primary, #333) !important;
+    text-decoration: none !important;
+    font-size: 0.875rem !important;
+    transition: background 0.15s ease !important;
+    border: none !important;
+    width: 100% !important;
+    cursor: pointer !important;
+    background: transparent !important;
+}
+
+.dropdown-item:hover {
+    background: var(--color-gray-100, #f3f4f6) !important;
+}
+
+.dropdown-icon {
+    font-size: 1.1rem !important;
+    flex-shrink: 0 !important;
+}
+
+/* Dark mode dropdown */
+[data-theme="dark"] .dropdown-menu {
+    background: #0d0d0d !important;
+    border-color: #333 !important;
+}
+
+[data-theme="dark"] .dropdown-item {
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .dropdown-item:hover {
+    background: #1a1a1a !important;
+}
+
+/* ==========================================
+   9. RESPONSIVE - MOVIL Y TABLET
+   ========================================== */
+
+@media (max-width: 992px) {
+    .header-content {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+    }
+
+    .nav {
+        width: 100% !important;
+        justify-content: center !important;
+        gap: 0.25rem !important;
+    }
+
+    .nav-link {
+        padding: 0.4rem 0.65rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    .header-actions {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Header compacto */
+    .logo {
+        font-size: 1.1rem !important;
+    }
+
+    .nav {
+        overflow-x: auto !important;
+        flex-wrap: nowrap !important;
+        justify-content: flex-start !important;
+        padding-bottom: 0.5rem !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .nav-link {
+        flex-shrink: 0 !important;
+        padding: 0.35rem 0.55rem !important;
+        font-size: 0.75rem !important;
+    }
+
+    /* Botones circulares mas pequenos */
+    .config-btn,
+    .profile-btn,
+    .logout-btn {
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
+    }
+
+    .config-icon,
+    .profile-icon {
+        font-size: 1rem !important;
+    }
+
+    .congregacion-badge {
+        max-width: 120px !important;
+        font-size: 0.65rem !important;
+        padding: 0.2rem 0.5rem !important;
+    }
+
+    /* Page nav vertical */
+    .page-nav {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+    }
+
+    .page-actions {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+    }
+
+    .page-actions .btn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    /* Territorio card horizontal */
+    .territorio-card {
+        display: grid !important;
+        grid-template-columns: 120px 1fr auto !important;
+        min-height: 110px !important;
+        gap: 0 !important;
+    }
+
+    .territorio-image-half {
+        width: 100% !important;
+        min-width: unset !important;
+        max-width: unset !important;
+        height: 100% !important;
+        min-height: 100px !important;
+        padding: 0.5rem !important;
+    }
+
+    .territorio-content {
+        padding: 0.75rem !important;
+    }
+
+    .territorio-numero-destacado {
+        width: 2.4rem !important;
+        height: 2.4rem !important;
+        min-width: 2.4rem !important;
+        font-size: 0.85rem !important;
+    }
+
+    .numero-campana,
+    .numero-negocios {
+        min-width: 2.8rem !important;
+        font-size: 0.75rem !important;
+    }
+
+    .territorio-badge-mobile {
+        display: flex !important;
+        writing-mode: vertical-rl !important;
+        text-orientation: mixed !important;
+        padding: 0.5rem 0.25rem !important;
+        font-size: 0.6rem !important;
+        min-width: 40px !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .territorio-badge-desktop {
+        display: none !important;
+    }
+
+    .territorio-content-desktop {
+        display: none !important;
+    }
+
+    .territorio-nombre-mobile {
+        display: block !important;
+        font-size: 0.8rem !important;
+    }
+
+    .territorio-actions-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.35rem !important;
+    }
+
+    .btn-icon {
+        padding: 0.4rem 0.5rem !important;
+        font-size: 0.7rem !important;
+        min-height: 32px !important;
+    }
+
+    /* Stat cards compactas */
+    .stat-card {
+        padding: 0.75rem 0.5rem !important;
+        min-height: 70px !important;
+    }
+
+    .stat-number {
+        font-size: 1.4rem !important;
+    }
+
+    .stat-label {
+        font-size: 0.7rem !important;
+    }
+
+    /* Grid responsive */
+    .grid-4,
+    .grid-5 {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.5rem !important;
+    }
+
+    /* Formularios touch-friendly */
+    .form-input,
+    .form-select,
+    .form-textarea {
+        font-size: 16px !important; /* Evita zoom en iOS */
+        padding: 0.875rem 1rem !important;
+        min-height: 48px !important;
+    }
+
+    /* Botones mas grandes en movil */
+    .btn {
+        min-height: 44px !important;
+        padding: 0.6rem 1rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .territorio-card {
+        grid-template-columns: 100px 1fr auto !important;
+    }
+
+    .territorio-image-half {
+        min-height: 90px !important;
+        padding: 0.35rem !important;
+    }
+
+    .territorio-numero-destacado {
+        width: 2.2rem !important;
+        height: 2.2rem !important;
+        min-width: 2.2rem !important;
+        font-size: 0.75rem !important;
+    }
+
+    .numero-campana,
+    .numero-negocios {
+        min-width: 2.5rem !important;
+        font-size: 0.65rem !important;
+    }
+
+    .territorio-badge-mobile {
+        min-width: 35px !important;
+        font-size: 0.55rem !important;
+    }
+
+    .territorio-actions-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.25rem !important;
+    }
+
+    .btn-icon {
+        font-size: 0.65rem !important;
+        padding: 0.35rem 0.4rem !important;
+    }
+
+    .stat-number {
+        font-size: 1.2rem !important;
+    }
+}
+
+/* ==========================================
+   10. ANIMACIONES SUAVES
+   ========================================== */
+
+.btn,
+.btn-icon,
+.card,
+.territorio-card,
+.stat-card,
+.nav-link,
+.dropdown-item {
+    transition: all 0.2s ease !important;
+}
+
+/* Hover effects */
+.btn:hover:not(:disabled),
+.btn-icon:hover {
+    transform: translateY(-1px) !important;
+}
+
+.stat-card:hover,
+.territorio-card:hover {
+    transform: translateY(-2px) !important;
+}
+
+/* ==========================================
+   11. TEMA OSCURO - CORRECCIONES EXTRA
+   ========================================== */
+
+[data-theme="dark"] .territorio-card {
+    background: #0d0d0d !important;
+    border-color: #262626 !important;
+}
+
+[data-theme="dark"] .territorio-card:hover {
+    border-color: #f97316 !important;
+}
+
+[data-theme="dark"] .territorio-image-half {
+    background: #111111 !important;
+}
+
+[data-theme="dark"] .territorio-nombre,
+[data-theme="dark"] .territorio-nombre-mobile,
+[data-theme="dark"] .territorio-nombre-desktop {
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .territorio-description {
+    color: #a3a3a3 !important;
+}
+
+/* ==========================================
+   12. TIPO FILTROS - ESTILOS UNIFORMES
+   ========================================== */
+
+.tipo-filtros {
+    display: flex !important;
+    gap: 0.5rem !important;
+    flex-wrap: wrap !important;
+    margin-bottom: 1rem !important;
+}
+
+.tipo-filtro {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.65rem 1rem !important;
+    background: var(--bg-card, #fff) !important;
+    border: 2px solid var(--border-color, #e5e7eb) !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    color: var(--text-primary, #374151) !important;
+    font-weight: 500 !important;
+    font-size: 0.875rem !important;
+    transition: all 0.2s ease !important;
+    white-space: nowrap !important;
+}
+
+.tipo-filtro:hover {
+    border-color: var(--color-primary, #3b82f6) !important;
+}
+
+.tipo-filtro.active {
+    border-color: var(--color-primary, #3b82f6) !important;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+    color: var(--color-primary, #3b82f6) !important;
+}
+
+.tipo-icono {
+    font-size: 1.1rem !important;
+    flex-shrink: 0 !important;
+}
+
+.tipo-count {
+    background: var(--color-gray-200, #e5e7eb) !important;
+    padding: 0.15rem 0.5rem !important;
+    border-radius: 10px !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+}
+
+/* Dark mode tipo filtros */
+[data-theme="dark"] .tipo-filtro {
+    background: #0d0d0d !important;
+    border-color: #262626 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .tipo-filtro:hover {
+    border-color: #f97316 !important;
+}
+
+[data-theme="dark"] .tipo-filtro.active {
+    border-color: #f97316 !important;
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(249, 115, 22, 0.05) 100%) !important;
+    color: #f97316 !important;
+}
+
+[data-theme="dark"] .tipo-count {
+    background: #262626 !important;
+    color: #a3a3a3 !important;
+}
+
+@media (max-width: 768px) {
+    .tipo-filtros {
+        overflow-x: auto !important;
+        flex-wrap: nowrap !important;
+        padding-bottom: 0.5rem !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .tipo-filtro {
+        flex-shrink: 0 !important;
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    .tipo-icono {
+        font-size: 1rem !important;
+    }
+}

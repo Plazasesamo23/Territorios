@@ -12,9 +12,8 @@ trait BelongsToCongregacion
         // Scope global para filtrar por congregación automáticamente
         static::addGlobalScope('congregacion', function (Builder $builder) {
             $congregacionId = session('congregacion_activa_id');
-            if ($congregacionId) {
-                $builder->where((new static)->getTable() . '.congregacion_id', $congregacionId);
-            }
+            // SIEMPRE filtrar por congregación - si no hay sesión, usar 0 (no devuelve nada)
+            $builder->where((new static)->getTable() . '.congregacion_id', $congregacionId ?? 0);
         });
 
         // Al crear, asignar congregación automáticamente

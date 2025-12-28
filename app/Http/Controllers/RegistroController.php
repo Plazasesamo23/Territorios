@@ -15,15 +15,22 @@ class RegistroController extends Controller
      */
     public function index(Request $request)
     {
-        // Obtener IDs de territorios de la congregación activa
-        $territorioIds = Territorio::pluck('id');
+        // Filtro por tipo de territorio
+        $tipoFiltro = $request->get('tipo', 'todos');
 
-        // Consulta base para registros activos (sin fecha de entrada) de la congregación
+        // Obtener IDs de territorios de la congregacion activa, filtrados por tipo si aplica
+        $territorioQuery = Territorio::query();
+        if ($tipoFiltro && $tipoFiltro !== 'todos') {
+            $territorioQuery->where('tipo', $tipoFiltro);
+        }
+        $territorioIds = $territorioQuery->pluck('id');
+
+        // Consulta base para registros activos (sin fecha de entrada) de la congregacion
         $query = Registro::with(['territorio', 'publicador'])
             ->whereIn('territorio_id', $territorioIds)
             ->whereNull('fecha_entrada');
 
-        // Aplicar búsqueda si se proporciona
+        // Aplicar busqueda si se proporciona
         if ($request->has('search') && $request->search != '') {
             $searchTerm = $request->search;
             $query->where(function($q) use ($searchTerm) {
@@ -42,13 +49,27 @@ class RegistroController extends Controller
 
         $registrosActivos = $query->get();
 
-        // Calcular días transcurridos y estado para cada registro activo
+        // Calcular dias transcurridos y estado para cada registro activo
         foreach ($registrosActivos as $registro) {
             $registro->dias_transcurridos = Carbon::parse($registro->fecha_salida)->diffInDays(now());
             $registro->estado_calculado = $registro->territorio->calcularEstado();
         }
 
-        // Estadísticas rápidas (solo registros activos)
+        // Conteo por tipo (para todos los registros activos sin filtrar)
+        $todosTerritorioIds = Territorio::pluck('id');
+        $todosRegistrosActivos = Registro::with('territorio')
+            ->whereIn('territorio_id', $todosTerritorioIds)
+            ->whereNull('fecha_entrada')
+            ->get();
+
+        $conteoTipos = [
+            'todos' => $todosRegistrosActivos->count(),
+            'normal' => $todosRegistrosActivos->filter(fn($r) => $r->territorio->tipo === 'normal')->count(),
+            'campana' => $todosRegistrosActivos->filter(fn($r) => $r->territorio->tipo === 'campana')->count(),
+            'negocios' => $todosRegistrosActivos->filter(fn($r) => $r->territorio->tipo === 'negocios')->count(),
+        ];
+
+        // Estadisticas rapidas (solo registros activos filtrados)
         $estadisticas = [
             'activos_total' => $registrosActivos->count(),
             'atrasados' => $registrosActivos->where('estado_calculado', 'atrasado')->count(),
@@ -61,7 +82,7 @@ class RegistroController extends Controller
         // Historial reciente solo para referencia (ya no se usa en la vista)
         $historialReciente = collect();
 
-        return view('registros.index', compact('registrosActivos', 'historialReciente', 'estadisticas'));
+        return view('registros.index', compact('registrosActivos', 'historialReciente', 'estadisticas', 'tipoFiltro', 'conteoTipos'));
     }
 
     /**
@@ -161,7 +182,7 @@ class RegistroController extends Controller
         $this->enviarWhatsAppAsignacion($territorio, $publicador);
 
         return redirect()->route('registros.index')
-            ->with('success', "Territorio #{$territorio->numero} asignado a {$publicador->nombre}.")
+            ->with('success', "Territorio {$territorio->numero_completo} asignado a {$publicador->nombre}.")
             ->with('mostrar_whatsapp', true);
     }
 
@@ -221,7 +242,7 @@ class RegistroController extends Controller
         $duracionDias = Carbon::parse($registro->fecha_salida)->diffInDays($fechaEntrada);
 
         return redirect()->route('registros.index')
-            ->with('success', "Territorio #{$registro->territorio->numero} devuelto por {$registro->publicador->nombre_completo}. Duración: {$duracionDias} días.");
+            ->with('success', "Territorio {$registro->territorio->numero_completo} devuelto por {$registro->publicador->nombre_completo}. Duracion: {$duracionDias} dias.");
     }
 
     /**
@@ -265,7 +286,7 @@ class RegistroController extends Controller
         $registro->delete();
 
         return redirect()->route('registros.index')
-            ->with('success', "Registro de territorio #{$territorio->numero} y {$publicador->nombre} eliminado.");
+            ->with('success', "Registro de territorio {$territorio->numero_completo} y {$publicador->nombre} eliminado.");
     }
 
     /**
@@ -273,18 +294,9 @@ class RegistroController extends Controller
      */
     private function enviarWhatsAppAsignacion($territorio, $publicador)
     {
-        $plantilla = config('territorios.whatsapp.plantilla_asignacion');
-        $urlBase = config('territorios.whatsapp.url_base');
-        
-        $mensaje = str_replace([
-            '{numero}',
-            '{nombre}',
-            '{imagen_url}'
-        ], [
-            $territorio->numero,
-            $territorio->nombre ?? "Territorio #{$territorio->numero}",
-            $territorio->getImagenUrl()
-        ], $plantilla);
+        // Obtener el mensaje personalizado de la congregación
+        $congregacion = auth()->user()->congregacion;
+        $mensaje = $congregacion->getMensajeWhatsappFormateado($publicador, $territorio);
 
         // Limpiar número de teléfono y crear URL de WhatsApp
         $telefono = preg_replace('/[^0-9]/', '', $publicador->telefono);
@@ -293,7 +305,9 @@ class RegistroController extends Controller
         // Guardar la URL en sesión para redirigir después
         session(['whatsapp_url' => $whatsappUrl]);
         session(['whatsapp_publicador' => $publicador->nombre_completo]);
-        session(['whatsapp_territorio' => $territorio->numero]);
+        session(['whatsapp_territorio' => $territorio->numero_completo]);
+        session(['whatsapp_imagen_url' => $territorio->getImagenUrl()]);
+        session(["whatsapp_mensaje" => $mensaje]);
         
         // Registrar el envío
         \Log::info("WhatsApp preparado para {$publicador->telefono}: {$mensaje}");
