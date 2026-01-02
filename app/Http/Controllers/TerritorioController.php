@@ -27,7 +27,7 @@ class TerritorioController extends Controller
             $searchTerm = $request->search;
             $query->where(function($q) use ($searchTerm) {
                 $q->where('numero', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere('nombre', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('zona', 'LIKE', "%{$searchTerm}%")
                   ->orWhere('descripcion', 'LIKE', "%{$searchTerm}%")
                   ->orWhere('notas', 'LIKE', "%{$searchTerm}%");
             });
@@ -93,6 +93,10 @@ class TerritorioController extends Controller
      */
     public function create(Request $request)
     {
+        if (!auth()->user()->canEditTerritorios()) {
+            abort(403, 'No tienes permisos para crear territorios.');
+        }
+
         $tipo = $request->get('tipo', 'normal');
         $congregacionId = session('congregacion_activa_id');
 
@@ -107,6 +111,10 @@ class TerritorioController extends Controller
      */
     public function store(Request $request)
     {
+        if (!auth()->user()->canEditTerritorios()) {
+            abort(403, 'No tienes permisos para crear territorios.');
+        }
+
         $congregacionId = session('congregacion_activa_id');
         $tipo = $request->get('tipo', 'normal');
 
@@ -129,7 +137,7 @@ class TerritorioController extends Controller
                     }
                 },
             ],
-            'nombre' => 'nullable|string|max:255',
+            'zona' => 'nullable|string|max:255',
             'descripcion' => 'nullable|string',
             'coordenadas_lat' => 'nullable|numeric|between:-90,90',
             'coordenadas_lng' => 'nullable|numeric|between:-180,180',
@@ -181,6 +189,10 @@ class TerritorioController extends Controller
      */
     public function edit(Territorio $territorio)
     {
+        if (!auth()->user()->canEditTerritorios()) {
+            abort(403, 'No tienes permisos para editar territorios.');
+        }
+
         return view('territorios.edit', compact('territorio'));
     }
 
@@ -189,6 +201,10 @@ class TerritorioController extends Controller
      */
     public function update(Request $request, Territorio $territorio)
     {
+        if (!auth()->user()->canEditTerritorios()) {
+            abort(403, 'No tienes permisos para editar territorios.');
+        }
+
         $congregacionId = session('congregacion_activa_id');
         $territorioId = $territorio->id;
         $tipo = $request->get('tipo', $territorio->tipo);
@@ -213,7 +229,7 @@ class TerritorioController extends Controller
                     }
                 },
             ],
-            'nombre' => 'nullable|string|max:255',
+            'zona' => 'nullable|string|max:255',
             'descripcion' => 'nullable|string',
             'coordenadas_lat' => 'nullable|numeric|between:-90,90',
             'coordenadas_lng' => 'nullable|numeric|between:-180,180',
@@ -255,6 +271,10 @@ class TerritorioController extends Controller
      */
     public function destroy(Territorio $territorio)
     {
+        if (!auth()->user()->canEditTerritorios()) {
+            abort(403, 'No tienes permisos para eliminar territorios.');
+        }
+
         $tipo = $territorio->tipo;
         $territorio->delete();
 

@@ -2,7 +2,7 @@
 
 > Registro de todos los errores encontrados y sus soluciones durante el desarrollo
 
-**Ultima actualizacion:** Diciembre 2025
+**Ultima actualizacion:** 28 Diciembre 2025
 
 ---
 
@@ -13,6 +13,7 @@
 3. [Errores de Interfaz](#errores-de-interfaz)
 4. [Errores de S-13 y PDFs](#errores-de-s-13-y-pdfs)
 5. [Errores de Base de Datos](#errores-de-base-de-datos)
+6. [Errores del Modulo PPOC](#errores-del-modulo-ppoc-28-diciembre-2025)
 
 ---
 
@@ -195,6 +196,59 @@ public function up(): void
 ```
 
 **Comando:** `php artisan migrate`
+
+---
+
+
+## Errores del Modulo PPOC (28 Diciembre 2025)
+
+### Error: "Trying to access array offset on value of type null"
+
+**Ubicacion:** resources/views/ppoc/calendario.blade.php linea 65
+
+**Causa:** El array `$semanas` contiene valores null para las celdas vacias del calendario (dias del mes anterior/siguiente), y el template intentaba acceder a propiedades de estos valores null.
+
+**Solucion:**
+```php
+// Antes (error)
+@foreach($semana as $dia)
+    <td class="calendar-cell {{ $dia['esHoy'] ? 'bg-info' : '' }}">
+
+// Despues (correcto)
+@foreach($semana as $dia)
+    @if($dia === null)
+    <td class="calendar-cell text-muted bg-light"></td>
+    @continue
+    @endif
+    <td class="calendar-cell {{ ($dia['esHoy'] ?? false) ? 'bg-info' : '' }}">
+```
+
+**Archivo modificado:** `resources/views/ppoc/calendario.blade.php`
+
+---
+
+### Error: "Cannot use object of type Carbon\Carbon as array"
+
+**Ubicacion:** resources/views/ppoc/calendario.blade.php linea 69
+
+**Causa:** El TurnoController agregaba objetos Carbon directamente al array `$semanas` en lugar de arrays con propiedades estructuradas.
+
+**Solucion:**
+```php
+// Antes (error) - agregaba Carbon directamente
+$semanaActual[] = $dia->copy();
+
+// Despues (correcto) - array con propiedades
+$semanaActual[] = [
+    'fecha' => $dia->copy(),
+    'numero' => $dia->day,
+    'esHoy' => $dia->isSameDay($hoy),
+    'esMesActual' => true,
+    'turnos' => $turnosDelDia,
+];
+```
+
+**Archivo modificado:** `app/Http/Controllers/TurnoController.php`
 
 ---
 

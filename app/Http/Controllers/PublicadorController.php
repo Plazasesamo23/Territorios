@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Publicador;
 use App\Models\Registro;
+use App\Models\GrupoPredicacion;
 use Carbon\Carbon;
 
 class PublicadorController extends Controller
@@ -38,7 +39,15 @@ class PublicadorController extends Controller
      */
     public function create()
     {
-        return view('publicadores.create');
+        if (!auth()->user()->canEditPublicadores()) {
+            abort(403, 'No tienes permisos para crear publicadores.');
+        }
+
+        $grupos = GrupoPredicacion::where('congregacion_id', session('congregacion_activa_id'))
+            ->orderBy('numero')
+            ->get();
+
+        return view('publicadores.create', compact('grupos'));
     }
 
     /**
@@ -46,12 +55,22 @@ class PublicadorController extends Controller
      */
     public function store(Request $request)
     {
+        if (!auth()->user()->canEditPublicadores()) {
+            abort(403, 'No tienes permisos para crear publicadores.');
+        }
+
         $request->validate([
             'nombre' => 'required|string|max:255',
             'apellidos' => 'nullable|string|max:255',
             'telefono' => 'required|string|max:20',
             'notas' => 'nullable|string|max:1000',
-            'activo' => 'boolean'
+            'activo' => 'boolean',
+            'es_menor' => 'boolean',
+            'es_anciano' => 'boolean',
+            'es_siervo_ministerial' => 'boolean',
+            'es_precursor' => 'boolean',
+            'aprobado_ppoc' => 'boolean',
+            'grupo_predicacion_id' => 'nullable|exists:grupos_predicacion,id'
         ]);
 
         Publicador::create([
@@ -59,7 +78,12 @@ class PublicadorController extends Controller
             'apellidos' => $request->apellidos,
             'telefono' => $request->telefono,
             'notas' => $request->notas,
-            'activo' => $request->boolean('activo', true)
+            'activo' => $request->boolean('activo', true),
+            'es_menor' => $request->boolean('es_menor'),
+            'es_anciano' => $request->boolean('es_anciano'),
+            'es_siervo_ministerial' => $request->boolean('es_siervo_ministerial'),
+            'es_precursor' => $request->boolean('es_precursor'),
+            'grupo_predicacion_id' => $request->grupo_predicacion_id
         ]);
 
         return redirect()->route('publicadores.index')
@@ -71,13 +95,79 @@ class PublicadorController extends Controller
      */
     public function show(Publicador $publicador)
     {
+        // Cargar relacion de grupo
+        $publicador->load('grupoPredicacion');
+
+        // Registro activo y territorio actual
         $registroActivo = $publicador->registros()
             ->whereNull('fecha_entrada')
             ->with('territorio')
             ->first();
         $publicador->territorio_actual = $registroActivo ? $registroActivo->territorio : null;
 
-        return view('publicadores.show', compact('publicador'));
+        // Cargar todos los registros para estadisticas
+        $todosRegistros = $publicador->registros()
+            ->with('territorio')
+            ->orderBy('fecha_salida', 'desc')
+            ->get();
+
+        // Estadisticas generales
+        $completados = $todosRegistros->whereNotNull('fecha_entrada');
+        $activos = $todosRegistros->whereNull('fecha_entrada')->count();
+
+        $totalDias = 0;
+        foreach ($completados as $reg) {
+            $totalDias += Carbon::parse($reg->fecha_salida)->diffInDays(Carbon::parse($reg->fecha_entrada));
+        }
+
+        $estadisticas = [
+            'total' => $todosRegistros->count(),
+            'activos' => $activos,
+            'completados' => $completados->count(),
+            'promedio_dias' => $completados->count() > 0 ? round($totalDias / $completados->count()) : 0,
+        ];
+
+        // Ano de servicio actual
+        $anoServicio = $this->calcularAnoServicio();
+        $fechasAno = $this->getFechasAnoServicio($anoServicio);
+
+        // Registros del ano de servicio
+        $registrosAno = $todosRegistros->filter(function($reg) use ($fechasAno) {
+            return Carbon::parse($reg->fecha_salida)->between($fechasAno['inicio'], $fechasAno['fin']);
+        });
+
+        $completadosAno = $registrosAno->whereNotNull('fecha_entrada');
+        $diasAno = 0;
+        foreach ($completadosAno as $reg) {
+            $diasAno += Carbon::parse($reg->fecha_salida)->diffInDays(Carbon::parse($reg->fecha_entrada));
+        }
+        // Sumar dias de territorios activos en el ano
+        foreach ($registrosAno->whereNull('fecha_entrada') as $reg) {
+            $diasAno += Carbon::parse($reg->fecha_salida)->diffInDays(now());
+        }
+
+        $estadisticasAno = [
+            'territorios' => $registrosAno->count(),
+            'completados' => $completadosAno->count(),
+            'dias_servicio' => $diasAno,
+        ];
+
+        // Ultimos 5 registros
+        $ultimosRegistros = $todosRegistros->take(5);
+
+        // Grupos para el selector de edicion
+        $grupos = GrupoPredicacion::where('congregacion_id', session('congregacion_activa_id'))
+            ->orderBy('numero')
+            ->get();
+
+        return view('publicadores.show', compact(
+            'publicador',
+            'estadisticas',
+            'estadisticasAno',
+            'anoServicio',
+            'ultimosRegistros',
+            'grupos'
+        ));
     }
 
     /**
@@ -143,6 +233,11 @@ class PublicadorController extends Controller
      */
     public function registros(Request $request, Publicador $publicador)
     {
+        // Solo admins pueden ver estadísticas completas
+        if (!auth()->user()->canViewPublicadorStats()) {
+            abort(403, 'No tienes permisos para ver las estadísticas de publicadores.');
+        }
+
         // Obtener parametros de filtro
         $tipoFiltro = $request->get('filtro', 'todos'); // todos, ano_servicio, fechas
         $anoServicio = $request->get('ano_servicio', $this->calcularAnoServicio());
@@ -242,12 +337,22 @@ class PublicadorController extends Controller
      */
     public function update(Request $request, Publicador $publicador)
     {
+        if (!auth()->user()->canEditPublicadores()) {
+            abort(403, 'No tienes permisos para editar publicadores.');
+        }
+
         $request->validate([
             'nombre' => 'required|string|max:255',
             'apellidos' => 'nullable|string|max:255',
             'telefono' => 'required|string|max:20',
             'notas' => 'nullable|string|max:1000',
-            'activo' => 'boolean'
+            'activo' => 'boolean',
+            'es_menor' => 'boolean',
+            'es_anciano' => 'boolean',
+            'es_siervo_ministerial' => 'boolean',
+            'es_precursor' => 'boolean',
+            'aprobado_ppoc' => 'boolean',
+            'grupo_predicacion_id' => 'nullable|exists:grupos_predicacion,id'
         ]);
 
         $publicador->update([
@@ -255,7 +360,13 @@ class PublicadorController extends Controller
             'apellidos' => $request->apellidos,
             'telefono' => $request->telefono,
             'notas' => $request->notas,
-            'activo' => $request->boolean('activo')
+            'activo' => $request->boolean('activo'),
+            'es_menor' => $request->boolean('es_menor'),
+            'es_anciano' => $request->boolean('es_anciano'),
+            'es_siervo_ministerial' => $request->boolean('es_siervo_ministerial'),
+            'es_precursor' => $request->boolean('es_precursor'),
+            'aprobado_ppoc' => $request->boolean('aprobado_ppoc'),
+            'grupo_predicacion_id' => $request->grupo_predicacion_id
         ]);
 
         return redirect()->route('publicadores.show', $publicador)
@@ -263,10 +374,31 @@ class PublicadorController extends Controller
     }
 
     /**
+     * Toggle precursor status
+     */
+    public function togglePrecursor(Publicador $publicador)
+    {
+        if (!auth()->user()->canEditPublicadores()) {
+            return response()->json(["success" => false, "message" => "Sin permisos"], 403);
+        }
+
+        $publicador->update(["es_precursor" => !$publicador->es_precursor]);
+
+        return response()->json([
+            "success" => true,
+            "es_precursor" => $publicador->es_precursor
+        ]);
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(Publicador $publicador)
     {
+        if (!auth()->user()->canEditPublicadores()) {
+            abort(403, 'No tienes permisos para eliminar publicadores.');
+        }
+
         $registroActivo = $publicador->registros()->whereNull('fecha_entrada')->first();
 
         if ($registroActivo) {

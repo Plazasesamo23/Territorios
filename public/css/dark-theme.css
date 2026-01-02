@@ -589,3 +589,919 @@
 [data-theme="dark"] .text-center p[style*="color: #9ca3af"] {
     color: #737373 !important;
 }
+
+/* ==========================================
+   MODALES - Negro y Naranja
+   ========================================== */
+
+/* Overlay de modales */
+[data-theme="dark"] .modal-overlay,
+[data-theme="dark"] [style*="background: rgba(0, 0, 0"],
+[data-theme="dark"] [style*="background-color: rgba(0, 0, 0"] {
+    background: rgba(0, 0, 0, 0.85) !important;
+}
+
+/* Contenido de modales */
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .modal-box,
+[data-theme="dark"] [class*="modal"] > div[style*="background: white"],
+[data-theme="dark"] [class*="modal"] > div[style*="background: #fff"],
+[data-theme="dark"] [class*="modal"] > div[style*="background-color: white"],
+[data-theme="dark"] div[style*="position: fixed"] > div[style*="background: white"],
+[data-theme="dark"] div[style*="position: fixed"] > div[style*="background: #fff"] {
+    background: #0d0d0d !important;
+    border: 1px solid #333333 !important;
+    color: #f5f5f5 !important;
+}
+
+/* Headers de modales */
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] [class*="modal"] h2,
+[data-theme="dark"] [class*="modal"] h3 {
+    color: #f97316 !important;
+    border-bottom-color: #333333 !important;
+}
+
+/* Botones cerrar modales */
+[data-theme="dark"] .modal-close,
+[data-theme="dark"] [class*="modal"] button[style*="position: absolute"] {
+    color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .modal-close:hover,
+[data-theme="dark"] [class*="modal"] button[style*="position: absolute"]:hover {
+    color: #f97316 !important;
+}
+
+/* ==========================================
+   INPUTS Y SELECTS INLINE STYLES
+   ========================================== */
+
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="email"],
+[data-theme="dark"] input[type="password"],
+[data-theme="dark"] input[type="number"],
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="time"],
+[data-theme="dark"] input[type="search"],
+[data-theme="dark"] input[type="tel"],
+[data-theme="dark"] input[type="url"],
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+    background: #111111 !important;
+    border-color: #333333 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] textarea:focus,
+[data-theme="dark"] select:focus {
+    border-color: #f97316 !important;
+    box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2) !important;
+    outline: none !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+    color: #666666 !important;
+}
+
+[data-theme="dark"] select option {
+    background: #111111 !important;
+    color: #f5f5f5 !important;
+}
+
+/* ==========================================
+   S-13 IMPORT - Preview y Modales
+   ========================================== */
+
+/* Panel de texto completo */
+[data-theme="dark"] .texto-completo-panel,
+[data-theme="dark"] [id*="textoCompleto"],
+[data-theme="dark"] div[style*="background: #f8fafc"] {
+    background: #111111 !important;
+    border-color: #333333 !important;
+    color: #a3a3a3 !important;
+}
+
+/* Raw data sections */
+[data-theme="dark"] .raw-section,
+[data-theme="dark"] .raw-content {
+    background: #0d0d0d !important;
+    border-color: #333333 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .raw-section-title {
+    color: #f97316 !important;
+}
+
+/* Comparación OCR vs Interpretado */
+[data-theme="dark"] .raw-comparison,
+[data-theme="dark"] .raw-row {
+    border-color: #333333 !important;
+}
+
+[data-theme="dark"] .raw-col-label {
+    color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .raw-col-value.original {
+    background: #1a1a0a !important;
+    color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .raw-col-value.interpreted {
+    background: #0a1a1a !important;
+    color: #22d3ee !important;
+}
+
+/* ==========================================
+   GRUPOS PREDICACION - Estadísticas Modal
+   ========================================== */
+
+[data-theme="dark"] .estadisticas-modal,
+[data-theme="dark"] #estadisticasModal {
+    background: rgba(0, 0, 0, 0.9) !important;
+}
+
+[data-theme="dark"] .estadisticas-content {
+    background: #0d0d0d !important;
+    border: 1px solid #f97316 !important;
+}
+
+[data-theme="dark"] .estadisticas-header {
+    background: #111111 !important;
+    border-bottom: 2px solid #f97316 !important;
+    color: #f97316 !important;
+}
+
+[data-theme="dark"] .estadisticas-body {
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .estadisticas-stat {
+    background: #111111 !important;
+    border: 1px solid #333333 !important;
+}
+
+[data-theme="dark"] .estadisticas-stat:hover {
+    border-color: #f97316 !important;
+}
+
+[data-theme="dark"] .estadisticas-stat-number {
+    color: #f97316 !important;
+}
+
+[data-theme="dark"] .estadisticas-stat-label {
+    color: #a3a3a3 !important;
+}
+
+/* ==========================================
+   PPOC - Calendario y Turnos
+   ========================================== */
+
+[data-theme="dark"] .calendario-dia {
+    background: #0d0d0d !important;
+    border-color: #333333 !important;
+}
+
+[data-theme="dark"] .calendario-dia:hover {
+    border-color: #f97316 !important;
+}
+
+[data-theme="dark"] .calendario-dia.hoy {
+    border-color: #f97316 !important;
+    background: #1a1a1a !important;
+}
+
+[data-theme="dark"] .calendario-numero {
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .turno-card {
+    background: #111111 !important;
+    border-color: #333333 !important;
+}
+
+[data-theme="dark"] .turno-card:hover {
+    border-color: #f97316 !important;
+}
+
+[data-theme="dark"] .turno-hora {
+    color: #f97316 !important;
+}
+
+[data-theme="dark"] .turno-nombre {
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .turno-asignado {
+    background: #1a1a1a !important;
+    color: #a3a3a3 !important;
+}
+
+/* ==========================================
+   CHECKBOXES Y RADIOS
+   ========================================== */
+
+[data-theme="dark"] input[type="checkbox"],
+[data-theme="dark"] input[type="radio"] {
+    accent-color: #f97316 !important;
+}
+
+[data-theme="dark"] input[type="checkbox"]:checked,
+[data-theme="dark"] input[type="radio"]:checked {
+    background-color: #f97316 !important;
+    border-color: #f97316 !important;
+}
+
+/* ==========================================
+   TABLAS CON ESTILOS INLINE
+   ========================================== */
+
+[data-theme="dark"] div[style*="display: grid"][style*="font-weight: 600"],
+[data-theme="dark"] div[style*="display: grid"][style*="background: #f9fafb"],
+[data-theme="dark"] div[style*="display: grid"][style*="background: #f3f4f6"] {
+    background: #111111 !important;
+    color: #f97316 !important;
+    border-bottom: 2px solid #f97316 !important;
+}
+
+[data-theme="dark"] div[style*="display: grid"][style*="border-bottom: 1px"] {
+    border-bottom-color: #333333 !important;
+}
+
+/* Filas alternadas en tablas inline */
+[data-theme="dark"] div[style*="display: grid"]:nth-child(odd) {
+    background: #0a0a0a !important;
+}
+
+[data-theme="dark"] div[style*="display: grid"]:nth-child(even) {
+    background: #0d0d0d !important;
+}
+
+/* ==========================================
+   RESUMEN CARDS (S-13 Import, etc)
+   ========================================== */
+
+[data-theme="dark"] .resumen-card,
+[data-theme="dark"] div[style*="background: linear-gradient"] {
+    background: #111111 !important;
+    border: 1px solid #333333 !important;
+}
+
+[data-theme="dark"] .resumen-numero {
+    color: #f97316 !important;
+}
+
+[data-theme="dark"] .resumen-label {
+    color: #a3a3a3 !important;
+}
+
+/* ==========================================
+   MENSAJES Y TOOLTIPS
+   ========================================== */
+
+[data-theme="dark"] .tooltip,
+[data-theme="dark"] [role="tooltip"] {
+    background: #1a1a1a !important;
+    border: 1px solid #f97316 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .tooltip::before,
+[data-theme="dark"] .tooltip::after {
+    border-color: #f97316 transparent transparent transparent !important;
+}
+
+/* ==========================================
+   DRAG AND DROP (Grupos)
+   ========================================== */
+
+[data-theme="dark"] .draggable,
+[data-theme="dark"] [draggable="true"] {
+    background: #111111 !important;
+    border-color: #333333 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .draggable:hover,
+[data-theme="dark"] [draggable="true"]:hover {
+    border-color: #f97316 !important;
+}
+
+[data-theme="dark"] .dragging {
+    opacity: 0.7 !important;
+    border-color: #f97316 !important;
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.3) !important;
+}
+
+[data-theme="dark"] .drop-zone.drag-over {
+    background: rgba(249, 115, 22, 0.1) !important;
+    border-color: #f97316 !important;
+}
+
+/* ==========================================
+   MOBILE MENU
+   ========================================== */
+
+[data-theme="dark"] .mobile-menu,
+[data-theme="dark"] .mobile-nav {
+    background: #0a0a0a !important;
+    border-color: #333333 !important;
+}
+
+[data-theme="dark"] .mobile-menu-item,
+[data-theme="dark"] .mobile-nav-link {
+    color: #a3a3a3 !important;
+    border-bottom-color: #222222 !important;
+}
+
+[data-theme="dark"] .mobile-menu-item:hover,
+[data-theme="dark"] .mobile-nav-link:hover,
+[data-theme="dark"] .mobile-menu-item.active,
+[data-theme="dark"] .mobile-nav-link.active {
+    background: #1a1a1a !important;
+    color: #f97316 !important;
+}
+
+/* ==========================================
+   CODE BLOCKS Y PRE
+   ========================================== */
+
+[data-theme="dark"] pre,
+[data-theme="dark"] code,
+[data-theme="dark"] .code-block {
+    background: #111111 !important;
+    border-color: #333333 !important;
+    color: #f5f5f5 !important;
+}
+
+/* ==========================================
+   LOADING STATES
+   ========================================== */
+
+[data-theme="dark"] .loading,
+[data-theme="dark"] .spinner {
+    border-color: #333333 !important;
+    border-top-color: #f97316 !important;
+}
+
+/* ==========================================
+   INLINE STYLES OVERRIDE - Colores específicos
+   ========================================== */
+
+/* Forzar colores en elementos con estilos inline */
+[data-theme="dark"] [style*="color: #333"],
+[data-theme="dark"] [style*="color: #374151"],
+[data-theme="dark"] [style*="color: #1f2937"] {
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] [style*="color: #6b7280"],
+[data-theme="dark"] [style*="color: #9ca3af"] {
+    color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] [style*="color: #3b82f6"],
+[data-theme="dark"] [style*="color: #2563eb"],
+[data-theme="dark"] [style*="color: #4f46e5"] {
+    color: #f97316 !important;
+}
+
+[data-theme="dark"] [style*="background: #fff"],
+[data-theme="dark"] [style*="background: white"],
+[data-theme="dark"] [style*="background-color: #fff"],
+[data-theme="dark"] [style*="background-color: white"] {
+    background: #0d0d0d !important;
+}
+
+[data-theme="dark"] [style*="background: #f9fafb"],
+[data-theme="dark"] [style*="background: #f3f4f6"],
+[data-theme="dark"] [style*="background: #e5e7eb"],
+[data-theme="dark"] [style*="background-color: #f9fafb"],
+[data-theme="dark"] [style*="background-color: #f3f4f6"] {
+    background: #111111 !important;
+}
+
+[data-theme="dark"] [style*="border-color: #e5e7eb"],
+[data-theme="dark"] [style*="border: 1px solid #e5e7eb"],
+[data-theme="dark"] [style*="border: 1px solid #d1d5db"] {
+    border-color: #333333 !important;
+}
+
+/* ==========================================
+   OVERRIDE COMPLETO - Verdes a Naranja
+   ========================================== */
+
+/* Todos los verdes -> naranja */
+[data-theme="dark"] [style*="#22c55e"],
+[data-theme="dark"] [style*="#16a34a"],
+[data-theme="dark"] [style*="#10b981"],
+[data-theme="dark"] [style*="#059669"],
+[data-theme="dark"] [style*="#34d399"],
+[data-theme="dark"] [style*="#dcfce7"],
+[data-theme="dark"] [style*="#bbf7d0"],
+[data-theme="dark"] [style*="#166534"] {
+    background: #f97316 !important;
+    color: #0a0a0a !important;
+    border-color: #f97316 !important;
+}
+
+/* Verdes para texto */
+[data-theme="dark"] [style*="color: #22c55e"],
+[data-theme="dark"] [style*="color: #16a34a"],
+[data-theme="dark"] [style*="color: #10b981"],
+[data-theme="dark"] [style*="color: #059669"],
+[data-theme="dark"] [style*="color: #166534"] {
+    color: #f97316 !important;
+}
+
+/* ==========================================
+   OVERRIDE COMPLETO - Azules a Naranja
+   ========================================== */
+
+/* Todos los azules -> naranja */
+[data-theme="dark"] [style*="#3b82f6"],
+[data-theme="dark"] [style*="#2563eb"],
+[data-theme="dark"] [style*="#1d4ed8"],
+[data-theme="dark"] [style*="#dbeafe"],
+[data-theme="dark"] [style*="#bfdbfe"],
+[data-theme="dark"] [style*="#eff6ff"],
+[data-theme="dark"] [style*="#1e40af"],
+[data-theme="dark"] [style*="#4f46e5"] {
+    background: #1a1a1a !important;
+    border-color: #f97316 !important;
+}
+
+/* Azules para texto */
+[data-theme="dark"] [style*="color: #3b82f6"],
+[data-theme="dark"] [style*="color: #2563eb"],
+[data-theme="dark"] [style*="color: #1d4ed8"],
+[data-theme="dark"] [style*="color: #1e40af"],
+[data-theme="dark"] [style*="color: #4f46e5"] {
+    color: #f97316 !important;
+}
+
+/* ==========================================
+   CLASES ESPECÍFICAS - Estados
+   ========================================== */
+
+/* Estados de territorio */
+[data-theme="dark"] .estado-disponible,
+[data-theme="dark"] .estado-libre {
+    background: rgba(249, 115, 22, 0.15) !important;
+    color: #fb923c !important;
+    border: 1px solid #f97316 !important;
+}
+
+[data-theme="dark"] .estado-activo {
+    background: rgba(249, 115, 22, 0.25) !important;
+    color: #f97316 !important;
+    border: 1px solid #f97316 !important;
+}
+
+[data-theme="dark"] .estado-vencido,
+[data-theme="dark"] .estado-overdue {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #f87171 !important;
+    border: 1px solid #ef4444 !important;
+}
+
+/* Tipos de territorio badges */
+[data-theme="dark"] .territorio-tipo-badge,
+[data-theme="dark"] .territorio-tipo-badge.regular,
+[data-theme="dark"] .territorio-tipo-badge.campana,
+[data-theme="dark"] .territorio-tipo-badge.negocios {
+    background: #f97316 !important;
+    color: #0a0a0a !important;
+}
+
+/* ==========================================
+   BOTONES CON ESTILOS INLINE
+   ========================================== */
+
+[data-theme="dark"] .btn-primary,
+[data-theme="dark"] [class*="btn"][style*="#3b82f6"],
+[data-theme="dark"] [class*="btn"][style*="#2563eb"],
+[data-theme="dark"] button[style*="#3b82f6"],
+[data-theme="dark"] a[style*="#3b82f6"] {
+    background: #f97316 !important;
+    color: #0a0a0a !important;
+    border-color: #f97316 !important;
+}
+
+[data-theme="dark"] .btn-success,
+[data-theme="dark"] [class*="btn"][style*="#22c55e"],
+[data-theme="dark"] [class*="btn"][style*="#10b981"],
+[data-theme="dark"] button[style*="#22c55e"],
+[data-theme="dark"] button[style*="#10b981"] {
+    background: #f97316 !important;
+    color: #0a0a0a !important;
+    border-color: #f97316 !important;
+}
+
+/* ==========================================
+   GRADIENTES - Convertir a negro/naranja
+   ========================================== */
+
+[data-theme="dark"] [style*="linear-gradient"][style*="#22c55e"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#10b981"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#16a34a"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#059669"] {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+}
+
+[data-theme="dark"] [style*="linear-gradient"][style*="#3b82f6"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#2563eb"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#1d4ed8"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#dbeafe"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#eff6ff"] {
+    background: linear-gradient(135deg, #1a1a1a 0%, #111111 100%) !important;
+    border: 1px solid #f97316 !important;
+}
+
+[data-theme="dark"] [style*="linear-gradient"][style*="#dcfce7"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#bbf7d0"] {
+    background: linear-gradient(135deg, #1a1508 0%, #0a0a0a 100%) !important;
+    border: 1px solid #f97316 !important;
+}
+
+/* ==========================================
+   PROGRESO BARS
+   ========================================== */
+
+[data-theme="dark"] .progreso-success,
+[data-theme="dark"] [class*="progreso"][style*="#10b981"],
+[data-theme="dark"] [class*="progress"][style*="#22c55e"] {
+    background: linear-gradient(90deg, #f97316, #fb923c) !important;
+}
+
+/* ==========================================
+   CARDS INFO/TIPS con fondos azules/verdes
+   ========================================== */
+
+[data-theme="dark"] div[style*="background: #dbeafe"],
+[data-theme="dark"] div[style*="background: #eff6ff"],
+[data-theme="dark"] div[style*="background: #bfdbfe"] {
+    background: #111111 !important;
+    border: 1px solid #f97316 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] div[style*="background: #dcfce7"],
+[data-theme="dark"] div[style*="background: #bbf7d0"],
+[data-theme="dark"] div[style*="background: #d1fae5"] {
+    background: #0f1a0a !important;
+    border: 1px solid #f97316 !important;
+    color: #f5f5f5 !important;
+}
+
+/* ==========================================
+   ICONOS Y ELEMENTOS DECORATIVOS
+   ========================================== */
+
+[data-theme="dark"] .icon-green,
+[data-theme="dark"] .icon-blue,
+[data-theme="dark"] [class*="icon"][style*="#22c55e"],
+[data-theme="dark"] [class*="icon"][style*="#3b82f6"],
+[data-theme="dark"] [class*="icon"][style*="#10b981"] {
+    background: #f97316 !important;
+    color: #0a0a0a !important;
+}
+
+/* ==========================================
+   STEPS/PASOS (creador territorios)
+   ========================================== */
+
+[data-theme="dark"] .step.completed,
+[data-theme="dark"] .step.completed .step-number {
+    color: #f97316 !important;
+    background: #f97316 !important;
+}
+
+[data-theme="dark"] .step .step-number {
+    background: #333333 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .step.active .step-number {
+    background: #f97316 !important;
+    color: #0a0a0a !important;
+}
+
+/* ==========================================
+   ADMINISTRACION CARDS
+   ========================================== */
+
+[data-theme="dark"] .admin-card,
+[data-theme="dark"] .config-card {
+    background: #0d0d0d !important;
+    border: 1px solid #333333 !important;
+}
+
+[data-theme="dark"] .admin-card:hover,
+[data-theme="dark"] .config-card:hover {
+    border-color: #f97316 !important;
+}
+
+[data-theme="dark"] .admin-card .icon,
+[data-theme="dark"] .config-card .icon {
+    background: #f97316 !important;
+    color: #0a0a0a !important;
+}
+
+/* ==========================================
+   USUARIOS
+   ========================================== */
+
+[data-theme="dark"] .user-status-active,
+[data-theme="dark"] [style*="color: #10b981"] {
+    color: #f97316 !important;
+}
+
+[data-theme="dark"] .user-role-badge {
+    background: #1a1a1a !important;
+    color: #f97316 !important;
+    border: 1px solid #f97316 !important;
+}
+
+/* ==========================================
+   FORZAR TODOS LOS BACKGROUNDS CLAROS
+   ========================================== */
+
+[data-theme="dark"] [style*="background: white"],
+[data-theme="dark"] [style*="background:#fff"],
+[data-theme="dark"] [style*="background: #fff"],
+[data-theme="dark"] [style*="background-color: white"],
+[data-theme="dark"] [style*="background-color: #fff"],
+[data-theme="dark"] [style*="background-color:#fff"] {
+    background: #0d0d0d !important;
+}
+
+/* ==========================================
+   FORZAR TODOS LOS TEXTOS OSCUROS
+   ========================================== */
+
+[data-theme="dark"] [style*="color: #111"],
+[data-theme="dark"] [style*="color: #000"],
+[data-theme="dark"] [style*="color: black"],
+[data-theme="dark"] [style*="color:#333"],
+[data-theme="dark"] [style*="color: #333"] {
+    color: #f5f5f5 !important;
+}
+
+/* ==========================================
+   LINKS EN CUALQUIER CONTEXTO
+   ========================================== */
+
+[data-theme="dark"] a[style*="color: #3b82f6"],
+[data-theme="dark"] a[style*="color: #2563eb"],
+[data-theme="dark"] a[style*="color: #1d4ed8"] {
+    color: #f97316 !important;
+}
+
+[data-theme="dark"] a[style*="color: #3b82f6"]:hover,
+[data-theme="dark"] a[style*="color: #2563eb"]:hover {
+    color: #fb923c !important;
+}
+
+/* ==========================================
+   BOTONES ESPECÍFICOS DE VISTAS
+   ========================================== */
+
+/* Territorios - Botones de acción */
+[data-theme="dark"] .btn-asignar {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+    color: #0a0a0a !important;
+}
+
+[data-theme="dark"] .btn-asignar:hover {
+    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%) !important;
+    box-shadow: 0 20px 50px rgba(249, 115, 22, 0.3) !important;
+}
+
+[data-theme="dark"] .btn-devolver {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+    color: #0a0a0a !important;
+}
+
+[data-theme="dark"] .btn-devolver:hover {
+    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%) !important;
+    box-shadow: 0 20px 50px rgba(249, 115, 22, 0.3) !important;
+}
+
+/* Territorio tipo badges */
+[data-theme="dark"] .territorio-tipo-badge.campana {
+    background: #fb923c !important;
+    color: #0a0a0a !important;
+}
+
+[data-theme="dark"] .territorio-tipo-badge.negocios {
+    background: #f97316 !important;
+    color: #0a0a0a !important;
+}
+
+/* Territorio foto número */
+[data-theme="dark"] .territorio-foto-numero {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+    color: #0a0a0a !important;
+}
+
+[data-theme="dark"] .territorio-foto-numero.numero-campana {
+    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%) !important;
+}
+
+[data-theme="dark"] .territorio-foto-numero.numero-negocios {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+}
+
+[data-theme="dark"] .territorio-foto-nombre {
+    color: #f5f5f5 !important;
+}
+
+/* ==========================================
+   TODOS LOS BTN-SUCCESS Y BTN-PRIMARY
+   ========================================== */
+
+[data-theme="dark"] .btn-success,
+[data-theme="dark"] .btn-success:hover,
+[data-theme="dark"] .btn-success:focus {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+    background-color: #f97316 !important;
+    color: #0a0a0a !important;
+    border-color: #f97316 !important;
+}
+
+[data-theme="dark"] .btn-primary,
+[data-theme="dark"] .btn-primary:hover,
+[data-theme="dark"] .btn-primary:focus {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+    background-color: #f97316 !important;
+    color: #0a0a0a !important;
+    border-color: #f97316 !important;
+}
+
+/* ==========================================
+   BOTONES CON CUALQUIER VERDE O AZUL
+   ========================================== */
+
+[data-theme="dark"] button[class*="success"],
+[data-theme="dark"] a[class*="success"],
+[data-theme="dark"] .btn[class*="success"] {
+    background: #f97316 !important;
+    background-color: #f97316 !important;
+    color: #0a0a0a !important;
+    border-color: #f97316 !important;
+}
+
+[data-theme="dark"] button[class*="primary"],
+[data-theme="dark"] a[class*="primary"],
+[data-theme="dark"] .btn[class*="primary"] {
+    background: #f97316 !important;
+    background-color: #f97316 !important;
+    color: #0a0a0a !important;
+    border-color: #f97316 !important;
+}
+
+/* ==========================================
+   ESTADOS DE TERRITORIO
+   ========================================== */
+
+[data-theme="dark"] .estado-disponible {
+    background: rgba(249, 115, 22, 0.15) !important;
+    color: #fb923c !important;
+    border-color: #f97316 !important;
+}
+
+[data-theme="dark"] .estado-activo {
+    background: rgba(249, 115, 22, 0.25) !important;
+    color: #f97316 !important;
+    border-color: #f97316 !important;
+}
+
+/* ==========================================
+   PUBLICADORES - Botones y badges
+   ========================================== */
+
+[data-theme="dark"] .publicador-activo,
+[data-theme="dark"] .badge-activo {
+    background: rgba(249, 115, 22, 0.15) !important;
+    color: #f97316 !important;
+}
+
+/* ==========================================
+   REGISTROS Y HISTORIAL
+   ========================================== */
+
+[data-theme="dark"] .registro-activo,
+[data-theme="dark"] .registro-completado {
+    border-left-color: #f97316 !important;
+}
+
+[data-theme="dark"] .progreso-bar,
+[data-theme="dark"] .progress-bar {
+    background: linear-gradient(90deg, #f97316, #fb923c) !important;
+}
+
+/* ==========================================
+   WHATSAPP BUTTON (mantener verde)
+   ========================================== */
+
+[data-theme="dark"] .btn-whatsapp,
+[data-theme="dark"] [class*="whatsapp"] .btn,
+[data-theme="dark"] button[class*="whatsapp"] {
+    background: #25D366 !important;
+    color: white !important;
+}
+
+/* ==========================================
+   DANGER BUTTONS (mantener rojo)
+   ========================================== */
+
+[data-theme="dark"] .btn-danger,
+[data-theme="dark"] .btn-danger:hover {
+    background: #ef4444 !important;
+    background-color: #ef4444 !important;
+    color: white !important;
+    border-color: #ef4444 !important;
+}
+
+/* ==========================================
+   SECONDARY/OUTLINE BUTTONS
+   ========================================== */
+
+[data-theme="dark"] .btn-secondary {
+    background: #1a1a1a !important;
+    color: #f5f5f5 !important;
+    border: 1px solid #444444 !important;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+    background: #262626 !important;
+    border-color: #f97316 !important;
+    color: #f97316 !important;
+}
+
+[data-theme="dark"] .btn-outline-primary,
+[data-theme="dark"] .btn-outline-success {
+    background: transparent !important;
+    color: #f97316 !important;
+    border: 2px solid #f97316 !important;
+}
+
+[data-theme="dark"] .btn-outline-primary:hover,
+[data-theme="dark"] .btn-outline-success:hover {
+    background: #f97316 !important;
+    color: #0a0a0a !important;
+}
+
+/* ==========================================
+   ADMINISTRACION - Iconos de cards
+   ========================================== */
+
+[data-theme="dark"] .admin-icon,
+[data-theme="dark"] .card-icon,
+[data-theme="dark"] .feature-icon {
+    background: #f97316 !important;
+    color: #0a0a0a !important;
+}
+
+/* ==========================================
+   CREADOR TERRITORIOS
+   ========================================== */
+
+[data-theme="dark"] .step.completed {
+    color: #f97316 !important;
+}
+
+[data-theme="dark"] .step.completed .step-number {
+    background: #f97316 !important;
+    color: #0a0a0a !important;
+}
+
+[data-theme="dark"] .step.active .step-number {
+    background: #f97316 !important;
+    color: #0a0a0a !important;
+    border-color: #f97316 !important;
+}
+
+/* ==========================================
+   FILTROS Y TABS
+   ========================================== */
+
+[data-theme="dark"] .filter-btn.active,
+[data-theme="dark"] .tab-btn.active,
+[data-theme="dark"] .nav-tab.active {
+    background: #f97316 !important;
+    color: #0a0a0a !important;
+    border-color: #f97316 !important;
+}
+
+[data-theme="dark"] .filter-btn:hover,
+[data-theme="dark"] .tab-btn:hover,
+[data-theme="dark"] .nav-tab:hover {
+    border-color: #f97316 !important;
+    color: #f97316 !important;
+}

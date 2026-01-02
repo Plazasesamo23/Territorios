@@ -7,16 +7,21 @@ use App\Models\Territorio;
 use App\Models\Publicador;
 use App\Models\Registro;
 use App\Models\Congregacion;
+use App\Models\GrupoPredicacion;
+use App\Models\TurnoGenerado;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // DEBUG: Verificar que este controlador se está ejecutando
-        \Log::info('DashboardController::index ejecutándose');
+        // Obtener la congregacion activa
+        $congregacionId = session('congregacion_activa_id');
+        $congregacion = Congregacion::find($congregacionId);
 
-        // Datos básicos y seguros
+        // Datos basicos y seguros
         $data = [
+            'congregacion' => $congregacion,
             'totalTerritorios' => 0,
             'publicadoresActivos' => 0,
             'totalRegistros' => 0,
@@ -24,16 +29,46 @@ class DashboardController extends Controller
             'territoriosActivos' => 0,
             'registrosActivos' => collect([]),
             'territoriosAtrasados' => 0,
-            'territoriosArchivo' => 0
+            'territoriosArchivo' => 0,
+            'totalGrupos' => 0,
+            'turnosEsteMes' => 0,
+            'publicadoresAprobados' => 0
         ];
 
         try {
-            $data['totalTerritorios'] = Territorio::count();
-            $data['publicadoresActivos'] = Publicador::count();
-            $data['totalRegistros'] = Registro::count();
+            // Filtrar por congregacion si existe
+            if ($congregacionId) {
+                $data['totalTerritorios'] = Territorio::where('congregacion_id', $congregacionId)->count();
+                $data['publicadoresActivos'] = Publicador::where('congregacion_id', $congregacionId)->where('activo', true)->count();
+                $data['totalRegistros'] = Registro::whereHas('territorio', function($q) use ($congregacionId) {
+                    $q->where('congregacion_id', $congregacionId);
+                })->count();
+                $data['totalGrupos'] = GrupoPredicacion::where('congregacion_id', $congregacionId)->count();
 
-            // Calcular estadísticas de estados
-            $allTerritorios = Territorio::all();
+                $allTerritorios = Territorio::where('congregacion_id', $congregacionId)->get();
+
+                // Estadisticas PPOC
+                $data['publicadoresAprobados'] = Publicador::where('congregacion_id', $congregacionId)
+                    ->where('aprobado_ppoc', true)
+                    ->where('activo', true)
+                    ->count();
+
+                // Turnos de este mes
+                $inicioMes = Carbon::now()->startOfMonth();
+                $finMes = Carbon::now()->endOfMonth();
+                $data['turnosEsteMes'] = TurnoGenerado::where('congregacion_id', $congregacionId)
+                    ->whereBetween('fecha', [$inicioMes, $finMes])
+                    ->count();
+
+            } else {
+                $data['totalTerritorios'] = Territorio::count();
+                $data['publicadoresActivos'] = Publicador::where('activo', true)->count();
+                $data['totalRegistros'] = Registro::count();
+                $data['totalGrupos'] = GrupoPredicacion::count();
+                $allTerritorios = Territorio::all();
+            }
+
+            // Calcular estadisticas de estados
             $estadisticas = [
                 'libre' => 0,
                 'activo' => 0,
@@ -53,28 +88,33 @@ class DashboardController extends Controller
             $data['territoriosAtrasados'] = $estadisticas['atrasado'];
             $data['territoriosArchivo'] = $estadisticas['archivo'];
 
-            // Territorios realmente disponibles para asignar (cumplen regla de 90 días)
+            // Territorios realmente disponibles para asignar
             $data['territoriosDisponibles'] = $allTerritorios->filter(function($territorio) {
                 return $territorio->estaDisponibleParaAsignar();
             })->count();
 
             // Registros activos
-            $data['registrosActivos'] = Registro::with(['territorio', 'publicador'])
+            $registrosQuery = Registro::with(['territorio', 'publicador'])
                 ->whereNull('fecha_entrada')
-                ->latest('fecha_salida')
-                ->take(5)
-                ->get();
+                ->latest('fecha_salida');
+
+            if ($congregacionId) {
+                $registrosQuery->whereHas('territorio', function($q) use ($congregacionId) {
+                    $q->where('congregacion_id', $congregacionId);
+                });
+            }
+
+            $data['registrosActivos'] = $registrosQuery->take(5)->get();
 
         } catch (\Exception $e) {
             \Log::error('Error en DashboardController: ' . $e->getMessage());
         }
 
-        // FORZAR la vista dashboard
         return response()->view('dashboard', $data);
     }
 
     /**
-     * Mostrar página de configuración
+     * Mostrar pagina de configuracion
      */
     public function configuracion()
     {
@@ -85,40 +125,38 @@ class DashboardController extends Controller
     }
 
     /**
-     * Guardar configuración de la congregación
+     * Guardar configuracion de la congregacion
      */
     public function guardarConfiguracion(Request $request)
     {
         $request->validate([
             'dias_limite_activo' => 'required|integer|min:1|max:365',
             'dias_archivo' => 'required|integer|min:1|max:365',
-            'dias_limite_activo_campana' => 'required|integer|min:1|max:365',
-            'dias_archivo_campana' => 'required|integer|min:1|max:365',
-            'dias_limite_activo_negocios' => 'required|integer|min:1|max:365',
-            'dias_archivo_negocios' => 'required|integer|min:1|max:365',
+            'dias_limite_activo_campana' => 'nullable|integer|min:1|max:365',
+            'dias_archivo_campana' => 'nullable|integer|min:1|max:365',
+            'dias_limite_activo_negocios' => 'nullable|integer|min:1|max:365',
+            'dias_archivo_negocios' => 'nullable|integer|min:1|max:365',
         ]);
 
-        // Obtener la congregación activa
         $congregacionId = session('congregacion_activa_id');
         $congregacion = Congregacion::find($congregacionId);
 
         if (!$congregacion) {
             return redirect()->route('configuracion')
-                ->with('error', 'No se encontró la congregación activa.');
+                ->with('error', 'No se encontro la congregacion activa.');
         }
 
-        // Actualizar los valores en la congregación
         $congregacion->update([
             'dias_limite_activo' => $request->dias_limite_activo,
             'dias_archivo' => $request->dias_archivo,
-            'dias_limite_activo_campana' => $request->dias_limite_activo_campana,
-            'dias_archivo_campana' => $request->dias_archivo_campana,
-            'dias_limite_activo_negocios' => $request->dias_limite_activo_negocios,
-            'dias_archivo_negocios' => $request->dias_archivo_negocios,
+            'dias_limite_activo_campana' => $request->dias_limite_activo_campana ?? 30,
+            'dias_archivo_campana' => $request->dias_archivo_campana ?? 30,
+            'dias_limite_activo_negocios' => $request->dias_limite_activo_negocios ?? 60,
+            'dias_archivo_negocios' => $request->dias_archivo_negocios ?? 60,
         ]);
 
         return redirect()->route('configuracion')
-            ->with('success', 'Configuración de ' . $congregacion->nombre . ' actualizada correctamente.');
+            ->with('success', 'Configuracion de ' . $congregacion->nombre . ' actualizada correctamente.');
     }
 
     /**
@@ -130,16 +168,14 @@ class DashboardController extends Controller
             'mensaje_whatsapp' => 'required|string|max:2000'
         ]);
 
-        // Obtener la congregación activa
         $congregacionId = session('congregacion_activa_id');
         $congregacion = Congregacion::find($congregacionId);
 
         if (!$congregacion) {
             return redirect()->route('configuracion')
-                ->with('error', 'No se encontró la congregación activa.');
+                ->with('error', 'No se encontro la congregacion activa.');
         }
 
-        // Actualizar el mensaje de WhatsApp
         $congregacion->update([
             'mensaje_whatsapp' => $request->mensaje_whatsapp,
         ]);

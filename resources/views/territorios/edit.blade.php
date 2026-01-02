@@ -85,20 +85,20 @@
                     @enderror
                 </div>
 
-                <!-- Nombre del Territorio -->
+                <!-- Zona del Territorio -->
                 <div class="form-group">
-                    <label for="nombre" class="form-label">
-                        Nombre del Territorio
+                    <label for="zona" class="form-label">
+                        Zona
                     </label>
-                    <input 
-                        type="text" 
-                        id="nombre" 
-                        name="nombre" 
-                        value="{{ old('nombre', $territorio->nombre) }}"
-                        class="form-input @error('nombre') error @enderror"
-                        placeholder="Ej: Centro Histórico, Barrio Norte..."
+                    <input
+                        type="text"
+                        id="zona"
+                        name="zona"
+                        value="{{ old('zona', $territorio->zona) }}"
+                        class="form-input @error('zona') error @enderror"
+                        placeholder="Ej: Can Roqueta, Torre Romeu..."
                     >
-                    @error('nombre')
+                    @error('zona')
                         <p class="form-error">{{ $message }}</p>
                     @enderror
                     <p class="form-help">

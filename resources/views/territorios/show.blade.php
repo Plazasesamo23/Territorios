@@ -129,8 +129,8 @@
                     </div>
                     
                     <div class="field-group">
-                        <label for="nombre">Nombre</label>
-                        <input type="text" id="nombre" name="nombre" value="{{ $territorio->nombre }}" readonly class="campo-lectura">
+                        <label for="zona">Zona</label>
+                        <input type="text" id="zona" name="zona" value="{{ $territorio->zona }}" readonly class="campo-lectura" placeholder="Sin zona asignada">
                     </div>
                     
                     <div class="field-group">
@@ -673,7 +673,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Campos editables
     const camposEditables = [
-        'numero', 'nombre', 'descripcion', 'coordenadas_lat', 'coordenadas_lng',
+        'numero', 'zona', 'descripcion', 'coordenadas_lat', 'coordenadas_lng',
         'estado', 'activo', 'notas'
     ];
     

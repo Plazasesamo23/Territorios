@@ -153,6 +153,11 @@ class UsuarioController extends Controller
             $usuario->password = Hash::make($request->password);
         }
 
+        // Actualizar permiso S-13 (solo para usuarios normales)
+        if ($usuario->role === 'user') {
+            $usuario->puede_generar_s13 = $request->has('puede_generar_s13');
+        }
+
         $usuario->save();
 
         return redirect()->route('usuarios.index')

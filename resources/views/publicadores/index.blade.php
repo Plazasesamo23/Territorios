@@ -54,8 +54,22 @@
         @foreach($publicadores as $publicador)
             <a href="{{ route('publicadores.show', $publicador) }}" class="table-row table-5-col">
                 <!-- Nombre -->
-                <div>
+                <div class="nombre-con-badges">
                     <span class="font-bold text-dark">{{ $publicador->nombre }}</span>
+                    <div class="pub-mini-badges">
+                        @if($publicador->es_anciano)
+                            <span class="mini-badge badge-anc">ANC</span>
+                        @endif
+                        @if($publicador->es_siervo_ministerial)
+                            <span class="mini-badge badge-sm">SM</span>
+                        @endif
+                        @if($publicador->es_precursor)
+                            <span class="mini-badge badge-pr">PR</span>
+                        @endif
+                        @if($publicador->es_menor)
+                            <span class="mini-badge badge-menor">MEN</span>
+                        @endif
+                    </div>
                 </div>
                 
                 <!-- Apellidos -->
@@ -93,6 +107,63 @@
 </div>
 
 <style>
+/* Mini badges para la lista */
+.nombre-con-badges {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.pub-mini-badges {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.mini-badge {
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.badge-anc {
+    background: #dc2626;
+    color: white;
+}
+
+.badge-sm {
+    background: #3b82f6;
+    color: white;
+}
+
+.badge-pr {
+    background: #16a34a;
+    color: white;
+}
+
+.badge-menor {
+    background: #a855f7;
+    color: white;
+}
+
+[data-theme="dark"] .badge-anc {
+    background: #ef4444;
+}
+
+[data-theme="dark"] .badge-sm {
+    background: #60a5fa;
+}
+
+[data-theme="dark"] .badge-pr {
+    background: #22c55e;
+}
+
+[data-theme="dark"] .badge-menor {
+    background: #c084fc;
+}
+
 /* Estilos del buscador */
 .search-form {
     padding: 0;

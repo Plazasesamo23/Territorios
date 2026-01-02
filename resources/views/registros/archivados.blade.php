@@ -79,7 +79,12 @@
                 
                 <!-- Publicador -->
                 <div>
-                    <span style="font-weight: 500;">{{ $registro->publicador->nombre_completo }}</span>
+                    <span style="font-weight: 500;" class="{{ $registro->publicador->es_precursor ? 'text-precursor' : '' }}">
+                        {{ $registro->publicador->nombre_completo }}
+                        @if($registro->publicador->es_precursor)
+                        <span class="precursor-badge-sm">PR</span>
+                        @endif
+                    </span>
                     <div style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.125rem;">{{ $registro->publicador->telefono }}</div>
                 </div>
                 
@@ -138,6 +143,23 @@
     .card a > div:last-child {
         margin-bottom: 0;
     }
+}
+
+/* Precursor styles */
+.text-precursor {
+    color: #16a34a !important;
+}
+
+.precursor-badge-sm {
+    display: inline-block;
+    padding: 0.1rem 0.35rem;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 700;
+    border-radius: 4px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
 }
 </style>
 @endsection 

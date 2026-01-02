@@ -36,7 +36,7 @@ class RegistroController extends Controller
             $query->where(function($q) use ($searchTerm) {
                 $q->whereHas('territorio', function($territorialQ) use ($searchTerm) {
                     $territorialQ->where('numero', 'LIKE', "%{$searchTerm}%")
-                                 ->orWhere('nombre', 'LIKE', "%{$searchTerm}%");
+                                 ->orWhere('zona', 'LIKE', "%{$searchTerm}%");
                 })
                 ->orWhereHas('publicador', function($publicadorQ) use ($searchTerm) {
                     $publicadorQ->where('nombre', 'LIKE', "%{$searchTerm}%")
@@ -295,7 +295,7 @@ class RegistroController extends Controller
     private function enviarWhatsAppAsignacion($territorio, $publicador)
     {
         // Obtener el mensaje personalizado de la congregación
-        $congregacion = auth()->user()->congregacion;
+         $congregacion = $territorio->congregacion;
         $mensaje = $congregacion->getMensajeWhatsappFormateado($publicador, $territorio);
 
         // Limpiar número de teléfono y crear URL de WhatsApp

@@ -13,19 +13,38 @@ class Publicador extends Model
 
     protected $fillable = [
         'congregacion_id',
+        'grupo_predicacion_id',
         'nombre',
         'apellidos',
         'telefono',
         'notas',
-        'activo'
+        'activo',
+        'aprobado_ppoc',
+        'es_precursor',
+        'es_superintendente',
+        'es_auxiliar',
+        'orden_grupo'
     ];
 
     protected $casts = [
         'activo' => 'boolean',
+        'aprobado_ppoc' => 'boolean',
+        'es_precursor' => 'boolean',
+        'es_superintendente' => 'boolean',
+        'es_auxiliar',
+        'orden_grupo' => 'boolean',
     ];
 
     /**
-     * Relación: Un publicador tiene muchos registros
+     * Relacion con grupo de predicacion
+     */
+    public function grupoPredicacion()
+    {
+        return $this->belongsTo(GrupoPredicacion::class, 'grupo_predicacion_id');
+    }
+
+    /**
+     * Relacion: Un publicador tiene muchos registros
      */
     public function registros()
     {
@@ -33,7 +52,7 @@ class Publicador extends Model
     }
 
     /**
-     * Obtener el último registro activo del publicador
+     * Obtener el ultimo registro activo del publicador
      */
     public function ultimoRegistroActivo()
     {

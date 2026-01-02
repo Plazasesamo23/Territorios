@@ -3,175 +3,1010 @@
 @section('title', $publicador->nombre_completo . ' - Publicadores')
 
 @section('content')
-<!-- Navegación minimalista -->
 <nav class="page-nav">
     <div class="page-breadcrumbs">
-        <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
-        <span class="breadcrumb-separator">›</span>
+        <a href="{{ route('dashboard') }}" class="breadcrumb-link">Inicio</a>
+        <span class="breadcrumb-separator">/</span>
+        <a href="{{ route('administracion') }}" class="breadcrumb-link">Administracion</a>
+        <span class="breadcrumb-separator">/</span>
         <a href="{{ route('publicadores.index') }}" class="breadcrumb-link">Publicadores</a>
-        <span class="breadcrumb-separator">›</span>
+        <span class="breadcrumb-separator">/</span>
         <span class="breadcrumb-current">{{ $publicador->nombre_completo }}</span>
-    </div>
-    <div class="page-actions">
-        <a href="{{ route('publicadores.registros', $publicador) }}" class="btn btn-primary">
-            📋 Registros
-        </a>
-        <a href="{{ route('publicadores.index') }}" class="btn btn-secondary">
-            ← Volver
-        </a>
     </div>
 </nav>
 
-<!-- Dos opciones principales -->
-<div class="grid grid-2 mb-6">
-    <!-- Opción 1: Ver/Editar Datos -->
-    <div class="card" style="cursor: pointer;" onclick="toggleEditMode()">
-        <div class="card-title">👁️ Ver / Editar Datos</div>
-        <div class="card-description">Información básica del publicador</div>
-        <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px;">
-            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">{{ $publicador->nombre_completo }}</div>
-            <div style="color: #6b7280; margin-bottom: 0.25rem;">📞 {{ $publicador->telefono }}</div>
-            <div style="color: #6b7280;">
-                Estado: 
-                @if($publicador->activo)
-                    <span style="color: #059669; font-weight: 600;">Activo</span>
-                @else
-                    <span style="color: #dc2626; font-weight: 600;">Inactivo</span>
-                @endif
-            </div>
-        </div>
+<!-- Header del publicador -->
+<div class="pub-profile-header">
+    <div class="pub-avatar-large">
+        {{ strtoupper(substr($publicador->nombre, 0, 1)) }}{{ strtoupper(substr($publicador->apellidos ?? '', 0, 1)) }}
     </div>
-
-    <!-- Opción 2: Gestión de Registros -->
-    <div class="card">
-        <div class="card-title">📋 Gestión de Registros</div>
-        <div class="card-description">Territorios asignados e historial</div>
-        <div style="margin-top: 1rem;">
-            @if($publicador->territorio_actual)
-                <div style="padding: 1rem; background: #dbeafe; border-radius: 8px; margin-bottom: 1rem;">
-                    <div style="font-weight: 600; color: #1e40af; margin-bottom: 0.5rem;">
-                        🗺️ Territorio Actual: #{{ $publicador->territorio_actual->numero }}
-                    </div>
-                    @php
-                        $estado = $publicador->territorio_actual->calcularEstado();
-                        $dias = $publicador->ultimoRegistroActivo()->fecha_salida->diffInDays(now());
-                    @endphp
-                    <div style="font-size: 0.875rem; color: #3730a3;">
-                        {{ ucfirst($estado) }} • {{ $dias }} días
-                    </div>
-                </div>
+    <div class="pub-header-info">
+        <h1>{{ $publicador->nombre_completo }}</h1>
+        <div class="pub-badges">
+            @if($publicador->activo)
+                <span class="badge badge-active">Activo</span>
             @else
-                <div style="padding: 1rem; background: #dcfce7; border-radius: 8px; margin-bottom: 1rem;">
-                    <div style="font-weight: 600; color: #166534;">🆓 Disponible para nueva asignación</div>
-                </div>
+                <span class="badge badge-inactive">Inactivo</span>
             @endif
-            
-            <a href="{{ route('publicadores.registros', $publicador) }}" class="btn btn-primary w-full">
-                Ver Todos los Registros
-            </a>
+            @if($publicador->es_anciano)
+                <span class="badge badge-anciano">Anciano</span>
+            @endif
+            @if($publicador->es_siervo_ministerial)
+                <span class="badge badge-sm">Siervo Ministerial</span>
+            @endif
+            @if($publicador->es_menor)
+                <span class="badge badge-menor">Menor</span>
+            @endif
+            @if($publicador->es_precursor)
+                <span class="badge badge-precursor">Precursor</span>
+            @endif
+            @if($publicador->es_superintendente)
+                <span class="badge badge-sup">Superintendente</span>
+            @endif
+            @if($publicador->es_auxiliar)
+                <span class="badge badge-aux">Auxiliar</span>
+            @endif
+            @if($publicador->aprobado_ppoc)
+                <span class="badge badge-ppoc">PPOC</span>
+            @endif
+        </div>
+        @if($publicador->telefono)
+        <div class="pub-contact">{{ $publicador->telefono }}</div>
+        @endif
+    </div>
+    <div class="pub-header-actions">
+        @if(Auth::user()->canEditPublicadores())
+        <button onclick="toggleEditMode()" class="btn-action btn-edit">Editar</button>
+        @endif
+        <a href="{{ route('publicadores.registros', $publicador) }}" class="btn-action btn-history">Historial Completo</a>
+    </div>
+</div>
+
+<!-- Estadisticas principales -->
+<div class="stats-section">
+    <h2 class="section-title">Estadisticas</h2>
+    <div class="stats-grid-4">
+        <div class="stat-box">
+            <div class="stat-icon stat-icon-total">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+            </div>
+            <div class="stat-value">{{ $estadisticas['total'] }}</div>
+            <div class="stat-label">Territorios Totales</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon stat-icon-active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </div>
+            <div class="stat-value">{{ $estadisticas['activos'] }}</div>
+            <div class="stat-label">Activos Ahora</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon stat-icon-completed">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <div class="stat-value">{{ $estadisticas['completados'] }}</div>
+            <div class="stat-label">Completados</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon stat-icon-days">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+            </div>
+            <div class="stat-value">{{ $estadisticas['promedio_dias'] }}</div>
+            <div class="stat-label">Dias Promedio</div>
         </div>
     </div>
 </div>
 
-<!-- Formulario de edición (oculto por defecto) -->
-<div id="editForm" style="display: none;">
-    <div class="card">
-        <div class="card-title">✏️ Editar Publicador</div>
-        
-        <form method="POST" action="{{ route('publicadores.update', $publicador) }}">
-            @csrf
-            @method('PUT')
-            
-            <div class="grid grid-2 gap-4 mb-4">
-                <div class="form-group">
-                    <label for="nombre">Nombre</label>
-                    <input type="text" id="nombre" name="nombre" value="{{ old('nombre', $publicador->nombre) }}" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="apellidos">Apellidos</label>
-                    <input type="text" id="apellidos" name="apellidos" value="{{ old('apellidos', $publicador->apellidos) }}" required>
-                </div>
+<!-- Territorio actual -->
+@if($publicador->territorio_actual)
+<div class="current-territory-section">
+    <h2 class="section-title">Territorio Actual</h2>
+    <div class="current-territory-card">
+        <div class="territory-number-large">
+            @php
+                $territorio = $publicador->territorio_actual;
+                $prefijo = '';
+                if ($territorio->tipo === 'campana') $prefijo = 'C-';
+                elseif ($territorio->tipo === 'negocios') $prefijo = 'N-';
+            @endphp
+            {{ $prefijo }}{{ $territorio->numero }}
+        </div>
+        <div class="territory-details">
+            <div class="territory-name">{{ $territorio->nombre }}</div>
+            @php
+                $estado = $territorio->calcularEstado();
+                $registro = $publicador->ultimoRegistroActivo();
+                $dias = $registro ? $registro->fecha_salida->diffInDays(now()) : 0;
+            @endphp
+            <div class="territory-meta">
+                <span class="estado-badge estado-{{ $estado }}">{{ ucfirst($estado) }}</span>
+                <span class="dias-badge">{{ $dias }} dias</span>
             </div>
-            
-            <div class="form-group mb-4">
-                <label for="telefono">Teléfono</label>
-                <input type="text" id="telefono" name="telefono" value="{{ old('telefono', $publicador->telefono) }}" required>
+        </div>
+        <div class="territory-actions">
+            <a href="{{ route('registros.show', $registro->id ?? 0) }}" class="btn-sm btn-primary">Ver Registro</a>
+        </div>
+    </div>
+</div>
+@else
+<div class="no-territory-section">
+    <div class="no-territory-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="no-territory-icon">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <div class="no-territory-text">Sin territorio asignado actualmente</div>
+        <div class="no-territory-subtext">Disponible para nueva asignacion</div>
+    </div>
+</div>
+@endif
+
+<!-- Ano de servicio actual -->
+<div class="service-year-section">
+    <h2 class="section-title">Ano de Servicio {{ $anoServicio }}</h2>
+    <div class="stats-grid-3">
+        <div class="stat-box-sm">
+            <div class="stat-value-sm">{{ $estadisticasAno['territorios'] }}</div>
+            <div class="stat-label-sm">Territorios</div>
+        </div>
+        <div class="stat-box-sm">
+            <div class="stat-value-sm">{{ $estadisticasAno['completados'] }}</div>
+            <div class="stat-label-sm">Completados</div>
+        </div>
+        <div class="stat-box-sm">
+            <div class="stat-value-sm">{{ $estadisticasAno['dias_servicio'] }}</div>
+            <div class="stat-label-sm">Dias Predicando</div>
+        </div>
+    </div>
+</div>
+
+<!-- Ultimos registros -->
+@if($ultimosRegistros->count() > 0)
+<div class="recent-section">
+    <h2 class="section-title">Ultimos Registros</h2>
+    <div class="recent-list">
+        @foreach($ultimosRegistros as $registro)
+        <div class="recent-item">
+            <div class="recent-territory">
+                @php
+                    $prefijo = '';
+                    if ($registro->territorio->tipo === 'campana') $prefijo = 'C-';
+                    elseif ($registro->territorio->tipo === 'negocios') $prefijo = 'N-';
+                @endphp
+                <span class="recent-number">{{ $prefijo }}{{ $registro->territorio->numero }}</span>
+                <span class="recent-name">{{ $registro->territorio->nombre }}</span>
             </div>
-            
-            <div class="form-group mb-4">
-                <label for="notas">Notas</label>
-                <textarea id="notas" name="notas" rows="3">{{ old('notas', $publicador->notas) }}</textarea>
+            <div class="recent-dates">
+                <span class="date-out">{{ $registro->fecha_salida->format('d/m/Y') }}</span>
+                <span class="date-arrow">→</span>
+                <span class="date-in {{ $registro->fecha_entrada ? '' : 'date-active' }}">
+                    {{ $registro->fecha_entrada ? $registro->fecha_entrada->format('d/m/Y') : 'En curso' }}
+                </span>
             </div>
-            
-            <div class="form-group mb-6">
-                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <div class="recent-days">
+                @php
+                    $diasReg = $registro->fecha_entrada
+                        ? $registro->fecha_salida->diffInDays($registro->fecha_entrada)
+                        : $registro->fecha_salida->diffInDays(now());
+                @endphp
+                {{ $diasReg }} dias
+            </div>
+        </div>
+        @endforeach
+    </div>
+    <a href="{{ route('publicadores.registros', $publicador) }}" class="view-all-link">Ver todos los registros →</a>
+</div>
+@endif
+
+<!-- Formulario de edicion oculto -->
+@if(Auth::user()->canEditPublicadores())
+<div id="editForm" class="edit-form-section" style="display: none;">
+    <h2 class="section-title">Editar Publicador</h2>
+    <form method="POST" action="{{ route('publicadores.update', $publicador) }}" class="edit-form">
+        @csrf
+        @method('PUT')
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="nombre">Nombre</label>
+                <input type="text" id="nombre" name="nombre" value="{{ old('nombre', $publicador->nombre) }}" required>
+            </div>
+            <div class="form-group">
+                <label for="apellidos">Apellidos</label>
+                <input type="text" id="apellidos" name="apellidos" value="{{ old('apellidos', $publicador->apellidos) }}" required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="telefono">Telefono</label>
+                <input type="text" id="telefono" name="telefono" value="{{ old('telefono', $publicador->telefono) }}">
+            </div>
+            <div class="form-group">
+                <label for="grupo_predicacion_id">Grupo de Predicacion</label>
+                <select id="grupo_predicacion_id" name="grupo_predicacion_id">
+                    <option value="">Sin grupo</option>
+                    @foreach($grupos ?? [] as $grupo)
+                        <option value="{{ $grupo->id }}" {{ $publicador->grupo_predicacion_id == $grupo->id ? 'selected' : '' }}>
+                            Grupo {{ $grupo->numero }} - {{ $grupo->nombre }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="notas">Notas</label>
+            <textarea id="notas" name="notas" rows="3">{{ old('notas', $publicador->notas) }}</textarea>
+        </div>
+
+        <div class="form-checkboxes-section">
+            <label class="form-section-label">Estado</label>
+            <div class="form-checkboxes">
+                <label class="checkbox-label">
                     <input type="checkbox" name="activo" value="1" {{ $publicador->activo ? 'checked' : '' }}>
-                    <span>Publicador activo</span>
+                    <span>Activo</span>
+                </label>
+                <label class="checkbox-label checkbox-menor">
+                    <input type="checkbox" name="es_menor" value="1" {{ $publicador->es_menor ? 'checked' : '' }}>
+                    <span>Menor de edad</span>
                 </label>
             </div>
-            
-            <div class="flex gap-3">
-                <button type="submit" class="btn btn-primary">
-                    💾 Guardar Cambios
-                </button>
-                <button type="button" onclick="toggleEditMode()" class="btn btn-secondary">
-                    ❌ Cancelar
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
+        </div>
 
-<!-- Zona de peligro -->
-<div class="card border-red">
-    <div class="card-title text-red">⚠️ Zona de Peligro</div>
-    <div class="card-description">
-        Eliminar este publicador borrará todos sus registros asociados. Esta acción no se puede deshacer.
-    </div>
-    <form method="POST" action="{{ route('publicadores.destroy', $publicador) }}" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este publicador? Esta acción no se puede deshacer.')" style="margin-top: 1rem;">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="btn btn-danger">
-            🗑️ Eliminar Publicador
-        </button>
+        <div class="form-checkboxes-section">
+            <label class="form-section-label">Nombramientos</label>
+            <div class="form-checkboxes">
+                <label class="checkbox-label checkbox-anciano">
+                    <input type="checkbox" name="es_anciano" value="1" {{ $publicador->es_anciano ? 'checked' : '' }}>
+                    <span>Anciano</span>
+                </label>
+                <label class="checkbox-label checkbox-sm">
+                    <input type="checkbox" name="es_siervo_ministerial" value="1" {{ $publicador->es_siervo_ministerial ? 'checked' : '' }}>
+                    <span>Siervo Ministerial</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-checkboxes-section">
+            <label class="form-section-label">Privilegios</label>
+            <div class="form-checkboxes">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="es_precursor" value="1" {{ $publicador->es_precursor ? 'checked' : '' }}>
+                    <span>Precursor</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="aprobado_ppoc" value="1" {{ $publicador->aprobado_ppoc ? 'checked' : '' }}>
+                    <span>Aprobado PPOC</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <button type="button" onclick="toggleEditMode()" class="btn btn-secondary">Cancelar</button>
+        </div>
     </form>
 </div>
 
+<!-- Zona de peligro -->
+<div class="danger-zone">
+    <h3>Zona de Peligro</h3>
+    <p>Eliminar este publicador borrara todos sus registros. Esta accion no se puede deshacer.</p>
+    <form method="POST" action="{{ route('publicadores.destroy', $publicador) }}" onsubmit="return confirm('¿Estas seguro de eliminar este publicador?')">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="btn btn-danger">Eliminar Publicador</button>
+    </form>
+</div>
+@endif
+
 <script>
 function toggleEditMode() {
-    const editForm = document.getElementById('editForm');
-    if (editForm.style.display === 'none') {
-        editForm.style.display = 'block';
-        editForm.scrollIntoView({ behavior: 'smooth' });
+    const form = document.getElementById('editForm');
+    if (form.style.display === 'none') {
+        form.style.display = 'block';
+        form.scrollIntoView({ behavior: 'smooth' });
     } else {
-        editForm.style.display = 'none';
+        form.style.display = 'none';
     }
 }
 </script>
 
 <style>
-.w-full {
+/* Header del publicador */
+.pub-profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    border-radius: 16px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 10px 40px rgba(79, 70, 229, 0.3);
+}
+
+[data-theme="dark"] .pub-profile-header {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    box-shadow: 0 10px 40px rgba(249, 115, 22, 0.2);
+}
+
+.pub-avatar-large {
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+}
+
+.pub-header-info {
+    flex: 1;
+}
+
+.pub-header-info h1 {
+    margin: 0 0 0.5rem 0;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.pub-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.badge-active { background: rgba(34,197,94,0.9); color: white; }
+.badge-inactive { background: rgba(239,68,68,0.9); color: white; }
+.badge-anciano { background: rgba(220,38,38,0.9); color: white; }
+.badge-sm { background: rgba(59,130,246,0.9); color: white; }
+.badge-menor { background: rgba(168,85,247,0.9); color: white; }
+.badge-precursor { background: rgba(255,255,255,0.25); color: white; }
+.badge-sup { background: rgba(139,92,246,0.9); color: white; }
+.badge-aux { background: rgba(6,182,212,0.9); color: white; }
+.badge-ppoc { background: rgba(245,158,11,0.9); color: white; }
+
+.pub-contact {
+    color: rgba(255,255,255,0.9);
+    font-size: 0.9rem;
+}
+
+.pub-header-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn-action {
+    padding: 0.6rem 1.25rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-edit {
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+
+.btn-edit:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.btn-history {
+    background: white;
+    color: #4f46e5;
+}
+
+[data-theme="dark"] .btn-history {
+    color: #f97316;
+}
+
+.btn-history:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Section titles */
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary, #111827);
+    margin: 0 0 1rem 0;
+}
+
+[data-theme="dark"] .section-title {
+    color: #f5f5f5;
+}
+
+/* Stats section */
+.stats-section {
+    margin-bottom: 1.5rem;
+}
+
+.stats-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.stats-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.stat-box {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--card-border, #e5e7eb);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+[data-theme="dark"] .stat-box {
+    background: #1a1a1a;
+    border-color: #2d2d2d;
+}
+
+.stat-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.75rem;
+}
+
+.stat-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.stat-icon-total { background: rgba(79,70,229,0.1); color: #4f46e5; }
+.stat-icon-active { background: rgba(245,158,11,0.1); color: #f59e0b; }
+.stat-icon-completed { background: rgba(34,197,94,0.1); color: #22c55e; }
+.stat-icon-days { background: rgba(59,130,246,0.1); color: #3b82f6; }
+
+[data-theme="dark"] .stat-icon-total { background: rgba(249,115,22,0.15); color: #f97316; }
+[data-theme="dark"] .stat-icon-active { background: rgba(251,191,36,0.15); color: #fbbf24; }
+[data-theme="dark"] .stat-icon-completed { background: rgba(34,197,94,0.15); color: #22c55e; }
+[data-theme="dark"] .stat-icon-days { background: rgba(59,130,246,0.15); color: #60a5fa; }
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary, #111827);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+[data-theme="dark"] .stat-value {
+    color: #f5f5f5;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary, #6b7280);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+[data-theme="dark"] .stat-label {
+    color: #a3a3a3;
+}
+
+/* Small stat boxes */
+.stat-box-sm {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--card-border, #e5e7eb);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+}
+
+[data-theme="dark"] .stat-box-sm {
+    background: #1a1a1a;
+    border-color: #2d2d2d;
+}
+
+.stat-value-sm {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary, #111827);
+}
+
+[data-theme="dark"] .stat-value-sm {
+    color: #f5f5f5;
+}
+
+.stat-label-sm {
+    font-size: 0.7rem;
+    color: var(--text-secondary, #6b7280);
+    text-transform: uppercase;
+}
+
+[data-theme="dark"] .stat-label-sm {
+    color: #a3a3a3;
+}
+
+/* Current territory */
+.current-territory-section {
+    margin-bottom: 1.5rem;
+}
+
+.current-territory-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(34,197,94,0.1) 0%, rgba(34,197,94,0.05) 100%);
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 12px;
+}
+
+[data-theme="dark"] .current-territory-card {
+    background: linear-gradient(135deg, rgba(34,197,94,0.15) 0%, rgba(34,197,94,0.05) 100%);
+    border-color: rgba(34,197,94,0.3);
+}
+
+.territory-number-large {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #166534;
+    min-width: 80px;
+    text-align: center;
+}
+
+[data-theme="dark"] .territory-number-large {
+    color: #86efac;
+}
+
+.territory-details {
+    flex: 1;
+}
+
+.territory-name {
+    font-weight: 600;
+    color: var(--text-primary, #111827);
+    margin-bottom: 0.5rem;
+}
+
+[data-theme="dark"] .territory-name {
+    color: #f5f5f5;
+}
+
+.territory-meta {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.estado-badge {
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.estado-activo { background: #dbeafe; color: #1e40af; }
+.estado-libre { background: #dcfce7; color: #166534; }
+.estado-atrasado { background: #fef3c7; color: #92400e; }
+.estado-archivo { background: #fee2e2; color: #991b1b; }
+
+[data-theme="dark"] .estado-activo { background: rgba(59,130,246,0.2); color: #93c5fd; }
+[data-theme="dark"] .estado-libre { background: rgba(34,197,94,0.2); color: #86efac; }
+[data-theme="dark"] .estado-atrasado { background: rgba(245,158,11,0.2); color: #fcd34d; }
+[data-theme="dark"] .estado-archivo { background: rgba(239,68,68,0.2); color: #fca5a5; }
+
+.dias-badge {
+    padding: 0.2rem 0.5rem;
+    background: rgba(107,114,128,0.1);
+    border-radius: 6px;
+    font-size: 0.7rem;
+    color: var(--text-secondary, #6b7280);
+}
+
+[data-theme="dark"] .dias-badge {
+    background: rgba(255,255,255,0.1);
+    color: #a3a3a3;
+}
+
+.territory-actions .btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    text-decoration: none;
+    background: #22c55e;
+    color: white;
+}
+
+/* No territory */
+.no-territory-section {
+    margin-bottom: 1.5rem;
+}
+
+.no-territory-card {
+    padding: 2rem;
+    text-align: center;
+    background: var(--card-bg, #fff);
+    border: 2px dashed var(--card-border, #e5e7eb);
+    border-radius: 12px;
+}
+
+[data-theme="dark"] .no-territory-card {
+    background: #1a1a1a;
+    border-color: #2d2d2d;
+}
+
+.no-territory-icon {
+    width: 48px;
+    height: 48px;
+    color: var(--text-muted, #9ca3af);
+    margin-bottom: 0.75rem;
+}
+
+.no-territory-text {
+    font-weight: 600;
+    color: var(--text-primary, #111827);
+    margin-bottom: 0.25rem;
+}
+
+[data-theme="dark"] .no-territory-text {
+    color: #f5f5f5;
+}
+
+.no-territory-subtext {
+    font-size: 0.85rem;
+    color: var(--text-secondary, #6b7280);
+}
+
+[data-theme="dark"] .no-territory-subtext {
+    color: #a3a3a3;
+}
+
+/* Service year section */
+.service-year-section {
+    margin-bottom: 1.5rem;
+}
+
+/* Recent registros */
+.recent-section {
+    margin-bottom: 1.5rem;
+}
+
+.recent-list {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--card-border, #e5e7eb);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+[data-theme="dark"] .recent-list {
+    background: #1a1a1a;
+    border-color: #2d2d2d;
+}
+
+.recent-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--card-border, #e5e7eb);
+}
+
+[data-theme="dark"] .recent-item {
+    border-bottom-color: #2d2d2d;
+}
+
+.recent-item:last-child {
+    border-bottom: none;
+}
+
+.recent-territory {
+    flex: 1;
+    min-width: 0;
+}
+
+.recent-number {
+    font-weight: 700;
+    color: #4f46e5;
+    margin-right: 0.5rem;
+}
+
+[data-theme="dark"] .recent-number {
+    color: #f97316;
+}
+
+.recent-name {
+    color: var(--text-secondary, #6b7280);
+    font-size: 0.85rem;
+}
+
+[data-theme="dark"] .recent-name {
+    color: #a3a3a3;
+}
+
+.recent-dates {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.date-out, .date-in {
+    color: var(--text-secondary, #6b7280);
+}
+
+[data-theme="dark"] .date-out,
+[data-theme="dark"] .date-in {
+    color: #a3a3a3;
+}
+
+.date-arrow {
+    color: var(--text-muted, #9ca3af);
+}
+
+.date-active {
+    color: #22c55e !important;
+    font-weight: 600;
+}
+
+.recent-days {
+    font-size: 0.8rem;
+    color: var(--text-muted, #9ca3af);
+    min-width: 60px;
+    text-align: right;
+}
+
+.view-all-link {
+    display: block;
+    text-align: center;
+    padding: 0.75rem;
+    color: #4f46e5;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+[data-theme="dark"] .view-all-link {
+    color: #f97316;
+}
+
+.view-all-link:hover {
+    text-decoration: underline;
+}
+
+/* Edit form */
+.edit-form-section {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--card-border, #e5e7eb);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+[data-theme="dark"] .edit-form-section {
+    background: #1a1a1a;
+    border-color: #2d2d2d;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary, #111827);
+    font-size: 0.9rem;
+}
+
+[data-theme="dark"] .form-group label {
+    color: #f5f5f5;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
     width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--card-border, #e5e7eb);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: var(--card-bg, #fff);
+    color: var(--text-primary, #111827);
 }
 
-.border-red {
-    border-color: #fecaca;
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group select,
+[data-theme="dark"] .form-group textarea {
+    background: #262626;
+    border-color: #404040;
+    color: #f5f5f5;
 }
 
-.text-red {
+.form-checkboxes-section {
+    margin-bottom: 1.25rem;
+    padding: 1rem;
+    background: var(--bg-secondary, #f9fafb);
+    border-radius: 8px;
+}
+
+[data-theme="dark"] .form-checkboxes-section {
+    background: #262626;
+}
+
+.form-section-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary, #6b7280);
+    margin-bottom: 0.75rem;
+}
+
+[data-theme="dark"] .form-section-label {
+    color: #a3a3a3;
+}
+
+.form-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.checkbox-anciano input:checked + span {
     color: #dc2626;
+    font-weight: 600;
+}
+
+.checkbox-sm input:checked + span {
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+.checkbox-menor input:checked + span {
+    color: #a855f7;
+    font-weight: 600;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-primary, #111827);
+}
+
+[data-theme="dark"] .checkbox-label {
+    color: #f5f5f5;
+}
+
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+/* Danger zone */
+.danger-zone {
+    background: rgba(239,68,68,0.05);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+.danger-zone h3 {
+    color: #dc2626;
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+}
+
+.danger-zone p {
+    color: var(--text-secondary, #6b7280);
+    font-size: 0.85rem;
+    margin: 0 0 1rem 0;
 }
 
 .btn-danger {
     background: #dc2626;
     color: white;
-    border: 1px solid #dc2626;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
 }
 
 .btn-danger:hover {
     background: #b91c1c;
-    border-color: #b91c1c;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .pub-profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .pub-badges {
+        justify-content: center;
+    }
+
+    .pub-header-actions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .stats-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stats-grid-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .current-territory-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-checkboxes {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
 }
 </style>
-@endsection 
+@endsection

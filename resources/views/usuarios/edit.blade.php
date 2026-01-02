@@ -54,10 +54,89 @@
             </p>
         </div>
 
+        
+        {{-- Permisos especiales (solo para usuarios normales) --}}
+        @if($usuario->role === 'user')
+        <div class="form-group mb-4" style="background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%); padding: 1rem; border-radius: 8px; border: 1px solid #e879f9;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <label class="form-label" style="margin-bottom: 0.25rem;">Acceso al modulo PPOC</label>
+                    <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">
+                        Permite acceder al Programa de Predicacion
+                    </p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="puede_acceder_ppoc" value="1" {{ old('puede_acceder_ppoc', $usuario->puede_acceder_ppoc) ? 'checked' : '' }}>
+                    <span class="toggle-slider toggle-purple"></span>
+                </label>
+            </div>
+        </div>
+        {{-- Permiso S-13 --}}
+        <div class="form-group mb-4" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 1rem; border-radius: 8px; border: 1px solid #bfdbfe;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <label class="form-label" style="margin-bottom: 0.25rem;">Permiso para generar S-13</label>
+                    <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">
+                        Permite a este usuario generar el reporte S-13
+                    </p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="puede_generar_s13" value="1" {{ old('puede_generar_s13', $usuario->puede_generar_s13) ? 'checked' : '' }}>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+        @endif
+
         <div class="form-actions">
             <a href="{{ route('usuarios.index') }}" class="btn btn-secondary">Cancelar</a>
             <button type="submit" class="btn btn-primary">Guardar Cambios</button>
         </div>
     </form>
 </div>
+
+<style>
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: 0.3s;
+    border-radius: 26px;
+}
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.toggle-slider.toggle-purple { background-color: #d946ef; }
+.toggle-switch input:checked + .toggle-slider.toggle-purple { background-color: #a855f7; }
+.toggle-switch input:checked + .toggle-slider {
+    background-color: #3b82f6;
+}
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(24px);
+}
+</style>
 @endsection

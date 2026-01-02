@@ -3,6 +3,15 @@
 @section('title', 'S13 - Gestión de Territorios')
 
 @section('content')
+@if(!Auth::user()->canGenerateS13())
+<div class="card" style="text-align: center; padding: 3rem;">
+    <div style="font-size: 4rem; margin-bottom: 1rem;">&#128274;</div>
+    <h3>Acceso Restringido</h3>
+    <p class="text-muted">No tienes permisos para generar el reporte S-13.</p>
+    <p class="text-muted">Contacta con el administrador de tu congregacion si necesitas acceso.</p>
+    <a href="{{ route('territorios.index') }}" class="btn btn-primary">Volver a Territorios</a>
+</div>
+@else
 <!-- Navegación -->
 <div class="page-nav">
     <div class="page-breadcrumbs">
@@ -97,4 +106,5 @@ function vistaPrevia() {
     window.open(url, '_blank');
 }
 </script>
+@endif
 @endsection

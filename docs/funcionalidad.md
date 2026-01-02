@@ -2,7 +2,7 @@
 
 > Guia completa de todas las funcionalidades del sistema multi-congregacion
 
-**Ultima actualizacion:** Diciembre 2025
+**Ultima actualizacion:** 28 Diciembre 2025
 
 ---
 
@@ -185,7 +185,56 @@ El Sistema de Territorios es una aplicacion web multi-congregacion para gestiona
 
 ---
 
-### 9. Congregaciones (Solo Superadmin)
+
+### 10. PPOC - Programa de Predicacion Organizada
+
+**Ruta**: `/ppoc`
+
+**Descripcion**: Modulo para gestionar turnos de predicacion publica organizada por congregacion.
+
+**Funcionalidades principales**:
+
+#### Calendario Mensual
+- Vista mensual con todos los turnos
+- Navegacion entre meses
+- Indicador visual del dia actual
+- Vista de turnos por dia
+
+#### Plantillas de Turnos
+**Ruta**: `/ppoc/turnos`
+
+- Crear plantillas de turnos semanales recurrentes
+- Definir dia de semana, hora inicio/fin
+- Ubicacion y notas
+- Activar/desactivar turnos
+
+#### Generacion de Turnos
+- Generar turnos automaticamente para un mes
+- Basado en las plantillas semanales activas
+- Estados: pendiente, confirmado, completado, cancelado
+
+#### Sistema de Asignaciones
+- Asignar publicadores a turnos generados
+- Roles: capitan y voluntario
+- Confirmacion de asistencia
+
+**Tablas de base de datos**:
+- `turnos` - Plantillas semanales
+- `turnos_generados` - Turnos por fecha
+- `asignaciones_ppoc` - Asignaciones de publicadores
+
+**Rutas PPOC**:
+| Ruta | Descripcion |
+|------|-------------|
+| `/ppoc` | Calendario mensual |
+| `/ppoc/turnos` | Lista de plantillas |
+| `/ppoc/turnos/create` | Crear plantilla |
+| `/ppoc/turnos/{id}/edit` | Editar plantilla |
+| `/ppoc/generar-mes` | Generar turnos del mes |
+
+---
+
+### 11. Congregaciones (Solo Superadmin)
 
 **Ruta**: `/congregaciones`
 
@@ -266,7 +315,8 @@ Fecha: {fecha_asignacion}
 4. Registros
 5. S13
 6. Configuracion
-7. Congregaciones (solo superadmin)
+7. PPOC
+8. Congregaciones (solo superadmin)
 
 ### Tema Oscuro
 
@@ -362,6 +412,8 @@ Fecha: {fecha_asignacion}
 | `/s13` | Reportes S-13 |
 | `/configuracion` | Configuracion |
 | `/perfil` | Perfil de usuario |
+| `/ppoc` | Calendario PPOC |
+| `/ppoc/turnos` | Plantillas de turnos |
 | `/congregaciones` | Gestion congregaciones |
 
 ---
@@ -385,4 +437,4 @@ php artisan migrate
 
 ---
 
-*Documentacion actualizada: Diciembre 2025*
+*Documentacion actualizada: 28 Diciembre 2025*

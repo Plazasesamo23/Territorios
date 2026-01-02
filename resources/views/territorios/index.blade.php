@@ -75,7 +75,7 @@
             <input type="text"
                    name="search"
                    value="{{ request('search') }}"
-                   placeholder="Buscar territorio por numero, nombre, descripcion..."
+                   placeholder="Buscar territorio por numero, zona, descripcion..."
                    class="search-input">
             <input type="hidden" name="estado" value="{{ request('estado') }}">
             <input type="hidden" name="tipo" value="{{ $tipoFiltro ?? 'todos' }}">
@@ -149,9 +149,9 @@
                             {{ $territorio->numero_completo }}
                         </div>
                         <div class="territorio-info-superior">
-                            <div class="territorio-nombre-container">
-                                @if($territorio->nombre)
-                                    <div class="territorio-nombre territorio-nombre-mobile">{{ $territorio->nombre }}</div>
+                            <div class="territorio-zona-container">
+                                @if($territorio->zona)
+                                    <div class="territorio-zona territorio-zona-mobile">{{ $territorio->zona }}</div>
                                 @endif
                             </div>
                             <div class="territorio-badge-estado territorio-badge-desktop
@@ -170,8 +170,8 @@
                     </div>
 
                     <div class="territorio-content-desktop">
-                        @if($territorio->nombre)
-                            <div class="territorio-nombre-desktop">{{ $territorio->nombre }}</div>
+                        @if($territorio->zona)
+                            <div class="territorio-zona-desktop">{{ $territorio->zona }}</div>
                         @endif
                         @if($territorio->descripcion)
                             <div class="territorio-description">{{ $territorio->descripcion }}</div>

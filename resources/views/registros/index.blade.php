@@ -1,22 +1,33 @@
 @extends('layouts.app')
 
-@section('title', 'Registros - Gestión de Territorios')
+@section('title', 'Asignacion de Territorios')
 
 @section('content')
+@if(!auth()->user()->canEditTerritorios())
+{{-- Botón volver para usuarios normales --}}
+<div class="volver-container mb-4">
+    <a href="{{ route('territorios.index') }}" class="btn-volver">
+        <span class="btn-volver-arrow">&#10094;</span>
+        <span class="btn-volver-text">Volver a Territorios</span>
+    </a>
+</div>
+@endif
+
 <!-- Navegación minimalista -->
 <nav class="page-nav">
     <div class="page-breadcrumbs">
         <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
         <span class="breadcrumb-sep">›</span>
-        <span class="breadcrumb-current">Registros</span>
+        <a href="{{ route('territorios.index') }}" class="breadcrumb-link">Territorios</a>
+        <span class="breadcrumb-sep">›</span>
+        <span class="breadcrumb-current">Asignacion</span>
     </div>
     <div class="page-actions">
-        <a href="{{ route('registros.create') }}" class="btn btn-primary">
-            ➕ Nuevo Registro
-        </a>
+        @if(auth()->user()->canEditTerritorios())
         <a href="{{ route('registros.archivados') }}" class="btn btn-secondary">
             📚 Ver Archivados
         </a>
+        @endif
     </div>
 </nav>
 
@@ -204,7 +215,7 @@
 <!-- Lista minimalista tipo tabla -->
 <div class="card">
     <div class="card-title">
-        Registros Activos
+        Asignaciones Activas
         <span class="badge badge-blue">{{ $registrosActivos->count() }}</span>
     </div>
 
@@ -241,7 +252,12 @@
 
                 <!-- Publicador -->
                 <div>
-                    <span style="font-weight: 600; color: #374151;">{{ $registro->publicador->nombre_completo }}</span>
+                    <span style="font-weight: 600;" class="{{ $registro->publicador->es_precursor ? 'text-precursor' : '' }}">
+                        {{ $registro->publicador->nombre_completo }}
+                        @if($registro->publicador->es_precursor)
+                        <span class="precursor-badge-sm">PR</span>
+                        @endif
+                    </span>
                 </div>
 
                 <!-- Días -->
@@ -405,6 +421,49 @@
     box-shadow: none !important;
 }
 
+/* Boton volver para usuarios normales */
+.volver-container {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.btn-volver {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--bg-card, #fff);
+    color: #374151;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 10px;
+    border: 2px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.btn-volver:hover {
+    border-color: #3b82f6;
+    color: #3b82f6;
+    transform: translateX(-3px);
+}
+
+.btn-volver-arrow {
+    font-size: 1.25rem;
+    transition: transform 0.3s;
+}
+
+.btn-volver:hover .btn-volver-arrow {
+    transform: translateX(-3px);
+}
+
+@media (max-width: 768px) {
+    .btn-volver {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
 /* Responsive para pantallas pequenas */
 @media (max-width: 768px) {
     .tipo-filtros {
@@ -449,6 +508,23 @@
     .card a > div:last-child {
         margin-bottom: 0;
     }
+}
+
+/* Precursor styles */
+.text-precursor {
+    color: #16a34a !important;
+}
+
+.precursor-badge-sm {
+    display: inline-block;
+    padding: 0.1rem 0.35rem;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 700;
+    border-radius: 4px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
 }
 </style>
 @endsection

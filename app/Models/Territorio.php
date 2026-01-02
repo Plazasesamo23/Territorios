@@ -38,7 +38,7 @@ class Territorio extends Model
         'congregacion_id',
         'numero',
         'tipo',
-        'nombre',
+        'zona',
         'descripcion',
         'coordenadas_lat',
         'coordenadas_lng',
@@ -200,27 +200,26 @@ class Territorio extends Model
      */
     public function getImagenUrl()
     {
-        // 1. Buscar archivo local primero (incluye tipo en el nombre para evitar conflictos)
-        $tipoSuffix = $this->tipo !== 'normal' ? '_' . $this->tipo : '';
-        $imagenPath = "imagenes/" . $this->congregacion_id . "_" . $this->numero . $tipoSuffix . ".jpg";
-        if (file_exists(public_path($imagenPath))) {
-            return asset($imagenPath);
-        }
-
-        // Fallback: buscar sin sufijo de tipo (compatibilidad con imagenes existentes)
-        $imagenPathLegacy = "imagenes/" . $this->congregacion_id . "_" . $this->numero . ".jpg";
-        if (file_exists(public_path($imagenPathLegacy))) {
-            return asset($imagenPathLegacy);
-        }
-
-        // 2. Usar URL de la base de datos si existe
+        // 1. Usar URL de la base de datos si existe
         if (!empty($this->imagen_url)) {
             return $this->convertirUrlDirecta($this->imagen_url);
         }
 
-        // 3. SVG por defecto
-        $numeroCompleto = $this->numero_completo;
-        return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%234f46e5' width='100%25' height='100%25'/%3E%3Ctext x='50%25' y='50%25' fill='white' text-anchor='middle' font-size='18'%3ETerritorio " . $numeroCompleto . "%3C/text%3E%3C/svg%3E";
+        // 2. Devolver siempre la URL local (file_exists no funciona bien en hosting compartido)
+        // Para territorios normales o sin tipo: 1_100.jpg
+        $imagenPath = "imagenes/" . $this->congregacion_id . "_" . $this->numero . ".jpg";
+
+        // Para territorios con tipo especial: 1_10_negocios.jpg
+        if ($this->tipo && $this->tipo !== 'normal') {
+            $imagenPathTipo = "imagenes/" . $this->congregacion_id . "_" . $this->numero . "_" . $this->tipo . ".jpg";
+            // Intentar primero con tipo, si no existe se usa el legacy
+            if (file_exists(public_path($imagenPathTipo))) {
+                return asset($imagenPathTipo);
+            }
+        }
+
+        // Devolver la URL de imagen legacy (sin verificar - mejor rendimiento)
+        return asset($imagenPath);
     }
 
     /**
@@ -251,10 +250,21 @@ class Territorio extends Model
      */
     public function tieneImagen()
     {
-        $tipoSuffix = $this->tipo !== 'normal' ? '_' . $this->tipo : '';
-        $imagenPath = public_path("imagenes/" . $this->congregacion_id . "_" . $this->numero . $tipoSuffix . ".jpg");
+        // Primero buscar sin sufijo
         $imagenPathLegacy = public_path("imagenes/" . $this->congregacion_id . "_" . $this->numero . ".jpg");
-        return file_exists($imagenPath) || file_exists($imagenPathLegacy) || !empty($this->imagen_url);
+        if (file_exists($imagenPathLegacy)) {
+            return true;
+        }
+
+        // Buscar con sufijo de tipo
+        if ($this->tipo && $this->tipo !== 'normal') {
+            $imagenPath = public_path("imagenes/" . $this->congregacion_id . "_" . $this->numero . "_" . $this->tipo . ".jpg");
+            if (file_exists($imagenPath)) {
+                return true;
+            }
+        }
+
+        return !empty($this->imagen_url);
     }
 
     /**

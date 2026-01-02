@@ -93,19 +93,19 @@
                     </p>
                 </div>
 
-                <!-- Nombre del Territorio -->
+                <!-- Zona del Territorio -->
                 <div class="form-group">
-                    <label for="nombre" class="form-label">
-                        Nombre del Territorio
+                    <label for="zona" class="form-label">
+                        Zona
                     </label>
                     <div class="input-group">
-                        <input 
-                            type="text" 
-                            id="nombre" 
-                            name="nombre" 
-                            value="{{ old('nombre') }}"
-                            class="form-input @error('nombre') error @enderror"
-                            placeholder="Ej: Centro Histórico, Barrio Norte..."
+                        <input
+                            type="text"
+                            id="zona"
+                            name="zona"
+                            value="{{ old('zona') }}"
+                            class="form-input @error('zona') error @enderror"
+                            placeholder="Ej: Can Roqueta, Torre Romeu..."
                         >
                         <div class="input-icon">
                             <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,7 +114,7 @@
                             </svg>
                         </div>
                     </div>
-                    @error('nombre')
+                    @error('zona')
                         <p class="form-error">
                             <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
@@ -123,7 +123,7 @@
                         </p>
                     @enderror
                     <p class="form-help">
-                        Nombre descriptivo para identificar fácilmente el territorio
+                        Zona donde se encuentra el territorio
                     </p>
                 </div>
 

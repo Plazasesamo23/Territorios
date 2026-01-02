@@ -28,7 +28,12 @@
         {{ strtoupper(substr($publicador->nombre, 0, 1)) }}{{ strtoupper(substr($publicador->apellidos, 0, 1)) }}
     </div>
     <div class="publicador-info">
-        <h1 class="publicador-nombre">{{ $publicador->nombre_completo }}</h1>
+        <h1 class="publicador-nombre {{ $publicador->es_precursor ? 'text-precursor' : '' }}">
+            {{ $publicador->nombre_completo }}
+            @if($publicador->es_precursor)
+            <span class="precursor-badge">PR</span>
+            @endif
+        </h1>
         <div class="publicador-meta">
             <span class="meta-item">Tel: {{ $publicador->telefono }}</span>
             @if($publicador->activo)

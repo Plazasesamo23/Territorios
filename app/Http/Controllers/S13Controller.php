@@ -52,6 +52,10 @@ class S13Controller extends Controller
      */
     public function index()
     {
+        if (!auth()->user()->canGenerateS13()) {
+            abort(403, 'No tienes permisos para acceder al reporte S-13.');
+        }
+
         $congregacionId = $this->getCongregacionActivaId();
 
         // Obtener IDs de territorios SOLO de la congregacion activa
