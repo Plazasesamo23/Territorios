@@ -27,21 +27,81 @@
         </a>
     </div>
 
-    <!-- Boton generar mes -->
+    <!-- Botones de accion -->
     <div class="generate-section">
-        <form action="{{ route('ppoc.generar-mes') }}" method="POST" class="generate-form">
-            @csrf
-            <input type="hidden" name="year" value="{{ $year }}">
-            <input type="hidden" name="month" value="{{ $month }}">
-            <button type="submit" class="btn-generate" onclick="return confirm('Esto generara los turnos para {{ ucfirst($nombreMes) }} {{ $year }} basado en las plantillas. ¿Continuar?')">
-                &#x2728; Generar Turnos del Mes
-            </button>
-        </form>
+        <div class="action-buttons">
+            <form action="{{ route('ppoc.generar-mes') }}" method="POST" class="generate-form">
+                @csrf
+                <input type="hidden" name="year" value="{{ $year }}">
+                <input type="hidden" name="month" value="{{ $month }}">
+                <button type="submit" class="btn-generate" onclick="return confirm('Esto generara los turnos para {{ ucfirst($nombreMes) }} {{ $year }} basado en las plantillas. ¿Continuar?')">
+                    &#x2728; Generar Turnos
+                </button>
+            </form>
+            @if($mesGenerado)
+            <form action="{{ route('ppoc.asignacion-automatica') }}" method="POST" class="generate-form">
+                @csrf
+                <input type="hidden" name="year" value="{{ $year }}">
+                <input type="hidden" name="month" value="{{ $month }}">
+                <button type="submit" class="btn-auto-assign" onclick="return confirm('Esto asignara automaticamente publicadores a los turnos vacios basandose en disponibilidad y equilibrio de turnos. ¿Continuar?')">
+                    &#x1F916; Asignar Automatico
+                </button>
+            </form>
+            @endif
+        </div>
         <div class="quick-links">
-            <a href="{{ route('ppoc.turnos.index') }}" class="quick-link">&#x1F4CB; Plantillas de Turnos</a>
-            <a href="{{ route('ppoc.aprobados') }}" class="quick-link">&#x2705; Publicadores Aprobados</a>
+            <a href="{{ route('ppoc.turnos.index') }}" class="quick-link">&#x1F4CB; Plantillas</a>
+            <a href="{{ route('ppoc.aprobados') }}" class="quick-link">&#x2705; Aprobados</a>
+            <a href="{{ route('ppoc.disponibilidad.por-turno') }}" class="quick-link">&#x1F4C6; Disponibilidades</a>
         </div>
     </div>
+
+    <!-- Estadisticas y Alertas del mes -->
+    @if($mesGenerado && isset($alertasData))
+    <div class="stats-section">
+        <div class="stats-cards">
+            <div class="stat-card">
+                <span class="stat-value">{{ $alertasData['stats']['turnos_completos'] ?? 0 }}/{{ $alertasData['stats']['turnos_totales'] ?? 0 }}</span>
+                <span class="stat-label">Turnos completos</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value">{{ $alertasData['stats']['asignaciones_totales'] ?? 0 }}</span>
+                <span class="stat-label">Asignaciones</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value">{{ $alertasData['stats']['publicadores_asignados'] ?? 0 }}</span>
+                <span class="stat-label">Publicadores</span>
+            </div>
+        </div>
+
+        @if(!empty($alertasData['alertas']))
+        <div class="alertas-box">
+            @foreach($alertasData['alertas'] as $alerta)
+            <div class="alerta alerta-{{ $alerta['tipo'] }}">
+                {{ $alerta['mensaje'] }}
+            </div>
+            @endforeach
+        </div>
+        @endif
+
+        @if(!empty($alertasData['publicadores']))
+        <details class="publicadores-stats">
+            <summary>Ver estadisticas por publicador ({{ count($alertasData['publicadores']) }})</summary>
+            <div class="pub-stats-grid">
+                @foreach($alertasData['publicadores'] as $pub)
+                <div class="pub-stat-item estado-{{ $pub['estado'] }}">
+                    <span class="pub-name">{{ $pub['nombre'] }}</span>
+                    <span class="pub-turnos">{{ $pub['turnos'] }} turnos</span>
+                    @if($pub['es_precursor'])
+                    <span class="pub-badge precursor">P</span>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+        </details>
+        @endif
+    </div>
+    @endif
 
     <!-- Calendario -->
     <div class="calendar-container">
@@ -217,7 +277,7 @@ document.getElementById('modal-asignar').addEventListener('click', function(e) {
     font-weight: 600;
 }
 
-/* Seccion generar -->
+/* Seccion generar */
 .generate-section {
     display: flex;
     justify-content: space-between;
@@ -225,6 +285,12 @@ document.getElementById('modal-asignar').addEventListener('click', function(e) {
     flex-wrap: wrap;
     gap: 1rem;
     margin-bottom: 1.5rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
 .btn-generate {
@@ -243,6 +309,24 @@ document.getElementById('modal-asignar').addEventListener('click', function(e) {
 .btn-generate:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-auto-assign {
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.btn-auto-assign:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
 }
 
 .quick-links {
@@ -264,6 +348,142 @@ document.getElementById('modal-asignar').addEventListener('click', function(e) {
 .quick-link:hover {
     border-color: #3b82f6;
     color: #3b82f6;
+}
+
+/* Estadisticas */
+.stats-section {
+    background: var(--bg-card, #fff);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-color, #e5e7eb);
+}
+
+.stats-cards {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    flex: 1;
+    min-width: 120px;
+    background: var(--bg-secondary, #f9fafb);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #3b82f6;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted, #6b7280);
+    margin-top: 0.25rem;
+}
+
+.alertas-box {
+    margin-bottom: 1rem;
+}
+
+.alerta {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.alerta-danger {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+.alerta-warning {
+    background: #fef3c7;
+    color: #d97706;
+    border: 1px solid #fde68a;
+}
+
+.publicadores-stats {
+    margin-top: 1rem;
+}
+
+.publicadores-stats summary {
+    cursor: pointer;
+    padding: 0.75rem;
+    background: var(--bg-secondary, #f9fafb);
+    border-radius: 8px;
+    font-weight: 600;
+    color: var(--text-primary, #374151);
+}
+
+.pub-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.pub-stat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-secondary, #f9fafb);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    border-left: 3px solid #10b981;
+}
+
+.pub-stat-item.estado-warning {
+    border-left-color: #f59e0b;
+    background: #fef3c7;
+}
+
+.pub-stat-item.estado-danger {
+    border-left-color: #dc2626;
+    background: #fee2e2;
+}
+
+.pub-name {
+    font-weight: 500;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pub-turnos {
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+.pub-badge {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    margin-left: 0.5rem;
+}
+
+.pub-badge.precursor {
+    background: #3b82f6;
+    color: white;
 }
 
 /* Calendario */
@@ -444,7 +664,7 @@ document.getElementById('modal-asignar').addEventListener('click', function(e) {
     border-style: solid;
 }
 
-/* Modal -->
+/* Modal */
 .modal {
     position: fixed;
     top: 0;
@@ -558,6 +778,10 @@ document.getElementById('modal-asignar').addEventListener('click', function(e) {
         align-items: stretch;
     }
 
+    .action-buttons {
+        flex-direction: column;
+    }
+
     .quick-links {
         flex-direction: column;
     }
@@ -575,6 +799,10 @@ document.getElementById('modal-asignar').addEventListener('click', function(e) {
     .turno-item {
         font-size: 0.65rem;
         padding: 0.35rem;
+    }
+
+    .stats-cards {
+        flex-direction: column;
     }
 }
 
@@ -606,6 +834,10 @@ document.getElementById('modal-asignar').addEventListener('click', function(e) {
 }
 
 [data-theme="dark"] .btn-generate {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+[data-theme="dark"] .btn-auto-assign {
     background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
     color: #0a0a0a;
 }
@@ -619,6 +851,41 @@ document.getElementById('modal-asignar').addEventListener('click', function(e) {
 [data-theme="dark"] .quick-link:hover {
     border-color: #f97316;
     color: #f97316;
+}
+
+[data-theme="dark"] .stats-section {
+    background: #171717;
+    border-color: #262626;
+}
+
+[data-theme="dark"] .stat-card {
+    background: #262626;
+}
+
+[data-theme="dark"] .stat-value {
+    color: #f97316;
+}
+
+[data-theme="dark"] .stat-label {
+    color: #a3a3a3;
+}
+
+[data-theme="dark"] .publicadores-stats summary {
+    background: #262626;
+    color: #e5e5e5;
+}
+
+[data-theme="dark"] .pub-stat-item {
+    background: #262626;
+    color: #e5e5e5;
+}
+
+[data-theme="dark"] .pub-stat-item.estado-warning {
+    background: rgba(245, 158, 11, 0.2);
+}
+
+[data-theme="dark"] .pub-stat-item.estado-danger {
+    background: rgba(220, 38, 38, 0.2);
 }
 
 [data-theme="dark"] .calendar-container {

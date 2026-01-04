@@ -175,6 +175,60 @@
     </div>
 </div>
 
+
+<!-- Seccion Familia -->
+<div class="family-section">
+    <div class="section-header-with-action">
+        <h2 class="section-title">Familia</h2>
+        @if(Auth::user()->canEditPublicadores())
+        <button onclick="openFamilyModal()" class="btn-action-sm btn-add-family">+ Gestionar</button>
+        @endif
+    </div>
+    <div id="familyList" class="family-list">
+        <div class="loading-family">Cargando...</div>
+    </div>
+</div>
+
+<!-- Modal Familia -->
+<div id="familyModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content modal-family">
+        <div class="modal-header">
+            <h3>Gestionar Familia</h3>
+            <button onclick="closeFamilyModal()" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-section">
+                <h4>Familiares Actuales</h4>
+                <div id="currentFamily" class="current-family-list">
+                    <div class="loading-family">Cargando...</div>
+                </div>
+            </div>
+            <div class="modal-section">
+                <h4>Agregar Familiar</h4>
+                <div class="add-family-form">
+                    <div class="form-row-family">
+                        <div class="form-group">
+                            <label for="familiarSelect">Publicador</label>
+                            <select id="familiarSelect" class="family-select">
+                                <option value="">Seleccionar...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="tipoRelacion">Relacion</label>
+                            <select id="tipoRelacion" class="family-select">
+                                <option value="conyuge">Conyuge</option>
+                                <option value="progenitor">Padre/Madre</option>
+                                <option value="hijo">Hijo/a</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="addFamiliar()" class="btn btn-primary btn-add">Agregar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Ultimos registros -->
 @if($ultimosRegistros->count() > 0)
 <div class="recent-section">
@@ -1008,5 +1062,381 @@ function toggleEditMode() {
         gap: 0.75rem;
     }
 }
+
+/* ===== FAMILY SECTION STYLES ===== */
+.family-section {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--card-bg, #fff);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.section-header-with-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.family-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.family-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--bg-secondary, #f8fafc);
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.family-item:hover {
+    background: var(--bg-hover, #f1f5f9);
+    transform: translateX(4px);
+}
+
+.family-name {
+    font-weight: 500;
+    color: var(--text-primary, #1e293b);
+}
+
+.family-relation {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.family-rel-conyuge {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.family-rel-progenitor {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.family-rel-hijo {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.no-family {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-muted, #64748b);
+    font-style: italic;
+}
+
+.loading-family {
+    text-align: center;
+    padding: 1rem;
+    color: var(--text-muted, #64748b);
+}
+
+.btn-add-family {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-add-family:hover {
+    background: #2563eb;
+}
+
+/* Modal Family Styles */
+.modal-family {
+    max-width: 500px;
+    width: 90%;
+}
+
+.modal-section {
+    margin-bottom: 1.5rem;
+}
+
+.modal-section h4 {
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted, #64748b);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.current-family-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.family-item-modal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--bg-secondary, #f8fafc);
+    border-radius: 8px;
+}
+
+.family-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.btn-remove-family {
+    background: #ef4444;
+    color: white;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.btn-remove-family:hover {
+    background: #dc2626;
+}
+
+.add-family-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-row-family {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.family-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    background: white;
+    transition: border-color 0.2s;
+}
+
+.family-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.btn-add {
+    align-self: flex-start;
+}
+
+/* Dark Theme */
+[data-theme="dark"] .family-section {
+    background: var(--card-bg-dark, #1e293b);
+}
+
+[data-theme="dark"] .family-item {
+    background: var(--bg-secondary-dark, #334155);
+}
+
+[data-theme="dark"] .family-item:hover {
+    background: var(--bg-hover-dark, #475569);
+}
+
+[data-theme="dark"] .family-name {
+    color: var(--text-primary-dark, #f1f5f9);
+}
+
+[data-theme="dark"] .family-rel-conyuge {
+    background: #78350f;
+    color: #fef3c7;
+}
+
+[data-theme="dark"] .family-rel-progenitor {
+    background: #1e3a8a;
+    color: #dbeafe;
+}
+
+[data-theme="dark"] .family-rel-hijo {
+    background: #14532d;
+    color: #dcfce7;
+}
+
+[data-theme="dark"] .family-item-modal {
+    background: var(--bg-secondary-dark, #334155);
+}
+
+[data-theme="dark"] .family-select {
+    background: #334155;
+    border-color: #475569;
+    color: #f1f5f9;
+}
+
+@media (max-width: 640px) {
+    .form-row-family {
+        grid-template-columns: 1fr;
+    }
+
+    .section-header-with-action {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+}
 </style>
+<script>
+// ===== FAMILY MANAGEMENT FUNCTIONS =====
+const publicadorId = {{ $publicador->id }};
+
+function loadFamilyList() {
+    fetch(`/publicadores/${publicadorId}/familiares`, {
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        const container = document.getElementById('familyList');
+        if (!data.familiares || data.familiares.length === 0) {
+            container.innerHTML = '<div class="no-family">Sin familiares registrados</div>';
+            return;
+        }
+        container.innerHTML = data.familiares.map(f => `
+            <a href="/publicadores/${f.familiar.id}" class="family-item">
+                <span class="family-name">${f.familiar.nombre} ${f.familiar.apellidos}</span>
+                <span class="family-relation family-rel-${f.tipo_relacion}">${f.tipo_label}</span>
+            </a>
+        `).join('');
+    })
+    .catch(e => {
+        document.getElementById('familyList').innerHTML = '<div class="no-family">Error al cargar</div>';
+    });
+}
+
+function openFamilyModal() {
+    document.getElementById('familyModal').style.display = 'flex';
+    loadCurrentFamily();
+    loadAvailablePublishers();
+}
+
+function closeFamilyModal() {
+    document.getElementById('familyModal').style.display = 'none';
+}
+
+function loadCurrentFamily() {
+    fetch(`/publicadores/${publicadorId}/familiares`, {
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        const container = document.getElementById('currentFamily');
+        if (!data.familiares || data.familiares.length === 0) {
+            container.innerHTML = '<div class="no-family">Sin familiares registrados</div>';
+            return;
+        }
+        container.innerHTML = data.familiares.map(f => `
+            <div class="family-item-modal">
+                <div class="family-info">
+                    <span class="family-name">${f.familiar.nombre} ${f.familiar.apellidos}</span>
+                    <span class="family-relation family-rel-${f.tipo_relacion}">${f.tipo_label}</span>
+                </div>
+                <button onclick="removeFamiliar(${f.familiar.id})" class="btn-remove-family" title="Eliminar">x</button>
+            </div>
+        `).join('');
+    });
+}
+
+function loadAvailablePublishers() {
+    fetch(`/publicadores/${publicadorId}/disponibles-familia`, {
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        const select = document.getElementById('familiarSelect');
+        select.innerHTML = '<option value="">Seleccionar...</option>';
+        data.disponibles.forEach(p => {
+            select.innerHTML += `<option value="${p.id}">${p.nombre} ${p.apellidos}</option>`;
+        });
+    });
+}
+
+function addFamiliar() {
+    const familiarId = document.getElementById('familiarSelect').value;
+    const tipo = document.getElementById('tipoRelacion').value;
+
+    if (!familiarId) {
+        alert('Selecciona un publicador');
+        return;
+    }
+
+    fetch(`/publicadores/${publicadorId}/add-familiar`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ familiar_id: familiarId, tipo_relacion: tipo })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            loadCurrentFamily();
+            loadAvailablePublishers();
+            loadFamilyList();
+        } else {
+            alert(data.message || 'Error al agregar familiar');
+        }
+    });
+}
+
+function removeFamiliar(familiarId) {
+    if (!confirm('Eliminar esta relacion familiar?')) return;
+
+    fetch(`/publicadores/${publicadorId}/remove-familiar`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ familiar_id: familiarId })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            loadCurrentFamily();
+            loadAvailablePublishers();
+            loadFamilyList();
+        }
+    });
+}
+
+// Close modal on overlay click
+document.getElementById('familyModal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeFamilyModal();
+});
+
+// Load family list on page load
+document.addEventListener('DOMContentLoaded', loadFamilyList);
+</script>
 @endsection

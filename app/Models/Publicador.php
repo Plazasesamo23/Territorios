@@ -23,7 +23,10 @@ class Publicador extends Model
         'es_precursor',
         'es_superintendente',
         'es_auxiliar',
-        'orden_grupo'
+        'orden_grupo',
+        'es_anciano',
+        'es_siervo_ministerial',
+        'es_menor'
     ];
 
     protected $casts = [
@@ -31,8 +34,11 @@ class Publicador extends Model
         'aprobado_ppoc' => 'boolean',
         'es_precursor' => 'boolean',
         'es_superintendente' => 'boolean',
-        'es_auxiliar',
-        'orden_grupo' => 'boolean',
+        'es_auxiliar' => 'boolean',
+        'es_anciano' => 'boolean',
+        'es_siervo_ministerial' => 'boolean',
+        'es_menor' => 'boolean',
+        'orden_grupo' => 'integer',
     ];
 
     /**
@@ -65,5 +71,13 @@ class Publicador extends Model
     public function getNombreCompletoAttribute()
     {
         return trim($this->nombre . ' ' . $this->apellidos);
+    }
+
+    /**
+     * Disponibilidades PPOC
+     */
+    public function disponibilidadesPpoc()
+    {
+        return $this->hasMany(DisponibilidadPpoc::class);
     }
 }

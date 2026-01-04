@@ -153,6 +153,14 @@
                     </div>
                     <span class="link-arrow">&#x276F;</span>
                 </a>
+                <a href="{{ route('ppoc.disponibilidad.por-turno') }}" class="admin-link">
+                    <span class="link-icon">&#x1F4C6;</span>
+                    <div class="link-content">
+                        <span class="link-title">Disponibilidades</span>
+                        <span class="link-desc">Ver disponibilidad de publicadores por turno</span>
+                    </div>
+                    <span class="link-arrow">&#x276F;</span>
+                </a>
             </div>
         </div>
         @endif

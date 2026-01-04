@@ -7,6 +7,7 @@ use App\Models\TurnoGenerado;
 use App\Models\TurnoAsignacion;
 use App\Models\Publicador;
 use App\Models\Congregacion;
+use App\Services\AsignacionPpocService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -234,10 +235,14 @@ class TurnoController extends Controller
         // Verificar si el mes ya está generado
         $mesGenerado = $turnosGenerados->isNotEmpty();
 
+        // Obtener alertas y estadisticas del servicio
+        $service = new AsignacionPpocService($congregacion->id);
+        $alertasData = $service->getAlertas($year, $month);
+
         return view('ppoc.calendario', compact(
             'turnosGenerados', 'plantillas', 'publicadores',
             'year', 'month', 'semanas', 'nombreMes', 'prevMonth', 'nextMonth',
-            'mesGenerado'
+            'mesGenerado', 'alertasData'
         ));
     }
 
@@ -268,6 +273,42 @@ class TurnoController extends Controller
 
         return redirect()->route('ppoc.calendario', ['year' => $year, 'month' => $month])
             ->with('success', "Calendario generado: {$creados} turnos creados.");
+    }
+
+    /**
+     * Asignar publicadores automaticamente para un mes
+     * Usa el sistema de medias: precursores no pueden tener menos turnos que la media de publicadores
+     * y publicadores no pueden tener mas turnos que la media de precursores
+     */
+    public function asignacionAutomatica(Request $request)
+    {
+        $this->checkAccess();
+
+        $validated = $request->validate([
+            'year' => 'required|integer|min:2024|max:2100',
+            'month' => 'required|integer|min:1|max:12',
+        ]);
+
+        $congregacion = $this->getCongregacion();
+        $year = $validated['year'];
+        $month = $validated['month'];
+
+        $service = new AsignacionPpocService($congregacion->id);
+        $resultado = $service->generarMes($year, $month);
+
+        $mensaje = "Asignacion automatica completada: {$resultado['asignados']} turnos asignados.";
+
+        if ($resultado['incompletos'] > 0) {
+            $mensaje .= " {$resultado['incompletos']} turnos quedaron incompletos.";
+        }
+
+        if (!empty($resultado['errores'])) {
+            return redirect()->route('ppoc.calendario', ['year' => $year, 'month' => $month])
+                ->with('error', implode(' ', $resultado['errores']));
+        }
+
+        return redirect()->route('ppoc.calendario', ['year' => $year, 'month' => $month])
+            ->with('success', $mensaje);
     }
 
     /**

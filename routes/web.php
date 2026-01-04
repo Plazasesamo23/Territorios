@@ -15,9 +15,17 @@ use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\PanelTerritoriosController;
+use App\Http\Controllers\DisponibilidadPpocController;
 
 // Rutas de autenticación (Laravel UI/Breeze)
 Auth::routes(['register' => false]); // Desactivar registro público
+
+// =====================================================
+// RUTAS PUBLICAS - Disponibilidad PPOC (sin auth)
+// =====================================================
+Route::get('/disponibilidad/{token}', [DisponibilidadPpocController::class, 'form'])->name('disponibilidad.form');
+Route::post('/disponibilidad/{token}', [DisponibilidadPpocController::class, 'store'])->name('disponibilidad.store');
+Route::get('/disponibilidad/{token}/publicador/{publicador}', [DisponibilidadPpocController::class, 'getDisponibilidad'])->name('disponibilidad.get');
 
 // Rutas protegidas con autenticación y filtro de congregación
 Route::middleware(['auth', 'congregacion'])->group(function () {
@@ -46,6 +54,14 @@ Route::middleware(['auth', 'congregacion'])->group(function () {
     // Editar publicadores (solo datos como teléfono)
     Route::get('publicadores/{publicador}/edit', [PublicadorController::class, 'edit'])->name('publicadores.edit')->where('publicador', '[0-9]+');
     Route::put('publicadores/{publicador}', [PublicadorController::class, 'update'])->name('publicadores.update')->where('publicador', '[0-9]+');
+
+    // Family relationships routes
+    Route::get('publicadores/{publicador}/familiares', [PublicadorController::class, 'familiares'])->name('publicadores.familiares');
+    Route::get('publicadores/{publicador}/disponibles-familia', [PublicadorController::class, 'disponiblesFamilia'])->name('publicadores.disponibles-familia');
+    Route::post('publicadores/{publicador}/add-familiar', [PublicadorController::class, 'addFamiliar'])->name('publicadores.add-familiar');
+    Route::post('publicadores/{publicador}/remove-familiar', [PublicadorController::class, 'removeFamiliar'])->name('publicadores.remove-familiar');
+
+
 
     // Registros - crear (asignar territorio) y marcar entrada
     Route::get('registros', [RegistroController::class, 'index'])->name('registros.index');
@@ -144,6 +160,10 @@ Route::middleware(['auth', 'congregacion'])->group(function () {
         Route::get('creador-territorios/editor', function () {
             return view('creador-territorios.editor');
         })->name('creador-territorios.editor');
+
+        // Disponibilidad PPOC - Vistas admin
+        Route::get('ppoc/disponibilidad/por-turno', [DisponibilidadPpocController::class, 'porTurno'])->name('ppoc.disponibilidad.por-turno');
+        Route::get('ppoc/disponibilidad/por-publicador', [DisponibilidadPpocController::class, 'porPublicador'])->name('ppoc.disponibilidad.por-publicador');
     });
 
     // =====================================================
@@ -178,6 +198,7 @@ Route::middleware(['auth', 'congregacion'])->group(function () {
         Route::patch("/asignaciones/{asignacion}/estado", [TurnoController::class, "actualizarEstado"])->name("asignaciones.estado");
         Route::get("/aprobados", [TurnoController::class, "aprobados"])->name("aprobados");
         Route::post("/aprobados/toggle/{publicador}", [TurnoController::class, "toggleAprobado"])->name("aprobados.toggle");
+        Route::post("/asignacion-automatica", [TurnoController::class, "asignacionAutomatica"])->name("asignacion-automatica");
     });
 
     // Ruta de referencia UI (desarrollo)

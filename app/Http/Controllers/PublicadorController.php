@@ -411,4 +411,79 @@ class PublicadorController extends Controller
         return redirect()->route('publicadores.index')
             ->with('success', 'Publicador eliminado exitosamente.');
     }
+
+    /**
+     * Get family members for a publicador
+     */
+    public function familiares(Publicador $publicador)
+    {
+        $relaciones = \App\Models\RelacionFamiliar::where('publicador_id', $publicador->id)
+            ->with('familiar:id,nombre,apellidos')
+            ->get();
+
+        $familiares = $relaciones->map(function($rel) {
+            return [
+                'familiar' => $rel->familiar,
+                'tipo_relacion' => $rel->tipo_relacion,
+                'tipo_label' => \App\Models\RelacionFamiliar::TIPOS[$rel->tipo_relacion] ?? $rel->tipo_relacion,
+            ];
+        });
+
+        return response()->json(['familiares' => $familiares]);
+    }
+
+    /**
+     * Get available publishers for family relationships
+     */
+    public function disponiblesFamilia(Publicador $publicador)
+    {
+        $familiarIds = \App\Models\RelacionFamiliar::where('publicador_id', $publicador->id)
+            ->pluck('familiar_id')
+            ->toArray();
+
+        $disponibles = Publicador::where('congregacion_id', $publicador->congregacion_id)
+            ->where('id', '!=', $publicador->id)
+            ->whereNotIn('id', $familiarIds)
+            ->orderBy('apellidos')
+            ->orderBy('nombre')
+            ->get(['id', 'nombre', 'apellidos']);
+
+        return response()->json(['disponibles' => $disponibles]);
+    }
+
+    /**
+     * Add a family relationship
+     */
+    public function addFamiliar(Request $request, Publicador $publicador)
+    {
+        $request->validate([
+            'familiar_id' => 'required|exists:publicadores,id',
+            'tipo_relacion' => 'required|in:conyuge,progenitor,hijo',
+        ]);
+
+        try {
+            \App\Models\RelacionFamiliar::crearRelacion(
+                $publicador->id,
+                $request->familiar_id,
+                $request->tipo_relacion
+            );
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    /**
+     * Remove a family relationship
+     */
+    public function removeFamiliar(Request $request, Publicador $publicador)
+    {
+        $request->validate([
+            'familiar_id' => 'required|exists:publicadores,id',
+        ]);
+
+        \App\Models\RelacionFamiliar::eliminarRelacion($publicador->id, $request->familiar_id);
+        return response()->json(['success' => true]);
+    }
+
 }
