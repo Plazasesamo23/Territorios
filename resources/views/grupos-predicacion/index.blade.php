@@ -86,13 +86,19 @@
                             $roles = [];
                             if ($pub->es_superintendente) $roles[] = 'SUP';
                             if ($pub->es_auxiliar) $roles[] = 'AUX';
+                            // Mostrar AN/SM solo si NO es SUP ni AUX
+                            if (!$pub->es_superintendente && !$pub->es_auxiliar) {
+                                if ($pub->es_anciano) $roles[] = 'AN';
+                                elseif ($pub->es_siervo_ministerial) $roles[] = 'SM';
+                            }
                             if ($pub->es_precursor) $roles[] = 'PR';
                             $rolTexto = count($roles) > 0 ? ' (' . implode('-', $roles) . ')' : '';
                             $esLider = $pub->es_superintendente || $pub->es_auxiliar;
                             $esPrecursor = $pub->es_precursor && !$esLider;
+                            $esNombramiento = !$esLider && ($pub->es_anciano || $pub->es_siervo_ministerial);
                             $dataRol = $pub->es_superintendente ? 'sup' : ($pub->es_auxiliar ? 'aux' : '');
                         @endphp
-                        <div class="pub-item {{ $pub->es_superintendente ? 'superintendente' : '' }} {{ $pub->es_auxiliar ? 'auxiliar' : '' }} {{ $esPrecursor ? 'precursor' : '' }}"
+                        <div class="pub-item {{ $pub->es_superintendente ? 'superintendente' : '' }} {{ $pub->es_auxiliar ? 'auxiliar' : '' }} {{ $esPrecursor ? 'precursor' : '' }} {{ $esNombramiento ? 'nombramiento' : '' }}"
                              draggable="true"
                              data-id="{{ $pub->id }}"
                              data-nombre="{{ $pub->nombre_completo }}"
@@ -375,6 +381,12 @@
     color: #16a34a;
 }
 
+.pub-item.nombramiento {
+    font-weight: 600;
+    color: #7c3aed;
+    background: #f5f3ff;
+}
+
 .pub-nombre {
     flex: 1;
     white-space: nowrap;
@@ -555,6 +567,7 @@
 [data-theme="dark"] .pub-item.superintendente { background: rgba(220,38,38,0.15); color: #f87171; }
 [data-theme="dark"] .pub-item.auxiliar { background: rgba(37,99,235,0.15); color: #60a5fa; }
 [data-theme="dark"] .pub-item.precursor { color: #4ade80; }
+[data-theme="dark"] .pub-item.nombramiento { background: rgba(124,58,237,0.15); color: #c4b5fd; }
 [data-theme="dark"] .grupo-total { background: #1a1a1a; border-color: #2d2d2d; }
 [data-theme="dark"] .doc-footer { border-color: #2d2d2d; }
 [data-theme="dark"] .total-box { background: #f97316; }
@@ -697,6 +710,7 @@
     .pub-item.superintendente,
     .pub-item.auxiliar,
     .pub-item.precursor,
+    .pub-item.nombramiento,
     .pub-item.lider,
     .grupo-lista .pub-item {
         background: #fff !important;
@@ -715,6 +729,7 @@
 
     .pub-item.superintendente, .pub-item.superintendente .pub-nombre { color: #cc0000 !important; font-weight: 700 !important; }
     .pub-item.auxiliar, .pub-item.auxiliar .pub-nombre { color: #0066cc !important; font-weight: 700 !important; }
+    .pub-item.nombramiento, .pub-item.nombramiento .pub-nombre { color: #6b21a8 !important; font-weight: 700 !important; }
     .pub-item.precursor, .pub-item.precursor .pub-nombre { color: #008800 !important; }
 
     .grupo-total {

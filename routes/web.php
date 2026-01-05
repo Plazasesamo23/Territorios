@@ -181,24 +181,28 @@ Route::middleware(['auth', 'congregacion'])->group(function () {
 
 
     // =====================================================
-    // RUTAS PPOC - Programa de Predicacion
+    // RUTAS PPOC - Accesibles para usuarios PPOC y admins
     // =====================================================
     Route::prefix("ppoc")->name("ppoc.")->group(function () {
         Route::get("/", [TurnoController::class, "calendario"])->name("calendario");
+        Route::post("/generar-mes", [TurnoController::class, "generarMes"])->name("generar-mes");
+        Route::post("/asignaciones", [TurnoController::class, "asignar"])->name("asignaciones.store");
+        Route::delete("/asignaciones/{asignacion}", [TurnoController::class, "desasignar"])->name("asignaciones.destroy");
+        Route::patch("/asignaciones/{asignacion}/estado", [TurnoController::class, "actualizarEstado"])->name("asignaciones.estado");
+        Route::post("/asignacion-automatica", [TurnoController::class, "asignacionAutomatica"])->name("asignacion-automatica");
+    });
+    
+    // RUTAS PPOC SOLO ADMIN - gestion de turnos, aprobados, disponibilidad
+    Route::middleware("role:admin")->prefix("ppoc")->name("ppoc.")->group(function () {
         Route::get("/turnos", [TurnoController::class, "index"])->name("turnos.index");
         Route::get("/turnos/create", [TurnoController::class, "create"])->name("turnos.create");
         Route::post("/turnos", [TurnoController::class, "store"])->name("turnos.store");
         Route::get("/turnos/{turno}/edit", [TurnoController::class, "edit"])->name("turnos.edit");
         Route::put("/turnos/{turno}", [TurnoController::class, "update"])->name("turnos.update");
         Route::delete("/turnos/{turno}", [TurnoController::class, "destroy"])->name("turnos.destroy");
-        Route::post("/generar-mes", [TurnoController::class, "generarMes"])->name("generar-mes");
-        Route::post("/asignaciones", [TurnoController::class, "asignar"])->name("asignaciones.store");
-        Route::delete("/asignaciones/{asignacion}", [TurnoController::class, "desasignar"])->name("asignaciones.destroy");
         Route::delete("/turno-generado/{turnoGenerado}", [TurnoController::class, "destroyTurnoGenerado"])->name("turno-generado.destroy");
-        Route::patch("/asignaciones/{asignacion}/estado", [TurnoController::class, "actualizarEstado"])->name("asignaciones.estado");
         Route::get("/aprobados", [TurnoController::class, "aprobados"])->name("aprobados");
         Route::post("/aprobados/toggle/{publicador}", [TurnoController::class, "toggleAprobado"])->name("aprobados.toggle");
-        Route::post("/asignacion-automatica", [TurnoController::class, "asignacionAutomatica"])->name("asignacion-automatica");
     });
 
     // Ruta de referencia UI (desarrollo)

@@ -32,12 +32,6 @@
                 <form action="{{ route('registros.store') }}" method="POST" id="asignar-form">
                     @csrf
 
-                    @php
-                        $territoriosNormales = $territoriosDisponibles->where('tipo', 'normal');
-                        $territoriosCampana = $territoriosDisponibles->where('tipo', 'campana');
-                        $territoriosNegocios = $territoriosDisponibles->where('tipo', 'negocios');
-                    @endphp
-
                     <!-- Paso 1: Territorio -->
                     <div class="step-section">
                         <div class="step-label">
@@ -50,36 +44,19 @@
                             $zonasUnicas = $territoriosDisponibles->pluck('zona')->filter()->unique()->sort();
                         @endphp
                         @if($zonasUnicas->count() > 1)
-                        <div class="zona-filter-wrapper">
-                            <label class="zona-filter-label">Filtrar por zona:</label>
-                            <select id="zona-filter" class="zona-filter-select">
-                                <option value="">Todas las zonas</option>
-                                @foreach($zonasUnicas as $zona)
-                                    <option value="{{ $zona }}">{{ $zona }}</option>
-                                @endforeach
-                            </select>
+                        <div class="zona-filters">
+                            <button type="button" class="zona-btn active" data-zona="">
+                                Todas
+                                <span class="zona-count">{{ $territoriosDisponibles->count() }}</span>
+                            </button>
+                            @foreach($zonasUnicas as $zona)
+                                <button type="button" class="zona-btn" data-zona="{{ $zona }}">
+                                    {{ $zona }}
+                                    <span class="zona-count">{{ $territoriosDisponibles->where('zona', $zona)->count() }}</span>
+                                </button>
+                            @endforeach
                         </div>
                         @endif
-
-                        <!-- Filtros por tipo -->
-                        <div class="tipo-filters">
-                            <button type="button" class="tipo-btn todos active" data-tipo="todos">
-                                Todos
-                                <span class="tipo-count">{{ $territoriosDisponibles->count() }}</span>
-                            </button>
-                            <button type="button" class="tipo-btn normal" data-tipo="normal">
-                                Normal
-                                <span class="tipo-count">{{ $territoriosNormales->count() }}</span>
-                            </button>
-                            <button type="button" class="tipo-btn campana" data-tipo="campana">
-                                Campana
-                                <span class="tipo-count">{{ $territoriosCampana->count() }}</span>
-                            </button>
-                            <button type="button" class="tipo-btn negocios" data-tipo="negocios">
-                                Negocios
-                                <span class="tipo-count">{{ $territoriosNegocios->count() }}</span>
-                            </button>
-                        </div>
 
                         <!-- Select unico -->
                         <div class="territorio-select-wrapper">
@@ -176,20 +153,17 @@ document.addEventListener('DOMContentLoaded', function() {
         numero: opt.dataset.numero
     }));
 
-    // Variables de filtro
-    const zonaFilter = document.getElementById('zona-filter');
+    // Variable de filtro por zona
     let zonaSeleccionada = '';
-    let tipoSeleccionado = 'todos';
 
-    // Funcion centralizada de filtrado
+    // Funcion de filtrado por zona
     function filtrarTerritorios() {
         territorioSelect.innerHTML = '<option value="">-- Selecciona un territorio --</option>';
 
         opcionesOriginales.forEach(opt => {
-            const cumpleTipo = tipoSeleccionado === 'todos' || opt.tipo === tipoSeleccionado;
             const cumpleZona = !zonaSeleccionada || opt.zona === zonaSeleccionada;
 
-            if (cumpleTipo && cumpleZona) {
+            if (cumpleZona) {
                 const option = document.createElement('option');
                 option.value = opt.value;
                 option.textContent = opt.text;
@@ -208,20 +182,12 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSubmitButton();
     }
 
-    // Filtrar por zona
-    if (zonaFilter) {
-        zonaFilter.addEventListener('change', function() {
-            zonaSeleccionada = this.value;
-            filtrarTerritorios();
-        });
-    }
-
-    // Filtrar por tipo
-    document.querySelectorAll('.tipo-btn').forEach(btn => {
+    // Filtrar por zona (botones)
+    document.querySelectorAll('.zona-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.zona-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-            tipoSeleccionado = this.dataset.tipo;
+            zonaSeleccionada = this.dataset.zona;
             filtrarTerritorios();
         });
     });
@@ -368,47 +334,17 @@ document.addEventListener('DOMContentLoaded', function() {
     background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
 }
 
-/* Filtro de zona */
-.zona-filter-wrapper {
-    margin-bottom: 1rem;
+/* Filtro de zona con botones */
+.zona-filters {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.zona-filter-label {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text-muted, #6b7280);
-    white-space: nowrap;
-}
-
-.zona-filter-select {
-    flex: 1;
-    padding: 0.5rem 0.75rem;
-    border: 2px solid var(--border-color, #e5e7eb);
-    border-radius: 8px;
-    font-size: 0.85rem;
-    background: var(--bg-card, #fff);
-    color: var(--text-primary, #1f2937);
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.zona-filter-select:focus {
-    outline: none;
-    border-color: #10b981;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
-}
-
-.tipo-filters {
-    display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
     margin-bottom: 1rem;
 }
 
-.tipo-btn {
+.zona-btn {
     flex: 1;
+    min-width: 80px;
     padding: 0.6rem 0.5rem;
     border: 2px solid var(--border-color, #e5e7eb);
     border-radius: 10px;
@@ -421,16 +357,17 @@ document.addEventListener('DOMContentLoaded', function() {
     color: var(--text-primary, #374151);
 }
 
-.tipo-btn:hover {
+.zona-btn:hover {
     border-color: #d1d5db;
 }
 
-.tipo-btn.active.todos { background: #10b981; border-color: #10b981; color: white; }
-.tipo-btn.active.normal { background: #22c55e; border-color: #22c55e; color: white; }
-.tipo-btn.active.campana { background: #f59e0b; border-color: #f59e0b; color: white; }
-.tipo-btn.active.negocios { background: #3b82f6; border-color: #3b82f6; color: white; }
+.zona-btn.active {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+}
 
-.tipo-count {
+.zona-count {
     display: block;
     font-size: 0.7rem;
     opacity: 0.8;
@@ -665,8 +602,8 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 @media (max-width: 480px) {
-    .tipo-filters { flex-wrap: wrap; gap: 0.4rem; }
-    .tipo-btn { flex: 1 1 45%; padding: 0.5rem 0.25rem; font-size: 0.75rem; }
+    .zona-filters { gap: 0.4rem; }
+    .zona-btn { flex: 1 1 45%; min-width: 70px; padding: 0.5rem 0.25rem; font-size: 0.75rem; }
 }
 
 /* ========================================
@@ -691,36 +628,20 @@ document.addEventListener('DOMContentLoaded', function() {
     color: #0a0a0a;
 }
 
-[data-theme="dark"] .tipo-btn {
+[data-theme="dark"] .zona-btn {
     background: #262626;
     border-color: #404040;
     color: #e5e5e5;
 }
 
-[data-theme="dark"] .tipo-btn:hover {
+[data-theme="dark"] .zona-btn:hover {
     border-color: #525252;
 }
 
-[data-theme="dark"] .tipo-btn.active.todos,
-[data-theme="dark"] .tipo-btn.active.normal {
+[data-theme="dark"] .zona-btn.active {
     background: #f97316;
     border-color: #f97316;
     color: #0a0a0a;
-}
-
-[data-theme="dark"] .zona-filter-label {
-    color: #a3a3a3;
-}
-
-[data-theme="dark"] .zona-filter-select {
-    background: #262626;
-    border-color: #404040;
-    color: #e5e5e5;
-}
-
-[data-theme="dark"] .zona-filter-select:focus {
-    border-color: #f97316;
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
 }
 
 [data-theme="dark"] .territorio-select,

@@ -75,6 +75,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Verificar si el usuario es usuario de PPOC (solo ver calendario y cambiar turnos)
+     */
+    public function isPpocUser(): bool
+    {
+        return $this->role === 'ppoc';
+    }
+
+    /**
      * Verificar si puede acceder a una congregación específica
      */
     public function canAccessCongregacion(int $congregacionId): bool
@@ -94,6 +102,7 @@ class User extends Authenticatable
             'superadmin' => 'Super Administrador',
             'admin' => 'Administrador',
             'territorios' => 'Gestor de Territorios',
+            'ppoc' => 'Gestor de PPOC',
             'user' => 'Usuario',
             default => 'Usuario'
         };
@@ -165,12 +174,37 @@ class User extends Authenticatable
      */
     public function canAccessPPOC(): bool
     {
-        // Admins y superadmins siempre pueden
         if ($this->isAdmin()) {
             return true;
         }
-        // Usuarios normales solo si tienen el permiso
+        if ($this->isPpocUser()) {
+            return true;
+        }
         return (bool) $this->puede_acceder_ppoc;
+    }
+
+    /**
+     * Verificar si puede gestionar completamente PPOC (crear turnos, ver disponibilidad, etc)
+     */
+    public function canManagePPOC(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * Verificar si puede generar el mes en PPOC
+     */
+    public function canGeneratePPOC(): bool
+    {
+        return $this->isAdmin() || $this->isPpocUser();
+    }
+
+    /**
+     * Verificar si puede cambiar asignaciones en PPOC
+     */
+    public function canAssignPPOC(): bool
+    {
+        return $this->isAdmin() || $this->isPpocUser();
     }
 
     /**
@@ -186,6 +220,6 @@ class User extends Authenticatable
      */
     public function canAccessDashboard(): bool
     {
-        return !$this->isTerritoriosUser();
+        return !$this->isTerritoriosUser() && !$this->isPpocUser();
     }
 }

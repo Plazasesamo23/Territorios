@@ -42,12 +42,21 @@
             <input type="password" name="password_confirmation" id="password_confirmation" class="form-input" required>
         </div>
 
-        <div class="form-group mb-4" style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
-            <label class="form-label">Rol del Usuario</label>
-            <p style="margin: 0; color: #666;">
-                <span class="badge badge-secondary">Usuario</span><br>
-                <small>El nuevo usuario tendrá permisos limitados: ver territorios, editar publicadores, asignar territorios y generar S-13.</small>
-            </p>
+        <div class="form-group mb-4">
+            <label for="role" class="form-label">Rol del Usuario *</label>
+            <select name="role" id="role" class="form-input @error('role') is-invalid @enderror" required>
+                <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>Usuario (Territorios básico)</option>
+                <option value="territorios" {{ old('role') == 'territorios' ? 'selected' : '' }}>Usuario Territorios</option>
+                <option value="ppoc" {{ old('role') == 'ppoc' ? 'selected' : '' }}>Usuario PPOC</option>
+            </select>
+            @error('role')
+            <div class="text-danger" style="font-size: 12px; margin-top: 4px;">{{ $message }}</div>
+            @enderror
+            <div class="text-small text-muted mt-1">
+                <strong>Usuario:</strong> Permisos básicos en territorios<br>
+                <strong>Usuario Territorios:</strong> Acceso directo al panel de territorios<br>
+                <strong>Usuario PPOC:</strong> Acceso directo al calendario PPOC
+            </div>
         </div>
 
         <div class="form-actions">

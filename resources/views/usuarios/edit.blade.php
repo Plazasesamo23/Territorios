@@ -43,15 +43,28 @@
             <input type="password" name="password_confirmation" id="password_confirmation" class="form-input">
         </div>
 
-        <div class="form-group mb-4" style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
-            <label class="form-label">Rol Actual</label>
-            <p style="margin: 0; color: #666;">
-                @if($usuario->role === 'admin')
-                <span class="badge badge-warning">Administrador</span>
-                @else
-                <span class="badge badge-secondary">Usuario</span>
-                @endif
-            </p>
+        <div class="form-group mb-4">
+            <label for="role" class="form-label">Rol del Usuario *</label>
+            @if($usuario->role === 'admin' || $usuario->role === 'superadmin')
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
+                <span class="badge badge-warning">{{ ucfirst($usuario->role) }}</span>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #666;">El rol de administrador no puede cambiarse desde aquí</p>
+            </div>
+            @else
+            <select name="role" id="role" class="form-input @error('role') is-invalid @enderror" required>
+                <option value="user" {{ old('role', $usuario->role) == 'user' ? 'selected' : '' }}>Usuario (Territorios básico)</option>
+                <option value="territorios" {{ old('role', $usuario->role) == 'territorios' ? 'selected' : '' }}>Usuario Territorios</option>
+                <option value="ppoc" {{ old('role', $usuario->role) == 'ppoc' ? 'selected' : '' }}>Usuario PPOC</option>
+            </select>
+            @error('role')
+            <div class="text-danger" style="font-size: 12px; margin-top: 4px;">{{ $message }}</div>
+            @enderror
+            <div class="text-small text-muted mt-1">
+                <strong>Usuario:</strong> Permisos básicos en territorios<br>
+                <strong>Usuario Territorios:</strong> Acceso directo al panel de territorios<br>
+                <strong>Usuario PPOC:</strong> Acceso directo al calendario PPOC
+            </div>
+            @endif
         </div>
 
         

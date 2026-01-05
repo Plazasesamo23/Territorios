@@ -56,6 +56,7 @@
 - **Seguimiento completo** de cada asignacion
 - **Filtrado automatico** por congregacion
 - **Boton de acceso rapido** desde territorios para usuarios normales
+- **Filtro por zonas** con botones estilo chips
 
 ### Integracion WhatsApp
 - **Mensaje personalizado** configurado segun especificaciones
@@ -78,6 +79,17 @@
 - **Sistema de asignaciones** con roles (capitan/voluntario)
 - **Estados de turno** (pendiente/confirmado/completado/cancelado)
 - **Multi-congregacion** - cada congregacion gestiona sus turnos
+- **Usuario PPOC dedicado** - acceso limitado solo al calendario
+
+### Grupos de Predicacion
+- **Interfaz drag & drop** para organizar publicadores en 6 grupos
+- **Roles asignables**: Superintendente (S), Auxiliar (A), Precursor (P)
+- **Nombramientos visibles**: AN (Anciano), SM (Siervo Ministerial) en exportacion
+- **Orden personalizado** - se guarda el orden en que colocas los publicadores
+- **Colores distintivos**: Morado (SUP/AN/SM), Naranja (AUX), Verde (PR)
+- **Panel "Sin Grupo"** para publicadores no asignados
+- **100% responsive** para movil, tablet y desktop
+- **Exportacion PDF** con roles y nombramientos visibles
 
 ### Navegacion Responsive
 - **Menu hamburguesa** en dispositivos moviles
@@ -134,7 +146,7 @@ congregaciones
 users
 ├── id, congregacion_id (FK nullable)
 ├── name, email, password
-├── role (user|admin|superadmin)
+├── role (user|admin|superadmin|territorios|ppoc)
 └── timestamps
 
 territorios
@@ -149,6 +161,8 @@ publicadores
 ├── id, congregacion_id (FK)
 ├── nombre, apellidos
 ├── telefono, activo, notas
+├── es_anciano, es_siervo_ministerial
+├── es_precursor
 └── timestamps
 
 registros
@@ -187,12 +201,26 @@ asignaciones_ppoc
 
 ### Permisos por Rol
 
-| Metodo | admin | user |
-|--------|-------|------|
-| `canEditTerritorios()` | Si | No |
-| `canAccessPPOC()` | Si | Configurable |
-| `isAdmin()` | Si | No |
-| `isSuperAdmin()` | Solo superadmin | No |
+| Rol | Dashboard | Territorios | PPOC Calendario | PPOC Admin | Usuarios |
+|-----|-----------|-------------|-----------------|------------|----------|
+| superadmin | Si | Si | Si | Si | Si |
+| admin | Si | Si | Si | Si | Si |
+| user | Si | Si | Configurable | No | No |
+| territorios | Redirect | Si (directo) | No | No | No |
+| ppoc | Redirect | No | Si (directo) | No | No |
+
+### Metodos de Usuario
+
+| Metodo | Descripcion |
+|--------|-------------|
+| `canEditTerritorios()` | Solo admin/superadmin |
+| `canAccessPPOC()` | Admin o user con permiso |
+| `canManagePPOC()` | Solo admin (plantillas, aprobados) |
+| `canGeneratePPOC()` | Admin o usuario PPOC |
+| `canAssignPPOC()` | Admin o usuario PPOC |
+| `isPpocUser()` | Es rol ppoc |
+| `isTerritoriosUser()` | Es rol territorios |
+| `isAdmin()` | Es admin o superadmin |
 
 ---
 
@@ -218,21 +246,25 @@ asignaciones_ppoc
 | `/territorios` | Gestion de territorios |
 | `/publicadores` | Gestion de publicadores |
 | `/registros` | Registros activos (asignaciones) |
+| `/registros/create` | Crear asignacion (filtro por zonas) |
 | `/registros-archivados` | Registros archivados |
 | `/s13` | Reportes S-13 |
+| `/grupos-predicacion` | Grupos de predicacion |
 | `/creador-territorios` | Creador visual (admin) |
 | `/usuarios` | Gestion de usuarios (admin) |
 
 ### Modulo PPOC
-| Ruta | Descripcion |
-|------|-------------|
-| `/ppoc` | Calendario de turnos |
-| `/ppoc/turnos` | Gestion de plantillas |
-| `/ppoc/turnos/create` | Crear plantilla |
-| `/ppoc/turnos/{id}/edit` | Editar plantilla |
-| `/ppoc/generar-mes` | Generar turnos del mes |
-| `/ppoc/asignaciones` | Asignar publicador |
-| `/ppoc/turno-generado/{id}` | Eliminar turno individual |
+| Ruta | Descripcion | Acceso |
+|------|-------------|--------|
+| `/ppoc` | Calendario de turnos | Admin, PPOC |
+| `/ppoc/turnos` | Gestion de plantillas | Solo Admin |
+| `/ppoc/turnos/create` | Crear plantilla | Solo Admin |
+| `/ppoc/turnos/{id}/edit` | Editar plantilla | Solo Admin |
+| `/ppoc/generar-mes` | Generar turnos del mes | Admin, PPOC |
+| `/ppoc/asignaciones` | Asignar publicador | Admin, PPOC |
+| `/ppoc/turno-generado/{id}` | Eliminar turno | Solo Admin |
+| `/ppoc/aprobados` | Publicadores aprobados | Solo Admin |
+| `/ppoc/disponibilidad` | Disponibilidades | Solo Admin |
 
 ### Administracion
 | Ruta | Descripcion |
@@ -273,11 +305,31 @@ php artisan serve
 
 ## Ultima Actualizacion
 
-**30 Diciembre 2025**
+**5 Enero 2026**
 
 ### Cambios Recientes
 
-#### Grupos de Predicacion (NUEVO)
+#### Usuario PPOC (NUEVO)
+- **Nuevo rol de usuario**: ppoc - acceso exclusivo al calendario PPOC
+- **Redireccion automatica**: login directo a /ppoc
+- **Permisos limitados**:
+  - Puede: ver calendario, generar mes, asignar/desasignar publicadores
+  - No puede: gestionar plantillas, ver aprobados, ver disponibilidades, eliminar turnos
+- **Vista adaptada**: oculta enlaces y botones no permitidos
+- **Selector de rol**: disponible al crear/editar usuarios
+
+#### Filtro por Zonas en Asignaciones
+- **Reemplazo de filtro tipo** por filtro de zonas
+- **Botones estilo chips** para seleccionar zona
+- **Interfaz consistente** con el resto de la aplicacion
+
+#### Nombramientos en Grupos de Predicacion
+- **AN (Anciano)** y **SM (Siervo Ministerial)** visibles en exportacion
+- **Solo para no-lideres**: no se muestra si es superintendente o auxiliar
+- **Estilo morado** distintivo con clase .nombramiento
+- **Visible en PDF** al exportar grupos
+
+#### Grupos de Predicacion
 - **Interfaz drag & drop** para organizar publicadores en 6 grupos
 - **Roles asignables**: Superintendente (S), Auxiliar (A), Precursor (P)
 - **Orden personalizado** - se guarda el orden en que colocas los publicadores
@@ -285,27 +337,11 @@ php artisan serve
 - **Panel "Sin Grupo"** para publicadores no asignados
 - **100% responsive** para movil, tablet y desktop
 
-#### Asignacion de Territorios Rediseñada
-- **Un solo desplegable** con filtros por tipo (Todos/Normal/Campana/Negocios)
-- **Barra de busqueda** para localizar publicadores rapidamente
-- **Flujo en 2 pasos**: primero territorio, luego aparece selector de publicador
-- **Interfaz simplificada** sin notas adicionales
-- **Diseno responsive** adaptado a todos los dispositivos
-
 #### Sistema de Precursores
 - **Campo es_precursor** en publicadores
 - **Toggle switch** en lista de publicadores para marcar precursores
 - **Estilo verde** distintivo con badge "PR" en todas las vistas
 - **Visible en**: lista publicadores, registros, PPOC aprobados
-
-#### Mejoras de UX
-- **Login redirect inteligente**: usuarios normales -> /territorios, admins -> /dashboard
-- **Submenu eliminado** de pagina de registros (botones Territorios/Asignacion)
-- **Cambio de texto**: "Crear Territorio" -> "Anadir Territorio"
-- **Badge BETA** en Creador de Territorios
-
-#### Correccion de Datos
-- Territorios 1001-1004 de Sabadell cambiados a tipo "negocios"
 
 ---
 
@@ -326,7 +362,7 @@ php artisan serve
 | Success (Verde) | Precursores, disponible | #22c55e, #16a34a |
 | Warning (Naranja) | Campana, auxiliar, atrasado | #f59e0b, #d97706 |
 | Info (Azul) | Negocios, activo | #3b82f6, #1d4ed8 |
-| Purple (Morado) | Superintendente | #8b5cf6, #6d28d9 |
+| Purple (Morado) | Superintendente, AN, SM | #8b5cf6, #7c3aed |
 | Danger (Rojo) | Errores, eliminar | #ef4444, #dc2626 |
 | Gray | Textos secundarios, bordes | #6b7280, #e5e7eb |
 

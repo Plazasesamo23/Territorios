@@ -6,9 +6,13 @@
 
 <div class="page-nav">
     <div class="page-breadcrumbs">
-        <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
-        <span class="breadcrumb-sep">></span>
-        <span class="breadcrumb-current">PPOC - Calendario</span>
+        @if(auth()->user()->isPpocUser())
+            <span class="breadcrumb-current">PPOC - Calendario</span>
+        @else
+            <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+            <span class="breadcrumb-sep">></span>
+            <span class="breadcrumb-current">PPOC - Calendario</span>
+        @endif
     </div>
 </div>
 
@@ -49,11 +53,13 @@
             </form>
             @endif
         </div>
+        @if(auth()->user()->canManagePPOC())
         <div class="quick-links">
             <a href="{{ route('ppoc.turnos.index') }}" class="quick-link">&#x1F4CB; Plantillas</a>
             <a href="{{ route('ppoc.aprobados') }}" class="quick-link">&#x2705; Aprobados</a>
             <a href="{{ route('ppoc.disponibilidad.por-turno') }}" class="quick-link">&#x1F4C6; Disponibilidades</a>
         </div>
+        @endif
     </div>
 
     <!-- Estadisticas y Alertas del mes -->
@@ -131,11 +137,13 @@
                                         <div class="turno-item {{ $turno->estaCompleto() ? 'completo' : 'incompleto' }}">
                                             <div class="turno-header">
                                                 <span class="turno-hora">{{ \Carbon\Carbon::parse($turno->hora_inicio)->format('H:i') }}</span>
+                                                @if(auth()->user()->canManagePPOC())
                                                 <form action="{{ route('ppoc.turno-generado.destroy', $turno) }}" method="POST" class="delete-form">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn-delete-turno" title="Eliminar turno" onclick="return confirm('¿Eliminar este turno?')">×</button>
                                                 </form>
+                                                @endif
                                             </div>
                                             @if($turno->ubicacion)
                                                 <div class="turno-ubicacion">{{ $turno->ubicacion }}</div>
