@@ -40,6 +40,11 @@ class LoginController extends Controller
             return redirect()->route('panel-territorios');
         }
 
+        // Usuarios PPOC van directamente al calendario PPOC
+        if ($user->isPpocUser()) {
+            return redirect()->route('ppoc.calendario');
+        }
+
         // Admins y superadmins van al dashboard
         if ($user->isAdmin() || $user->isSuperAdmin()) {
             return redirect()->route('dashboard');

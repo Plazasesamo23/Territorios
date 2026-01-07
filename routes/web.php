@@ -32,7 +32,7 @@ Route::middleware(['auth', 'congregacion'])->group(function () {
 
     // Ruta principal - Dashboard (todos los usuarios)
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 
     // Panel especial para usuarios de territorios
     Route::get('/panel-territorios', [PanelTerritoriosController::class, 'index'])->name('panel-territorios');
@@ -186,12 +186,14 @@ Route::middleware(['auth', 'congregacion'])->group(function () {
     Route::prefix("ppoc")->name("ppoc.")->group(function () {
         Route::get("/", [TurnoController::class, "calendario"])->name("calendario");
         Route::post("/generar-mes", [TurnoController::class, "generarMes"])->name("generar-mes");
+        Route::post("/limpiar-mes", [TurnoController::class, "limpiarMes"])->name("limpiar-mes");
         Route::post("/asignaciones", [TurnoController::class, "asignar"])->name("asignaciones.store");
         Route::delete("/asignaciones/{asignacion}", [TurnoController::class, "desasignar"])->name("asignaciones.destroy");
         Route::patch("/asignaciones/{asignacion}/estado", [TurnoController::class, "actualizarEstado"])->name("asignaciones.estado");
         Route::post("/asignacion-automatica", [TurnoController::class, "asignacionAutomatica"])->name("asignacion-automatica");
         Route::get("/asignaciones/{asignacion}/sugerencias", [TurnoController::class, "getSugerencias"])->name("asignaciones.sugerencias");
         Route::post("/asignaciones/{asignacion}/reemplazar", [TurnoController::class, "reemplazar"])->name("asignaciones.reemplazar");
+        Route::get("/exportar-pdf", [TurnoController::class, "exportarPdf"])->name("exportar-pdf");
     });
     
     // RUTAS PPOC SOLO ADMIN - gestion de turnos, aprobados, disponibilidad

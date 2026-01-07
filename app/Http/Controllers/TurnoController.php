@@ -10,6 +10,8 @@ use App\Models\Congregacion;
 use App\Services\AsignacionPpocService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class TurnoController extends Controller
 {
@@ -279,6 +281,39 @@ class TurnoController extends Controller
      * Asignar publicadores automaticamente para un mes
      * Usa el sistema de medias: precursores no pueden tener menos turnos que la media de publicadores
      * y publicadores no pueden tener mas turnos que la media de precursores
+     */
+    
+    /**
+     * Limpiar todas las asignaciones de un mes
+     */
+    public function limpiarMes(Request $request)
+    {
+        $this->checkAccess();
+
+        $validated = $request->validate([
+            "year" => "required|integer|min:2024|max:2100",
+            "month" => "required|integer|min:1|max:12",
+        ]);
+
+        $congregacion = $this->getCongregacion();
+        $year = $validated["year"];
+        $month = $validated["month"];
+
+        // Obtener todos los turnos generados del mes
+        $turnosGeneradosIds = TurnoGenerado::where("congregacion_id", $congregacion->id)
+            ->whereYear("fecha", $year)
+            ->whereMonth("fecha", $month)
+            ->pluck("id");
+
+        // Borrar todas las asignaciones de esos turnos
+        $eliminados = TurnoAsignacion::whereIn("turno_generado_id", $turnosGeneradosIds)->delete();
+
+        return redirect()->route("ppoc.calendario", ["year" => $year, "month" => $month])
+            ->with("success", "Se han eliminado {$eliminados} asignaciones del mes.");
+    }
+
+    /**
+     * Asignar publicadores automaticamente para un mes
      */
     public function asignacionAutomatica(Request $request)
     {
@@ -620,5 +655,177 @@ class TurnoController extends Controller
         $asignacion->save();
 
         return back()->with('success', "{$nombreAnterior} ha sido reemplazado por {$nuevoPublicador->nombre_completo}.");
+    }
+
+    /**
+     * Exportar calendario del mes a PDF
+     */
+    public function exportarPdf(Request $request)
+    {
+        $this->checkAccess();
+
+        $congregacion = $this->getCongregacion();
+        $year = $request->get('year', now()->year);
+        $month = $request->get('month', now()->month);
+
+        // Obtener turnos generados del mes con sus asignaciones
+        $turnosGenerados = TurnoGenerado::with(['turno', 'asignaciones.publicador'])
+            ->where('congregacion_id', $congregacion->id)
+            ->whereYear('fecha', $year)
+            ->whereMonth('fecha', $month)
+            ->where('estado', '!=', 'cancelado')
+            ->orderBy('fecha')
+            ->orderBy('hora_inicio')
+            ->get();
+
+        // Obtener horarios de las plantillas
+        $plantillas = Turno::where('congregacion_id', $congregacion->id)
+            ->where('activo', true)
+            ->get();
+
+        // Determinar horarios de mañana y tarde (según las plantillas)
+        $horarioManana = '10:00-13:00';
+        $horarioTarde = '17:30-19:30';
+        $horarioSabado = '9:00-11:00 / 11:00-13:00';
+        $horarioDomingo = '10:00-12:00';
+
+        foreach ($plantillas as $p) {
+            $hora = substr($p->hora_inicio, 0, 5);
+            if ($hora < '14:00' && $p->dia_semana < 5) {
+                $horarioManana = substr($p->hora_inicio, 0, 5) . '-' . substr($p->hora_fin, 0, 5);
+            } elseif ($hora >= '14:00' && $p->dia_semana < 5) {
+                $horarioTarde = substr($p->hora_inicio, 0, 5) . '-' . substr($p->hora_fin, 0, 5);
+            }
+        }
+
+        // Calcular semanas del mes (agrupando de Lunes a Domingo)
+        $primerDia = Carbon::create($year, $month, 1);
+        $ultimoDia = $primerDia->copy()->endOfMonth();
+
+        $semanas = [];
+        $dia = $primerDia->copy();
+        $numSemana = 1;
+        $semanaActual = [
+            'rango' => '',
+            'dias' => [],
+            'inicio' => $dia->day,
+            'fin' => $dia->day
+        ];
+
+        while ($dia <= $ultimoDia) {
+            // dayOfWeekIso: 1=Lunes, 7=Domingo -> convertir a 0=Lunes, 6=Domingo
+            $diaIdx = $dia->dayOfWeekIso - 1;
+
+            // Buscar turnos de este día
+            $turnosDelDia = $turnosGenerados->filter(function($t) use ($dia) {
+                return $t->fecha->isSameDay($dia);
+            });
+
+            // Separar en mañana y tarde (o turno 1 y turno 2 para sábado)
+            $turnoManana = null;
+            $turnoTarde = null;
+            $turnosOrdenados = $turnosDelDia->sortBy('hora_inicio')->values();
+
+            if ($turnosOrdenados->count() >= 2) {
+                // Si hay 2 turnos, el primero es mañana/turno1, el segundo es tarde/turno2
+                $turnoManana = [
+                    'turno' => $turnosOrdenados[0],
+                    'asignaciones' => $turnosOrdenados[0]->asignaciones
+                ];
+                $turnoTarde = [
+                    'turno' => $turnosOrdenados[1],
+                    'asignaciones' => $turnosOrdenados[1]->asignaciones
+                ];
+            } elseif ($turnosOrdenados->count() == 1) {
+                $turno = $turnosOrdenados[0];
+                $hora = substr($turno->hora_inicio, 0, 5);
+                if ($hora < '14:00') {
+                    $turnoManana = [
+                        'turno' => $turno,
+                        'asignaciones' => $turno->asignaciones
+                    ];
+                } else {
+                    $turnoTarde = [
+                        'turno' => $turno,
+                        'asignaciones' => $turno->asignaciones
+                    ];
+                }
+            }
+
+            $semanaActual['dias'][$diaIdx] = [
+                'fecha' => $dia->copy(),
+                'manana' => $turnoManana,
+                'tarde' => $turnoTarde
+            ];
+            $semanaActual['fin'] = $dia->day;
+
+            // Si es Domingo (diaIdx=6) o último día del mes, cerrar semana
+            if ($diaIdx == 6 || $dia->isSameDay($ultimoDia)) {
+                $semanaActual['rango'] = sprintf('%02d AL %02d', $semanaActual['inicio'], $semanaActual['fin']);
+                $semanas[$numSemana] = [
+                    'rango' => $semanaActual['rango'],
+                    'dias' => $semanaActual['dias']
+                ];
+                $numSemana++;
+
+                // Preparar siguiente semana
+                $semanaActual = [
+                    'rango' => '',
+                    'dias' => [],
+                    'inicio' => $dia->day + 1,
+                    'fin' => $dia->day + 1
+                ];
+            }
+
+            $dia->addDay();
+        }
+
+        // Días de la semana
+        $diasSemana = [
+            0 => 'Lunes',
+            1 => 'Martes',
+            2 => 'Miercoles',
+            3 => 'Jueves',
+            4 => 'Viernes',
+            5 => 'Sabado',
+            6 => 'Domingo'
+        ];
+
+        // Nombre del mes en español
+        $mesesEspanol = [
+            1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril',
+            5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto',
+            9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
+        ];
+        $nombreMes = $mesesEspanol[$month];
+
+        // Renderizar vista a HTML
+        $html = view('ppoc.pdf', compact(
+            'semanas',
+            'diasSemana',
+            'congregacion',
+            'year',
+            'month',
+            'nombreMes',
+            'horarioManana',
+            'horarioTarde',
+            'horarioSabado',
+            'horarioDomingo'
+        ))->render();
+
+        // Configurar Dompdf
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
+        $options->set('defaultFont', 'sans-serif');
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        $filename = "PPOC_" . strtoupper($nombreMes) . "_{$year}.pdf";
+
+        return $dompdf->stream($filename, ['Attachment' => false]);
     }
 }

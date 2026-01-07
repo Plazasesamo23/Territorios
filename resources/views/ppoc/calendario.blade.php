@@ -51,6 +51,17 @@
                     &#x1F916; Asignar Automatico
                 </button>
             </form>
+            <form action="{{ route('ppoc.limpiar-mes') }}" method="POST" class="generate-form">
+                @csrf
+                <input type="hidden" name="year" value="{{ $year }}">
+                <input type="hidden" name="month" value="{{ $month }}">
+                <button type="submit" class="btn-danger" onclick="return confirm('ATENCION: Esto eliminara TODAS las asignaciones de {{ ucfirst($nombreMes) }} {{ $year }}. Esta accion no se puede deshacer. ¿Continuar?')">
+                    &#x1F5D1; Limpiar Mes
+                </button>
+            </form>
+            <a href="{{ route('ppoc.exportar-pdf', ['year' => $year, 'month' => $month]) }}" class="btn-export" target="_blank">
+                &#x1F4C4; Exportar PDF
+            </a>
             @endif
         </div>
         @if(auth()->user()->canManagePPOC())
@@ -717,6 +728,45 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 .btn-auto-assign:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+.btn-danger {
+    padding: 0.75rem 1.25rem;
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+}
+
+.btn-export {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: linear-gradient(135deg, #4a6fa5, #3d5a80);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-export:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 111, 165, 0.4);
+    color: white;
 }
 
 .quick-links {

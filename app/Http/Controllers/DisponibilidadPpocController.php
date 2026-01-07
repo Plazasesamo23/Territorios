@@ -18,14 +18,14 @@ class DisponibilidadPpocController extends Controller
     {
         $congregacion = Congregacion::where('token_disponibilidad', $token)->firstOrFail();
 
-        $turnos = Turno::where('congregacion_id', $congregacion->id)
+        $turnos = Turno::forCongregacion($congregacion->id)
             ->where('activo', true)
             ->orderBy('dia_semana')
             ->orderBy('hora_inicio')
             ->get();
 
         // Solo publicadores aprobados para PPOC
-        $publicadores = Publicador::where('congregacion_id', $congregacion->id)
+        $publicadores = Publicador::forCongregacion($congregacion->id)
             ->where('aprobado_ppoc', true)
             ->where('activo', true)
             ->orderBy('nombre')
@@ -42,8 +42,8 @@ class DisponibilidadPpocController extends Controller
     {
         $congregacion = Congregacion::where('token_disponibilidad', $token)->firstOrFail();
 
-        $publicador = Publicador::where('id', $publicadorId)
-            ->where('congregacion_id', $congregacion->id)
+        $publicador = Publicador::forCongregacion($congregacion->id)
+            ->where('id', $publicadorId)
             ->firstOrFail();
 
         $turnosIds = DisponibilidadPpoc::where('publicador_id', $publicador->id)
