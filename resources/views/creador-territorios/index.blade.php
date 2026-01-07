@@ -542,8 +542,8 @@ function loadExampleBuildings() {
 
     exampleBuildings.forEach(building => {
         const marker = L.circleMarker([building.lat, building.lng], {
-            color: '#3b82f6',
-            fillColor: '#dbeafe',
+            color: '#4a6da7',
+            fillColor: '#e8eef6',
             fillOpacity: 0.8,
             radius: 12,
             weight: 3
@@ -561,12 +561,12 @@ function loadExampleBuildings() {
         // Efecto hover
         marker.on('mouseover', function() {
             if (!selectedBuildings.find(b => b.address === building.address && b.street === building.street)) {
-                this.setStyle({ fillColor: '#93c5fd', radius: 14 });
+                this.setStyle({ fillColor: '#8aa8d6', radius: 14 });
             }
         });
         marker.on('mouseout', function() {
             if (!selectedBuildings.find(b => b.address === building.address && b.street === building.street)) {
-                this.setStyle({ fillColor: '#dbeafe', radius: 12 });
+                this.setStyle({ fillColor: '#e8eef6', radius: 12 });
             }
         });
     });
@@ -602,7 +602,7 @@ function addPolygonPoint(latlng) {
 
     // Añadir marcador visual del punto
     const marker = L.circleMarker(latlng, {
-        color: '#ef4444',
+        color: '#495057',
         fillColor: '#fecaca',
         fillOpacity: 1,
         radius: 6,
@@ -616,7 +616,7 @@ function addPolygonPoint(latlng) {
             map.removeLayer(currentPolygonLine);
         }
         currentPolygonLine = L.polyline(drawingPolygon, {
-            color: '#ef4444',
+            color: '#495057',
             weight: 3,
             dashArray: '5, 10'
         }).addTo(map);
@@ -634,7 +634,7 @@ function finishPolygon() {
 
     // Crear polígono final
     const polygon = L.polygon(drawingPolygon, {
-        color: '#16a34a',
+        color: '#3d5a8a',
         fillColor: '#bbf7d0',
         fillOpacity: 0.5,
         weight: 3
@@ -667,12 +667,12 @@ function selectBuilding(e) {
 
     if (selectedBuildings.find(b => b.address === building.address && b.street === building.street)) {
         // Deseleccionar
-        marker.setStyle({ color: '#3b82f6', fillColor: '#dbeafe', radius: 12 });
+        marker.setStyle({ color: '#4a6da7', fillColor: '#e8eef6', radius: 12 });
         selectedBuildings = selectedBuildings.filter(b => !(b.address === building.address && b.street === building.street));
         showNotification(`❌ Edificio ${building.address} deseleccionado`, 'info');
     } else {
         // Seleccionar
-        marker.setStyle({ color: '#16a34a', fillColor: '#bbf7d0', radius: 15, weight: 4 });
+        marker.setStyle({ color: '#3d5a8a', fillColor: '#bbf7d0', radius: 15, weight: 4 });
         selectedBuildings.push(building);
         showNotification(`✅ Edificio ${building.address} (${building.street}) seleccionado`, 'success');
     }
@@ -796,7 +796,7 @@ function clearSelection() {
     // Resetear estilos de marcadores
     map.eachLayer(layer => {
         if (layer instanceof L.CircleMarker && layer.building) {
-            layer.setStyle({ color: '#3b82f6', fillColor: '#dbeafe' });
+            layer.setStyle({ color: '#4a6da7', fillColor: '#e8eef6' });
         }
     });
 
@@ -1172,13 +1172,13 @@ function showNotification(message, type = 'info') {
 
     switch(type) {
         case 'success':
-            notification.style.background = '#10b981';
+            notification.style.background = '#4a6da7';
             break;
         case 'error':
-            notification.style.background = '#ef4444';
+            notification.style.background = '#495057';
             break;
         default:
-            notification.style.background = '#3b82f6';
+            notification.style.background = '#4a6da7';
     }
 
     document.body.appendChild(notification);
@@ -1333,7 +1333,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .template-card:hover {
-    border-color: #3b82f6;
+    border-color: #4a6da7;
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
 }
@@ -1362,8 +1362,8 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .feature-tag {
-    background: #eff6ff;
-    color: #1e40af;
+    background: #f4f7fb;
+    color: #2d4266;
     padding: 0.25rem 0.75rem;
     border-radius: 15px;
     font-size: 0.75rem;
@@ -1449,14 +1449,14 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .tool-btn:hover {
-    border-color: #3b82f6;
+    border-color: #4a6da7;
     background: #f8fafc;
 }
 
 .tool-btn.active {
-    border-color: #3b82f6;
-    background: #eff6ff;
-    color: #1e40af;
+    border-color: #4a6da7;
+    background: #f4f7fb;
+    color: #2d4266;
 }
 
 .tool-options {
@@ -1496,7 +1496,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .btn-remove {
-    background: #ef4444;
+    background: #495057;
     color: white;
     border: none;
     border-radius: 50%;
@@ -1571,14 +1571,14 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .map-tool-btn:hover {
-    border-color: #3b82f6;
+    border-color: #4a6da7;
     background: #f8fafc;
 }
 
 .map-tool-btn.active {
-    border-color: #3b82f6;
-    background: #eff6ff;
-    color: #1e40af;
+    border-color: #4a6da7;
+    background: #f4f7fb;
+    color: #2d4266;
 }
 
 .map-container {
@@ -1633,7 +1633,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .building-number {
     font-weight: 600;
-    color: #1e40af;
+    color: #2d4266;
 }
 
 .building-street {
@@ -1648,8 +1648,8 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .street-tag {
-    background: #eff6ff;
-    color: #1e40af;
+    background: #f4f7fb;
+    color: #2d4266;
     padding: 0.25rem 0.5rem;
     border-radius: 12px;
     font-size: 0.75rem;
@@ -1744,7 +1744,7 @@ document.addEventListener('DOMContentLoaded', function() {
 .territory-number-circle {
     width: 40px;
     height: 40px;
-    background: #dc2626;
+    background: #343a40;
     color: white;
     border-radius: 50%;
     display: flex;

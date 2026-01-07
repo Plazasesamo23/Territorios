@@ -32,13 +32,13 @@
 
             // Determinar color del avatar segun rol
             if ($usuario->isSuperAdmin()) {
-                $avatarStyle = 'background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);';
+                $avatarStyle = 'background: linear-gradient(135deg, #3d5a8a 0%, #5b21b6 100%);';
             } elseif ($usuario->isAdmin()) {
-                $avatarStyle = 'background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);';
+                $avatarStyle = 'background: linear-gradient(135deg, #343a40 0%, #212529 100%);';
             } elseif ($usuario->isTerritoriosUser()) {
-                $avatarStyle = 'background: linear-gradient(135deg, #10b981 0%, #059669 100%);';
+                $avatarStyle = 'background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);';
             } else {
-                $avatarStyle = 'background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);';
+                $avatarStyle = 'background: linear-gradient(135deg, #4a6da7 0%, #2d4266 100%);';
             }
 
             // Determinar si necesita password para este usuario especifico
@@ -183,10 +183,10 @@ document.addEventListener('DOMContentLoaded', function() {
     align-items: center;
     gap: 1rem;
     padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-    border: 2px solid #3b82f6;
+    background: linear-gradient(135deg, #e8eef6 0%, #bfdbfe 100%);
+    border: 2px solid #4a6da7;
     border-radius: 12px;
-    color: #1e40af;
+    color: #2d4266;
     flex-wrap: wrap;
     justify-content: center;
 }
@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #2d4266 100%);
     color: white;
     border-radius: 8px;
     text-decoration: none;
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
     gap: 0.75rem;
     padding: 0.75rem 1.5rem;
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    border: 1px solid #f59e0b;
+    border: 1px solid #4a6da7;
     border-radius: 10px;
     color: #92400e;
     font-size: 0.95rem;
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .usuario-card.usuario-actual {
-    border: 3px solid #10b981;
+    border: 3px solid #4a6da7;
     cursor: default;
 }
 
@@ -307,30 +307,30 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .usuario-badge.admin {
-    background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
-    color: #991b1b;
+    background: linear-gradient(135deg, #fecaca 0%, #ced4da 100%);
+    color: #212529;
 }
 
 .usuario-badge.superadmin {
-    background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 100%);
+    background: linear-gradient(135deg, #a8c0de 0%, #8aa8d6 100%);
     color: #5b21b6;
 }
 
 .usuario-badge.territorios {
     background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 100%);
-    color: #065f46;
+    color: #2d4266;
 }
 
 .usuario-badge.user {
-    background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
-    color: #1e40af;
+    background: linear-gradient(135deg, #bfdbfe 0%, #8aa8d6 100%);
+    color: #2d4266;
 }
 
 .usuario-actual-badge {
     position: absolute;
     top: -8px;
     right: -8px;
-    background: #10b981;
+    background: #4a6da7;
     color: white;
     padding: 0.25rem 0.5rem;
     border-radius: 8px;
@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', function() {
     position: absolute;
     top: -8px;
     left: -8px;
-    background: #3b82f6;
+    background: #4a6da7;
     color: white;
     padding: 0.25rem 0.5rem;
     border-radius: 8px;
@@ -368,8 +368,8 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .btn-volver:hover {
-    border-color: #3b82f6;
-    color: #3b82f6;
+    border-color: #4a6da7;
+    color: #4a6da7;
 }
 
 /* Modal */
@@ -405,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function() {
     justify-content: space-between;
     align-items: center;
     padding: 1.25rem 1.5rem;
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #2d4266 100%);
     color: white;
 }
 
@@ -468,12 +468,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .form-input:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: #4a6da7;
 }
 
 .modal-error {
-    background: #fee2e2;
-    color: #991b1b;
+    background: #e9ecef;
+    color: #212529;
     padding: 0.75rem 1rem;
     border-radius: 8px;
     font-size: 0.875rem;
@@ -510,7 +510,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .btn-confirmar {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #2d4266 100%);
     color: white;
 }
 
@@ -592,18 +592,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 [data-theme="dark"] .selector-alert {
     background: rgba(249, 115, 22, 0.2);
-    border-color: #f97316;
-    color: #fdba74;
+    border-color: #4a6da7;
+    color: #8aa8d6;
 }
 
 [data-theme="dark"] .usuario-original-banner {
     background: rgba(249, 115, 22, 0.2);
-    border-color: #f97316;
-    color: #fdba74;
+    border-color: #4a6da7;
+    color: #8aa8d6;
 }
 
 [data-theme="dark"] .btn-volver-original {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
     color: #0a0a0a;
 }
 
@@ -617,7 +617,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 [data-theme="dark"] .usuario-card.usuario-actual {
-    border-color: #22c55e;
+    border-color: #4a6da7;
 }
 
 [data-theme="dark"] .usuario-nombre {
@@ -626,12 +626,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 [data-theme="dark"] .usuario-badge.admin {
     background: rgba(220, 38, 38, 0.2);
-    color: #fca5a5;
+    color: #ced4da;
 }
 
 [data-theme="dark"] .usuario-badge.superadmin {
     background: rgba(124, 58, 237, 0.2);
-    color: #c4b5fd;
+    color: #a8c0de;
 }
 
 [data-theme="dark"] .usuario-badge.territorios {
@@ -641,7 +641,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 [data-theme="dark"] .usuario-badge.user {
     background: rgba(59, 130, 246, 0.2);
-    color: #93c5fd;
+    color: #8aa8d6;
 }
 
 [data-theme="dark"] .btn-volver {
@@ -651,8 +651,8 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 [data-theme="dark"] .btn-volver:hover {
-    border-color: #f97316;
-    color: #f97316;
+    border-color: #4a6da7;
+    color: #4a6da7;
 }
 
 [data-theme="dark"] .modal-content {
@@ -661,7 +661,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 [data-theme="dark"] .modal-header {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
     color: #0a0a0a;
 }
 
@@ -680,7 +680,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 [data-theme="dark"] .form-input:focus {
-    border-color: #f97316;
+    border-color: #4a6da7;
 }
 
 [data-theme="dark"] .modal-footer {
@@ -695,13 +695,13 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 [data-theme="dark"] .btn-confirmar {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
     color: #0a0a0a;
 }
 
 [data-theme="dark"] .modal-error {
     background: rgba(220, 38, 38, 0.2);
-    color: #fca5a5;
+    color: #ced4da;
 }
 </style>
 

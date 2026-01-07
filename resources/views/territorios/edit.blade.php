@@ -300,13 +300,13 @@
 }
 .tipo-indicator.tipo-campana {
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    border: 2px solid #f59e0b;
+    border: 2px solid #4a6da7;
     color: #92400e;
 }
 .tipo-indicator.tipo-negocios {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-    border: 2px solid #3b82f6;
-    color: #1e40af;
+    background: linear-gradient(135deg, #e8eef6 0%, #bfdbfe 100%);
+    border: 2px solid #4a6da7;
+    color: #2d4266;
 }
 .tipo-icon {
     font-size: 1.5rem;
@@ -316,13 +316,13 @@
     align-items: center;
 }
 .numero-prefijo {
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    background: linear-gradient(135deg, #5c7fb8 0%, #4a6da7 100%);
     color: white;
     padding: 0.75rem 1rem;
     font-weight: 700;
     font-size: 1.1rem;
     border-radius: 8px 0 0 8px;
-    border: 2px solid #4f46e5;
+    border: 2px solid #4a6da7;
     border-right: none;
 }
 .form-input.con-prefijo {
@@ -367,12 +367,12 @@
     font-size: 0.85rem;
 }
 .metodo-btn:hover {
-    border-color: #3b82f6;
-    background: #eff6ff;
+    border-color: #4a6da7;
+    background: #f4f7fb;
 }
 .metodo-btn.active {
-    border-color: #3b82f6;
-    background: #3b82f6;
+    border-color: #4a6da7;
+    background: #4a6da7;
     color: white;
 }
 
@@ -387,12 +387,12 @@
     background: #fafafa;
 }
 .upload-area:hover {
-    border-color: #3b82f6;
-    background: #eff6ff;
+    border-color: #4a6da7;
+    background: #f4f7fb;
 }
 .upload-area.dragover {
-    border-color: #3b82f6;
-    background: #dbeafe;
+    border-color: #4a6da7;
+    background: #e8eef6;
 }
 .upload-icon {
     font-size: 3rem;
@@ -430,7 +430,7 @@
     right: 0.5rem;
     width: 32px;
     height: 32px;
-    background: #ef4444;
+    background: #495057;
     color: white;
     border: none;
     border-radius: 50%;
@@ -441,7 +441,7 @@
     justify-content: center;
 }
 .remove-image-btn:hover {
-    background: #dc2626;
+    background: #343a40;
 }
 
 .imagen-container.hidden {
@@ -456,8 +456,8 @@
 
 /* Mantener actual */
 .mantener-info {
-    background: #d1fae5;
-    color: #065f46;
+    background: #e8eef6;
+    color: #2d4266;
     padding: 1rem;
     border-radius: 8px;
     font-weight: 500;

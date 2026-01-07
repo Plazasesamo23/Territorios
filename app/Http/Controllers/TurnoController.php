@@ -447,6 +447,7 @@ class TurnoController extends Controller
         $stats = [
             "total" => $publicadores->count(),
             "aprobados" => $publicadores->where("aprobado_ppoc", true)->count(),
+            "capitanes" => $publicadores->where("es_capitan_ppoc", true)->count(),
             "pendientes" => $publicadores->where("aprobado_ppoc", false)->count(),
         ];
 
@@ -467,6 +468,157 @@ class TurnoController extends Controller
 
         $estado = $publicador->aprobado_ppoc ? "aprobado" : "removido";
 
+        // Si se remueve de PPOC, también quitar como capitán
+        if (!$publicador->aprobado_ppoc) {
+            $publicador->es_capitan_ppoc = false;
+            $publicador->save();
+        }
+
         return redirect()->back()->with("success", "{$publicador->nombre_completo} ha sido {$estado} para PPOC.");
+    }
+
+    /**
+     * Toggle estado capitan de un publicador
+     */
+    public function toggleCapitan(Publicador $publicador)
+    {
+        if (!auth()->user()->isAdmin()) {
+            abort(403);
+        }
+
+        // Solo puede ser capitan si está aprobado y no es menor
+        if (!$publicador->aprobado_ppoc) {
+            return redirect()->back()->with("error", "El publicador debe estar aprobado para PPOC primero.");
+        }
+
+        if ($publicador->es_menor) {
+            return redirect()->back()->with("error", "Los menores de edad no pueden ser capitanes.");
+        }
+
+        $publicador->es_capitan_ppoc = !$publicador->es_capitan_ppoc;
+        $publicador->save();
+
+        $estado = $publicador->es_capitan_ppoc ? "asignado como capitan" : "removido como capitan";
+
+        return redirect()->back()->with("success", "{$publicador->nombre_completo} ha sido {$estado}.");
+    }
+
+    /**
+     * Obtener sugerencias de reemplazo para una asignacion
+     * Devuelve publicadores disponibles ordenados por idoneidad
+     */
+    public function getSugerencias(TurnoAsignacion $asignacion)
+    {
+        $this->checkAccess();
+
+        $turnoGenerado = $asignacion->turnoGenerado;
+        $turnoPlantilla = $turnoGenerado->turno;
+        $congregacionId = session('congregacion_activa_id');
+        $rolBuscado = $asignacion->rol;
+
+        // Obtener IDs de publicadores ya asignados a este turno
+        $asignadosIds = TurnoAsignacion::where('turno_generado_id', $turnoGenerado->id)
+            ->pluck('publicador_id')
+            ->toArray();
+
+        // Obtener publicadores disponibles para este turno (por plantilla)
+        $disponiblesIds = \App\Models\DisponibilidadPpoc::where('turno_id', $turnoPlantilla->id)
+            ->pluck('publicador_id')
+            ->toArray();
+
+        // Obtener publicadores aprobados que estan disponibles y no estan ya asignados
+        $query = Publicador::where('congregacion_id', $congregacionId)
+            ->where('activo', true)
+            ->where('aprobado_ppoc', true)
+            ->whereIn('id', $disponiblesIds)
+            ->whereNotIn('id', $asignadosIds);
+
+        // Si buscamos capitan, filtrar solo capitanes
+        if ($rolBuscado === 'capitan') {
+            $query->where('es_capitan_ppoc', true);
+        }
+
+        $candidatos = $query->get();
+
+        // Contar turnos asignados este mes para cada candidato
+        $year = $turnoGenerado->fecha->year;
+        $month = $turnoGenerado->fecha->month;
+
+        $turnosPorPublicador = TurnoAsignacion::whereHas('turnoGenerado', function($q) use ($congregacionId, $year, $month) {
+                $q->where('congregacion_id', $congregacionId)
+                    ->whereYear('fecha', $year)
+                    ->whereMonth('fecha', $month);
+            })
+            ->selectRaw('publicador_id, COUNT(*) as total')
+            ->groupBy('publicador_id')
+            ->pluck('total', 'publicador_id')
+            ->toArray();
+
+        // Preparar respuesta con puntuacion
+        $sugerencias = $candidatos->map(function($pub) use ($turnosPorPublicador, $rolBuscado) {
+            $turnos = $turnosPorPublicador[$pub->id] ?? 0;
+
+            return [
+                'id' => $pub->id,
+                'nombre' => $pub->nombre,
+                'apellidos' => $pub->apellidos,
+                'nombre_completo' => $pub->nombre_completo,
+                'es_capitan' => $pub->es_capitan_ppoc,
+                'es_precursor' => $pub->es_precursor,
+                'turnos_mes' => $turnos,
+            ];
+        });
+
+        // Ordenar: menos turnos primero, precursores primero si empatan
+        $sugerencias = $sugerencias->sortBy([
+            ['turnos_mes', 'asc'],
+            ['es_precursor', 'desc'],
+        ])->values();
+
+        return response()->json([
+            'asignacion_id' => $asignacion->id,
+            'rol' => $rolBuscado,
+            'turno_fecha' => $turnoGenerado->fecha->format('d/m/Y'),
+            'turno_hora' => substr($turnoGenerado->hora_inicio, 0, 5),
+            'publicador_actual' => $asignacion->publicador->nombre_completo,
+            'sugerencias' => $sugerencias,
+        ]);
+    }
+
+    /**
+     * Reemplazar un publicador en una asignacion
+     */
+    public function reemplazar(Request $request, TurnoAsignacion $asignacion)
+    {
+        $this->checkAccess();
+
+        $validated = $request->validate([
+            'nuevo_publicador_id' => 'required|exists:publicadores,id',
+        ]);
+
+        $nuevoPublicador = Publicador::findOrFail($validated['nuevo_publicador_id']);
+        $turnoGenerado = $asignacion->turnoGenerado;
+
+        // Verificar que el nuevo publicador no este ya asignado
+        $yaAsignado = TurnoAsignacion::where('turno_generado_id', $turnoGenerado->id)
+            ->where('publicador_id', $nuevoPublicador->id)
+            ->exists();
+
+        if ($yaAsignado) {
+            return back()->with('error', 'Este publicador ya esta asignado a este turno.');
+        }
+
+        // Si el rol es capitan, verificar que el nuevo publicador sea capitan
+        if ($asignacion->rol === 'capitan' && !$nuevoPublicador->es_capitan_ppoc) {
+            return back()->with('error', 'Solo los capitanes pueden reemplazar a un capitan.');
+        }
+
+        $nombreAnterior = $asignacion->publicador->nombre_completo;
+
+        // Realizar el reemplazo
+        $asignacion->publicador_id = $nuevoPublicador->id;
+        $asignacion->save();
+
+        return back()->with('success', "{$nombreAnterior} ha sido reemplazado por {$nuevoPublicador->nombre_completo}.");
     }
 }

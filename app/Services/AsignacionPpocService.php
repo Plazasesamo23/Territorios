@@ -360,6 +360,49 @@ class AsignacionPpocService
             ];
         }
 
+        // Calcular estadisticas detalladas para el panel
+        $precursoresConTurnos = $precursores->map(function($p) use ($turnosPorPublicador) {
+            return [
+                'id' => $p->id,
+                'nombre' => $p->nombre_completo,
+                'turnos' => $turnosPorPublicador[$p->id] ?? 0,
+                'es_capitan' => $p->es_capitan_ppoc,
+            ];
+        })->sortBy('turnos')->values();
+
+        $publicadoresConTurnos = $noPrecursores->map(function($p) use ($turnosPorPublicador) {
+            return [
+                'id' => $p->id,
+                'nombre' => $p->nombre_completo,
+                'turnos' => $turnosPorPublicador[$p->id] ?? 0,
+                'es_capitan' => $p->es_capitan_ppoc,
+            ];
+        })->sortBy('turnos')->values();
+
+        // Extremos precursores
+        $precursorMin = $precursoresConTurnos->first();
+        $precursorMax = $precursoresConTurnos->last();
+
+        // Extremos publicadores
+        $publicadorMin = $publicadoresConTurnos->first();
+        $publicadorMax = $publicadoresConTurnos->last();
+
+        // Estadisticas de capitanes
+        $capitanes = $publicadores->filter(fn($p) => $p->es_capitan_ppoc);
+        $capitanesConTurnos = $capitanes->map(function($p) use ($turnosPorPublicador) {
+            return [
+                'id' => $p->id,
+                'nombre' => $p->nombre_completo,
+                'turnos' => $turnosPorPublicador[$p->id] ?? 0,
+            ];
+        })->sortBy('turnos')->values();
+
+        $mediaCapitanes = $capitanes->isEmpty() ? 0 :
+            $capitanes->map(fn($p) => $turnosPorPublicador[$p->id] ?? 0)->avg();
+
+        $capitanMin = $capitanesConTurnos->first();
+        $capitanMax = $capitanesConTurnos->last();
+
         return [
             'stats' => [
                 'turnos_totales' => $turnosTotales,
@@ -368,7 +411,27 @@ class AsignacionPpocService
                 'publicadores_asignados' => $publicadoresAsignadosCount,
             ],
             'publicadores' => $publicadoresList,
-            'alertas' => $alertasList
+            'alertas' => $alertasList,
+            'panel' => [
+                'precursores' => [
+                    'total' => $precursores->count(),
+                    'media' => round($mediaPrecursores, 1),
+                    'min' => $precursorMin,
+                    'max' => $precursorMax,
+                ],
+                'publicadores' => [
+                    'total' => $noPrecursores->count(),
+                    'media' => round($mediaPublicadores, 1),
+                    'min' => $publicadorMin,
+                    'max' => $publicadorMax,
+                ],
+                'capitanes' => [
+                    'total' => $capitanes->count(),
+                    'media' => round($mediaCapitanes, 1),
+                    'min' => $capitanMin,
+                    'max' => $capitanMax,
+                ],
+            ],
         ];
     }
 }

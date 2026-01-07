@@ -110,14 +110,14 @@
     }
     .form-control:focus {
         outline: none;
-        border-color: #4f46e5;
+        border-color: #4a6da7;
         box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
     }
     .form-control.is-invalid {
-        border-color: #ef4444;
+        border-color: #495057;
     }
     .error-message {
-        color: #ef4444;
+        color: #495057;
         font-size: 0.75rem;
         margin-top: 0.25rem;
         display: block;

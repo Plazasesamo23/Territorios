@@ -3,167 +3,105 @@
 @section('title', 'Asignar Territorio')
 
 @section('content')
+<div class="page-flat">
+    <h1 class="page-title">Asignar Territorio</h1>
+    <p class="page-subtitle">Selecciona territorio y publicador</p>
 
-<nav class="page-nav">
-    <div class="page-breadcrumbs">
-        <a href="{{ route('panel-territorios') }}" class="breadcrumb-link">Territorios</a>
-        <span class="breadcrumb-separator">></span>
-        <span class="breadcrumb-current">Asignar</span>
-    </div>
-    <div class="page-actions">
-        <a href="{{ route('panel-territorios') }}" class="btn btn-secondary">← Volver</a>
-    </div>
-</nav>
-
-<div class="asignar-container">
-    <div class="asignar-card">
-        <div class="asignar-header">
-            <div class="asignar-title">Asignar Territorio</div>
-            <div class="asignar-subtitle">Selecciona territorio y publicador</div>
+    @if($territoriosDisponibles->count() == 0)
+        <div class="empty-state">
+            <div class="title">No hay territorios disponibles</div>
+            <div class="desc">Todos estan asignados o en periodo de descanso.</div>
+            <a href="{{ route('panel-territorios') }}" class="btn btn-secondary mt-1">Volver</a>
         </div>
+    @else
+        <form action="{{ route('registros.store') }}" method="POST" id="asignar-form">
+            @csrf
 
-        <div class="asignar-body">
-            @if($territoriosDisponibles->count() == 0)
-                <div class="error-msg">
-                    <strong>No hay territorios disponibles</strong><br>
-                    Todos están asignados o en período de descanso.
+            <div class="assign-grid">
+                <!-- Columna izquierda: Territorio -->
+                <div class="assign-col">
+                    <div class="col-header">1. Territorio</div>
+
+                    @php
+                        $zonasUnicas = $territoriosDisponibles->pluck('zona')->filter()->unique()->sort();
+                    @endphp
+                    @if($zonasUnicas->count() > 1)
+                    <div class="zona-tabs">
+                        <button type="button" class="zona-btn active" data-zona="">Todas</button>
+                        @foreach($zonasUnicas as $zona)
+                            <button type="button" class="zona-btn" data-zona="{{ $zona }}">{{ $zona }}</button>
+                        @endforeach
+                    </div>
+                    @endif
+
+                    <select name="territorio_id" id="territorio-select" class="form-input" required>
+                        <option value="">-- Selecciona --</option>
+                        @foreach($territoriosDisponibles->sortBy('numero') as $territorio)
+                            <option value="{{ $territorio->id }}"
+                                    data-tipo="{{ $territorio->tipo }}"
+                                    data-zona="{{ $territorio->zona }}"
+                                    data-numero="{{ $territorio->numero_completo }}">
+                                {{ $territorio->numero_completo }}@if($territorio->zona) - {{ $territorio->zona }}@endif
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <div class="selected-info hidden" id="territorio-info">
+                        <span id="territorio-info-name"></span>
+                        <span class="text-muted" id="territorio-info-tipo"></span>
+                    </div>
                 </div>
-            @else
-                <form action="{{ route('registros.store') }}" method="POST" id="asignar-form">
-                    @csrf
 
-                    <!-- Paso 1: Territorio -->
-                    <div class="step-section">
-                        <div class="step-label">
-                            <span class="step-number" id="step1-number">1</span>
-                            Selecciona un territorio
-                        </div>
+                <!-- Columna derecha: Publicador -->
+                <div class="assign-col">
+                    <div class="col-header">2. Publicador</div>
 
-                        <!-- Filtro por zona -->
-                        @php
-                            $zonasUnicas = $territoriosDisponibles->pluck('zona')->filter()->unique()->sort();
-                        @endphp
-                        @if($zonasUnicas->count() > 1)
-                        <div class="zona-filters">
-                            <button type="button" class="zona-btn active" data-zona="">
-                                Todas
-                                <span class="zona-count">{{ $territoriosDisponibles->count() }}</span>
-                            </button>
-                            @foreach($zonasUnicas as $zona)
-                                <button type="button" class="zona-btn" data-zona="{{ $zona }}">
-                                    {{ $zona }}
-                                    <span class="zona-count">{{ $territoriosDisponibles->where('zona', $zona)->count() }}</span>
-                                </button>
-                            @endforeach
-                        </div>
-                        @endif
+                    <input type="text" id="buscar-publicador" class="form-input" placeholder="Buscar...">
 
-                        <!-- Select unico -->
-                        <div class="territorio-select-wrapper">
-                            <select name="territorio_id" id="territorio-select" class="territorio-select" required>
-                                <option value="">-- Selecciona un territorio --</option>
-                                @foreach($territoriosDisponibles->sortBy('numero') as $territorio)
-                                    <option value="{{ $territorio->id }}"
-                                            data-tipo="{{ $territorio->tipo }}"
-                                            data-zona="{{ $territorio->zona }}"
-                                            data-numero="{{ $territorio->numero_completo }}">
-                                        {{ $territorio->numero_completo }}@if($territorio->zona) - {{ $territorio->zona }}@endif
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="territorio-selected-info" id="territorio-info">
-                            <div class="territorio-selected-name" id="territorio-info-name"></div>
-                            <div class="territorio-selected-tipo" id="territorio-info-tipo"></div>
-                        </div>
-                    </div>
-
-                    <!-- Paso 2: Publicador (oculto hasta seleccionar territorio) -->
-                    <div class="step-section step-publicador" id="step-publicador">
-                        <div class="step-label">
-                            <span class="step-number" id="step2-number">2</span>
-                            Selecciona un publicador
-                        </div>
-
-                        <!-- Barra de busqueda -->
-                        <div class="search-wrapper">
-                            <span class="search-icon">&#x1F50D;</span>
-                            <input type="text"
-                                   id="buscar-publicador"
-                                   class="search-input"
-                                   placeholder="Buscar publicador...">
-                        </div>
-
-                        <!-- Lista de publicadores -->
-                        <div class="publicadores-list" id="publicadores-list">
-                            @foreach($publicadoresActivos->sortBy('nombre') as $publicador)
-                                <div class="publicador-item"
-                                     data-id="{{ $publicador->id }}"
-                                     data-nombre="{{ strtolower($publicador->nombre . ' ' . $publicador->apellidos) }}">
-                                    <span class="publicador-radio"></span>
-                                    <span class="publicador-name">{{ $publicador->nombre }} {{ $publicador->apellidos }}</span>
-                                    @if($publicador->es_precursor)
-                                        <span class="publicador-badge">PR</span>
-                                    @endif
-                                </div>
-                            @endforeach
-                            <div class="no-results" id="no-results" style="display: none;">
-                                No se encontraron publicadores
+                    <div class="publicadores-list" id="publicadores-list">
+                        @foreach($publicadoresActivos->sortBy('nombre') as $publicador)
+                            <div class="pub-item"
+                                data-id="{{ $publicador->id }}"
+                                data-nombre="{{ strtolower($publicador->nombre . ' ' . $publicador->apellidos) }}">
+                                <span class="pub-name">{{ $publicador->nombre }} {{ $publicador->apellidos }}</span>
+                                @if($publicador->es_precursor)<span class="pub-badge">PR</span>@endif
                             </div>
-                        </div>
-
-                        <input type="hidden" name="publicador_id" id="publicador-id-input" required>
+                        @endforeach
                     </div>
 
-                    <!-- Boton enviar -->
-                    <div class="submit-section">
-                        <button type="submit" class="btn-submit" id="btn-submit" disabled>
-                            <span class="btn-submit-icon">&#x1F4F2;</span>
-                            Asignar y Enviar WhatsApp
-                        </button>
-                    </div>
-                </form>
-            @endif
-        </div>
-    </div>
+                    <input type="hidden" name="publicador_id" id="publicador-id-input" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg btn-full" id="btn-submit" disabled>
+                Asignar y Enviar WhatsApp
+            </button>
+        </form>
+    @endif
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const territorioSelect = document.getElementById('territorio-select');
-    const stepPublicador = document.getElementById('step-publicador');
     const territorioInfo = document.getElementById('territorio-info');
-    const step1Number = document.getElementById('step1-number');
-    const step2Number = document.getElementById('step2-number');
     const btnSubmit = document.getElementById('btn-submit');
     const publicadorInput = document.getElementById('publicador-id-input');
     const buscarInput = document.getElementById('buscar-publicador');
     const publicadoresList = document.getElementById('publicadores-list');
-    const noResults = document.getElementById('no-results');
 
     if (!territorioSelect) return;
 
-    // Guardar opciones originales del select
     const opcionesOriginales = Array.from(territorioSelect.options).slice(1).map(opt => ({
-        value: opt.value,
-        text: opt.textContent,
-        tipo: opt.dataset.tipo,
-        zona: opt.dataset.zona,
-        numero: opt.dataset.numero
+        value: opt.value, text: opt.textContent,
+        tipo: opt.dataset.tipo, zona: opt.dataset.zona, numero: opt.dataset.numero
     }));
 
-    // Variable de filtro por zona
     let zonaSeleccionada = '';
 
-    // Funcion de filtrado por zona
     function filtrarTerritorios() {
-        territorioSelect.innerHTML = '<option value="">-- Selecciona un territorio --</option>';
-
+        territorioSelect.innerHTML = '<option value="">-- Selecciona --</option>';
         opcionesOriginales.forEach(opt => {
-            const cumpleZona = !zonaSeleccionada || opt.zona === zonaSeleccionada;
-
-            if (cumpleZona) {
+            if (!zonaSeleccionada || opt.zona === zonaSeleccionada) {
                 const option = document.createElement('option');
                 option.value = opt.value;
                 option.textContent = opt.text;
@@ -173,18 +111,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 territorioSelect.appendChild(option);
             }
         });
-
         territorioSelect.value = '';
-        territorioInfo.classList.remove('show');
-        stepPublicador.classList.remove('show');
-        step1Number.classList.remove('completed');
-        step1Number.textContent = '1';
+        territorioInfo.classList.add('hidden');
         updateSubmitButton();
     }
 
-    // Filtrar por zona (botones)
     document.querySelectorAll('.zona-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
             document.querySelectorAll('.zona-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             zonaSeleccionada = this.dataset.zona;
@@ -192,546 +126,154 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Al seleccionar territorio
     territorioSelect.addEventListener('change', function() {
         const selected = this.options[this.selectedIndex];
-
         if (this.value) {
-            document.getElementById('territorio-info-name').textContent = selected.dataset.numero + (selected.dataset.zona ? ' - ' + selected.dataset.zona : '');
-
-            const tipoLabels = {
-                'normal': 'Territorio Normal',
-                'campana': 'Territorio de Campana',
-                'negocios': 'Territorio de Negocios'
-            };
+            document.getElementById('territorio-info-name').textContent = selected.dataset.numero;
+            const tipoLabels = { 'normal': 'Normal', 'campana': 'Campana', 'negocios': 'Negocios' };
             document.getElementById('territorio-info-tipo').textContent = tipoLabels[selected.dataset.tipo] || '';
-
-            territorioInfo.classList.add('show');
-            step1Number.classList.add('completed');
-            step1Number.textContent = '✓';
-
-            setTimeout(() => {
-                stepPublicador.classList.add('show');
-                buscarInput.focus();
-            }, 200);
+            territorioInfo.classList.remove('hidden');
         } else {
-            territorioInfo.classList.remove('show');
-            stepPublicador.classList.remove('show');
-            step1Number.classList.remove('completed');
-            step1Number.textContent = '1';
+            territorioInfo.classList.add('hidden');
         }
-
         updateSubmitButton();
     });
 
-    // Buscar publicador
     if (buscarInput) {
         buscarInput.addEventListener('input', function() {
             const busqueda = this.value.toLowerCase().trim();
-            const items = publicadoresList.querySelectorAll('.publicador-item');
-            let hayResultados = false;
-
-            items.forEach(item => {
+            publicadoresList.querySelectorAll('.pub-item').forEach(item => {
                 const nombre = item.dataset.nombre;
-                if (nombre.includes(busqueda)) {
-                    item.style.display = 'flex';
-                    hayResultados = true;
-                } else {
-                    item.style.display = 'none';
-                }
+                item.style.display = nombre.includes(busqueda) ? 'flex' : 'none';
             });
-
-            noResults.style.display = hayResultados ? 'none' : 'block';
         });
     }
 
-    // Seleccionar publicador
     if (publicadoresList) {
-        publicadoresList.querySelectorAll('.publicador-item').forEach(item => {
+        publicadoresList.querySelectorAll('.pub-item').forEach(item => {
             item.addEventListener('click', function() {
-                publicadoresList.querySelectorAll('.publicador-item').forEach(i => i.classList.remove('selected'));
+                publicadoresList.querySelectorAll('.pub-item').forEach(i => i.classList.remove('selected'));
                 this.classList.add('selected');
                 publicadorInput.value = this.dataset.id;
-                step2Number.classList.add('completed');
-                step2Number.textContent = '✓';
                 updateSubmitButton();
             });
         });
     }
 
     function updateSubmitButton() {
-        const territorioOk = territorioSelect.value !== '';
-        const publicadorOk = publicadorInput.value !== '';
-        btnSubmit.disabled = !(territorioOk && publicadorOk);
+        btnSubmit.disabled = !(territorioSelect.value && publicadorInput.value);
     }
 });
 </script>
 
 <style>
-.asignar-container {
-    max-width: 600px;
+.page-flat {
+    max-width: 900px;
     margin: 0 auto;
-    padding: 1rem;
 }
 
-.asignar-card {
-    background: var(--bg-card, #fff);
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    overflow: hidden;
-}
-
-.asignar-header {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    padding: 1.5rem;
-    text-align: center;
-}
-
-.asignar-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-}
-
-.asignar-subtitle {
-    opacity: 0.9;
-    font-size: 0.9rem;
-}
-
-.asignar-body {
-    padding: 1.5rem;
-}
-
-.step-section {
+.assign-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
     margin-bottom: 1.5rem;
 }
 
-.step-label {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+.assign-col {
+    background: var(--bg-white);
+    border-radius: var(--radius);
+    padding: 1rem;
+}
+
+.col-header {
+    font-size: 0.75rem;
     font-weight: 600;
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    color: var(--text-primary, #1f2937);
-}
-
-.step-number {
-    width: 28px;
-    height: 28px;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.85rem;
-    font-weight: 700;
-}
-
-.step-number.completed {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-}
-
-/* Filtro de zona con botones */
-.zona-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.zona-btn {
-    flex: 1;
-    min-width: 80px;
-    padding: 0.6rem 0.5rem;
-    border: 2px solid var(--border-color, #e5e7eb);
-    border-radius: 10px;
-    background: var(--bg-card, #fff);
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text-primary, #374151);
-}
-
-.zona-btn:hover {
-    border-color: #d1d5db;
-}
-
-.zona-btn.active {
-    background: #10b981;
-    border-color: #10b981;
-    color: white;
-}
-
-.zona-count {
-    display: block;
-    font-size: 0.7rem;
-    opacity: 0.8;
-    margin-top: 2px;
-}
-
-.territorio-select {
-    width: 100%;
-    padding: 0.85rem 1rem;
-    border: 2px solid var(--border-color, #e5e7eb);
-    border-radius: 10px;
-    font-size: 0.95rem;
-    background: var(--bg-card, #fff);
-    color: var(--text-primary, #1f2937);
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.territorio-select:focus {
-    outline: none;
-    border-color: #10b981;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
-}
-
-.territorio-selected-info {
-    margin-top: 0.75rem;
-    padding: 0.75rem 1rem;
-    background: rgba(16, 185, 129, 0.1);
-    border-radius: 8px;
-    border-left: 3px solid #10b981;
-    display: none;
-}
-
-.territorio-selected-info.show {
-    display: block;
-    animation: slideIn 0.3s ease;
-}
-
-@keyframes slideIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.territorio-selected-name {
-    font-weight: 600;
-    color: var(--text-primary, #1f2937);
-}
-
-.territorio-selected-tipo {
-    font-size: 0.8rem;
-    color: var(--text-muted, #6b7280);
-    margin-top: 0.25rem;
-}
-
-.step-publicador {
-    display: none;
-    animation: fadeSlideIn 0.4s ease;
-}
-
-.step-publicador.show {
-    display: block;
-}
-
-@keyframes fadeSlideIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.search-wrapper {
-    position: relative;
+    color: var(--text-muted);
+    text-transform: uppercase;
     margin-bottom: 0.75rem;
 }
 
-.search-input {
-    width: 100%;
-    padding: 0.75rem 1rem 0.75rem 2.5rem;
-    border: 2px solid var(--border-color, #e5e7eb);
-    border-radius: 10px;
-    font-size: 0.95rem;
-    background: var(--bg-card, #fff);
-    color: var(--text-primary, #1f2937);
-    transition: all 0.2s;
+.zona-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
 }
 
-.search-input:focus {
-    outline: none;
-    border-color: #10b981;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+.zona-btn {
+    padding: 0.375rem 0.75rem;
+    background: var(--bg-hover);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: var(--text-secondary);
 }
 
-.search-icon {
-    position: absolute;
-    left: 0.85rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted, #9ca3af);
-    pointer-events: none;
+.zona-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.selected-info {
+    margin-top: 0.75rem;
+    padding: 0.5rem;
+    background: var(--bg-hover);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+}
+
+.selected-info span {
+    display: block;
 }
 
 .publicadores-list {
     max-height: 250px;
     overflow-y: auto;
-    border: 2px solid var(--border-color, #e5e7eb);
-    border-radius: 10px;
-    background: var(--bg-card, #fff);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 0.5rem;
 }
 
-.publicador-item {
-    padding: 0.75rem 1rem;
-    cursor: pointer;
-    transition: all 0.15s;
-    border-bottom: 1px solid var(--border-color, #f3f4f6);
+.pub-item {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    justify-content: space-between;
+    padding: 0.625rem 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.875rem;
 }
 
-.publicador-item:last-child {
+.pub-item:last-child {
     border-bottom: none;
 }
 
-.publicador-item:hover {
-    background: var(--bg-hover, #f9fafb);
+.pub-item:hover {
+    background: var(--bg-hover);
 }
 
-.publicador-item.selected {
-    background: rgba(16, 185, 129, 0.1);
-    border-left: 3px solid #10b981;
+.pub-item.selected {
+    background: var(--bg-hover);
+    border-left: 3px solid var(--primary);
 }
 
-.publicador-radio {
-    width: 18px;
-    height: 18px;
-    border: 2px solid var(--border-color, #d1d5db);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.2s;
-}
-
-.publicador-item.selected .publicador-radio {
-    border-color: #10b981;
-    background: #10b981;
-}
-
-.publicador-item.selected .publicador-radio::after {
-    content: '';
-    width: 6px;
-    height: 6px;
-    background: white;
-    border-radius: 50%;
-}
-
-.publicador-name {
-    font-weight: 500;
-    color: var(--text-primary, #1f2937);
-}
-
-.publicador-badge {
-    margin-left: auto;
-    padding: 0.15rem 0.5rem;
-    border-radius: 12px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.no-results {
-    padding: 1.5rem;
-    text-align: center;
-    color: var(--text-muted, #6b7280);
-    font-size: 0.9rem;
-}
-
-.submit-section {
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border-color, #e5e7eb);
-}
-
-.btn-submit {
-    width: 100%;
-    padding: 1rem;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+.pub-badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
+    background: var(--primary);
     color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
+    border-radius: 4px;
 }
 
-.btn-submit:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+.btn-full {
+    width: 100%;
 }
 
-.btn-submit:disabled {
-    background: #d1d5db;
-    cursor: not-allowed;
-}
-
-.btn-submit-icon {
-    font-size: 1.2rem;
-}
-
-.error-msg {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #dc2626;
-    padding: 1rem;
-    border-radius: 10px;
-    text-align: center;
-    margin-bottom: 1rem;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .asignar-container { padding: 0.5rem; }
-    .asignar-header { padding: 1.25rem 1rem; }
-    .asignar-title { font-size: 1.25rem; }
-    .asignar-body { padding: 1rem; }
-    .publicadores-list { max-height: 200px; }
-}
-
-@media (max-width: 480px) {
-    .zona-filters { gap: 0.4rem; }
-    .zona-btn { flex: 1 1 45%; min-width: 70px; padding: 0.5rem 0.25rem; font-size: 0.75rem; }
-}
-
-/* ========================================
-   DARK THEME
-   ======================================== */
-[data-theme="dark"] .asignar-card {
-    background: #171717;
-    border: 1px solid #262626;
-}
-
-[data-theme="dark"] .asignar-header {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-    color: #0a0a0a;
-}
-
-[data-theme="dark"] .step-label {
-    color: #e5e5e5;
-}
-
-[data-theme="dark"] .step-number {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-    color: #0a0a0a;
-}
-
-[data-theme="dark"] .zona-btn {
-    background: #262626;
-    border-color: #404040;
-    color: #e5e5e5;
-}
-
-[data-theme="dark"] .zona-btn:hover {
-    border-color: #525252;
-}
-
-[data-theme="dark"] .zona-btn.active {
-    background: #f97316;
-    border-color: #f97316;
-    color: #0a0a0a;
-}
-
-[data-theme="dark"] .territorio-select,
-[data-theme="dark"] .search-input {
-    background: #262626;
-    border-color: #404040;
-    color: #e5e5e5;
-}
-
-[data-theme="dark"] .territorio-select:focus,
-[data-theme="dark"] .search-input:focus {
-    border-color: #f97316;
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
-}
-
-[data-theme="dark"] .territorio-selected-info {
-    background: rgba(249, 115, 22, 0.15);
-    border-left-color: #f97316;
-}
-
-[data-theme="dark"] .territorio-selected-name {
-    color: #f5f5f5;
-}
-
-[data-theme="dark"] .territorio-selected-tipo {
-    color: #a3a3a3;
-}
-
-[data-theme="dark"] .publicadores-list {
-    background: #262626;
-    border-color: #404040;
-}
-
-[data-theme="dark"] .publicador-item {
-    border-bottom-color: #404040;
-}
-
-[data-theme="dark"] .publicador-item:hover {
-    background: rgba(249, 115, 22, 0.1);
-}
-
-[data-theme="dark"] .publicador-item.selected {
-    background: rgba(249, 115, 22, 0.15);
-    border-left-color: #f97316;
-}
-
-[data-theme="dark"] .publicador-item.selected .publicador-radio {
-    border-color: #f97316;
-    background: #f97316;
-}
-
-[data-theme="dark"] .publicador-radio {
-    border-color: #525252;
-}
-
-[data-theme="dark"] .publicador-name {
-    color: #e5e5e5;
-}
-
-[data-theme="dark"] .publicador-badge {
-    background: rgba(34, 197, 94, 0.2);
-    color: #86efac;
-}
-
-[data-theme="dark"] .no-results {
-    color: #a3a3a3;
-}
-
-[data-theme="dark"] .submit-section {
-    border-top-color: #262626;
-}
-
-[data-theme="dark"] .btn-submit {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-    color: #0a0a0a;
-}
-
-[data-theme="dark"] .btn-submit:hover:not(:disabled) {
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
-}
-
-[data-theme="dark"] .btn-submit:disabled {
-    background: #404040;
-    color: #737373;
-}
-
-[data-theme="dark"] .error-msg {
-    background: rgba(220, 38, 38, 0.15);
-    border-color: #dc2626;
-    color: #fca5a5;
+@media (max-width: 700px) {
+    .assign-grid {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
 

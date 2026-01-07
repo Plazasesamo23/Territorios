@@ -50,7 +50,7 @@
 
     .upload-zone:hover,
     .upload-zone.dragover {
-        border-color: #6366f1;
+        border-color: #5c7fb8;
         background: rgba(99, 102, 241, 0.05);
     }
 
@@ -80,7 +80,7 @@
     .upload-btn-fake {
         display: inline-block;
         padding: 0.6rem 1.25rem;
-        background: #6366f1;
+        background: #5c7fb8;
         color: white;
         border-radius: 6px;
         font-size: 0.9rem;
@@ -94,7 +94,7 @@
         background: rgba(34, 197, 94, 0.1);
         border: 1px solid rgba(34, 197, 94, 0.3);
         border-radius: 6px;
-        color: #16a34a;
+        color: #3d5a8a;
         font-size: 0.9rem;
         text-align: left;
     }
@@ -135,12 +135,12 @@
     }
 
     .btn-submit {
-        background: #6366f1;
+        background: #5c7fb8;
         color: white;
     }
 
     .btn-submit:hover:not(:disabled) {
-        background: #4f46e5;
+        background: #4a6da7;
     }
 
     .btn-submit:disabled {
@@ -180,7 +180,7 @@
         top: 0.95rem;
         width: 6px;
         height: 6px;
-        background: #6366f1;
+        background: #5c7fb8;
         border-radius: 50%;
     }
 
@@ -211,7 +211,7 @@
         border: 1px solid rgba(239, 68, 68, 0.25);
         border-radius: 8px;
         padding: 0.875rem 1rem;
-        color: #dc2626;
+        color: #343a40;
         font-size: 0.9rem;
         margin-bottom: 1rem;
     }
@@ -309,7 +309,7 @@
         }
 
         .upload-zone.dragover {
-            border-color: #6366f1;
+            border-color: #5c7fb8;
             background: rgba(99, 102, 241, 0.05);
         }
     }

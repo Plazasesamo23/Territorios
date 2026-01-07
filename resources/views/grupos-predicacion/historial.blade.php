@@ -156,7 +156,7 @@
     align-items: center;
     gap: 0.4rem;
     padding: 0.5rem 1rem;
-    background: #10b981;
+    background: #4a6da7;
     color: white;
     border: none;
     border-radius: 8px;
@@ -166,7 +166,7 @@
 }
 
 .btn-primary:hover {
-    background: #059669;
+    background: #3d5a8a;
 }
 
 /* Grid de anos */
@@ -189,7 +189,7 @@
 .ano-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-    border-color: #10b981;
+    border-color: #4a6da7;
 }
 
 .ano-card-new {
@@ -204,9 +204,9 @@
 }
 
 .ano-card-new:hover {
-    border-color: #10b981;
-    color: #10b981;
-    background: #ecfdf5;
+    border-color: #4a6da7;
+    color: #4a6da7;
+    background: #f4f7fb;
 }
 
 .ano-card-new svg {
@@ -227,7 +227,7 @@
 }
 
 .tag-actual {
-    background: #10b981;
+    background: #4a6da7;
     color: white;
     padding: 0.15rem 0.5rem;
     border-radius: 4px;
@@ -248,7 +248,7 @@
 .stat-num {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #10b981;
+    color: #4a6da7;
 }
 
 .stat-label {
@@ -277,13 +277,13 @@
 }
 
 .btn-edit:hover {
-    background: #dbeafe;
-    color: #2563eb;
+    background: #e8eef6;
+    color: #3d5a8a;
 }
 
 .btn-delete:hover {
-    background: #fee2e2;
-    color: #dc2626;
+    background: #e9ecef;
+    color: #343a40;
 }
 
 /* Empty state */
@@ -391,7 +391,7 @@
 #preview-texto {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #10b981;
+    color: #4a6da7;
 }
 
 .modal-footer {
@@ -419,20 +419,20 @@
 [data-theme="dark"] .historial-page { color: #f5f5f5; }
 [data-theme="dark"] .page-header h1 { color: #f5f5f5; }
 [data-theme="dark"] .btn-back { background: #262626; color: #e5e5e5; }
-[data-theme="dark"] .btn-primary { background: #f97316; }
+[data-theme="dark"] .btn-primary { background: #4a6da7; }
 [data-theme="dark"] .ano-card { background: #1a1a1a; }
 [data-theme="dark"] .ano-label { color: #f5f5f5; }
-[data-theme="dark"] .tag-actual { background: #f97316; }
-[data-theme="dark"] .stat-num { color: #f97316; }
+[data-theme="dark"] .tag-actual { background: #4a6da7; }
+[data-theme="dark"] .stat-num { color: #4a6da7; }
 [data-theme="dark"] .ano-card-new { background: #262626; border-color: #404040; color: #a3a3a3; }
-[data-theme="dark"] .ano-card-new:hover { border-color: #f97316; color: #f97316; background: rgba(249,115,22,0.1); }
+[data-theme="dark"] .ano-card-new:hover { border-color: #4a6da7; color: #4a6da7; background: rgba(249,115,22,0.1); }
 [data-theme="dark"] .ano-actions { border-color: #2d2d2d; }
 [data-theme="dark"] .btn-edit, [data-theme="dark"] .btn-delete { background: #262626; color: #a3a3a3; }
 [data-theme="dark"] .modal-content { background: #1a1a1a; }
 [data-theme="dark"] .modal-header, [data-theme="dark"] .modal-footer { border-color: #2d2d2d; }
 [data-theme="dark"] .form-group select { background: #262626; border-color: #404040; color: #f5f5f5; }
 [data-theme="dark"] .preview-ano { background: #262626; }
-[data-theme="dark"] #preview-texto { color: #f97316; }
+[data-theme="dark"] #preview-texto { color: #4a6da7; }
 [data-theme="dark"] .btn-cancel { background: #262626; color: #e5e5e5; }
 </style>
 

@@ -85,7 +85,7 @@
             </div>
         </div>
         {{-- Permiso S-13 --}}
-        <div class="form-group mb-4" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 1rem; border-radius: 8px; border: 1px solid #bfdbfe;">
+        <div class="form-group mb-4" style="background: linear-gradient(135deg, #f4f7fb 0%, #e8eef6 100%); padding: 1rem; border-radius: 8px; border: 1px solid #bfdbfe;">
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <div>
                     <label class="form-label" style="margin-bottom: 0.25rem;">Permiso para generar S-13</label>
@@ -146,7 +146,7 @@
 .toggle-slider.toggle-purple { background-color: #d946ef; }
 .toggle-switch input:checked + .toggle-slider.toggle-purple { background-color: #a855f7; }
 .toggle-switch input:checked + .toggle-slider {
-    background-color: #3b82f6;
+    background-color: #4a6da7;
 }
 .toggle-switch input:checked + .toggle-slider:before {
     transform: translateX(24px);

@@ -81,7 +81,7 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 .publicador-card.tiene-disponibilidad {
-    border-color: #10b981;
+    border-color: #4a6da7;
 }
 .publicador-card.sin-disponibilidad {
     border-color: #9ca3af;
@@ -92,7 +92,7 @@
     border-color: #404040;
 }
 [data-theme="dark"] .publicador-card.tiene-disponibilidad {
-    border-color: #10b981;
+    border-color: #4a6da7;
 }
 [data-theme="dark"] .publicador-card.sin-disponibilidad {
     border-color: #525252;
@@ -119,7 +119,7 @@
 .turnos-count {
     font-size: 0.75rem;
     padding: 0.125rem 0.5rem;
-    background: #f97316;
+    background: #4a6da7;
     color: white;
     border-radius: 10px;
     font-weight: 600;
@@ -148,7 +148,7 @@
 }
 .turno-dia {
     font-weight: 600;
-    color: #f97316;
+    color: #4a6da7;
 }
 .turno-hora {
     color: #6b7280;
@@ -169,7 +169,7 @@
     color: #6b7280;
 }
 .empty-state a {
-    color: #f97316;
+    color: #4a6da7;
 }
 
 /* Responsive */

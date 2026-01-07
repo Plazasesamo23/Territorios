@@ -36,7 +36,7 @@
                 @enderror
             </div>
 
-            <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 0.5rem; padding: 1rem; margin: 1rem 0;">
+            <div style="background: #f0fdf4; border: 1px solid #8aa8d6; border-radius: 0.5rem; padding: 1rem; margin: 1rem 0;">
                 <h4 style="margin: 0 0 1rem 0; color: #166534;">Credenciales de Acceso</h4>
 
                 <div class="form-group">

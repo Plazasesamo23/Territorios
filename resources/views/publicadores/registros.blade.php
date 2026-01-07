@@ -444,7 +444,7 @@ function toggleFiltros() {
     background: var(--color-gray-200);
 }
 .filtro-radio.active {
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    background: linear-gradient(135deg, #f4f7fb 0%, #e8eef6 100%);
     border-color: var(--color-primary);
 }
 .filtro-radio input {
@@ -648,9 +648,9 @@ function toggleFiltros() {
     border-radius: 6px;
     transition: width 0.5s ease;
 }
-.progreso-success { background: linear-gradient(90deg, #10b981, #34d399); }
-.progreso-warning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-.progreso-danger { background: linear-gradient(90deg, #ef4444, #f87171); }
+.progreso-success { background: linear-gradient(90deg, #4a6da7, #34d399); }
+.progreso-warning { background: linear-gradient(90deg, #4a6da7, #fbbf24); }
+.progreso-danger { background: linear-gradient(90deg, #495057, #f87171); }
 .progreso-escala {
     display: flex;
     justify-content: space-between;

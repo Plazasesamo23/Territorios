@@ -55,7 +55,7 @@
         }
         .step:last-child::after { display: none; }
         .step.active { color: #e94560; }
-        .step.completed { color: #10b981; }
+        .step.completed { color: #4a6da7; }
         .step-number {
             width: 32px;
             height: 32px;
@@ -69,7 +69,7 @@
             color: white;
         }
         .step.active .step-number { background: #e94560; }
-        .step.completed .step-number { background: #10b981; }
+        .step.completed .step-number { background: #4a6da7; }
         .step-text { font-weight: 500; }
 
         /* Buttons */
@@ -89,8 +89,8 @@
         .btn-primary:hover { background: #d63850; transform: translateY(-1px); }
         .btn-secondary { background: #6c757d; color: white; }
         .btn-secondary:hover { background: #5a6268; }
-        .btn-success { background: #10b981; color: white; }
-        .btn-success:hover { background: #059669; }
+        .btn-success { background: #4a6da7; color: white; }
+        .btn-success:hover { background: #3d5a8a; }
         .btn-outline { background: white; border: 2px solid #e0e0e0; color: #333; }
         .btn-outline:hover { border-color: #e94560; color: #e94560; }
         .btn-lg { padding: 1rem 2rem; font-size: 1rem; }
@@ -496,8 +496,8 @@
             transform: translateX(-50%) translateY(0);
             opacity: 1;
         }
-        .toast.success { background: #10b981; }
-        .toast.error { background: #ef4444; }
+        .toast.success { background: #4a6da7; }
+        .toast.error { background: #495057; }
 
         /* ==================== TARJETA S-12 ==================== */
         .zona-color-swatch {

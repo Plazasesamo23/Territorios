@@ -52,7 +52,7 @@
 }
 
 .submenu-tab.active {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
     color: white;
     border-color: transparent;
     box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);

@@ -7,49 +7,339 @@
     <title>@yield('title', 'Gestor de Congregacion')</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark-theme.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/fixes.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/flat-global.css') }}">
     <script src="{{ asset('js/app.js') }}" defer></script>
     <style>
+        /* ========================================
+           LAYOUT STYLES - Solo azul, gris, blanco, negro
+           ======================================== */
+
+        /* Congregacion Badge */
         .congregacion-badge {
             padding: 0.25rem 0.75rem;
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            background: #4a6da7;
             color: white;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
         }
+
+        [data-theme="dark"] .congregacion-badge {
+            background: #6b8fc7;
+            color: #121416;
+        }
+
+        /* Header Buttons */
         .header-buttons {
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
+
         .header-btn {
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            transition: transform 0.2s;
-            font-size: 1.1rem;
+            transition: all 0.2s;
+            font-size: 1rem;
+            background: #4a6da7;
+            color: white;
         }
+
         .header-btn:hover {
-            transform: scale(1.1);
+            background: #3d5a8a;
+            transform: scale(1.05);
         }
-        .btn-switch { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); }
-        .btn-volver { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); animation: pulse 2s infinite; }
-        .btn-profile { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
-        .btn-logout { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border: none; cursor: pointer; }
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-            50% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+
+        [data-theme="dark"] .header-btn {
+            background: #6b8fc7;
+            color: #121416;
         }
-        [data-theme="dark"] .btn-switch { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
-        [data-theme="dark"] .btn-volver { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
-        [data-theme="dark"] .congregacion-badge { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+
+        [data-theme="dark"] .header-btn:hover {
+            background: #8aa8d6;
+        }
+
+        /* Boton volver - gris oscuro para destacar */
+        .btn-volver {
+            background: #495057;
+        }
+
+        .btn-volver:hover {
+            background: #343a40;
+        }
+
+        [data-theme="dark"] .btn-volver {
+            background: #8b939c;
+        }
+
+        [data-theme="dark"] .btn-volver:hover {
+            background: #b8bfc7;
+        }
+
+        /* Boton logout - gris mas oscuro */
+        .btn-logout {
+            background: #6c757d;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-logout:hover {
+            background: #495057;
+        }
+
+        [data-theme="dark"] .btn-logout {
+            background: #5c656e;
+        }
+
+        [data-theme="dark"] .btn-logout:hover {
+            background: #8b939c;
+        }
+
+        /* Header Principal */
+        .header {
+            background: #4a6da7;
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        [data-theme="dark"] .header {
+            background: #1a1d21;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .header .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 56px;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+
+        [data-theme="dark"] .logo {
+            color: #f1f3f5;
+        }
+
+        /* Navegacion */
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .nav-link {
+            padding: 0.5rem 0.875rem;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.15);
+            color: white;
+        }
+
+        .nav-link.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        [data-theme="dark"] .nav-link {
+            color: rgba(241,243,245,0.75);
+        }
+
+        [data-theme="dark"] .nav-link:hover,
+        [data-theme="dark"] .nav-link.active {
+            background: rgba(107,143,199,0.2);
+            color: #f1f3f5;
+        }
+
+        /* Header Actions */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        [data-theme="dark"] .theme-toggle {
+            background: rgba(107,143,199,0.2);
+        }
+
+        [data-theme="dark"] .theme-toggle:hover {
+            background: rgba(107,143,199,0.3);
+        }
+
+        /* Main Content */
+        .main {
+            min-height: calc(100vh - 56px - 60px);
+            padding: 1.5rem 0;
+            background: #f1f3f5;
+        }
+
+        [data-theme="dark"] .main {
+            background: #0d0f11;
+        }
+
+        .main .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: #ffffff;
+            border-top: 1px solid #dee2e6;
+            padding: 1rem 0;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        [data-theme="dark"] .footer {
+            background: #151719;
+            border-top-color: #2d3339;
+            color: #8b939c;
+        }
+
+        .footer .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .footer p {
+            margin: 0;
+        }
+
+        /* Alertas */
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: #e8eef6;
+            border: 1px solid #4a6da7;
+            color: #2d4266;
+        }
+
+        [data-theme="dark"] .alert-success {
+            background: rgba(107,143,199,0.15);
+            border-color: #6b8fc7;
+            color: #b8bfc7;
+        }
+
+        .alert-error {
+            background: #f8f9fa;
+            border: 1px solid #495057;
+            color: #212529;
+        }
+
+        [data-theme="dark"] .alert-error {
+            background: rgba(139,147,156,0.15);
+            border-color: #8b939c;
+            color: #d8dce1;
+        }
+
+        /* Buttons base */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 0.75rem 0;
+            }
+
+            .nav {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+                padding-top: 0.5rem;
+                border-top: 1px solid rgba(255,255,255,0.1);
+                margin-top: 0.5rem;
+            }
+
+            .nav-link {
+                padding: 0.375rem 0.625rem;
+                font-size: 0.8rem;
+            }
+
+            .congregacion-badge {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -85,21 +375,21 @@
                         @endif
 
                         <div class="header-buttons">
-                            <a href="{{ route('cambiar-usuario.index') }}" class="header-btn btn-switch" title="Cambiar usuario">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M23 11h-6"></path></svg>
+                            <a href="{{ route('cambiar-usuario.index') }}" class="header-btn" title="Cambiar usuario">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M23 11h-6"></path></svg>
                             </a>
                             @if(session('usuario_original_id'))
                             <a href="{{ route('cambiar-usuario.volver') }}" class="header-btn btn-volver" title="Volver a tu cuenta">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 14l-5-5 5-5"></path><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"></path></svg>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14l-5-5 5-5"></path><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"></path></svg>
                             </a>
                             @endif
-                            <a href="{{ route('perfil.index') }}" class="header-btn btn-profile" title="Mi perfil">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            <a href="{{ route('perfil.index') }}" class="header-btn" title="Mi perfil">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             </a>
                             <form action="{{ route('logout') }}" method="POST" style="margin:0;">
                                 @csrf
                                 <button type="submit" class="header-btn btn-logout" title="Salir">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                                 </button>
                             </form>
                         </div>
@@ -117,13 +407,13 @@
 
     @if(session('success'))
     <div class="container" style="margin-top:1rem;">
-        <div class="alert alert-success" style="background:#d1fae5;border:1px solid #10b981;color:#065f46;padding:1rem;border-radius:0.5rem;">{{ session('success') }}</div>
+        <div class="alert alert-success">{{ session('success') }}</div>
     </div>
     @endif
 
     @if(session('error'))
     <div class="container" style="margin-top:1rem;">
-        <div class="alert alert-error" style="background:#fee2e2;border:1px solid #ef4444;color:#991b1b;padding:1rem;border-radius:0.5rem;">{{ session('error') }}</div>
+        <div class="alert alert-error">{{ session('error') }}</div>
     </div>
     @endif
 

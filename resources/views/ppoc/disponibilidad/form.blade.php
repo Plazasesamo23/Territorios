@@ -34,7 +34,7 @@
         }
         .header h1 {
             font-size: 1.5rem;
-            color: #f97316;
+            color: #4a6da7;
             margin-bottom: 0.5rem;
         }
         .header p {
@@ -67,7 +67,7 @@
         }
         .select-search-input:focus {
             outline: none;
-            border-color: #f97316;
+            border-color: #4a6da7;
         }
         .select-search-input::placeholder {
             color: #737373;
@@ -96,7 +96,7 @@
             transition: background 0.2s;
         }
         .select-option:hover {
-            background: #f97316;
+            background: #4a6da7;
             color: #fff;
         }
         .select-option:last-child {
@@ -117,7 +117,7 @@
         }
         .dia-titulo {
             font-weight: 600;
-            color: #f97316;
+            color: #4a6da7;
             margin-bottom: 0.5rem;
             padding-bottom: 0.25rem;
             border-bottom: 1px solid #404040;
@@ -141,14 +141,14 @@
             background: #2a2a4e;
         }
         .turno-checkbox.checked {
-            border-color: #f97316;
+            border-color: #4a6da7;
             background: rgba(249, 115, 22, 0.1);
         }
         .turno-checkbox input {
             width: 20px;
             height: 20px;
             margin-right: 0.75rem;
-            accent-color: #f97316;
+            accent-color: #4a6da7;
         }
         .turno-info {
             flex: 1;
@@ -167,7 +167,7 @@
             padding: 1rem;
             font-size: 1.1rem;
             font-weight: 600;
-            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
             color: white;
             border: none;
             border-radius: 10px;
@@ -192,12 +192,12 @@
         }
         .alert-success {
             background: rgba(34, 197, 94, 0.2);
-            border: 1px solid #22c55e;
+            border: 1px solid #4a6da7;
             color: #4ade80;
         }
         .alert-error {
             background: rgba(239, 68, 68, 0.2);
-            border: 1px solid #ef4444;
+            border: 1px solid #495057;
             color: #f87171;
         }
 
@@ -212,7 +212,7 @@
         .loading {
             text-align: center;
             padding: 1rem;
-            color: #f97316;
+            color: #4a6da7;
         }
 
         /* Footer */

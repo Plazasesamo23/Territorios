@@ -389,14 +389,14 @@ function toggleEditMode() {
     align-items: center;
     gap: 1.5rem;
     padding: 1.5rem;
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
     border-radius: 16px;
     margin-bottom: 1.5rem;
     box-shadow: 0 10px 40px rgba(79, 70, 229, 0.3);
 }
 
 [data-theme="dark"] .pub-profile-header {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
     box-shadow: 0 10px 40px rgba(249, 115, 22, 0.2);
 }
 
@@ -480,11 +480,11 @@ function toggleEditMode() {
 
 .btn-history {
     background: white;
-    color: #4f46e5;
+    color: #4a6da7;
 }
 
 [data-theme="dark"] .btn-history {
-    color: #f97316;
+    color: #4a6da7;
 }
 
 .btn-history:hover {
@@ -555,15 +555,15 @@ function toggleEditMode() {
     height: 20px;
 }
 
-.stat-icon-total { background: rgba(79,70,229,0.1); color: #4f46e5; }
-.stat-icon-active { background: rgba(245,158,11,0.1); color: #f59e0b; }
-.stat-icon-completed { background: rgba(34,197,94,0.1); color: #22c55e; }
-.stat-icon-days { background: rgba(59,130,246,0.1); color: #3b82f6; }
+.stat-icon-total { background: rgba(79,70,229,0.1); color: #4a6da7; }
+.stat-icon-active { background: rgba(245,158,11,0.1); color: #4a6da7; }
+.stat-icon-completed { background: rgba(34,197,94,0.1); color: #4a6da7; }
+.stat-icon-days { background: rgba(59,130,246,0.1); color: #4a6da7; }
 
-[data-theme="dark"] .stat-icon-total { background: rgba(249,115,22,0.15); color: #f97316; }
+[data-theme="dark"] .stat-icon-total { background: rgba(249,115,22,0.15); color: #4a6da7; }
 [data-theme="dark"] .stat-icon-active { background: rgba(251,191,36,0.15); color: #fbbf24; }
-[data-theme="dark"] .stat-icon-completed { background: rgba(34,197,94,0.15); color: #22c55e; }
-[data-theme="dark"] .stat-icon-days { background: rgba(59,130,246,0.15); color: #60a5fa; }
+[data-theme="dark"] .stat-icon-completed { background: rgba(34,197,94,0.15); color: #4a6da7; }
+[data-theme="dark"] .stat-icon-days { background: rgba(59,130,246,0.15); color: #5c7fb8; }
 
 .stat-value {
     font-size: 2rem;
@@ -651,7 +651,7 @@ function toggleEditMode() {
 }
 
 [data-theme="dark"] .territory-number-large {
-    color: #86efac;
+    color: #8aa8d6;
 }
 
 .territory-details {
@@ -680,15 +680,15 @@ function toggleEditMode() {
     font-weight: 600;
 }
 
-.estado-activo { background: #dbeafe; color: #1e40af; }
+.estado-activo { background: #e8eef6; color: #2d4266; }
 .estado-libre { background: #dcfce7; color: #166534; }
 .estado-atrasado { background: #fef3c7; color: #92400e; }
-.estado-archivo { background: #fee2e2; color: #991b1b; }
+.estado-archivo { background: #e9ecef; color: #212529; }
 
-[data-theme="dark"] .estado-activo { background: rgba(59,130,246,0.2); color: #93c5fd; }
-[data-theme="dark"] .estado-libre { background: rgba(34,197,94,0.2); color: #86efac; }
+[data-theme="dark"] .estado-activo { background: rgba(59,130,246,0.2); color: #8aa8d6; }
+[data-theme="dark"] .estado-libre { background: rgba(34,197,94,0.2); color: #8aa8d6; }
 [data-theme="dark"] .estado-atrasado { background: rgba(245,158,11,0.2); color: #fcd34d; }
-[data-theme="dark"] .estado-archivo { background: rgba(239,68,68,0.2); color: #fca5a5; }
+[data-theme="dark"] .estado-archivo { background: rgba(239,68,68,0.2); color: #ced4da; }
 
 .dias-badge {
     padding: 0.2rem 0.5rem;
@@ -708,7 +708,7 @@ function toggleEditMode() {
     font-size: 0.8rem;
     border-radius: 6px;
     text-decoration: none;
-    background: #22c55e;
+    background: #4a6da7;
     color: white;
 }
 
@@ -801,12 +801,12 @@ function toggleEditMode() {
 
 .recent-number {
     font-weight: 700;
-    color: #4f46e5;
+    color: #4a6da7;
     margin-right: 0.5rem;
 }
 
 [data-theme="dark"] .recent-number {
-    color: #f97316;
+    color: #4a6da7;
 }
 
 .recent-name {
@@ -839,7 +839,7 @@ function toggleEditMode() {
 }
 
 .date-active {
-    color: #22c55e !important;
+    color: #4a6da7 !important;
     font-weight: 600;
 }
 
@@ -854,14 +854,14 @@ function toggleEditMode() {
     display: block;
     text-align: center;
     padding: 0.75rem;
-    color: #4f46e5;
+    color: #4a6da7;
     text-decoration: none;
     font-weight: 500;
     font-size: 0.9rem;
 }
 
 [data-theme="dark"] .view-all-link {
-    color: #f97316;
+    color: #4a6da7;
 }
 
 .view-all-link:hover {
@@ -957,12 +957,12 @@ function toggleEditMode() {
 }
 
 .checkbox-anciano input:checked + span {
-    color: #dc2626;
+    color: #343a40;
     font-weight: 600;
 }
 
 .checkbox-sm input:checked + span {
-    color: #3b82f6;
+    color: #4a6da7;
     font-weight: 600;
 }
 
@@ -999,7 +999,7 @@ function toggleEditMode() {
 }
 
 .danger-zone h3 {
-    color: #dc2626;
+    color: #343a40;
     margin: 0 0 0.5rem 0;
     font-size: 1rem;
 }
@@ -1011,7 +1011,7 @@ function toggleEditMode() {
 }
 
 .btn-danger {
-    background: #dc2626;
+    background: #343a40;
     color: white;
     border: none;
     padding: 0.6rem 1rem;
@@ -1021,7 +1021,7 @@ function toggleEditMode() {
 }
 
 .btn-danger:hover {
-    background: #b91c1c;
+    background: #212529;
 }
 
 /* Responsive */
@@ -1122,8 +1122,8 @@ function toggleEditMode() {
 }
 
 .family-rel-progenitor {
-    background: #dbeafe;
-    color: #1e40af;
+    background: #e8eef6;
+    color: #2d4266;
 }
 
 .family-rel-hijo {
@@ -1145,7 +1145,7 @@ function toggleEditMode() {
 }
 
 .btn-add-family {
-    background: #3b82f6;
+    background: #4a6da7;
     color: white;
     border: none;
     padding: 0.5rem 1rem;
@@ -1156,7 +1156,7 @@ function toggleEditMode() {
 }
 
 .btn-add-family:hover {
-    background: #2563eb;
+    background: #3d5a8a;
 }
 
 /* Modal Family Styles */
@@ -1202,7 +1202,7 @@ function toggleEditMode() {
 }
 
 .btn-remove-family {
-    background: #ef4444;
+    background: #495057;
     color: white;
     border: none;
     width: 28px;
@@ -1217,7 +1217,7 @@ function toggleEditMode() {
 }
 
 .btn-remove-family:hover {
-    background: #dc2626;
+    background: #343a40;
 }
 
 .add-family-form {
@@ -1244,7 +1244,7 @@ function toggleEditMode() {
 
 .family-select:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: #4a6da7;
 }
 
 .btn-add {
@@ -1275,7 +1275,7 @@ function toggleEditMode() {
 
 [data-theme="dark"] .family-rel-progenitor {
     background: #1e3a8a;
-    color: #dbeafe;
+    color: #e8eef6;
 }
 
 [data-theme="dark"] .family-rel-hijo {

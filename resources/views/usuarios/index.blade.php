@@ -299,7 +299,7 @@
 }
 .rol-admin .rol-permisos li::before {
     content: "OK ";
-    color: #10b981;
+    color: #4a6da7;
     font-weight: bold;
 }
 .rol-user .rol-permisos li::before {

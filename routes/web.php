@@ -190,6 +190,8 @@ Route::middleware(['auth', 'congregacion'])->group(function () {
         Route::delete("/asignaciones/{asignacion}", [TurnoController::class, "desasignar"])->name("asignaciones.destroy");
         Route::patch("/asignaciones/{asignacion}/estado", [TurnoController::class, "actualizarEstado"])->name("asignaciones.estado");
         Route::post("/asignacion-automatica", [TurnoController::class, "asignacionAutomatica"])->name("asignacion-automatica");
+        Route::get("/asignaciones/{asignacion}/sugerencias", [TurnoController::class, "getSugerencias"])->name("asignaciones.sugerencias");
+        Route::post("/asignaciones/{asignacion}/reemplazar", [TurnoController::class, "reemplazar"])->name("asignaciones.reemplazar");
     });
     
     // RUTAS PPOC SOLO ADMIN - gestion de turnos, aprobados, disponibilidad
@@ -203,6 +205,7 @@ Route::middleware(['auth', 'congregacion'])->group(function () {
         Route::delete("/turno-generado/{turnoGenerado}", [TurnoController::class, "destroyTurnoGenerado"])->name("turno-generado.destroy");
         Route::get("/aprobados", [TurnoController::class, "aprobados"])->name("aprobados");
         Route::post("/aprobados/toggle/{publicador}", [TurnoController::class, "toggleAprobado"])->name("aprobados.toggle");
+        Route::post("/capitanes/toggle/{publicador}", [TurnoController::class, "toggleCapitan"])->name("capitanes.toggle");
     });
 
     // Ruta de referencia UI (desarrollo)

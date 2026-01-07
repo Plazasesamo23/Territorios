@@ -43,7 +43,7 @@
         }
         .congregation-name {
             display: inline-block;
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 9999px;
@@ -70,13 +70,13 @@
         }
         .form-input:focus {
             outline: none;
-            border-color: #4f46e5;
+            border-color: #4a6da7;
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
         .btn-verify {
             width: 100%;
             padding: 1rem;
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
             color: white;
             border: none;
             border-radius: 0.5rem;
@@ -90,9 +90,9 @@
             box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
         }
         .error-message {
-            background: #fee2e2;
-            border: 1px solid #ef4444;
-            color: #991b1b;
+            background: #e9ecef;
+            border: 1px solid #495057;
+            color: #212529;
             padding: 0.75rem 1rem;
             border-radius: 0.5rem;
             margin-bottom: 1.5rem;
@@ -107,7 +107,7 @@
             font-size: 0.875rem;
         }
         .logout-link:hover {
-            color: #ef4444;
+            color: #495057;
         }
     </style>
 </head>

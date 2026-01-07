@@ -140,7 +140,7 @@
 }
 
 .badge-historial {
-    background: #8b5cf6;
+    background: #4a6da7;
     color: white;
     padding: 0.25rem 0.6rem;
     border-radius: 6px;
@@ -150,7 +150,7 @@
 
 .guardado-status {
     font-size: 0.85rem;
-    color: #10b981;
+    color: #4a6da7;
 }
 
 /* Layout */
@@ -186,7 +186,7 @@
     align-items: center;
     gap: 0.4rem;
     padding: 0.4rem 0.5rem;
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
 }
 
 .grupo-label {
@@ -247,19 +247,19 @@
 }
 
 .pub-item.superintendente {
-    color: #dc2626;
+    color: #343a40;
     font-weight: 600;
-    background: #fef2f2;
+    background: #f8f9fa;
 }
 
 .pub-item.auxiliar {
-    color: #2563eb;
+    color: #3d5a8a;
     font-weight: 600;
-    background: #eff6ff;
+    background: #f4f7fb;
 }
 
 .pub-item.precursor {
-    color: #16a34a;
+    color: #3d5a8a;
     background: #f0fdf4;
 }
 
@@ -293,8 +293,8 @@
     height: 20px;
     border: none;
     border-radius: 3px;
-    background: #fee2e2;
-    color: #dc2626;
+    background: #e9ecef;
+    color: #343a40;
     cursor: pointer;
 }
 
@@ -387,7 +387,7 @@
 }
 
 .tag-pr {
-    background: #dc2626;
+    background: #343a40;
     color: white;
     padding: 0.1rem 0.25rem;
     border-radius: 3px;
@@ -406,21 +406,21 @@
 /* Dark theme */
 [data-theme="dark"] .page-header h1 { color: #f5f5f5; }
 [data-theme="dark"] .btn-back { background: #262626; color: #e5e5e5; }
-[data-theme="dark"] .badge-historial { background: #7c3aed; }
+[data-theme="dark"] .badge-historial { background: #3d5a8a; }
 [data-theme="dark"] .grupos-section { background: #1a1a1a; }
 [data-theme="dark"] .grupo-box { border-color: #2d2d2d; }
-[data-theme="dark"] .grupo-header { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); }
+[data-theme="dark"] .grupo-header { background: linear-gradient(135deg, #3d5a8a 0%, #2d4266 100%); }
 [data-theme="dark"] .grupo-lista { background: #262626; }
 [data-theme="dark"] .pub-item { background: #1a1a1a; color: #e5e5e5; }
 [data-theme="dark"] .pub-item.superintendente { background: rgba(220,38,38,0.15); color: #f87171; }
-[data-theme="dark"] .pub-item.auxiliar { background: rgba(37,99,235,0.15); color: #60a5fa; }
+[data-theme="dark"] .pub-item.auxiliar { background: rgba(37,99,235,0.15); color: #5c7fb8; }
 [data-theme="dark"] .pub-item.precursor { background: rgba(22,163,74,0.1); color: #4ade80; }
 [data-theme="dark"] .select-rol { background: #262626; border-color: #404040; color: #e5e5e5; }
 [data-theme="dark"] .grupo-footer { background: #1a1a1a; border-color: #2d2d2d; }
 [data-theme="dark"] .panel-disponibles { background: #1a1a1a; }
 [data-theme="dark"] .panel-header { background: #404040; }
 [data-theme="dark"] .panel-search input { background: #262626; border-color: #404040; color: #e5e5e5; }
-[data-theme="dark"] .pub-item.disponible { background: rgba(245,158,11,0.15); border-color: #f97316; color: #fcd34d; }
+[data-theme="dark"] .pub-item.disponible { background: rgba(245,158,11,0.15); border-color: #4a6da7; color: #fcd34d; }
 [data-theme="dark"] .panel-hint { border-color: #2d2d2d; }
 
 /* Responsive */

@@ -763,13 +763,13 @@ function showNotification(message, type = 'info') {
 
     switch(type) {
         case 'success':
-            notification.style.background = '#10b981';
+            notification.style.background = '#4a6da7';
             break;
         case 'error':
-            notification.style.background = '#ef4444';
+            notification.style.background = '#495057';
             break;
         default:
-            notification.style.background = '#3b82f6';
+            notification.style.background = '#4a6da7';
     }
 
     document.body.appendChild(notification);
@@ -793,9 +793,9 @@ function showNotification(message, type = 'info') {
 }
 
 .tool-btn.btn-primary {
-    background: #3b82f6;
+    background: #4a6da7;
     color: white;
-    border-color: #3b82f6;
+    border-color: #4a6da7;
 }
 
 #drawing-canvas {

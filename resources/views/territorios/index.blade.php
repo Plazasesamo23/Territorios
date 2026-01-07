@@ -94,15 +94,15 @@
         <div class="stat-label">Total</div>
     </a>
     <a href="{{ route('territorios.index', ['estado' => 'libre', 'search' => request('search'), 'tipo' => $tipoFiltro ?? 'todos']) }}" class="stat-card filter-stat-btn {{ request('estado') == 'libre' ? 'active' : '' }}">
-        <div class="stat-number" style="color: #10b981;">{{ $estadisticas['libre'] }}</div>
+        <div class="stat-number" style="color: #4a6da7;">{{ $estadisticas['libre'] }}</div>
         <div class="stat-label">Libres</div>
     </a>
     <a href="{{ route('territorios.index', ['estado' => 'activo', 'search' => request('search'), 'tipo' => $tipoFiltro ?? 'todos']) }}" class="stat-card filter-stat-btn {{ request('estado') == 'activo' ? 'active' : '' }}">
-        <div class="stat-number" style="color: #3b82f6;">{{ $estadisticas['activo'] }}</div>
+        <div class="stat-number" style="color: #4a6da7;">{{ $estadisticas['activo'] }}</div>
         <div class="stat-label">Activos</div>
     </a>
     <a href="{{ route('territorios.index', ['estado' => 'atrasado', 'search' => request('search'), 'tipo' => $tipoFiltro ?? 'todos']) }}" class="stat-card filter-stat-btn {{ request('estado') == 'atrasado' ? 'active' : '' }}">
-        <div class="stat-number" style="color: #ef4444;">{{ $estadisticas['atrasado'] }}</div>
+        <div class="stat-number" style="color: #495057;">{{ $estadisticas['atrasado'] }}</div>
         <div class="stat-label">Atrasados</div>
     </a>
     <a href="{{ route('territorios.index', ['estado' => 'archivo', 'search' => request('search'), 'tipo' => $tipoFiltro ?? 'todos']) }}" class="stat-card filter-stat-btn {{ request('estado') == 'archivo' ? 'active' : '' }}">
@@ -289,18 +289,18 @@ document.addEventListener('click', function(e) {
 }
 .tipo-filtro.active {
     border-color: var(--color-primary);
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    background: linear-gradient(135deg, #f4f7fb 0%, #e8eef6 100%);
     color: var(--color-primary);
 }
 .tipo-filtro.tipo-campana.active {
-    border-color: #f59e0b;
+    border-color: #4a6da7;
     background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
     color: #b45309;
 }
 .tipo-filtro.tipo-negocios.active {
-    border-color: #3b82f6;
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-    color: #1d4ed8;
+    border-color: #4a6da7;
+    background: linear-gradient(135deg, #f4f7fb 0%, #e8eef6 100%);
+    color: #2d4266;
 }
 .tipo-icono {
     font-size: 1.25rem;
@@ -381,10 +381,10 @@ document.addEventListener('click', function(e) {
     border-left: 4px solid;
 }
 .territorio-campana {
-    border-left-color: #f59e0b;
+    border-left-color: #4a6da7;
 }
 .territorio-negocios {
-    border-left-color: #3b82f6;
+    border-left-color: #4a6da7;
 }
 .territorio-tipo-badge {
     position: absolute;
@@ -401,16 +401,16 @@ document.addEventListener('click', function(e) {
     color: white;
 }
 .territorio-tipo-badge.campana {
-    background: #f59e0b;
+    background: #4a6da7;
 }
 .territorio-tipo-badge.negocios {
-    background: #3b82f6;
+    background: #4a6da7;
 }
 .numero-campana {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%) !important;
 }
 .numero-negocios {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%) !important;
 }
 .territorio-image-half {
     position: relative;
@@ -559,10 +559,10 @@ document.addEventListener('click', function(e) {
 }
 
 /* Badges */
-.badge-blue { background: #dbeafe; color: #1e40af; }
+.badge-blue { background: #e8eef6; color: #2d4266; }
 .badge-green { background: #dcfce7; color: #166534; }
 .badge-yellow { background: #fef3c7; color: #92400e; }
-.badge-red { background: #fee2e2; color: #991b1b; }
+.badge-red { background: #e9ecef; color: #212529; }
 .badge-gray { background: #f3f4f6; color: #374151; }
 
 /* Buscador */
@@ -580,11 +580,11 @@ document.addEventListener('click', function(e) {
 }
 .search-input:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: #4a6da7;
 }
 .search-btn {
     padding: 0.75rem 1rem;
-    background: #3b82f6;
+    background: #4a6da7;
     color: white;
     border: none;
     border-radius: 8px;
@@ -592,7 +592,7 @@ document.addEventListener('click', function(e) {
 }
 .search-clear {
     padding: 0.75rem 1rem;
-    background: #ef4444;
+    background: #495057;
     color: white;
     text-decoration: none;
     border-radius: 8px;

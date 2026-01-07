@@ -26,7 +26,8 @@ class Publicador extends Model
         'orden_grupo',
         'es_anciano',
         'es_siervo_ministerial',
-        'es_menor'
+        'es_menor',
+        'es_capitan_ppoc'
     ];
 
     protected $casts = [
@@ -38,6 +39,7 @@ class Publicador extends Model
         'es_anciano' => 'boolean',
         'es_siervo_ministerial' => 'boolean',
         'es_menor' => 'boolean',
+        'es_capitan_ppoc' => 'boolean',
         'orden_grupo' => 'integer',
     ];
 

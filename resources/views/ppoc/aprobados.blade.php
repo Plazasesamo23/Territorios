@@ -28,6 +28,10 @@
         <div class="stat-number">{{ $stats['aprobados'] }}</div>
         <div class="stat-label">Aprobados</div>
     </div>
+    <div class="stat-card stat-capitan">
+        <div class="stat-number">{{ $stats['capitanes'] ?? 0 }}</div>
+        <div class="stat-label">Capitanes</div>
+    </div>
     <div class="stat-card stat-warning">
         <div class="stat-number">{{ $stats['pendientes'] }}</div>
         <div class="stat-label">No Aprobados</div>
@@ -56,9 +60,27 @@
                 </div>
             </div>
             <div class="publicador-actions">
-                <span class="estado-badge {{ $publicador->aprobado_ppoc ? 'badge-success' : 'badge-gray' }}">
-                    {{ $publicador->aprobado_ppoc ? 'Aprobado' : 'No aprobado' }}
-                </span>
+                @if($publicador->aprobado_ppoc)
+                    <span class="estado-badge {{ $publicador->es_capitan_ppoc ? 'badge-capitan' : 'badge-success' }}">
+                        {{ $publicador->es_capitan_ppoc ? 'Capitan' : 'Voluntario' }}
+                    </span>
+                    @if(!$publicador->es_menor)
+                    <form action="{{ route('ppoc.capitanes.toggle', $publicador) }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" class="btn-toggle {{ $publicador->es_capitan_ppoc ? 'btn-capitan-remove' : 'btn-capitan' }}">
+                            @if($publicador->es_capitan_ppoc)
+                                <span>&#x2B07;</span> Quitar Capitan
+                            @else
+                                <span>&#x2B06;</span> Hacer Capitan
+                            @endif
+                        </button>
+                    </form>
+                    @else
+                    <span class="badge-menor">Menor de edad</span>
+                    @endif
+                @else
+                    <span class="estado-badge badge-gray">No aprobado</span>
+                @endif
                 <form action="{{ route('ppoc.aprobados.toggle', $publicador) }}" method="POST" style="display: inline;">
                     @csrf
                     <button type="submit" class="btn-toggle {{ $publicador->aprobado_ppoc ? 'btn-remove' : 'btn-approve' }}">
@@ -102,7 +124,7 @@
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
     margin-bottom: 2rem;
 }
@@ -121,6 +143,10 @@
 
 .stat-card.stat-warning {
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+
+.stat-card.stat-capitan {
+    background: linear-gradient(135deg, #e8eef6 0%, #bfdbfe 100%);
 }
 
 .stat-number {
@@ -182,7 +208,7 @@
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #2d4266 100%);
     color: white;
     display: flex;
     align-items: center;
@@ -192,7 +218,7 @@
 }
 
 .publicador-item.aprobado .publicador-avatar {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
 }
 
 .publicador-details {
@@ -234,6 +260,20 @@
     color: #6b7280;
 }
 
+.badge-capitan {
+    background: #e8eef6;
+    color: #2d4266;
+}
+
+.badge-menor {
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: #fef3c7;
+    color: #92400e;
+}
+
 .btn-toggle {
     display: flex;
     align-items: center;
@@ -248,7 +288,7 @@
 }
 
 .btn-approve {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
     color: white;
 }
 
@@ -258,13 +298,33 @@
 }
 
 .btn-remove {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    background: linear-gradient(135deg, #495057 0%, #343a40 100%);
     color: white;
 }
 
 .btn-remove:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.btn-capitan {
+    background: linear-gradient(135deg, #4a6da7 0%, #2d4266 100%);
+    color: white;
+}
+
+.btn-capitan:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-capitan-remove {
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
+    color: white;
+}
+
+.btn-capitan-remove:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
 }
 
 .empty-state {
@@ -332,12 +392,17 @@
 
 [data-theme="dark"] .stat-card.stat-success {
     background: rgba(34, 197, 94, 0.15);
-    border-color: #22c55e;
+    border-color: #4a6da7;
 }
 
 [data-theme="dark"] .stat-card.stat-warning {
     background: rgba(249, 115, 22, 0.15);
-    border-color: #f97316;
+    border-color: #4a6da7;
+}
+
+[data-theme="dark"] .stat-card.stat-capitan {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: #4a6da7;
 }
 
 [data-theme="dark"] .publicador-item {
@@ -353,12 +418,12 @@
 }
 
 [data-theme="dark"] .publicador-avatar {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
     color: #0a0a0a;
 }
 
 [data-theme="dark"] .publicador-item.aprobado .publicador-avatar {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
     color: #0a0a0a;
 }
 
@@ -372,7 +437,7 @@
 
 [data-theme="dark"] .badge-success {
     background: rgba(34, 197, 94, 0.2);
-    color: #86efac;
+    color: #8aa8d6;
 }
 
 [data-theme="dark"] .badge-gray {
@@ -380,8 +445,26 @@
     color: #a3a3a3;
 }
 
+[data-theme="dark"] .badge-capitan {
+    background: rgba(59, 130, 246, 0.2);
+    color: #8aa8d6;
+}
+
+[data-theme="dark"] .badge-menor {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fcd34d;
+}
+
+[data-theme="dark"] .btn-capitan {
+    background: linear-gradient(135deg, #4a6da7 0%, #2d4266 100%);
+}
+
+[data-theme="dark"] .btn-capitan-remove {
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
+}
+
 [data-theme="dark"] .btn-approve {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
 }
 
 [data-theme="dark"] .btn-approve:hover {
@@ -410,7 +493,7 @@
 }
 
 [data-theme="dark"] .section-header {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
     color: #0a0a0a;
 }
 

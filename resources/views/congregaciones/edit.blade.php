@@ -37,7 +37,7 @@
                 @enderror
             </div>
 
-            <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 0.5rem; padding: 1rem; margin: 1rem 0;">
+            <div style="background: #f0fdf4; border: 1px solid #8aa8d6; border-radius: 0.5rem; padding: 1rem; margin: 1rem 0;">
                 <h4 style="margin: 0 0 1rem 0; color: #166534;">Credenciales de Acceso</h4>
 
                 <div class="form-group">
@@ -108,15 +108,15 @@
     <div class="card-body">
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
             <div style="text-align: center; padding: 1rem; background: #f3f4f6; border-radius: 0.5rem;">
-                <div style="font-size: 2rem; font-weight: bold; color: #4f46e5;">{{ $congregacion->territorios()->count() }}</div>
+                <div style="font-size: 2rem; font-weight: bold; color: #4a6da7;">{{ $congregacion->territorios()->count() }}</div>
                 <div style="font-size: 0.875rem; color: #6b7280;">Territorios</div>
             </div>
             <div style="text-align: center; padding: 1rem; background: #f3f4f6; border-radius: 0.5rem;">
-                <div style="font-size: 2rem; font-weight: bold; color: #059669;">{{ $congregacion->publicadores()->count() }}</div>
+                <div style="font-size: 2rem; font-weight: bold; color: #3d5a8a;">{{ $congregacion->publicadores()->count() }}</div>
                 <div style="font-size: 0.875rem; color: #6b7280;">Publicadores</div>
             </div>
             <div style="text-align: center; padding: 1rem; background: #f3f4f6; border-radius: 0.5rem;">
-                <div style="font-size: 2rem; font-weight: bold; color: #7c3aed;">{{ $congregacion->users()->count() }}</div>
+                <div style="font-size: 2rem; font-weight: bold; color: #3d5a8a;">{{ $congregacion->users()->count() }}</div>
                 <div style="font-size: 0.875rem; color: #6b7280;">Usuarios</div>
             </div>
         </div>

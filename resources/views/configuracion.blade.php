@@ -12,13 +12,13 @@
         border: 1px solid #e2e8f0;
     }
     .tipo-config-section.normal {
-        border-left: 4px solid #10b981;
+        border-left: 4px solid #4a6da7;
     }
     .tipo-config-section.campana {
-        border-left: 4px solid #f59e0b;
+        border-left: 4px solid #4a6da7;
     }
     .tipo-config-section.negocios {
-        border-left: 4px solid #3b82f6;
+        border-left: 4px solid #4a6da7;
     }
     .tipo-config-title {
         font-weight: 600;
@@ -28,9 +28,9 @@
         align-items: center;
         gap: 0.5rem;
     }
-    .tipo-config-section.normal .tipo-config-title { color: #059669; }
-    .tipo-config-section.campana .tipo-config-title { color: #d97706; }
-    .tipo-config-section.negocios .tipo-config-title { color: #2563eb; }
+    .tipo-config-section.normal .tipo-config-title { color: #3d5a8a; }
+    .tipo-config-section.campana .tipo-config-title { color: #3d5a8a; }
+    .tipo-config-section.negocios .tipo-config-title { color: #3d5a8a; }
     .config-row {
         display: flex;
         justify-content: space-between;
@@ -90,7 +90,7 @@
 @endif
 
 @if(session('error'))
-    <div style="padding: 1rem; background: #fee2e2; border: 1px solid #fecaca; border-radius: 8px; margin-bottom: 1rem; color: #991b1b;">
+    <div style="padding: 1rem; background: #e9ecef; border: 1px solid #fecaca; border-radius: 8px; margin-bottom: 1rem; color: #212529;">
         <div style="display: flex; align-items: center; gap: 0.5rem;">
             <span>&#10060;</span>
             <span>{{ session('error') }}</span>
@@ -112,7 +112,7 @@
         <div class="tipo-config-section normal">
             <div class="tipo-config-title">
                 <span>&#127968;</span> Territorios Normales
-                <span style="font-size: 0.75rem; padding: 2px 8px; background: #d1fae5; color: #065f46; border-radius: 12px; margin-left: 0.5rem;">Incluidos en S-13</span>
+                <span style="font-size: 0.75rem; padding: 2px 8px; background: #e8eef6; color: #2d4266; border-radius: 12px; margin-left: 0.5rem;">Incluidos en S-13</span>
             </div>
             <div class="config-row">
                 <div>
@@ -168,7 +168,7 @@
         <div class="tipo-config-section negocios">
             <div class="tipo-config-title">
                 <span>&#127970;</span> Territorios de Negocios
-                <span style="font-size: 0.75rem; padding: 2px 8px; background: #dbeafe; color: #1e40af; border-radius: 12px; margin-left: 0.5rem;">No en S-13</span>
+                <span style="font-size: 0.75rem; padding: 2px 8px; background: #e8eef6; color: #2d4266; border-radius: 12px; margin-left: 0.5rem;">No en S-13</span>
             </div>
             <div class="config-row">
                 <div>
@@ -236,7 +236,7 @@
         <!-- Estado WhatsApp -->
         <div style="padding: 1rem; background: #dcfce7; border: 1px solid #bbf7d0; border-radius: 8px; margin-bottom: 1rem;">
             <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <div style="color: #16a34a; font-size: 1.25rem;">&#9989;</div>
+                <div style="color: #3d5a8a; font-size: 1.25rem;">&#9989;</div>
                 <div>
                     <div style="font-weight: 600; color: #15803d;">WhatsApp habilitado</div>
                     <div style="font-size: 0.875rem; color: #166534;">Los territorios con imagen pueden enviarse directamente por WhatsApp</div>
@@ -317,19 +317,19 @@ Imagen del territorio:
 
     <div class="grid grid-4">
         <div class="stat-card">
-            <div class="stat-number" style="color: #3b82f6;">{{ \App\Models\Territorio::count() }}</div>
+            <div class="stat-number" style="color: #4a6da7;">{{ \App\Models\Territorio::count() }}</div>
             <div class="stat-label">Total Territorios</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number" style="color: #10b981;">{{ \App\Models\Publicador::where('activo', true)->count() }}</div>
+            <div class="stat-number" style="color: #4a6da7;">{{ \App\Models\Publicador::where('activo', true)->count() }}</div>
             <div class="stat-label">Publicadores Activos</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number" style="color: #f59e0b;">{{ \App\Models\Registro::whereNull('fecha_entrada')->count() }}</div>
+            <div class="stat-number" style="color: #4a6da7;">{{ \App\Models\Registro::whereNull('fecha_entrada')->count() }}</div>
             <div class="stat-label">Asignaciones Activas</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number" style="color: #8b5cf6;">{{ \App\Models\Registro::count() }}</div>
+            <div class="stat-number" style="color: #4a6da7;">{{ \App\Models\Registro::count() }}</div>
             <div class="stat-label">Total Registros</div>
         </div>
     </div>
@@ -393,25 +393,25 @@ Imagen del territorio:
 }
 
 .btn-warning {
-    background: #f59e0b;
+    background: #4a6da7;
     color: white;
-    border: 1px solid #f59e0b;
+    border: 1px solid #4a6da7;
 }
 
 .btn-warning:hover {
-    background: #d97706;
-    border-color: #d97706;
+    background: #3d5a8a;
+    border-color: #3d5a8a;
 }
 
 .btn-danger {
-    background: #ef4444;
+    background: #495057;
     color: white;
-    border: 1px solid #ef4444;
+    border: 1px solid #495057;
 }
 
 .btn-danger:hover {
-    background: #dc2626;
-    border-color: #dc2626;
+    background: #343a40;
+    border-color: #343a40;
 }
 
 /* Responsive */

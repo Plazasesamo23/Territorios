@@ -187,7 +187,7 @@
 
 .ano-servicio {
     padding: 0.25rem 0.6rem;
-    background: #10b981;
+    background: #4a6da7;
     color: white;
     border-radius: 6px;
     font-size: 0.8rem;
@@ -199,7 +199,7 @@
     align-items: center;
     gap: 0.4rem;
     padding: 0.4rem 0.8rem;
-    background: #10b981;
+    background: #4a6da7;
     color: white;
     border: none;
     border-radius: 6px;
@@ -209,7 +209,7 @@
 }
 
 .btn-exportar:hover {
-    background: #059669;
+    background: #3d5a8a;
 }
 
 .btn-secondary {
@@ -235,7 +235,7 @@
     align-items: center;
     gap: 0.4rem;
     padding: 0.4rem 0.8rem;
-    background: #8b5cf6;
+    background: #4a6da7;
     color: white;
     border: none;
     border-radius: 6px;
@@ -245,7 +245,7 @@
 }
 
 .btn-generar:hover {
-    background: #7c3aed;
+    background: #3d5a8a;
 }
 
 .btn-historial {
@@ -253,7 +253,7 @@
     align-items: center;
     gap: 0.4rem;
     padding: 0.4rem 0.8rem;
-    background: #3b82f6;
+    background: #4a6da7;
     color: white;
     border: none;
     border-radius: 6px;
@@ -264,7 +264,7 @@
 }
 
 .btn-historial:hover {
-    background: #2563eb;
+    background: #3d5a8a;
     color: white;
 }
 
@@ -306,7 +306,7 @@
     align-items: center;
     gap: 0.4rem;
     padding: 0.4rem 0.5rem;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
 }
 
 .grupo-label {
@@ -341,7 +341,7 @@
 }
 
 .grupo-lista.drag-over {
-    background: #ecfdf5;
+    background: #f4f7fb;
 }
 
 .pub-item {
@@ -366,24 +366,24 @@
 }
 
 .pub-item.superintendente {
-    color: #dc2626;
+    color: #343a40;
     font-weight: 600;
-    background: #fef2f2;
+    background: #f8f9fa;
 }
 
 .pub-item.auxiliar {
-    color: #2563eb;
+    color: #3d5a8a;
     font-weight: 600;
-    background: #eff6ff;
+    background: #f4f7fb;
 }
 
 .pub-item.precursor {
-    color: #16a34a;
+    color: #3d5a8a;
 }
 
 .pub-item.nombramiento {
     font-weight: 600;
-    color: #7c3aed;
+    color: #3d5a8a;
     background: #f5f3ff;
 }
 
@@ -418,13 +418,13 @@
 }
 
 .btn-rol:hover {
-    border-color: #10b981;
-    color: #10b981;
+    border-color: #4a6da7;
+    color: #4a6da7;
 }
 
 .btn-rol.activo {
-    background: #10b981;
-    border-color: #10b981;
+    background: #4a6da7;
+    border-color: #4a6da7;
     color: white;
 }
 
@@ -466,7 +466,7 @@
 }
 
 .total-box {
-    background: #10b981;
+    background: #4a6da7;
     color: white;
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
@@ -542,7 +542,7 @@
 }
 
 .tag-pr {
-    background: #dc2626;
+    background: #343a40;
     color: white;
     padding: 0.1rem 0.25rem;
     border-radius: 3px;
@@ -552,29 +552,29 @@
 
 /* Dark theme */
 [data-theme="dark"] .page-header h1 { color: #f5f5f5; }
-[data-theme="dark"] .ano-servicio, [data-theme="dark"] .btn-exportar { background: #f97316; }
+[data-theme="dark"] .ano-servicio, [data-theme="dark"] .btn-exportar { background: #4a6da7; }
 [data-theme="dark"] .btn-secondary { background: #525252; }
 [data-theme="dark"] .btn-secondary:hover { background: #404040; }
-[data-theme="dark"] .btn-generar { background: #7c3aed; }
-[data-theme="dark"] .btn-generar:hover { background: #6d28d9; }
-[data-theme="dark"] .btn-historial { background: #2563eb; }
-[data-theme="dark"] .btn-historial:hover { background: #1d4ed8; }
+[data-theme="dark"] .btn-generar { background: #3d5a8a; }
+[data-theme="dark"] .btn-generar:hover { background: #2d4266; }
+[data-theme="dark"] .btn-historial { background: #3d5a8a; }
+[data-theme="dark"] .btn-historial:hover { background: #2d4266; }
 [data-theme="dark"] .grupos-section { background: #1a1a1a; }
 [data-theme="dark"] .grupo-box { border-color: #2d2d2d; }
-[data-theme="dark"] .grupo-header { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+[data-theme="dark"] .grupo-header { background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%); }
 [data-theme="dark"] .grupo-lista { background: #262626; }
 [data-theme="dark"] .pub-item { background: #1a1a1a; color: #e5e5e5; }
 [data-theme="dark"] .pub-item.superintendente { background: rgba(220,38,38,0.15); color: #f87171; }
-[data-theme="dark"] .pub-item.auxiliar { background: rgba(37,99,235,0.15); color: #60a5fa; }
+[data-theme="dark"] .pub-item.auxiliar { background: rgba(37,99,235,0.15); color: #5c7fb8; }
 [data-theme="dark"] .pub-item.precursor { color: #4ade80; }
-[data-theme="dark"] .pub-item.nombramiento { background: rgba(124,58,237,0.15); color: #c4b5fd; }
+[data-theme="dark"] .pub-item.nombramiento { background: rgba(124,58,237,0.15); color: #a8c0de; }
 [data-theme="dark"] .grupo-total { background: #1a1a1a; border-color: #2d2d2d; }
 [data-theme="dark"] .doc-footer { border-color: #2d2d2d; }
-[data-theme="dark"] .total-box { background: #f97316; }
+[data-theme="dark"] .total-box { background: #4a6da7; }
 [data-theme="dark"] .panel-sin-grupo { background: #1a1a1a; }
 [data-theme="dark"] .panel-header { background: #404040; }
 [data-theme="dark"] .panel-search input { background: #262626; border-color: #404040; color: #e5e5e5; }
-[data-theme="dark"] .pub-item.sin-grupo { background: rgba(245,158,11,0.15); border-color: #f97316; color: #fcd34d; }
+[data-theme="dark"] .pub-item.sin-grupo { background: rgba(245,158,11,0.15); border-color: #4a6da7; color: #fcd34d; }
 
 /* Print - Solo grupos, sin elementos de la app */
 @media print {

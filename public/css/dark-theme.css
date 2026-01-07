@@ -26,11 +26,11 @@
 /* HEADER */
 [data-theme="dark"] .header {
     background: #0a0a0a !important;
-    border-bottom: 2px solid #f97316;
+    border-bottom: 2px solid #6b8fc7;
 }
 
 [data-theme="dark"] .logo {
-    color: #f97316;
+    color: #6b8fc7;
 }
 
 [data-theme="dark"] .nav-link {
@@ -40,26 +40,26 @@
 [data-theme="dark"] .nav-link:hover,
 [data-theme="dark"] .nav-link.active {
     background: #1a1a1a;
-    color: #f97316;
+    color: #6b8fc7;
 }
 
 [data-theme="dark"] .config-btn,
 [data-theme="dark"] .profile-btn {
     background: #1a1a1a;
-    border: 1px solid #f97316;
-    color: #f97316;
+    border: 1px solid #6b8fc7;
+    color: #6b8fc7;
 }
 
 [data-theme="dark"] .config-btn:hover,
 [data-theme="dark"] .profile-btn:hover {
-    background: #f97316;
+    background: #6b8fc7;
     color: #0a0a0a;
 }
 
 [data-theme="dark"] .congregacion-badge {
     background: #1a1a1a !important;
-    border: 1px solid #f97316;
-    color: #f97316;
+    border: 1px solid #6b8fc7;
+    color: #6b8fc7;
 }
 
 /* CARDS */
@@ -69,11 +69,11 @@
 }
 
 [data-theme="dark"] .card:hover {
-    border-color: #f97316;
+    border-color: #6b8fc7;
 }
 
 [data-theme="dark"] .card-title {
-    color: #f97316;
+    color: #6b8fc7;
 }
 
 [data-theme="dark"] .card-description {
@@ -87,11 +87,11 @@
 /* HERO */
 [data-theme="dark"] .hero {
     background: #111111 !important;
-    border: 1px solid #f97316;
+    border: 1px solid #6b8fc7;
 }
 
 [data-theme="dark"] .hero h1 {
-    color: #f97316;
+    color: #6b8fc7;
 }
 
 /* STAT CARDS */
@@ -101,11 +101,11 @@
 }
 
 [data-theme="dark"] .stat-card:hover {
-    border-color: #f97316;
+    border-color: #6b8fc7;
 }
 
 [data-theme="dark"] .stat-number {
-    color: #f97316;
+    color: #6b8fc7;
 }
 
 [data-theme="dark"] .stat-label {
@@ -114,7 +114,7 @@
 
 [data-theme="dark"] .stat-number-purple,
 [data-theme="dark"] .stat-number-yellow {
-    color: #f97316 !important;
+    color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .text-red {
@@ -123,13 +123,13 @@
 
 /* BOTONES */
 [data-theme="dark"] .btn-primary {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     border: none;
     color: #0a0a0a !important;
 }
 
 [data-theme="dark"] .btn-primary:hover {
-    background: #fb923c !important;
+    background: #8aa8d6 !important;
 }
 
 [data-theme="dark"] .btn-secondary {
@@ -139,25 +139,25 @@
 }
 
 [data-theme="dark"] .btn-secondary:hover {
-    border-color: #f97316;
+    border-color: #6b8fc7;
 }
 
 [data-theme="dark"] .btn-success {
-    background: #22c55e !important;
+    background: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .btn-danger {
-    background: #ef4444 !important;
+    background: #8b939c !important;
 }
 
 [data-theme="dark"] .btn-outline {
     background: transparent !important;
-    border-color: #f97316 !important;
-    color: #f97316 !important;
+    border-color: #6b8fc7 !important;
+    color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .btn-outline:hover {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
 }
 
@@ -173,21 +173,21 @@
 [data-theme="dark"] .form-input:focus,
 [data-theme="dark"] .form-select:focus,
 [data-theme="dark"] .form-textarea:focus {
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
     box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2) !important;
     outline: none;
 }
 
 [data-theme="dark"] .form-label {
-    color: #fb923c;
+    color: #8aa8d6;
 }
 
 /* TABLAS */
 [data-theme="dark"] .table-header,
 [data-theme="dark"] .table-7-col {
     background: #111111 !important;
-    border-bottom: 2px solid #f97316 !important;
-    color: #f97316 !important;
+    border-bottom: 2px solid #6b8fc7 !important;
+    color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .table-row {
@@ -201,7 +201,7 @@
 
 [data-theme="dark"] .table-row:hover {
     background: #1a1a1a !important;
-    border-left: 3px solid #f97316;
+    border-left: 3px solid #6b8fc7;
 }
 
 /* REGISTROS - FILAS */
@@ -225,7 +225,7 @@
 [data-theme="dark"] .card a[style*="display: grid"]:hover,
 [data-theme="dark"] .card a[style*="grid-template-columns"]:hover {
     background: #1a1a1a !important;
-    border-left: 3px solid #f97316 !important;
+    border-left: 3px solid #6b8fc7 !important;
 }
 
 [data-theme="dark"] .card a[style*="grid-template-columns"] div {
@@ -236,33 +236,33 @@
     color: #a3a3a3 !important;
 }
 
-[data-theme="dark"] .card a[style*="grid-template-columns"] span[style*="color: #3b82f6"] {
-    color: #f97316 !important;
+[data-theme="dark"] .card a[style*="grid-template-columns"] span[style*="color: #6b8fc7"] {
+    color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .card a[style*="grid-template-columns"] span[style*="color: #374151"] {
     color: #f5f5f5 !important;
 }
 
-[data-theme="dark"] .card a[style*="grid-template-columns"] span[style*="color: #ef4444"] {
+[data-theme="dark"] .card a[style*="grid-template-columns"] span[style*="color: #8b939c"] {
     color: #f87171 !important;
 }
 
-[data-theme="dark"] .card a[style*="grid-template-columns"] span[style*="color: #059669"] {
+[data-theme="dark"] .card a[style*="grid-template-columns"] span[style*="color: #5c7fb8"] {
     color: #34d399 !important;
 }
 
 /* Estados badges */
-[data-theme="dark"] .card a span[style*="background: #dbeafe"] {
+[data-theme="dark"] .card a span[style*="background: #e8eef6"] {
     background: #1a1a1a !important;
-    color: #f97316 !important;
-    border: 1px solid #f97316;
+    color: #6b8fc7 !important;
+    border: 1px solid #6b8fc7;
 }
 
-[data-theme="dark"] .card a span[style*="background: #fef2f2"] {
+[data-theme="dark"] .card a span[style*="background: #f8f9fa"] {
     background: #2a1515 !important;
     color: #f87171 !important;
-    border: 1px solid #ef4444;
+    border: 1px solid #8b939c;
 }
 
 /* TERRITORIO CARDS */
@@ -272,11 +272,11 @@
 }
 
 [data-theme="dark"] .territorio-card:hover {
-    border-color: #f97316;
+    border-color: #6b8fc7;
 }
 
 [data-theme="dark"] .territorio-numero-destacado {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
 }
 
@@ -287,17 +287,17 @@
 
 /* BADGES */
 [data-theme="dark"] .badge-success {
-    background: #22c55e !important;
+    background: #6b8fc7 !important;
     color: white !important;
 }
 
 [data-theme="dark"] .badge-warning {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
 }
 
 [data-theme="dark"] .badge-danger {
-    background: #ef4444 !important;
+    background: #8b939c !important;
     color: white !important;
 }
 
@@ -310,8 +310,8 @@
 
 [data-theme="dark"] .badge-blue {
     background: #1a1a1a !important;
-    color: #f97316 !important;
-    border: 1px solid #f97316;
+    color: #6b8fc7 !important;
+    border: 1px solid #6b8fc7;
 }
 
 [data-theme="dark"] .badge-green {
@@ -335,22 +335,22 @@
 }
 
 [data-theme="dark"] .breadcrumb-link {
-    color: #f97316;
+    color: #6b8fc7;
 }
 
 [data-theme="dark"] .breadcrumb-link:hover {
-    color: #fb923c;
+    color: #8aa8d6;
 }
 
 [data-theme="dark"] .breadcrumb-current {
-    color: #f97316;
+    color: #6b8fc7;
 }
 
 /* ICONOS */
 [data-theme="dark"] .icon {
     background: #1a1a1a !important;
-    border: 1px solid #f97316;
-    color: #f97316;
+    border: 1px solid #6b8fc7;
+    color: #6b8fc7;
 }
 
 [data-theme="dark"] .icon-blue,
@@ -358,7 +358,7 @@
 [data-theme="dark"] .icon-green,
 [data-theme="dark"] .icon-yellow,
 [data-theme="dark"] .icon-red {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
 }
 
@@ -369,7 +369,7 @@
 
 [data-theme="dark"] .activity-icon {
     background: #1a1a1a !important;
-    color: #f97316;
+    color: #6b8fc7;
 }
 
 /* FILTER STAT BUTTONS */
@@ -379,12 +379,12 @@
 }
 
 [data-theme="dark"] .filter-stat-btn:hover {
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .filter-stat-btn.active {
     background: #1a1a1a !important;
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 /* SEARCH */
@@ -395,16 +395,16 @@
 }
 
 [data-theme="dark"] .search-input:focus {
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .search-btn {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
 }
 
 [data-theme="dark"] .search-clear {
-    background: #ef4444 !important;
+    background: #8b939c !important;
 }
 
 [data-theme="dark"] .search-results-info {
@@ -418,7 +418,7 @@
 }
 
 [data-theme="dark"] .info-box-title {
-    color: #f97316 !important;
+    color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .info-box-text {
@@ -428,17 +428,17 @@
 /* USEFUL LINKS */
 [data-theme="dark"] .useful-links {
     background: #111111 !important;
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .useful-link {
-    color: #f97316 !important;
+    color: #6b8fc7 !important;
 }
 
 /* CARD WARNING */
 [data-theme="dark"] .card-warning {
     background: #1a0a0a !important;
-    border-color: #ef4444 !important;
+    border-color: #8b939c !important;
 }
 
 /* FOOTER */
@@ -451,20 +451,20 @@
 /* THEME TOGGLE */
 [data-theme="dark"] .theme-toggle {
     background: #1a1a1a;
-    border: 1px solid #f97316;
+    border: 1px solid #6b8fc7;
 }
 
 [data-theme="dark"] .theme-toggle:hover {
-    background: #f97316;
+    background: #6b8fc7;
 }
 
 /* LINKS */
 [data-theme="dark"] a {
-    color: #f97316;
+    color: #6b8fc7;
 }
 
 [data-theme="dark"] a:hover {
-    color: #fb923c;
+    color: #8aa8d6;
 }
 
 /* DROPDOWN */
@@ -482,7 +482,7 @@
 }
 
 [data-theme="dark"] .dropdown-item.active {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
 }
 
@@ -502,12 +502,12 @@
 }
 
 [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-    background: #f97316;
+    background: #6b8fc7;
 }
 
 /* SELECTION */
 [data-theme="dark"] ::selection {
-    background: #f97316;
+    background: #6b8fc7;
     color: #0a0a0a;
 }
 
@@ -521,20 +521,20 @@
 [data-theme="dark"] div[style*="background: #d4edda"] {
     background: #0a1a0a !important;
     color: #34d399 !important;
-    border-color: #22c55e !important;
+    border-color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .alert-error {
     background: #1a0a0a !important;
     color: #f87171 !important;
-    border-color: #ef4444 !important;
+    border-color: #8b939c !important;
 }
 
 /* WHATSAPP MODAL */
 [data-theme="dark"] .whatsapp-modal,
 [data-theme="dark"] div[style*="background: #e8f5e8"] {
     background: #0a1a0a !important;
-    border-color: #22c55e !important;
+    border-color: #6b8fc7 !important;
     color: #f5f5f5 !important;
 }
 
@@ -552,7 +552,7 @@
 
 [data-theme="dark"] .pagination a:hover,
 [data-theme="dark"] .pagination .active {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
 }
 
@@ -569,7 +569,7 @@
 
 [data-theme="dark"] .status-badge-active {
     background: #1a1a1a !important;
-    color: #f97316 !important;
+    color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .status-badge-overdue {
@@ -618,7 +618,7 @@
 [data-theme="dark"] .modal-header,
 [data-theme="dark"] [class*="modal"] h2,
 [data-theme="dark"] [class*="modal"] h3 {
-    color: #f97316 !important;
+    color: #6b8fc7 !important;
     border-bottom-color: #333333 !important;
 }
 
@@ -630,7 +630,7 @@
 
 [data-theme="dark"] .modal-close:hover,
 [data-theme="dark"] [class*="modal"] button[style*="position: absolute"]:hover {
-    color: #f97316 !important;
+    color: #6b8fc7 !important;
 }
 
 /* ==========================================
@@ -656,7 +656,7 @@
 [data-theme="dark"] input:focus,
 [data-theme="dark"] textarea:focus,
 [data-theme="dark"] select:focus {
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
     box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2) !important;
     outline: none !important;
 }
@@ -693,7 +693,7 @@
 }
 
 [data-theme="dark"] .raw-section-title {
-    color: #f97316 !important;
+    color: #6b8fc7 !important;
 }
 
 /* Comparación OCR vs Interpretado */
@@ -727,13 +727,13 @@
 
 [data-theme="dark"] .estadisticas-content {
     background: #0d0d0d !important;
-    border: 1px solid #f97316 !important;
+    border: 1px solid #6b8fc7 !important;
 }
 
 [data-theme="dark"] .estadisticas-header {
     background: #111111 !important;
-    border-bottom: 2px solid #f97316 !important;
-    color: #f97316 !important;
+    border-bottom: 2px solid #6b8fc7 !important;
+    color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .estadisticas-body {
@@ -746,11 +746,11 @@
 }
 
 [data-theme="dark"] .estadisticas-stat:hover {
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .estadisticas-stat-number {
-    color: #f97316 !important;
+    color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .estadisticas-stat-label {
@@ -767,11 +767,11 @@
 }
 
 [data-theme="dark"] .calendario-dia:hover {
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .calendario-dia.hoy {
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
     background: #1a1a1a !important;
 }
 
@@ -785,11 +785,11 @@
 }
 
 [data-theme="dark"] .turno-card:hover {
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .turno-hora {
-    color: #f97316 !important;
+    color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .turno-nombre {
@@ -807,13 +807,13 @@
 
 [data-theme="dark"] input[type="checkbox"],
 [data-theme="dark"] input[type="radio"] {
-    accent-color: #f97316 !important;
+    accent-color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] input[type="checkbox"]:checked,
 [data-theme="dark"] input[type="radio"]:checked {
-    background-color: #f97316 !important;
-    border-color: #f97316 !important;
+    background-color: #6b8fc7 !important;
+    border-color: #6b8fc7 !important;
 }
 
 /* ==========================================
@@ -824,8 +824,8 @@
 [data-theme="dark"] div[style*="display: grid"][style*="background: #f9fafb"],
 [data-theme="dark"] div[style*="display: grid"][style*="background: #f3f4f6"] {
     background: #111111 !important;
-    color: #f97316 !important;
-    border-bottom: 2px solid #f97316 !important;
+    color: #6b8fc7 !important;
+    border-bottom: 2px solid #6b8fc7 !important;
 }
 
 [data-theme="dark"] div[style*="display: grid"][style*="border-bottom: 1px"] {
@@ -852,7 +852,7 @@
 }
 
 [data-theme="dark"] .resumen-numero {
-    color: #f97316 !important;
+    color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .resumen-label {
@@ -866,13 +866,13 @@
 [data-theme="dark"] .tooltip,
 [data-theme="dark"] [role="tooltip"] {
     background: #1a1a1a !important;
-    border: 1px solid #f97316 !important;
+    border: 1px solid #6b8fc7 !important;
     color: #f5f5f5 !important;
 }
 
 [data-theme="dark"] .tooltip::before,
 [data-theme="dark"] .tooltip::after {
-    border-color: #f97316 transparent transparent transparent !important;
+    border-color: #6b8fc7 transparent transparent transparent !important;
 }
 
 /* ==========================================
@@ -888,18 +888,18 @@
 
 [data-theme="dark"] .draggable:hover,
 [data-theme="dark"] [draggable="true"]:hover {
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .dragging {
     opacity: 0.7 !important;
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
     box-shadow: 0 0 10px rgba(249, 115, 22, 0.3) !important;
 }
 
 [data-theme="dark"] .drop-zone.drag-over {
     background: rgba(249, 115, 22, 0.1) !important;
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 /* ==========================================
@@ -923,7 +923,7 @@
 [data-theme="dark"] .mobile-menu-item.active,
 [data-theme="dark"] .mobile-nav-link.active {
     background: #1a1a1a !important;
-    color: #f97316 !important;
+    color: #6b8fc7 !important;
 }
 
 /* ==========================================
@@ -945,7 +945,7 @@
 [data-theme="dark"] .loading,
 [data-theme="dark"] .spinner {
     border-color: #333333 !important;
-    border-top-color: #f97316 !important;
+    border-top-color: #6b8fc7 !important;
 }
 
 /* ==========================================
@@ -964,10 +964,10 @@
     color: #a3a3a3 !important;
 }
 
-[data-theme="dark"] [style*="color: #3b82f6"],
-[data-theme="dark"] [style*="color: #2563eb"],
-[data-theme="dark"] [style*="color: #4f46e5"] {
-    color: #f97316 !important;
+[data-theme="dark"] [style*="color: #6b8fc7"],
+[data-theme="dark"] [style*="color: #5c7fb8"],
+[data-theme="dark"] [style*="color: #6b8fc7"] {
+    color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] [style*="background: #fff"],
@@ -996,26 +996,26 @@
    ========================================== */
 
 /* Todos los verdes -> naranja */
-[data-theme="dark"] [style*="#22c55e"],
-[data-theme="dark"] [style*="#16a34a"],
-[data-theme="dark"] [style*="#10b981"],
-[data-theme="dark"] [style*="#059669"],
+[data-theme="dark"] [style*="#6b8fc7"],
+[data-theme="dark"] [style*="#5c7fb8"],
+[data-theme="dark"] [style*="#6b8fc7"],
+[data-theme="dark"] [style*="#5c7fb8"],
 [data-theme="dark"] [style*="#34d399"],
 [data-theme="dark"] [style*="#dcfce7"],
 [data-theme="dark"] [style*="#bbf7d0"],
 [data-theme="dark"] [style*="#166534"] {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 /* Verdes para texto */
-[data-theme="dark"] [style*="color: #22c55e"],
-[data-theme="dark"] [style*="color: #16a34a"],
-[data-theme="dark"] [style*="color: #10b981"],
-[data-theme="dark"] [style*="color: #059669"],
+[data-theme="dark"] [style*="color: #6b8fc7"],
+[data-theme="dark"] [style*="color: #5c7fb8"],
+[data-theme="dark"] [style*="color: #6b8fc7"],
+[data-theme="dark"] [style*="color: #5c7fb8"],
 [data-theme="dark"] [style*="color: #166534"] {
-    color: #f97316 !important;
+    color: #6b8fc7 !important;
 }
 
 /* ==========================================
@@ -1023,25 +1023,25 @@
    ========================================== */
 
 /* Todos los azules -> naranja */
-[data-theme="dark"] [style*="#3b82f6"],
-[data-theme="dark"] [style*="#2563eb"],
-[data-theme="dark"] [style*="#1d4ed8"],
-[data-theme="dark"] [style*="#dbeafe"],
+[data-theme="dark"] [style*="#6b8fc7"],
+[data-theme="dark"] [style*="#5c7fb8"],
+[data-theme="dark"] [style*="#4a6da7"],
+[data-theme="dark"] [style*="#e8eef6"],
 [data-theme="dark"] [style*="#bfdbfe"],
-[data-theme="dark"] [style*="#eff6ff"],
-[data-theme="dark"] [style*="#1e40af"],
-[data-theme="dark"] [style*="#4f46e5"] {
+[data-theme="dark"] [style*="#f4f7fb"],
+[data-theme="dark"] [style*="#2d4266"],
+[data-theme="dark"] [style*="#6b8fc7"] {
     background: #1a1a1a !important;
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 /* Azules para texto */
-[data-theme="dark"] [style*="color: #3b82f6"],
-[data-theme="dark"] [style*="color: #2563eb"],
-[data-theme="dark"] [style*="color: #1d4ed8"],
-[data-theme="dark"] [style*="color: #1e40af"],
-[data-theme="dark"] [style*="color: #4f46e5"] {
-    color: #f97316 !important;
+[data-theme="dark"] [style*="color: #6b8fc7"],
+[data-theme="dark"] [style*="color: #5c7fb8"],
+[data-theme="dark"] [style*="color: #4a6da7"],
+[data-theme="dark"] [style*="color: #2d4266"],
+[data-theme="dark"] [style*="color: #6b8fc7"] {
+    color: #6b8fc7 !important;
 }
 
 /* ==========================================
@@ -1052,21 +1052,21 @@
 [data-theme="dark"] .estado-disponible,
 [data-theme="dark"] .estado-libre {
     background: rgba(249, 115, 22, 0.15) !important;
-    color: #fb923c !important;
-    border: 1px solid #f97316 !important;
+    color: #8aa8d6 !important;
+    border: 1px solid #6b8fc7 !important;
 }
 
 [data-theme="dark"] .estado-activo {
     background: rgba(249, 115, 22, 0.25) !important;
-    color: #f97316 !important;
-    border: 1px solid #f97316 !important;
+    color: #6b8fc7 !important;
+    border: 1px solid #6b8fc7 !important;
 }
 
 [data-theme="dark"] .estado-vencido,
 [data-theme="dark"] .estado-overdue {
     background: rgba(239, 68, 68, 0.15) !important;
     color: #f87171 !important;
-    border: 1px solid #ef4444 !important;
+    border: 1px solid #8b939c !important;
 }
 
 /* Tipos de territorio badges */
@@ -1074,7 +1074,7 @@
 [data-theme="dark"] .territorio-tipo-badge.regular,
 [data-theme="dark"] .territorio-tipo-badge.campana,
 [data-theme="dark"] .territorio-tipo-badge.negocios {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
 }
 
@@ -1083,49 +1083,49 @@
    ========================================== */
 
 [data-theme="dark"] .btn-primary,
-[data-theme="dark"] [class*="btn"][style*="#3b82f6"],
-[data-theme="dark"] [class*="btn"][style*="#2563eb"],
-[data-theme="dark"] button[style*="#3b82f6"],
-[data-theme="dark"] a[style*="#3b82f6"] {
-    background: #f97316 !important;
+[data-theme="dark"] [class*="btn"][style*="#6b8fc7"],
+[data-theme="dark"] [class*="btn"][style*="#5c7fb8"],
+[data-theme="dark"] button[style*="#6b8fc7"],
+[data-theme="dark"] a[style*="#6b8fc7"] {
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .btn-success,
-[data-theme="dark"] [class*="btn"][style*="#22c55e"],
-[data-theme="dark"] [class*="btn"][style*="#10b981"],
-[data-theme="dark"] button[style*="#22c55e"],
-[data-theme="dark"] button[style*="#10b981"] {
-    background: #f97316 !important;
+[data-theme="dark"] [class*="btn"][style*="#6b8fc7"],
+[data-theme="dark"] [class*="btn"][style*="#6b8fc7"],
+[data-theme="dark"] button[style*="#6b8fc7"],
+[data-theme="dark"] button[style*="#6b8fc7"] {
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 /* ==========================================
    GRADIENTES - Convertir a negro/naranja
    ========================================== */
 
-[data-theme="dark"] [style*="linear-gradient"][style*="#22c55e"],
-[data-theme="dark"] [style*="linear-gradient"][style*="#10b981"],
-[data-theme="dark"] [style*="linear-gradient"][style*="#16a34a"],
-[data-theme="dark"] [style*="linear-gradient"][style*="#059669"] {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+[data-theme="dark"] [style*="linear-gradient"][style*="#6b8fc7"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#6b8fc7"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#5c7fb8"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#5c7fb8"] {
+    background: linear-gradient(135deg, #6b8fc7 0%, #5c7fb8 100%) !important;
 }
 
-[data-theme="dark"] [style*="linear-gradient"][style*="#3b82f6"],
-[data-theme="dark"] [style*="linear-gradient"][style*="#2563eb"],
-[data-theme="dark"] [style*="linear-gradient"][style*="#1d4ed8"],
-[data-theme="dark"] [style*="linear-gradient"][style*="#dbeafe"],
-[data-theme="dark"] [style*="linear-gradient"][style*="#eff6ff"] {
+[data-theme="dark"] [style*="linear-gradient"][style*="#6b8fc7"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#5c7fb8"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#4a6da7"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#e8eef6"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#f4f7fb"] {
     background: linear-gradient(135deg, #1a1a1a 0%, #111111 100%) !important;
-    border: 1px solid #f97316 !important;
+    border: 1px solid #6b8fc7 !important;
 }
 
 [data-theme="dark"] [style*="linear-gradient"][style*="#dcfce7"],
 [data-theme="dark"] [style*="linear-gradient"][style*="#bbf7d0"] {
     background: linear-gradient(135deg, #1a1508 0%, #0a0a0a 100%) !important;
-    border: 1px solid #f97316 !important;
+    border: 1px solid #6b8fc7 !important;
 }
 
 /* ==========================================
@@ -1133,28 +1133,28 @@
    ========================================== */
 
 [data-theme="dark"] .progreso-success,
-[data-theme="dark"] [class*="progreso"][style*="#10b981"],
-[data-theme="dark"] [class*="progress"][style*="#22c55e"] {
-    background: linear-gradient(90deg, #f97316, #fb923c) !important;
+[data-theme="dark"] [class*="progreso"][style*="#6b8fc7"],
+[data-theme="dark"] [class*="progress"][style*="#6b8fc7"] {
+    background: linear-gradient(90deg, #6b8fc7, #8aa8d6) !important;
 }
 
 /* ==========================================
    CARDS INFO/TIPS con fondos azules/verdes
    ========================================== */
 
-[data-theme="dark"] div[style*="background: #dbeafe"],
-[data-theme="dark"] div[style*="background: #eff6ff"],
+[data-theme="dark"] div[style*="background: #e8eef6"],
+[data-theme="dark"] div[style*="background: #f4f7fb"],
 [data-theme="dark"] div[style*="background: #bfdbfe"] {
     background: #111111 !important;
-    border: 1px solid #f97316 !important;
+    border: 1px solid #6b8fc7 !important;
     color: #f5f5f5 !important;
 }
 
 [data-theme="dark"] div[style*="background: #dcfce7"],
 [data-theme="dark"] div[style*="background: #bbf7d0"],
-[data-theme="dark"] div[style*="background: #d1fae5"] {
+[data-theme="dark"] div[style*="background: #e8eef6"] {
     background: #0f1a0a !important;
-    border: 1px solid #f97316 !important;
+    border: 1px solid #6b8fc7 !important;
     color: #f5f5f5 !important;
 }
 
@@ -1164,10 +1164,10 @@
 
 [data-theme="dark"] .icon-green,
 [data-theme="dark"] .icon-blue,
-[data-theme="dark"] [class*="icon"][style*="#22c55e"],
-[data-theme="dark"] [class*="icon"][style*="#3b82f6"],
-[data-theme="dark"] [class*="icon"][style*="#10b981"] {
-    background: #f97316 !important;
+[data-theme="dark"] [class*="icon"][style*="#6b8fc7"],
+[data-theme="dark"] [class*="icon"][style*="#6b8fc7"],
+[data-theme="dark"] [class*="icon"][style*="#6b8fc7"] {
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
 }
 
@@ -1177,8 +1177,8 @@
 
 [data-theme="dark"] .step.completed,
 [data-theme="dark"] .step.completed .step-number {
-    color: #f97316 !important;
-    background: #f97316 !important;
+    color: #6b8fc7 !important;
+    background: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .step .step-number {
@@ -1187,7 +1187,7 @@
 }
 
 [data-theme="dark"] .step.active .step-number {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
 }
 
@@ -1203,12 +1203,12 @@
 
 [data-theme="dark"] .admin-card:hover,
 [data-theme="dark"] .config-card:hover {
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .admin-card .icon,
 [data-theme="dark"] .config-card .icon {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
 }
 
@@ -1217,14 +1217,14 @@
    ========================================== */
 
 [data-theme="dark"] .user-status-active,
-[data-theme="dark"] [style*="color: #10b981"] {
-    color: #f97316 !important;
+[data-theme="dark"] [style*="color: #6b8fc7"] {
+    color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .user-role-badge {
     background: #1a1a1a !important;
-    color: #f97316 !important;
-    border: 1px solid #f97316 !important;
+    color: #6b8fc7 !important;
+    border: 1px solid #6b8fc7 !important;
 }
 
 /* ==========================================
@@ -1256,15 +1256,15 @@
    LINKS EN CUALQUIER CONTEXTO
    ========================================== */
 
-[data-theme="dark"] a[style*="color: #3b82f6"],
-[data-theme="dark"] a[style*="color: #2563eb"],
-[data-theme="dark"] a[style*="color: #1d4ed8"] {
-    color: #f97316 !important;
+[data-theme="dark"] a[style*="color: #6b8fc7"],
+[data-theme="dark"] a[style*="color: #5c7fb8"],
+[data-theme="dark"] a[style*="color: #4a6da7"] {
+    color: #6b8fc7 !important;
 }
 
-[data-theme="dark"] a[style*="color: #3b82f6"]:hover,
-[data-theme="dark"] a[style*="color: #2563eb"]:hover {
-    color: #fb923c !important;
+[data-theme="dark"] a[style*="color: #6b8fc7"]:hover,
+[data-theme="dark"] a[style*="color: #5c7fb8"]:hover {
+    color: #8aa8d6 !important;
 }
 
 /* ==========================================
@@ -1273,48 +1273,48 @@
 
 /* Territorios - Botones de acción */
 [data-theme="dark"] .btn-asignar {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+    background: linear-gradient(135deg, #6b8fc7 0%, #5c7fb8 100%) !important;
     color: #0a0a0a !important;
 }
 
 [data-theme="dark"] .btn-asignar:hover {
-    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%) !important;
+    background: linear-gradient(135deg, #8aa8d6 0%, #6b8fc7 100%) !important;
     box-shadow: 0 20px 50px rgba(249, 115, 22, 0.3) !important;
 }
 
 [data-theme="dark"] .btn-devolver {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+    background: linear-gradient(135deg, #6b8fc7 0%, #5c7fb8 100%) !important;
     color: #0a0a0a !important;
 }
 
 [data-theme="dark"] .btn-devolver:hover {
-    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%) !important;
+    background: linear-gradient(135deg, #8aa8d6 0%, #6b8fc7 100%) !important;
     box-shadow: 0 20px 50px rgba(249, 115, 22, 0.3) !important;
 }
 
 /* Territorio tipo badges */
 [data-theme="dark"] .territorio-tipo-badge.campana {
-    background: #fb923c !important;
+    background: #8aa8d6 !important;
     color: #0a0a0a !important;
 }
 
 [data-theme="dark"] .territorio-tipo-badge.negocios {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
 }
 
 /* Territorio foto número */
 [data-theme="dark"] .territorio-foto-numero {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+    background: linear-gradient(135deg, #6b8fc7 0%, #5c7fb8 100%) !important;
     color: #0a0a0a !important;
 }
 
 [data-theme="dark"] .territorio-foto-numero.numero-campana {
-    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%) !important;
+    background: linear-gradient(135deg, #8aa8d6 0%, #6b8fc7 100%) !important;
 }
 
 [data-theme="dark"] .territorio-foto-numero.numero-negocios {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+    background: linear-gradient(135deg, #6b8fc7 0%, #5c7fb8 100%) !important;
 }
 
 [data-theme="dark"] .territorio-foto-nombre {
@@ -1328,19 +1328,19 @@
 [data-theme="dark"] .btn-success,
 [data-theme="dark"] .btn-success:hover,
 [data-theme="dark"] .btn-success:focus {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
-    background-color: #f97316 !important;
+    background: linear-gradient(135deg, #6b8fc7 0%, #5c7fb8 100%) !important;
+    background-color: #6b8fc7 !important;
     color: #0a0a0a !important;
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .btn-primary,
 [data-theme="dark"] .btn-primary:hover,
 [data-theme="dark"] .btn-primary:focus {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
-    background-color: #f97316 !important;
+    background: linear-gradient(135deg, #6b8fc7 0%, #5c7fb8 100%) !important;
+    background-color: #6b8fc7 !important;
     color: #0a0a0a !important;
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 /* ==========================================
@@ -1350,19 +1350,19 @@
 [data-theme="dark"] button[class*="success"],
 [data-theme="dark"] a[class*="success"],
 [data-theme="dark"] .btn[class*="success"] {
-    background: #f97316 !important;
-    background-color: #f97316 !important;
+    background: #6b8fc7 !important;
+    background-color: #6b8fc7 !important;
     color: #0a0a0a !important;
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] button[class*="primary"],
 [data-theme="dark"] a[class*="primary"],
 [data-theme="dark"] .btn[class*="primary"] {
-    background: #f97316 !important;
-    background-color: #f97316 !important;
+    background: #6b8fc7 !important;
+    background-color: #6b8fc7 !important;
     color: #0a0a0a !important;
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 /* ==========================================
@@ -1371,14 +1371,14 @@
 
 [data-theme="dark"] .estado-disponible {
     background: rgba(249, 115, 22, 0.15) !important;
-    color: #fb923c !important;
-    border-color: #f97316 !important;
+    color: #8aa8d6 !important;
+    border-color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .estado-activo {
     background: rgba(249, 115, 22, 0.25) !important;
-    color: #f97316 !important;
-    border-color: #f97316 !important;
+    color: #6b8fc7 !important;
+    border-color: #6b8fc7 !important;
 }
 
 /* ==========================================
@@ -1388,7 +1388,7 @@
 [data-theme="dark"] .publicador-activo,
 [data-theme="dark"] .badge-activo {
     background: rgba(249, 115, 22, 0.15) !important;
-    color: #f97316 !important;
+    color: #6b8fc7 !important;
 }
 
 /* ==========================================
@@ -1397,12 +1397,12 @@
 
 [data-theme="dark"] .registro-activo,
 [data-theme="dark"] .registro-completado {
-    border-left-color: #f97316 !important;
+    border-left-color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .progreso-bar,
 [data-theme="dark"] .progress-bar {
-    background: linear-gradient(90deg, #f97316, #fb923c) !important;
+    background: linear-gradient(90deg, #6b8fc7, #8aa8d6) !important;
 }
 
 /* ==========================================
@@ -1422,10 +1422,10 @@
 
 [data-theme="dark"] .btn-danger,
 [data-theme="dark"] .btn-danger:hover {
-    background: #ef4444 !important;
-    background-color: #ef4444 !important;
+    background: #8b939c !important;
+    background-color: #8b939c !important;
     color: white !important;
-    border-color: #ef4444 !important;
+    border-color: #8b939c !important;
 }
 
 /* ==========================================
@@ -1440,20 +1440,20 @@
 
 [data-theme="dark"] .btn-secondary:hover {
     background: #262626 !important;
-    border-color: #f97316 !important;
-    color: #f97316 !important;
+    border-color: #6b8fc7 !important;
+    color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .btn-outline-primary,
 [data-theme="dark"] .btn-outline-success {
     background: transparent !important;
-    color: #f97316 !important;
-    border: 2px solid #f97316 !important;
+    color: #6b8fc7 !important;
+    border: 2px solid #6b8fc7 !important;
 }
 
 [data-theme="dark"] .btn-outline-primary:hover,
 [data-theme="dark"] .btn-outline-success:hover {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
 }
 
@@ -1464,7 +1464,7 @@
 [data-theme="dark"] .admin-icon,
 [data-theme="dark"] .card-icon,
 [data-theme="dark"] .feature-icon {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
 }
 
@@ -1473,18 +1473,18 @@
    ========================================== */
 
 [data-theme="dark"] .step.completed {
-    color: #f97316 !important;
+    color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .step.completed .step-number {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
 }
 
 [data-theme="dark"] .step.active .step-number {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 /* ==========================================
@@ -1494,14 +1494,14 @@
 [data-theme="dark"] .filter-btn.active,
 [data-theme="dark"] .tab-btn.active,
 [data-theme="dark"] .nav-tab.active {
-    background: #f97316 !important;
+    background: #6b8fc7 !important;
     color: #0a0a0a !important;
-    border-color: #f97316 !important;
+    border-color: #6b8fc7 !important;
 }
 
 [data-theme="dark"] .filter-btn:hover,
 [data-theme="dark"] .tab-btn:hover,
 [data-theme="dark"] .nav-tab:hover {
-    border-color: #f97316 !important;
-    color: #f97316 !important;
+    border-color: #6b8fc7 !important;
+    color: #6b8fc7 !important;
 }

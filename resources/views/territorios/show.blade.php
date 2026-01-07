@@ -13,7 +13,7 @@
 @if(!isset($territorio) || !$territorio || !$territorio->id)
     <div class="card text-center" style="padding: 3rem;">
         <div style="font-size: 4rem; margin-bottom: 1rem;">&#9888;</div>
-        <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: #dc2626;">Error: Territorio no encontrado</h3>
+        <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: #343a40;">Error: Territorio no encontrado</h3>
         <p class="text-muted mb-4">El territorio que intentas acceder no existe o no se pudo cargar.</p>
         <a href="{{ route('territorios.index') }}" class="btn btn-primary">
             Volver a Territorios
@@ -273,7 +273,7 @@
 .numero-circle {
     width: 4rem;
     height: 4rem;
-    background: #ef4444;
+    background: #495057;
     color: white;
     border-radius: 50%;
     display: flex;
@@ -284,11 +284,11 @@
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 .numero-circle.numero-campana {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
     box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
 }
 .numero-circle.numero-negocios {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 .tipo-badge {
@@ -300,18 +300,18 @@
 .tipo-badge-campana {
     background: #fef3c7;
     color: #92400e;
-    border: 1px solid #f59e0b;
+    border: 1px solid #4a6da7;
 }
 .tipo-badge-negocios {
-    background: #dbeafe;
-    color: #1e40af;
-    border: 1px solid #3b82f6;
+    background: #e8eef6;
+    color: #2d4266;
+    border: 1px solid #4a6da7;
 }
 .header-tipo-campana {
-    border-left: 4px solid #f59e0b;
+    border-left: 4px solid #4a6da7;
 }
 .header-tipo-negocios {
-    border-left: 4px solid #3b82f6;
+    border-left: 4px solid #4a6da7;
 }
 
 .title-content h1 {
@@ -336,8 +336,8 @@
 }
 
 .estado-libre { background: #dcfce7; color: #166534; }
-.estado-activo { background: #dbeafe; color: #1e40af; }
-.estado-atrasado { background: #fee2e2; color: #991b1b; }
+.estado-activo { background: #e8eef6; color: #2d4266; }
+.estado-atrasado { background: #e9ecef; color: #212529; }
 .estado-archivo { background: #f3f4f6; color: #374151; }
 
 .inactive-badge {
@@ -366,17 +366,17 @@
      cursor: pointer;
  }
 
-.btn-primary { background: #3b82f6; color: white; }
-.btn-primary:hover { background: #2563eb; }
+.btn-primary { background: #4a6da7; color: white; }
+.btn-primary:hover { background: #3d5a8a; }
 
 .btn-secondary { background: #6b7280; color: white; }
 .btn-secondary:hover { background: #4b5563; }
 
-.btn-success { background: #10b981; color: white; }
-.btn-success:hover { background: #059669; }
+.btn-success { background: #4a6da7; color: white; }
+.btn-success:hover { background: #3d5a8a; }
 
-.btn-danger { background: #ef4444; color: white; }
-.btn-danger:hover { background: #dc2626; }
+.btn-danger { background: #495057; color: white; }
+.btn-danger:hover { background: #343a40; }
 
 /* Grid de contenido */
 .content-grid {
@@ -440,7 +440,7 @@
 }
 
 .file-label:hover {
-    color: #3b82f6;
+    color: #4a6da7;
 }
 
  .btn-maps {
@@ -492,7 +492,7 @@
 .field-group textarea:focus,
 .field-group select:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: #4a6da7;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -561,7 +561,7 @@
 }
 
 .modal-content h3 {
-    color: #ef4444;
+    color: #495057;
     margin-bottom: 1rem;
 }
 

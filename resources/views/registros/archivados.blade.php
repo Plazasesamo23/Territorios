@@ -25,19 +25,19 @@
 <!-- Estadísticas compactas -->
 <div class="grid grid-4 mb-4">
     <div class="stat-card">
-        <div class="stat-number" style="color: #059669;">{{ $estadisticas['total_archivados'] }}</div>
+        <div class="stat-number" style="color: #3d5a8a;">{{ $estadisticas['total_archivados'] }}</div>
         <div class="stat-label">Total Archivados</div>
     </div>
     <div class="stat-card">
-        <div class="stat-number" style="color: #f59e0b;">{{ $estadisticas['promedio_dias'] }}</div>
+        <div class="stat-number" style="color: #4a6da7;">{{ $estadisticas['promedio_dias'] }}</div>
         <div class="stat-label">Promedio Días</div>
     </div>
     <div class="stat-card">
-        <div class="stat-number" style="color: #10b981;">{{ $estadisticas['min_dias'] }}</div>
+        <div class="stat-number" style="color: #4a6da7;">{{ $estadisticas['min_dias'] }}</div>
         <div class="stat-label">Mínimo</div>
     </div>
     <div class="stat-card">
-        <div class="stat-number" style="color: #ef4444;">{{ $estadisticas['max_dias'] }}</div>
+        <div class="stat-number" style="color: #495057;">{{ $estadisticas['max_dias'] }}</div>
         <div class="stat-label">Máximo</div>
     </div>
 </div>
@@ -90,12 +90,12 @@
                 
                 <!-- Días -->
                 <div style="text-align: center;">
-                    <span style="font-weight: 600; color: #059669;">{{ round($registro->duracion_dias) }}</span>
+                    <span style="font-weight: 600; color: #3d5a8a;">{{ round($registro->duracion_dias) }}</span>
                 </div>
                 
                 <!-- Fecha Devolución -->
                 <div style="text-align: center;">
-                    <span style="font-size: 0.875rem; color: #059669;">{{ $registro->fecha_entrada->format('d/m/Y') }}</span>
+                    <span style="font-size: 0.875rem; color: #3d5a8a;">{{ $registro->fecha_entrada->format('d/m/Y') }}</span>
                 </div>
                 
                 <!-- Estado -->
@@ -147,13 +147,13 @@
 
 /* Precursor styles */
 .text-precursor {
-    color: #16a34a !important;
+    color: #3d5a8a !important;
 }
 
 .precursor-badge-sm {
     display: inline-block;
     padding: 0.1rem 0.35rem;
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
     color: white;
     font-size: 0.6rem;
     font-weight: 700;

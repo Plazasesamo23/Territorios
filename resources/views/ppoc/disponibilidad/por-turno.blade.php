@@ -34,7 +34,7 @@
             Copiar Link
         </button>
         @else
-        <p style="color: #f97316;">Genera el link visitando esta pagina.</p>
+        <p style="color: #4a6da7;">Genera el link visitando esta pagina.</p>
         @endif
     </div>
     <p class="text-muted mt-2" style="font-size: 0.85rem;">
@@ -131,10 +131,10 @@
 .dia-header {
     font-weight: 700;
     font-size: 1rem;
-    color: #f97316;
+    color: #4a6da7;
     margin-bottom: 0.75rem;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid #f97316;
+    border-bottom: 2px solid #4a6da7;
 }
 
 /* Tarjeta de turno */
@@ -184,7 +184,7 @@
 .publicador-badge {
     font-size: 0.75rem;
     padding: 0.25rem 0.5rem;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
     color: white;
     border-radius: 4px;
     font-weight: 500;
@@ -217,7 +217,7 @@
     color: #6b7280;
 }
 .empty-state a {
-    color: #f97316;
+    color: #4a6da7;
 }
 
 /* Responsive */
@@ -244,7 +244,7 @@ function copiarLink() {
     const btn = event.target;
     const originalText = btn.textContent;
     btn.textContent = 'Copiado!';
-    btn.style.background = '#10b981';
+    btn.style.background = '#4a6da7';
     setTimeout(() => {
         btn.textContent = originalText;
         btn.style.background = '';
