@@ -8,15 +8,15 @@
     <h1 class="page-title">Territorios</h1>
     <p class="page-subtitle">Gestiona las asignaciones de territorios</p>
 
-    <!-- Acciones principales -->
-    <div class="shortcuts">
-        <a href="{{ route('registros.create') }}" class="shortcut">
-            <span class="icon">+</span>
-            <span>Asignar</span>
+    <!-- Acciones principales - Botones grandes -->
+    <div class="acciones-principales">
+        <a href="{{ route('registros.create') }}" class="btn-accion btn-asignar">
+            <span class="btn-icono">+</span>
+            <span class="btn-texto">Asignar</span>
         </a>
-        <a href="{{ route('registros.index') }}" class="shortcut">
-            <span class="icon">&#x21A9;</span>
-            <span>Devolver</span>
+        <a href="{{ route('registros.index') }}" class="btn-accion btn-devolver">
+            <span class="btn-icono">&#x21A9;</span>
+            <span class="btn-texto">Devolver</span>
         </a>
     </div>
 
@@ -94,6 +94,124 @@
 .panel-flat {
     max-width: 1200px;
     margin: 0 auto;
+}
+
+/* ===== BOTONES DE ACCION PRINCIPALES ===== */
+.acciones-principales {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.btn-accion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    flex: 1;
+    max-width: 200px;
+}
+
+.btn-accion:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-accion:active {
+    transform: translateY(0);
+}
+
+.btn-icono {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.btn-texto {
+    font-size: 1.1rem;
+}
+
+/* Boton Asignar - Verde */
+.btn-asignar {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.btn-asignar:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    color: white;
+}
+
+/* Boton Devolver - Azul */
+.btn-devolver {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+}
+
+.btn-devolver:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+}
+
+/* Dark mode */
+[data-theme="dark"] .btn-asignar {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+[data-theme="dark"] .btn-devolver {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+/* ===== RESPONSIVE MOVIL ===== */
+@media (max-width: 768px) {
+    .acciones-principales {
+        flex-direction: row;
+        gap: 0.75rem;
+    }
+
+    .btn-accion {
+        flex: 1;
+        max-width: none;
+        padding: 1.25rem 1rem;
+        border-radius: 16px;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .btn-icono {
+        font-size: 2rem;
+    }
+
+    .btn-texto {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .acciones-principales {
+        gap: 0.5rem;
+    }
+
+    .btn-accion {
+        padding: 1.5rem 0.75rem;
+        border-radius: 20px;
+    }
+
+    .btn-icono {
+        font-size: 2.5rem;
+    }
+
+    .btn-texto {
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
 }
 
 /* Grid de territorios */
