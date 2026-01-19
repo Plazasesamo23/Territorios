@@ -8,6 +8,7 @@ use App\Models\Publicador;
 use App\Models\Congregacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class DisponibilidadPpocController extends Controller
 {
@@ -16,7 +17,22 @@ class DisponibilidadPpocController extends Controller
      */
     public function form($token)
     {
-        $congregacion = Congregacion::where('token_disponibilidad', $token)->firstOrFail();
+        // Log para depuración
+        Log::info('Acceso a disponibilidad', [
+            'token' => $token,
+            'ip' => request()->ip(),
+            'user_agent' => request()->userAgent()
+        ]);
+
+        $congregacion = Congregacion::where('token_disponibilidad', $token)->first();
+
+        if (!$congregacion) {
+            Log::warning('Token de disponibilidad no encontrado', ['token' => $token]);
+            return response()->view('errors.token-invalido', [
+                'mensaje' => 'El enlace no es válido o ha expirado.',
+                'sugerencia' => 'Solicita un nuevo enlace al administrador de tu congregación.'
+            ], 404);
+        }
 
         $turnos = Turno::forCongregacion($congregacion->id)
             ->where('activo', true)
@@ -40,11 +56,19 @@ class DisponibilidadPpocController extends Controller
      */
     public function getDisponibilidad($token, $publicadorId)
     {
-        $congregacion = Congregacion::where('token_disponibilidad', $token)->firstOrFail();
+        $congregacion = Congregacion::where('token_disponibilidad', $token)->first();
+
+        if (!$congregacion) {
+            return response()->json(['error' => 'Token inválido'], 404);
+        }
 
         $publicador = Publicador::forCongregacion($congregacion->id)
             ->where('id', $publicadorId)
-            ->firstOrFail();
+            ->first();
+
+        if (!$publicador) {
+            return response()->json(['error' => 'Publicador no encontrado'], 404);
+        }
 
         $turnosIds = DisponibilidadPpoc::where('publicador_id', $publicador->id)
             ->pluck('turno_id')
@@ -58,7 +82,12 @@ class DisponibilidadPpocController extends Controller
      */
     public function store(Request $request, $token)
     {
-        $congregacion = Congregacion::where('token_disponibilidad', $token)->firstOrFail();
+        $congregacion = Congregacion::where('token_disponibilidad', $token)->first();
+
+        if (!$congregacion) {
+            Log::warning('Intento de guardar con token inválido', ['token' => $token]);
+            return back()->with('error', 'El enlace no es válido. Solicita uno nuevo al administrador.');
+        }
 
         $request->validate([
             'publicador_id' => ['required', 'exists:publicadores,id'],
@@ -97,6 +126,11 @@ class DisponibilidadPpocController extends Controller
                 }
             }
         }
+
+        Log::info('Disponibilidad guardada', [
+            'publicador' => $publicador->nombre,
+            'turnos' => count($request->turnos ?? [])
+        ]);
 
         $mensaje = count($request->turnos ?? []) > 0
             ? 'Disponibilidad guardada correctamente. Gracias ' . $publicador->nombre . '!'

@@ -9,176 +9,206 @@ class S13ImportService
 {
     /**
      * Parsear texto extraído de un PDF S-13
-     * Retorna array de registros detectados
+     * Formato detectado: nombres antes del territorio, fechas después separadas por |
      */
     public function parseS13Text(string $text): array
     {
         $registrosDetectados = [];
-        $lines = explode("\n", $text);
 
-        // Patrón para fecha dd-mm-yy o dd-mm-yyyy
-        $patronFecha = '/(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/';
+        // Normalizar texto: quitar saltos de línea extra
+        $texto = preg_replace('/\s+/', ' ', $text);
 
-        // Variables de estado
-        $currentTerritorio = null;
-        $currentNombres = [];
-        $lineBuffer = [];
+        // Patrón para encontrar territorios con sus datos
+        // Formato: "Nombre1 Nombre2 ... CEN-X |fecha|fecha|..."
+        // Buscar todos los códigos de territorio
+        $patronTerritorio = '/(CEN-?\d+|ROQ-?\d+|T\.?ROM-?\d+|\d{1,3})\s*\|/i';
 
-        foreach ($lines as $line) {
-            $line = trim($line);
-            if (empty($line)) {
-                continue;
-            }
+        preg_match_all($patronTerritorio, $texto, $matches, PREG_OFFSET_CAPTURE);
 
-            // Ignorar headers conocidos
-            if ($this->esLineaHeader($line)) {
-                continue;
-            }
-
-            // Detectar número de territorio al inicio de línea (1-214)
-            if (preg_match('/^(\d{1,3})\s/', $line, $matchTerr)) {
-                $numeroTerritorio = (int) $matchTerr[1];
-
-                if ($numeroTerritorio >= 1 && $numeroTerritorio <= 214) {
-                    // Si ya teníamos un territorio pendiente, procesarlo
-                    if ($currentTerritorio !== null && !empty($lineBuffer)) {
-                        $registros = $this->procesarBloqueTerritorio($currentTerritorio, $lineBuffer);
-                        $registrosDetectados = array_merge($registrosDetectados, $registros);
-                    }
-
-                    $currentTerritorio = $numeroTerritorio;
-                    $lineBuffer = [$line];
-                    continue;
-                }
-            }
-
-            // Acumular líneas del territorio actual
-            if ($currentTerritorio !== null) {
-                $lineBuffer[] = $line;
-            }
+        if (empty($matches[0])) {
+            return [];
         }
 
-        // Procesar el último territorio
-        if ($currentTerritorio !== null && !empty($lineBuffer)) {
-            $registros = $this->procesarBloqueTerritorio($currentTerritorio, $lineBuffer);
-            $registrosDetectados = array_merge($registrosDetectados, $registros);
+        // Procesar cada territorio encontrado
+        $posiciones = [];
+        foreach ($matches[0] as $idx => $match) {
+            $posiciones[] = [
+                'codigo' => strtoupper(trim($matches[1][$idx][0])),
+                'pos_inicio' => $match[1],
+                'pos_codigo' => $matches[1][$idx][1],
+            ];
+        }
+
+        // Para cada territorio, extraer nombres (antes) y fechas (después)
+        for ($i = 0; $i < count($posiciones); $i++) {
+            $territorio = $posiciones[$i];
+
+            // Texto antes del territorio (contiene nombres)
+            $posAnterior = ($i > 0) ? $this->encontrarFinFechas($texto, $posiciones[$i-1]['pos_inicio']) : 0;
+            $textoAntes = substr($texto, $posAnterior, $territorio['pos_codigo'] - $posAnterior);
+
+            // Texto después del territorio (contiene fechas)
+            $posSiguiente = ($i < count($posiciones) - 1) ? $posiciones[$i+1]['pos_codigo'] : strlen($texto);
+            $textoDespues = substr($texto, $territorio['pos_inicio'], $posSiguiente - $territorio['pos_inicio']);
+
+            // Extraer fechas
+            $fechas = $this->extraerFechas($textoDespues);
+
+            // Extraer nombres
+            $nombres = $this->extraerNombres($textoAntes);
+
+            // Emparejar nombres con fechas
+            // El formato S-13 tiene pares: fecha_asignada, fecha_finalización
+            $numAsignaciones = min(count($nombres), floor(count($fechas) / 2));
+
+            for ($j = 0; $j < $numAsignaciones; $j++) {
+                $fechaSalidaIdx = $j * 2;
+                $fechaEntradaIdx = $j * 2 + 1;
+
+                $fechaSalida = isset($fechas[$fechaSalidaIdx]) ? $this->parseDate($fechas[$fechaSalidaIdx]) : null;
+                $fechaEntrada = isset($fechas[$fechaEntradaIdx]) ? $this->parseDate($fechas[$fechaEntradaIdx]) : null;
+
+                if ($fechaSalida && isset($nombres[$j])) {
+                    $registrosDetectados[] = [
+                        'territorio_numero' => $territorio['codigo'],
+                        'publicador_nombre_raw' => $nombres[$j],
+                        'fecha_salida' => $fechaSalida,
+                        'fecha_entrada' => $fechaEntrada,
+                        'raw_data' => [
+                            'texto_antes' => $textoAntes,
+                            'texto_despues' => $textoDespues,
+                            'fechas_raw' => $fechas,
+                            'nombres_raw' => $nombres,
+                        ],
+                    ];
+                }
+            }
         }
 
         return $registrosDetectados;
     }
 
     /**
-     * Procesar bloque de líneas de un territorio
+     * Encontrar posición donde terminan las fechas de un territorio
      */
-    private function procesarBloqueTerritorio(int $numeroTerritorio, array $lines): array
+    private function encontrarFinFechas(string $texto, int $posInicio): int
     {
-        $registros = [];
-        $texto = implode(' ', $lines);
+        // Buscar el último | o fecha después del territorio
+        $patron = '/\d{1,2}\/\d{1,2}\/\d{2,4}[^\d]*/';
+        $subtexto = substr($texto, $posInicio, 500); // Buscar en los próximos 500 chars
 
-        // Guardar el texto original antes de procesarlo
-        $textoOriginal = $texto;
-        $lineasOriginales = $lines;
-
-        // Extraer todas las fechas con sus posiciones
-        preg_match_all('/(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/', $texto, $matchesFechas, PREG_OFFSET_CAPTURE);
-        $fechasConPos = $matchesFechas[1] ?? [];
-        $fechas = array_column($fechasConPos, 0);
-        $fechasRaw = $fechas; // Guardar las fechas tal como se leyeron
-
-        // Extraer nombres (texto que no son fechas ni números de territorio)
-        $textoSinFechas = preg_replace('/\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4}/', '|||', $texto);
-        $textoSinNumTerr = preg_replace('/^\d{1,3}\s+/', '', $textoSinFechas);
-
-        // Dividir por el separador que pusimos
-        $partesTexto = explode('|||', $textoSinNumTerr);
-        $nombres = [];
-        $nombresRaw = []; // Guardar los nombres tal como se leyeron
-
-        foreach ($partesTexto as $parte) {
-            $parteOriginal = $parte;
-            $parte = trim($parte);
-            // Filtrar partes que parecen nombres (más de 3 caracteres, contiene letras)
-            if (strlen($parte) > 3 && preg_match('/[a-záéíóúñ]/i', $parte)) {
-                // Limpiar y normalizar
-                $parte = preg_replace('/\s+/', ' ', $parte);
-                if (!empty($parte)) {
-                    $nombres[] = $parte;
-                    $nombresRaw[] = trim($parteOriginal);
-                }
-            }
+        if (preg_match_all($patron, $subtexto, $matches, PREG_OFFSET_CAPTURE)) {
+            $ultimaFecha = end($matches[0]);
+            return $posInicio + $ultimaFecha[1] + strlen($ultimaFecha[0]);
         }
 
-        // Las fechas vienen en pares: [salida1, entrada1, salida2, entrada2, ...]
-        // Ignorar la primera fecha si parece ser "última fecha completada"
-        $fechaOffset = 0;
-        if (count($fechas) > 0 && count($fechas) % 2 === 1) {
-            // Número impar de fechas, la primera es "última fecha completada"
-            $fechaOffset = 1;
-        }
-
-        // Crear registros
-        for ($i = 0; $i < count($nombres); $i++) {
-            $fechaIndex = $fechaOffset + ($i * 2);
-
-            if (!isset($fechas[$fechaIndex])) {
-                continue;
-            }
-
-            $fechaSalidaRaw = $fechas[$fechaIndex];
-            $fechaEntradaRaw = $fechas[$fechaIndex + 1] ?? null;
-
-            $fechaSalida = $this->parseDate($fechaSalidaRaw);
-            $fechaEntrada = $fechaEntradaRaw ? $this->parseDate($fechaEntradaRaw) : null;
-
-            if ($fechaSalida) {
-                $registros[] = [
-                    'territorio_numero' => $numeroTerritorio,
-                    'publicador_nombre_raw' => $nombres[$i],
-                    'fecha_salida' => $fechaSalida,
-                    'fecha_entrada' => $fechaEntrada,
-                    // Nuevos campos para el registro original
-                    'raw_data' => [
-                        'texto_completo' => $textoOriginal,
-                        'lineas' => $lineasOriginales,
-                        'nombre_detectado' => $nombresRaw[$i] ?? $nombres[$i],
-                        'fecha_salida_raw' => $fechaSalidaRaw,
-                        'fecha_entrada_raw' => $fechaEntradaRaw,
-                        'todas_fechas' => $fechasRaw,
-                        'todos_nombres' => $nombresRaw,
-                    ],
-                ];
-            }
-        }
-
-        return $registros;
+        return $posInicio + 100; // Fallback
     }
 
     /**
-     * Verificar si una línea es header del PDF
+     * Extraer fechas del texto
      */
-    private function esLineaHeader(string $line): bool
+    private function extraerFechas(string $texto): array
     {
-        $headersConocidos = [
-            'REGISTRO DE ASIGNACIÓN',
-            'Año de servicio',
-            'Página',
-            'Núm. de terr',
-            'Última fecha',
-            'Asignado a',
-            'Fecha en que',
-            'se asignó',
-            'se completó',
-            'S-13',
-        ];
+        $fechas = [];
 
-        $lineUpper = mb_strtoupper($line);
-        foreach ($headersConocidos as $header) {
-            if (str_contains($lineUpper, mb_strtoupper($header))) {
-                return true;
+        // Buscar fechas en formato dd/mm/yyyy o dd/mm/yy
+        preg_match_all('/(\d{1,2}\/\d{1,2}\/\d{2,4})/', $texto, $matches);
+
+        if (!empty($matches[1])) {
+            $fechas = $matches[1];
+        }
+
+        return $fechas;
+    }
+
+    /**
+     * Extraer nombres del texto
+     */
+    private function extraerNombres(string $texto): array
+    {
+        $nombres = [];
+
+        // Limpiar texto de headers y caracteres especiales
+        $texto = preg_replace('/Registro\s+de\s+asignaci[oó]n.*?Zonas/is', '', $texto);
+        $texto = preg_replace('/Asignado\s+a/i', '', $texto);
+        $texto = preg_replace('/Fecha.*?(asignada|finalizaci[oó]n)/i', '', $texto);
+        $texto = preg_replace('/[|"\'\[\]{}]/', ' ', $texto);
+        $texto = preg_replace('/\s+/', ' ', $texto);
+        $texto = trim($texto);
+
+        if (empty($texto)) {
+            return [];
+        }
+
+        // Detectar nombres (patrón: Nombre Apellido o Nombre Apellido Apellido)
+        // Los nombres españoles suelen tener 2-4 palabras
+        $palabras = preg_split('/\s+/', $texto);
+        $nombreActual = [];
+
+        foreach ($palabras as $palabra) {
+            $palabra = trim($palabra);
+
+            // Ignorar palabras vacías o muy cortas
+            if (strlen($palabra) < 2) continue;
+
+            // Ignorar si parece ser un código de territorio o fecha
+            if (preg_match('/^(CEN|ROQ|T\.?ROM|\d{1,2}\/)/i', $palabra)) continue;
+
+            // Ignorar palabras que son headers
+            if (preg_match('/^(Grupo|Terr|Todos|Todas|categorías|Zonas)$/i', $palabra)) continue;
+
+            // Si la palabra empieza con mayúscula, podría ser inicio de nombre
+            if (preg_match('/^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$/', $palabra)) {
+                // Si ya tenemos 2+ palabras en nombreActual, guardar como nombre completo
+                if (count($nombreActual) >= 2) {
+                    $nombreCompleto = implode(' ', $nombreActual);
+                    // Verificar que parece un nombre real
+                    if ($this->pareceNombre($nombreCompleto)) {
+                        $nombres[] = $nombreCompleto;
+                    }
+                    $nombreActual = [];
+                }
+                $nombreActual[] = $palabra;
+            } elseif (!empty($nombreActual) && preg_match('/^[A-ZÁÉÍÓÚÑ]?[a-záéíóúñ]+$/', $palabra)) {
+                // Palabra que continúa el nombre (apellido)
+                $nombreActual[] = $palabra;
             }
         }
 
-        return false;
+        // No olvidar el último nombre
+        if (count($nombreActual) >= 2) {
+            $nombreCompleto = implode(' ', $nombreActual);
+            if ($this->pareceNombre($nombreCompleto)) {
+                $nombres[] = $nombreCompleto;
+            }
+        }
+
+        return $nombres;
+    }
+
+    /**
+     * Verificar si un texto parece ser un nombre de persona
+     */
+    private function pareceNombre(string $texto): bool
+    {
+        // Debe tener al menos 2 palabras
+        $palabras = preg_split('/\s+/', $texto);
+        if (count($palabras) < 2) return false;
+
+        // No debe contener números
+        if (preg_match('/\d/', $texto)) return false;
+
+        // Debe tener un tamaño razonable
+        if (strlen($texto) < 5 || strlen($texto) > 50) return false;
+
+        // No debe ser un header conocido
+        $headersConocidos = ['Registro de', 'Año de', 'Asignado a', 'Fecha asignada', 'Todos Todas'];
+        foreach ($headersConocidos as $header) {
+            if (stripos($texto, $header) !== false) return false;
+        }
+
+        return true;
     }
 
     /**
@@ -188,20 +218,27 @@ class S13ImportService
     {
         $dateStr = trim($dateStr);
 
-        // Reemplazar / por -
+        // Limpiar caracteres extraños del OCR
+        $dateStr = preg_replace('/[^0-9\/\-]/', '', $dateStr);
+
+        // Si la fecha quedó vacía o muy corta
+        if (strlen($dateStr) < 6) return null;
+
         $dateStr = str_replace('/', '-', $dateStr);
 
         $formatos = [
-            'd-m-y',    // 01-12-25
             'd-m-Y',    // 01-12-2025
-            'j-n-y',    // 1-2-25
+            'd-m-y',    // 01-12-25
             'j-n-Y',    // 1-2-2025
+            'j-n-y',    // 1-2-25
+            'dmY',      // 01122025 (sin separadores)
+            'dmy',      // 011225
         ];
 
         foreach ($formatos as $formato) {
             try {
                 $fecha = Carbon::createFromFormat($formato, $dateStr);
-                if ($fecha) {
+                if ($fecha && $fecha->year > 2000 && $fecha->year < 2100) {
                     return $fecha;
                 }
             } catch (\Exception $e) {
@@ -214,28 +251,19 @@ class S13ImportService
 
     /**
      * Verificar si un registro importado se solapa con registros existentes
-     * Regla: Si hay sobreposición, el registro de BD GANA (se ignora el importado)
      */
     public function verificarSobreposicion(
         int $territorioId,
         Carbon $fechaSalida,
         ?Carbon $fechaEntrada
     ): array {
-        // Obtener todos los registros existentes del territorio
         $registrosExistentes = Registro::where('territorio_id', $territorioId)->get();
 
         foreach ($registrosExistentes as $registro) {
             $existenteSalida = $registro->fecha_salida;
-            // Si no tiene entrada, asumimos que sigue activo (hasta muy en el futuro)
             $existenteEntrada = $registro->fecha_entrada ?? Carbon::now()->addYears(10);
-
-            // Para el importado, si no tiene entrada, también asumimos activo
             $importadoEntrada = $fechaEntrada ?? Carbon::now()->addYears(10);
 
-            // Verificar sobreposición de rangos
-            // Rango A: [existenteSalida, existenteEntrada]
-            // Rango B: [fechaSalida, importadoEntrada]
-            // Sobreposición si: A.inicio <= B.fin AND B.inicio <= A.fin
             $haySobreposicion = $existenteSalida->lte($importadoEntrada)
                 && $fechaSalida->lte($existenteEntrada);
 

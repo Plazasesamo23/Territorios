@@ -15,6 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'congregacion' => \App\Http\Middleware\EnsureCongregacion::class,
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);
+
+        // Excluir rutas de disponibilidad del CSRF (ya protegidas por token único)
+        $middleware->validateCsrfTokens(except: [
+            'disponibilidad/*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

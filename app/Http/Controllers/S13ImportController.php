@@ -42,7 +42,7 @@ class S13ImportController extends Controller
     public function procesar(Request $request)
     {
         $request->validate([
-            'pdf_file' => 'required|file|mimes:pdf|max:10240', // Max 10MB
+            'pdf_file' => 'required|file|mimes:pdf|max:10240',
         ], [
             'pdf_file.required' => 'Debes seleccionar un archivo PDF.',
             'pdf_file.mimes' => 'El archivo debe ser un PDF.',
@@ -50,105 +50,131 @@ class S13ImportController extends Controller
         ]);
 
         try {
-            // Guardar archivo temporalmente
             $pdfPath = $request->file('pdf_file')->store('temp-imports');
             $fullPath = storage_path('app/' . $pdfPath);
 
-            // Extraer texto del PDF
             $texto = $this->pdfParser->extractText($fullPath);
 
             if (empty(trim($texto))) {
                 Storage::delete($pdfPath);
-                return back()->with('error', 'No se pudo extraer texto del PDF. Asegúrate de que tenga OCR aplicado.');
+                return back()->with('error', 'No se pudo extraer texto del PDF. Asegurate de que tenga OCR aplicado o usa la opcion de imagen.');
             }
 
-            // Parsear registros
-            $registrosRaw = $this->importService->parseS13Text($texto);
+            return $this->procesarTexto($texto, $pdfPath);
 
-            if (empty($registrosRaw)) {
-                Storage::delete($pdfPath);
-                return back()->with('error', 'No se detectaron registros en el PDF. Verifica que sea un formulario S-13 válido.');
-            }
-
-            // Procesar cada registro
-            $registrosProcesados = [];
-
-            foreach ($registrosRaw as $index => $registro) {
-                // Buscar territorio
-                $territorio = Territorio::where('numero', $registro['territorio_numero'])->first();
-
-                // Matching de publicador
-                $matchResult = $this->matcher->findMatch($registro['publicador_nombre_raw']);
-
-                // Verificar sobreposición
-                $sobreposicion = ['tiene_sobreposicion' => false];
-                if ($territorio && $registro['fecha_salida']) {
-                    $sobreposicion = $this->importService->verificarSobreposicion(
-                        $territorio->id,
-                        $registro['fecha_salida'],
-                        $registro['fecha_entrada']
-                    );
-                }
-
-                $registrosProcesados[] = [
-                    'index' => $index,
-                    'territorio_numero' => $registro['territorio_numero'],
-                    'territorio' => $territorio,
-                    'territorio_valido' => $territorio !== null,
-                    'publicador_raw' => $registro['publicador_nombre_raw'],
-                    'publicador_match' => $matchResult['publicador'],
-                    'publicador_confidence' => $matchResult['confidence'],
-                    'publicador_candidatos' => $matchResult['candidates'],
-                    'fecha_salida' => $registro['fecha_salida'],
-                    'fecha_entrada' => $registro['fecha_entrada'],
-                    'tiene_sobreposicion' => $sobreposicion['tiene_sobreposicion'],
-                    'conflicto_info' => $sobreposicion,
-                    'incluir' => !$sobreposicion['tiene_sobreposicion'] && $territorio !== null,
-                    // Datos originales del OCR
-                    'raw_data' => $registro['raw_data'] ?? null,
-                ];
-            }
-
-            // Guardar en sesión para la confirmación
-            session(['importacion_registros' => $registrosProcesados]);
-            session(['importacion_pdf_path' => $pdfPath]);
-            session(['importacion_texto_completo' => $texto]); // Guardar texto completo
-
-            // Obtener todos los publicadores para los selects
-            $publicadores = Publicador::orderBy('nombre')->get();
-
-            // Preparar datos raw para JavaScript (evitar closures en blade)
-            $datosRawJs = [];
-            foreach ($registrosProcesados as $reg) {
-                $datosRawJs[$reg['index']] = [
-                    'territorio_numero' => $reg['territorio_numero'],
-                    'raw_data' => $reg['raw_data'],
-                    'publicador_raw' => $reg['publicador_raw'],
-                    'fecha_salida' => $reg['fecha_salida'] ? $reg['fecha_salida']->format('d/m/Y') : null,
-                    'fecha_entrada' => $reg['fecha_entrada'] ? $reg['fecha_entrada']->format('d/m/Y') : null,
-                ];
-            }
-
-            return view('s13.preview-importacion', [
-                'registros' => $registrosProcesados,
-                'publicadores' => $publicadores,
-                'textoCompleto' => $texto, // Pasar texto completo a la vista
-                'datosRawJs' => $datosRawJs, // Datos preparados para JS
-                'resumen' => [
-                    'total' => count($registrosProcesados),
-                    'validos' => collect($registrosProcesados)->where('incluir', true)->count(),
-                    'sobreposicion' => collect($registrosProcesados)->where('tiene_sobreposicion', true)->count(),
-                    'territorio_invalido' => collect($registrosProcesados)->where('territorio_valido', false)->count(),
-                    'sin_match' => collect($registrosProcesados)->whereNull('publicador_match')->count(),
-                ],
-            ]);
         } catch (\Exception $e) {
             return back()->with('error', 'Error al procesar el PDF: ' . $e->getMessage());
         }
     }
 
     /**
-     * Confirmar importación
+     * Procesar texto OCR desde imagen (Tesseract.js)
+     */
+    public function procesarOcr(Request $request)
+    {
+        $request->validate([
+            'texto_ocr' => 'required|string|min:10',
+        ], [
+            'texto_ocr.required' => 'No se recibio texto del OCR.',
+            'texto_ocr.min' => 'El texto detectado es muy corto. Asegurate de que la imagen sea clara.',
+        ]);
+
+        try {
+            $texto = $request->input('texto_ocr');
+
+            return $this->procesarTexto($texto, null);
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error al procesar el texto OCR: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Procesar texto (comun para PDF y OCR)
+     */
+    protected function procesarTexto(string $texto, ?string $pdfPath)
+    {
+        $registrosRaw = $this->importService->parseS13Text($texto);
+
+        if (empty($registrosRaw)) {
+            if ($pdfPath) {
+                Storage::delete($pdfPath);
+            }
+            // Mostrar texto para debug
+            $textoDebug = mb_substr($texto, 0, 3000);
+            return back()
+                ->with('error', 'No se detectaron registros. Verifica el formato del documento.')
+                ->with('texto_debug', $textoDebug);
+        }
+
+        $registrosProcesados = [];
+
+        foreach ($registrosRaw as $index => $registro) {
+            $territorio = Territorio::where('numero', $registro['territorio_numero'])->first();
+
+            $matchResult = $this->matcher->findMatch($registro['publicador_nombre_raw']);
+
+            $sobreposicion = ['tiene_sobreposicion' => false];
+            if ($territorio && $registro['fecha_salida']) {
+                $sobreposicion = $this->importService->verificarSobreposicion(
+                    $territorio->id,
+                    $registro['fecha_salida'],
+                    $registro['fecha_entrada']
+                );
+            }
+
+            $registrosProcesados[] = [
+                'index' => $index,
+                'territorio_numero' => $registro['territorio_numero'],
+                'territorio' => $territorio,
+                'territorio_valido' => $territorio !== null,
+                'publicador_raw' => $registro['publicador_nombre_raw'],
+                'publicador_match' => $matchResult['publicador'],
+                'publicador_confidence' => $matchResult['confidence'],
+                'publicador_candidatos' => $matchResult['candidates'],
+                'fecha_salida' => $registro['fecha_salida'],
+                'fecha_entrada' => $registro['fecha_entrada'],
+                'tiene_sobreposicion' => $sobreposicion['tiene_sobreposicion'],
+                'conflicto_info' => $sobreposicion,
+                'incluir' => !$sobreposicion['tiene_sobreposicion'] && $territorio !== null,
+                'raw_data' => $registro['raw_data'] ?? null,
+            ];
+        }
+
+        session(['importacion_registros' => $registrosProcesados]);
+        session(['importacion_pdf_path' => $pdfPath]);
+        session(['importacion_texto_completo' => $texto]);
+
+        $publicadores = Publicador::orderBy('nombre')->get();
+
+        $datosRawJs = [];
+        foreach ($registrosProcesados as $reg) {
+            $datosRawJs[$reg['index']] = [
+                'territorio_numero' => $reg['territorio_numero'],
+                'raw_data' => $reg['raw_data'],
+                'publicador_raw' => $reg['publicador_raw'],
+                'fecha_salida' => $reg['fecha_salida'] ? $reg['fecha_salida']->format('d/m/Y') : null,
+                'fecha_entrada' => $reg['fecha_entrada'] ? $reg['fecha_entrada']->format('d/m/Y') : null,
+            ];
+        }
+
+        return view('s13.preview-importacion', [
+            'registros' => $registrosProcesados,
+            'publicadores' => $publicadores,
+            'textoCompleto' => $texto,
+            'datosRawJs' => $datosRawJs,
+            'resumen' => [
+                'total' => count($registrosProcesados),
+                'validos' => collect($registrosProcesados)->where('incluir', true)->count(),
+                'sobreposicion' => collect($registrosProcesados)->where('tiene_sobreposicion', true)->count(),
+                'territorio_invalido' => collect($registrosProcesados)->where('territorio_valido', false)->count(),
+                'sin_match' => collect($registrosProcesados)->whereNull('publicador_match')->count(),
+            ],
+        ]);
+    }
+
+    /**
+     * Confirmar importacion
      */
     public function confirmar(Request $request)
     {
@@ -157,7 +183,7 @@ class S13ImportController extends Controller
 
         if (empty($registrosSession)) {
             return redirect()->route('s13.importar')
-                ->with('error', 'No hay datos de importación. Por favor sube el PDF nuevamente.');
+                ->with('error', 'No hay datos de importacion. Por favor sube el archivo nuevamente.');
         }
 
         $selecciones = $request->input('registros', []);
@@ -165,13 +191,11 @@ class S13ImportController extends Controller
         $errores = [];
 
         foreach ($registrosSession as $index => $registroOriginal) {
-            // Verificar si el usuario marcó incluir este registro
             $datos = $selecciones[$index] ?? [];
             if (!isset($datos['incluir'])) {
                 continue;
             }
 
-            // Obtener territorio (usar el número del formulario por si se editó)
             $territorioNumero = $datos['territorio_numero'] ?? $registroOriginal['territorio_numero'];
             $territorio = Territorio::where('numero', $territorioNumero)->first();
             if (!$territorio) {
@@ -179,7 +203,6 @@ class S13ImportController extends Controller
                 continue;
             }
 
-            // Obtener publicador del select (ahora SIEMPRE viene del formulario)
             $publicadorId = $datos['publicador_id'] ?? null;
             if (!$publicadorId) {
                 $errores[] = "Sin publicador para territorio {$territorioNumero}";
@@ -192,7 +215,6 @@ class S13ImportController extends Controller
                 continue;
             }
 
-            // Obtener fechas del formulario (editadas por el usuario)
             $fechaSalida = null;
             $fechaEntrada = null;
 
@@ -200,7 +222,7 @@ class S13ImportController extends Controller
                 try {
                     $fechaSalida = Carbon::parse($datos['fecha_salida']);
                 } catch (\Exception $e) {
-                    $errores[] = "Fecha salida inválida para territorio {$territorioNumero}";
+                    $errores[] = "Fecha salida invalida para territorio {$territorioNumero}";
                     continue;
                 }
             }
@@ -209,18 +231,16 @@ class S13ImportController extends Controller
                 try {
                     $fechaEntrada = Carbon::parse($datos['fecha_entrada']);
                 } catch (\Exception $e) {
-                    $errores[] = "Fecha entrada inválida para territorio {$territorioNumero}";
+                    $errores[] = "Fecha entrada invalida para territorio {$territorioNumero}";
                     continue;
                 }
             }
 
-            // Verificar que al menos hay fecha de salida
             if (!$fechaSalida) {
                 $errores[] = "Territorio {$territorioNumero}: fecha de salida requerida";
                 continue;
             }
 
-            // Verificar sobreposición con las fechas editadas
             $sobreposicion = $this->importService->verificarSobreposicion(
                 $territorio->id,
                 $fechaSalida,
@@ -228,11 +248,10 @@ class S13ImportController extends Controller
             );
 
             if ($sobreposicion['tiene_sobreposicion']) {
-                $errores[] = "Territorio {$territorio->numero}: sobreposición con registro existente";
+                $errores[] = "Territorio {$territorio->numero}: sobreposicion con registro existente";
                 continue;
             }
 
-            // Crear registro
             Registro::create([
                 'territorio_id' => $territorio->id,
                 'publicador_id' => $publicador->id,
@@ -244,10 +263,8 @@ class S13ImportController extends Controller
             $importados++;
         }
 
-        // Limpiar sesión
         session()->forget(['importacion_registros', 'importacion_pdf_path', 'importacion_texto_completo']);
 
-        // Eliminar archivo temporal
         if ($pdfPath && Storage::exists($pdfPath)) {
             Storage::delete($pdfPath);
         }

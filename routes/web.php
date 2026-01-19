@@ -79,6 +79,7 @@ Route::middleware(['auth', 'congregacion'])->group(function () {
     // Rutas para importacion S13
     Route::get('s13/importar', [S13ImportController::class, 'index'])->name('s13.importar');
     Route::post('s13/importar/procesar', [S13ImportController::class, 'procesar'])->name('s13.importar.procesar');
+    Route::post('s13/importar/procesar-ocr', [S13ImportController::class, 'procesarOcr'])->name('s13.importar.procesar-ocr');
     Route::post('s13/importar/confirmar', [S13ImportController::class, 'confirmar'])->name('s13.importar.confirmar');
 
     // Enviar WhatsApp (todos)
