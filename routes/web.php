@@ -81,6 +81,7 @@ Route::middleware(['auth', 'congregacion'])->group(function () {
     Route::post('s13/importar/procesar', [S13ImportController::class, 'procesar'])->name('s13.importar.procesar');
     Route::post('s13/importar/procesar-ocr', [S13ImportController::class, 'procesarOcr'])->name('s13.importar.procesar-ocr');
     Route::post('s13/importar/confirmar', [S13ImportController::class, 'confirmar'])->name('s13.importar.confirmar');
+    Route::post('s13/importar/guardar-rapido', [S13ImportController::class, 'guardarRapido'])->name('s13.importar.guardar-rapido');
 
     // Enviar WhatsApp (todos)
     Route::post('territorios/{territorio}/enviar-whatsapp', [TerritorioController::class, 'enviarWhatsapp'])->name('territorios.whatsapp')->where('territorio', '[0-9]+');

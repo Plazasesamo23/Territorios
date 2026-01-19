@@ -4,54 +4,128 @@
 
 @section('content')
 <style>
-    .import-page { max-width: 900px; margin: 0 auto; padding: 0 1rem; }
-    .import-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
-    .import-card { background: var(--bg-card, #fff); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-color, #e5e7eb); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-    .import-card-title { font-size: 1.1rem; font-weight: 600; color: var(--text-primary, #1f2937); margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color, #e5e7eb); }
+    .import-page { max-width: 1100px; margin: 0 auto; padding: 0 1rem; }
+    .import-card { background: var(--bg-card, #fff); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-color, #e5e7eb); box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-top: 1.5rem; }
+    .import-card-title { font-size: 1.1rem; font-weight: 600; color: var(--text-primary, #1f2937); margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
 
-    .upload-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed var(--border-color, #d1d5db); border-radius: 10px; padding: 2rem 1.5rem; text-align: center; cursor: pointer; transition: all 0.2s ease; background: var(--bg-secondary, #f9fafb); }
-    .upload-zone:hover, .upload-zone.dragover { border-color: #5c7fb8; background: rgba(99, 102, 241, 0.05); }
-    .upload-zone input[type="file"] { display: none; }
-    .upload-icon { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.7; }
-    .upload-text { font-size: 1rem; font-weight: 500; color: var(--text-primary, #374151); margin-bottom: 0.25rem; }
-    .upload-hint { font-size: 0.85rem; color: var(--text-muted, #6b7280); margin-bottom: 1rem; }
-    .upload-btn-fake { display: inline-block; padding: 0.6rem 1.25rem; background: #5c7fb8; color: white; border-radius: 6px; font-size: 0.9rem; font-weight: 500; }
+    .entry-table { width: 100%; border-collapse: collapse; }
+    .entry-table th { text-align: left; padding: 0.5rem; font-size: 0.85rem; color: var(--text-muted, #6b7280); font-weight: 500; border-bottom: 2px solid var(--border-color, #e5e7eb); }
+    .entry-table td { padding: 0.4rem; vertical-align: middle; }
+    .entry-table tr:hover { background: var(--bg-secondary, #f9fafb); }
 
-    .file-selected { display: none; margin-top: 1rem; padding: 0.75rem 1rem; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 6px; color: #3d5a8a; font-size: 0.9rem; text-align: left; }
-    .file-selected.show { display: block; }
+    .entry-table input, .entry-table select {
+        width: 100%; padding: 0.5rem; border: 1px solid var(--border-color, #d1d5db);
+        border-radius: 6px; font-size: 0.9rem;
+        background-color: #ffffff !important;
+        color: #1f2937 !important;
+    }
+    .entry-table input:focus, .entry-table select:focus {
+        outline: none; border-color: #5c7fb8; box-shadow: 0 0 0 2px rgba(92,127,184,0.2);
+    }
 
-    .ocr-progress { display: none; margin-top: 1rem; padding: 1rem; background: var(--bg-secondary, #f3f4f6); border-radius: 8px; }
-    .ocr-progress.show { display: block; }
-    .ocr-status { font-size: 0.9rem; color: var(--text-secondary, #4b5563); margin-bottom: 0.5rem; }
-    .ocr-bar-container { background: #e5e7eb; border-radius: 4px; height: 8px; overflow: hidden; }
-    .ocr-bar { background: linear-gradient(90deg, #5c7fb8, #4a6da7); height: 100%; width: 0%; transition: width 0.3s; }
-    .ocr-percent { font-size: 0.8rem; color: var(--text-muted, #6b7280); margin-top: 0.25rem; text-align: right; }
+    .territorio-select { width: 110px !important; }
+    .fecha-input { width: 130px !important; }
 
-    .form-buttons { display: flex; gap: 0.75rem; margin-top: 1.5rem; justify-content: flex-end; }
-    .form-buttons .btn { padding: 0.65rem 1.25rem; font-size: 0.9rem; border-radius: 6px; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; cursor: pointer; border: none; }
-    .btn-cancel { background: var(--bg-secondary, #f3f4f6); color: var(--text-primary, #374151); border: 1px solid var(--border-color, #d1d5db); }
-    .btn-submit { background: #5c7fb8; color: white; }
+    .row-actions { display: flex; gap: 0.25rem; }
+    .btn-icon {
+        width: 32px; height: 32px; border: none; border-radius: 6px;
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        font-size: 1rem; transition: all 0.15s;
+    }
+    .btn-copy { background: #e0f2fe; color: #0369a1; }
+    .btn-copy:hover { background: #bae6fd; }
+    .btn-delete { background: #fee2e2; color: #dc2626; }
+    .btn-delete:hover { background: #fecaca; }
+
+    .btn-add-row {
+        background: #5c7fb8; color: white; border: none; padding: 0.6rem 1.2rem;
+        border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 500;
+        display: inline-flex; align-items: center; gap: 0.4rem;
+    }
+    .btn-add-row:hover { background: #4a6da7; }
+
+    .form-actions {
+        display: flex; gap: 0.75rem; margin-top: 1.5rem;
+        justify-content: space-between; align-items: center;
+        padding-top: 1rem; border-top: 1px solid var(--border-color, #e5e7eb);
+    }
+
+    .btn-submit {
+        background: #059669; color: white; border: none; padding: 0.7rem 1.5rem;
+        border-radius: 6px; cursor: pointer; font-size: 0.95rem; font-weight: 500;
+    }
+    .btn-submit:hover { background: #047857; }
     .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .instructions-card { background: linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%); border-color: rgba(99, 102, 241, 0.15); }
-    .instructions-list { list-style: none; padding: 0; margin: 0; }
-    .instructions-list li { padding: 0.6rem 0; padding-left: 1.5rem; position: relative; color: var(--text-secondary, #4b5563); font-size: 0.9rem; border-bottom: 1px solid var(--border-color, #e5e7eb); }
-    .instructions-list li:last-child { border-bottom: none; }
-    .instructions-list li::before { content: ''; position: absolute; left: 0; top: 0.95rem; width: 6px; height: 6px; background: #5c7fb8; border-radius: 50%; }
+    .btn-cancel {
+        background: var(--bg-secondary, #f3f4f6); color: var(--text-primary, #374151);
+        border: 1px solid var(--border-color, #d1d5db); padding: 0.7rem 1.5rem;
+        border-radius: 6px; cursor: pointer; font-size: 0.95rem; text-decoration: none;
+    }
+    .btn-cancel:hover { background: #e5e7eb; }
 
-    .warning-box { margin-top: 1.25rem; padding: 0.875rem; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; }
-    .warning-title { font-weight: 600; color: #b45309; font-size: 0.85rem; margin-bottom: 0.35rem; }
-    .warning-text { font-size: 0.8rem; color: var(--text-secondary, #4b5563); margin: 0; line-height: 1.4; }
+    .count-badge {
+        background: #5c7fb8; color: white; padding: 0.25rem 0.6rem;
+        border-radius: 12px; font-size: 0.8rem;
+    }
 
-    .info-box { margin-top: 1rem; padding: 0.75rem; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 8px; font-size: 0.8rem; color: var(--text-secondary, #4b5563); }
+    .alert-success {
+        background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 8px; padding: 0.875rem 1rem; color: #166534; font-size: 0.9rem; margin-bottom: 1rem;
+    }
+    .alert-error {
+        background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25);
+        border-radius: 8px; padding: 0.875rem 1rem; color: #dc2626; font-size: 0.9rem; margin-bottom: 1rem;
+    }
 
-    .alert-error { background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; padding: 0.875rem 1rem; color: #343a40; font-size: 0.9rem; margin-bottom: 1rem; }
+    .tips-box {
+        background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.8rem; color: var(--text-secondary, #4b5563);
+        margin-bottom: 1rem;
+    }
+    .tips-box strong { color: #1d4ed8; }
 
-    @media (max-width: 768px) { .import-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) {
+        .entry-table { display: block; overflow-x: auto; }
+        .form-actions { flex-direction: column; }
+        .form-actions > * { width: 100%; text-align: center; }
+    }
 
-    .pdf-preview { display: none; margin-top: 1rem; }
-    .pdf-preview.show { display: block; }
-    .pdf-preview canvas { max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color, #e5e7eb); }
+    /* Autocomplete styles - COLORES FORZADOS */
+    .autocomplete-wrapper { position: relative; }
+    .autocomplete-list {
+        position: absolute; top: 100%; left: 0; right: 0; z-index: 100;
+        background-color: #ffffff !important;
+        border: 1px solid #d1d5db; border-radius: 6px;
+        max-height: 200px; overflow-y: auto;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: none;
+    }
+    .autocomplete-list.show { display: block; }
+    .autocomplete-item {
+        padding: 0.6rem 0.75rem; cursor: pointer; font-size: 0.9rem;
+        color: #1f2937 !important;
+        background-color: #ffffff !important;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    .autocomplete-item:last-child { border-bottom: none; }
+    .autocomplete-item:hover, .autocomplete-item.selected {
+        background-color: #e0e7ff !important;
+        color: #1e40af !important;
+    }
+    .autocomplete-item small {
+        color: #6b7280 !important;
+        margin-left: 0.25rem;
+    }
+
+    /* Forzar colores en inputs */
+    .publicador-search {
+        background-color: #ffffff !important;
+        color: #1f2937 !important;
+    }
+    .publicador-search::placeholder {
+        color: #9ca3af !important;
+    }
 </style>
 
 <div class="page-nav">
@@ -65,250 +139,278 @@
 </div>
 
 <div class="import-page">
-    @if(session('texto_debug'))
-        <div style="margin-bottom:1rem; padding:1rem; background:#f8f9fa; border:1px solid #dee2e6; border-radius:8px; max-height:300px; overflow-y:auto;">
-            <strong>Texto extraido (debug):</strong>
-            <pre style="font-size:0.75rem; white-space:pre-wrap; margin-top:0.5rem;">{{ session('texto_debug') }}</pre>
-        </div>
+    @if(session('success'))
+        <div class="alert-success">{{ session('success') }}</div>
     @endif
-
     @if(session('error'))
         <div class="alert-error">{{ session('error') }}</div>
     @endif
 
-    <div class="import-grid">
-        <div class="import-card">
-            <div class="import-card-title">Importar registros S-13</div>
-
-            <form action="{{ route('s13.importar.procesar-ocr') }}" method="POST" id="mainForm">
-                @csrf
-                <input type="hidden" name="texto_ocr" id="textoOcrInput">
-
-                <label class="upload-zone" id="uploadZone">
-                    <input type="file" id="pdfFile" accept=".pdf,image/*">
-                    <div class="upload-icon">📄</div>
-                    <div class="upload-text">Arrastra tu PDF aqui</div>
-                    <div class="upload-hint">PDF normal o escaneado - detectamos automaticamente</div>
-                    <span class="upload-btn-fake">Seleccionar archivo</span>
-                </label>
-
-                <div class="file-selected" id="fileSelected">
-                    <strong>Archivo:</strong> <span id="fileName"></span>
-                </div>
-
-                <div class="pdf-preview" id="pdfPreview">
-                    <canvas id="pdfCanvas"></canvas>
-                </div>
-
-                <div class="ocr-progress" id="ocrProgress">
-                    <div class="ocr-status" id="ocrStatus">Analizando PDF...</div>
-                    <div class="ocr-bar-container">
-                        <div class="ocr-bar" id="ocrBar"></div>
-                    </div>
-                    <div class="ocr-percent" id="ocrPercent">0%</div>
-                </div>
-
-                <div class="form-buttons">
-                    <a href="{{ route('s13.index') }}" class="btn btn-cancel">Cancelar</a>
-                    <button type="submit" class="btn btn-submit" id="submitBtn" disabled>Procesar</button>
-                </div>
-            </form>
+    <div class="import-card">
+        <div class="import-card-title">
+            <span>Entrada rapida de registros S-13</span>
+            <span class="count-badge" id="rowCount">0 registros</span>
         </div>
 
-        <div class="import-card instructions-card">
-            <div class="import-card-title">Instrucciones</div>
-
-            <ul class="instructions-list">
-                <li>Sube cualquier PDF del formulario S-13</li>
-                <li>Si el PDF es escaneado, se aplicara OCR automaticamente</li>
-                <li>Se detectan los registros y podras revisarlos</li>
-                <li>La primera vez tarda mas (descarga idioma espanol)</li>
-            </ul>
-
-            <div class="info-box">
-                <strong>OCR en tu navegador:</strong> El reconocimiento de texto se hace en tu dispositivo, no se envia a servidores externos.
-            </div>
-
-            <div class="warning-box">
-                <div class="warning-title">Regla de prioridad</div>
-                <p class="warning-text">Si un registro se solapa con uno existente, se ignorara el importado.</p>
-            </div>
+        <div class="tips-box">
+            <strong>Atajos:</strong>
+            Tab para avanzar ·
+            Boton 📋 copia fechas anteriores
         </div>
+
+        <form action="{{ route('s13.importar.guardar-rapido') }}" method="POST" id="quickEntryForm">
+            @csrf
+            <table class="entry-table">
+                <thead>
+                    <tr>
+                        <th style="width:110px">Territorio</th>
+                        <th>Publicador</th>
+                        <th style="width:140px">F. Salida</th>
+                        <th style="width:140px">F. Entrada</th>
+                        <th style="width:70px"></th>
+                    </tr>
+                </thead>
+                <tbody id="entryRows">
+                </tbody>
+            </table>
+
+            <div style="margin-top: 1rem;">
+                <button type="button" class="btn-add-row" id="addRowBtn">
+                    + Añadir fila
+                </button>
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ route('s13.index') }}" class="btn-cancel">Cancelar</a>
+                <button type="submit" class="btn-submit" id="submitBtn" disabled>
+                    Guardar registros
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
-<!-- PDF.js para leer PDFs -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<!-- Tesseract.js para OCR -->
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
 <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    // Lista de publicadores para autocomplete
+    const publicadores = @json(\App\Models\Publicador::orderBy('nombre')->get(['id', 'nombre', 'apellidos']));
 
-    const pdfFile = document.getElementById('pdfFile');
-    const uploadZone = document.getElementById('uploadZone');
-    const fileSelected = document.getElementById('fileSelected');
-    const fileName = document.getElementById('fileName');
-    const ocrProgress = document.getElementById('ocrProgress');
-    const ocrStatus = document.getElementById('ocrStatus');
-    const ocrBar = document.getElementById('ocrBar');
-    const ocrPercent = document.getElementById('ocrPercent');
-    const submitBtn = document.getElementById('submitBtn');
-    const textoOcrInput = document.getElementById('textoOcrInput');
-    const pdfPreview = document.getElementById('pdfPreview');
-    const pdfCanvas = document.getElementById('pdfCanvas');
+    // Lista de territorios para el select
+    const territorios = @json(\App\Models\Territorio::orderBy('numero')->pluck('numero'));
 
-    // Drag and drop
-    ['dragenter', 'dragover'].forEach(evt => {
-        uploadZone.addEventListener(evt, e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
-    });
-    ['dragleave', 'drop'].forEach(evt => {
-        uploadZone.addEventListener(evt, e => { e.preventDefault(); uploadZone.classList.remove('dragover'); });
-    });
-    uploadZone.addEventListener('drop', e => {
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            pdfFile.files = files;
-            pdfFile.dispatchEvent(new Event('change'));
-        }
-    });
+    let rowIndex = 0;
+    let lastFechaSalida = '';
+    let lastFechaEntrada = '';
+    let lastTerritorio = '';
 
-    pdfFile.addEventListener('change', async () => {
-        if (pdfFile.files.length === 0) return;
+    // Generar opciones del select de territorios
+    function getTerritorioOptions() {
+        let options = '<option value="">-- Seleccionar --</option>';
+        territorios.forEach(t => {
+            const selected = (t == lastTerritorio) ? 'selected' : '';
+            options += `<option value="${t}" ${selected}>${t}</option>`;
+        });
+        return options;
+    }
 
-        const file = pdfFile.files[0];
-        fileName.textContent = file.name;
-        fileSelected.classList.add('show');
-        submitBtn.disabled = true;
-        ocrProgress.classList.add('show');
-        ocrBar.style.width = '0%';
-        ocrBar.style.background = 'linear-gradient(90deg, #5c7fb8, #4a6da7)';
+    function createRow() {
+        const row = document.createElement('tr');
+        row.dataset.index = rowIndex;
+        row.innerHTML = `
+            <td>
+                <select name="registros[${rowIndex}][territorio]" class="territorio-select">
+                    ${getTerritorioOptions()}
+                </select>
+            </td>
+            <td class="autocomplete-wrapper">
+                <input type="text" class="publicador-search" placeholder="Buscar publicador..." autocomplete="off">
+                <input type="hidden" name="registros[${rowIndex}][publicador_id]" class="publicador-id">
+                <div class="autocomplete-list"></div>
+            </td>
+            <td>
+                <input type="date" name="registros[${rowIndex}][fecha_salida]" class="fecha-input fecha-salida">
+            </td>
+            <td>
+                <input type="date" name="registros[${rowIndex}][fecha_entrada]" class="fecha-input fecha-entrada">
+            </td>
+            <td>
+                <div class="row-actions">
+                    <button type="button" class="btn-icon btn-copy" title="Copiar fechas anteriores" onclick="copyDates(this)">📋</button>
+                    <button type="button" class="btn-icon btn-delete" title="Eliminar fila" onclick="deleteRow(this)">✕</button>
+                </div>
+            </td>
+        `;
 
-        try {
-            // Si es imagen directamente
-            if (file.type.startsWith('image/')) {
-                ocrStatus.textContent = 'Procesando imagen con OCR...';
-                await processImageOCR(file);
+        document.getElementById('entryRows').appendChild(row);
+        rowIndex++;
+        updateCount();
+        setupAutocomplete(row);
+        setupRowHandlers(row);
+
+        // Focus en territorio
+        row.querySelector('.territorio-select').focus();
+    }
+
+    function setupAutocomplete(row) {
+        const searchInput = row.querySelector('.publicador-search');
+        const hiddenInput = row.querySelector('.publicador-id');
+        const list = row.querySelector('.autocomplete-list');
+        let selectedIndex = -1;
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            if (query.length < 1) {
+                list.classList.remove('show');
                 return;
             }
 
-            // Es PDF - primero intentar extraer texto
-            ocrStatus.textContent = 'Analizando PDF...';
-            ocrBar.style.width = '10%';
+            const matches = publicadores.filter(p => {
+                const fullName = (p.nombre + ' ' + p.apellidos).toLowerCase();
+                return fullName.includes(query);
+            }).slice(0, 10);
 
-            const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-
-            let textoExtraido = '';
-            const totalPages = pdf.numPages;
-
-            // Intentar extraer texto de todas las paginas
-            for (let i = 1; i <= totalPages; i++) {
-                ocrStatus.textContent = `Extrayendo texto (pagina ${i}/${totalPages})...`;
-                ocrBar.style.width = (10 + (i / totalPages) * 30) + '%';
-
-                const page = await pdf.getPage(i);
-                const textContent = await page.getTextContent();
-                const pageText = textContent.items.map(item => item.str).join(' ');
-                textoExtraido += pageText + '\n';
+            if (matches.length === 0) {
+                list.classList.remove('show');
+                return;
             }
 
-            // Verificar si hay texto util
-            const textoLimpio = textoExtraido.replace(/\s+/g, ' ').trim();
+            list.innerHTML = matches.map((p, i) => `
+                <div class="autocomplete-item" data-id="${p.id}" data-name="${p.nombre} ${p.apellidos}">
+                    ${p.nombre} <small>${p.apellidos}</small>
+                </div>
+            `).join('');
 
-            if (textoLimpio.length > 50) {
-                // PDF tiene texto extraible
-                ocrStatus.textContent = 'PDF con texto detectado';
-                ocrBar.style.width = '100%';
-                textoOcrInput.value = textoExtraido;
-                ocrProgress.classList.remove('show');
-                fileSelected.innerHTML = '<strong>PDF con texto.</strong> Listo para procesar.';
-                submitBtn.disabled = false;
-            } else {
-                // PDF escaneado - necesita OCR
-                ocrStatus.textContent = 'PDF escaneado detectado. Aplicando OCR...';
-                ocrBar.style.width = '40%';
+            list.classList.add('show');
+            selectedIndex = -1;
 
-                // Renderizar todas las paginas y hacer OCR
-                let textoOcr = '';
-                for (let i = 1; i <= totalPages; i++) {
-                    ocrStatus.textContent = `OCR pagina ${i}/${totalPages}...`;
-
-                    const page = await pdf.getPage(i);
-                    const viewport = page.getViewport({ scale: 2.0 }); // Mayor escala = mejor OCR
-
-                    pdfCanvas.width = viewport.width;
-                    pdfCanvas.height = viewport.height;
-                    const ctx = pdfCanvas.getContext('2d');
-
-                    await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-
-                    // Mostrar preview de la primera pagina
-                    if (i === 1) {
-                        pdfPreview.classList.add('show');
-                    }
-
-                    // OCR de esta pagina
-                    const imgData = pdfCanvas.toDataURL('image/png');
-                    const result = await Tesseract.recognize(imgData, 'spa', {
-                        logger: m => {
-                            if (m.status === 'recognizing text') {
-                                const baseProgress = 40 + ((i - 1) / totalPages) * 55;
-                                const pageProgress = (m.progress / totalPages) * 55;
-                                const totalProgress = baseProgress + pageProgress;
-                                ocrBar.style.width = totalProgress + '%';
-                                ocrPercent.textContent = Math.round(totalProgress) + '%';
-                            }
-                        }
-                    });
-
-                    textoOcr += result.data.text + '\n\n';
-                }
-
-                textoOcrInput.value = textoOcr;
-                ocrProgress.classList.remove('show');
-                fileSelected.innerHTML = '<strong>OCR completado.</strong> Listo para procesar.';
-                fileSelected.classList.add('show');
-                submitBtn.disabled = false;
-
-                console.log('Texto OCR:', textoOcr);
-            }
-
-        } catch (error) {
-            console.error('Error:', error);
-            ocrStatus.textContent = 'Error: ' + error.message;
-            ocrBar.style.background = '#ef4444';
-        }
-    });
-
-    async function processImageOCR(file) {
-        ocrBar.style.width = '10%';
-
-        try {
-            const result = await Tesseract.recognize(file, 'spa', {
-                logger: m => {
-                    if (m.status === 'recognizing text') {
-                        const pct = 10 + Math.round(m.progress * 90);
-                        ocrBar.style.width = pct + '%';
-                        ocrPercent.textContent = pct + '%';
-                        ocrStatus.textContent = 'Reconociendo texto...';
-                    } else if (m.status === 'loading language traineddata') {
-                        ocrStatus.textContent = 'Cargando idioma espanol...';
-                        ocrBar.style.width = '15%';
-                    }
-                }
+            list.querySelectorAll('.autocomplete-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    selectPublicador(searchInput, hiddenInput, list, this.dataset.id, this.dataset.name);
+                });
             });
+        });
 
-            textoOcrInput.value = result.data.text;
-            ocrProgress.classList.remove('show');
-            fileSelected.innerHTML = '<strong>OCR completado.</strong> Listo para procesar.';
-            submitBtn.disabled = false;
+        searchInput.addEventListener('keydown', function(e) {
+            const items = list.querySelectorAll('.autocomplete-item');
+            if (!list.classList.contains('show') || items.length === 0) {
+                if (e.key === 'Enter') e.preventDefault();
+                return;
+            }
 
-        } catch (error) {
-            console.error('Error OCR:', error);
-            ocrStatus.textContent = 'Error: ' + error.message;
-            ocrBar.style.background = '#ef4444';
-        }
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                updateSelection(items, selectedIndex);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, 0);
+                updateSelection(items, selectedIndex);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedIndex >= 0 && items[selectedIndex]) {
+                    const item = items[selectedIndex];
+                    selectPublicador(searchInput, hiddenInput, list, item.dataset.id, item.dataset.name);
+                } else if (items.length > 0) {
+                    // Seleccionar el primero si no hay seleccion
+                    const item = items[0];
+                    selectPublicador(searchInput, hiddenInput, list, item.dataset.id, item.dataset.name);
+                }
+            } else if (e.key === 'Escape') {
+                list.classList.remove('show');
+            }
+        });
+
+        searchInput.addEventListener('blur', function() {
+            setTimeout(() => list.classList.remove('show'), 200);
+        });
+
+        // Al hacer focus, mostrar lista si hay texto
+        searchInput.addEventListener('focus', function() {
+            if (this.value.length >= 1) {
+                this.dispatchEvent(new Event('input'));
+            }
+        });
     }
+
+    function updateSelection(items, index) {
+        items.forEach((item, i) => {
+            item.classList.toggle('selected', i === index);
+            if (i === index) {
+                item.scrollIntoView({ block: 'nearest' });
+            }
+        });
+    }
+
+    function selectPublicador(searchInput, hiddenInput, list, id, name) {
+        searchInput.value = name;
+        hiddenInput.value = id;
+        list.classList.remove('show');
+        updateSubmitButton();
+        // Avanzar al siguiente campo
+        const row = searchInput.closest('tr');
+        row.querySelector('.fecha-salida').focus();
+    }
+
+    function setupRowHandlers(row) {
+        const fechaSalida = row.querySelector('.fecha-salida');
+        const fechaEntrada = row.querySelector('.fecha-entrada');
+        const territorioSelect = row.querySelector('.territorio-select');
+
+        // Al cambiar territorio, guardar para siguiente fila
+        territorioSelect.addEventListener('change', function() {
+            if (this.value) lastTerritorio = this.value;
+            updateSubmitButton();
+        });
+
+        fechaSalida.addEventListener('change', function() {
+            if (this.value) lastFechaSalida = this.value;
+            updateSubmitButton();
+        });
+
+        fechaEntrada.addEventListener('change', function() {
+            if (this.value) lastFechaEntrada = this.value;
+        });
+    }
+
+    function copyDates(btn) {
+        const row = btn.closest('tr');
+        if (lastFechaSalida) row.querySelector('.fecha-salida').value = lastFechaSalida;
+        if (lastFechaEntrada) row.querySelector('.fecha-entrada').value = lastFechaEntrada;
+        updateSubmitButton();
+    }
+
+    function deleteRow(btn) {
+        const row = btn.closest('tr');
+        row.remove();
+        updateCount();
+        updateSubmitButton();
+    }
+
+    function updateCount() {
+        const count = document.querySelectorAll('#entryRows tr').length;
+        document.getElementById('rowCount').textContent = count + ' registro' + (count !== 1 ? 's' : '');
+    }
+
+    function updateSubmitButton() {
+        const rows = document.querySelectorAll('#entryRows tr');
+        let validRows = 0;
+
+        rows.forEach(row => {
+            const territorio = row.querySelector('.territorio-select').value;
+            const publicadorId = row.querySelector('.publicador-id').value;
+            const fechaSalida = row.querySelector('.fecha-salida').value;
+
+            if (territorio && publicadorId && fechaSalida) {
+                validRows++;
+            }
+        });
+
+        document.getElementById('submitBtn').disabled = validRows === 0;
+    }
+
+    // Añadir primera fila al cargar
+    document.addEventListener('DOMContentLoaded', function() {
+        createRow();
+        document.getElementById('addRowBtn').addEventListener('click', createRow);
+    });
 </script>
 @endsection

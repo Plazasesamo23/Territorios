@@ -16,9 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);
 
-        // Excluir rutas de disponibilidad del CSRF (ya protegidas por token único)
+        // Excluir rutas de CSRF
         $middleware->validateCsrfTokens(except: [
             'disponibilidad/*',
+            's13/importar/*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

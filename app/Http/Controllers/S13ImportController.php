@@ -29,11 +29,118 @@ class S13ImportController extends Controller
     }
 
     /**
-     * Mostrar formulario de subida
+     * Mostrar formulario de entrada rapida
      */
     public function index()
     {
         return view('s13.importar');
+    }
+
+    /**
+     * Guardar registros desde entrada rapida
+     */
+    public function guardarRapido(Request $request)
+    {
+        $registros = $request->input('registros', []);
+
+        if (empty($registros)) {
+            return back()->with('error', 'No se recibieron registros para guardar.');
+        }
+
+        $importados = 0;
+        $errores = [];
+
+        foreach ($registros as $index => $datos) {
+            // Validar campos requeridos
+            if (empty($datos['territorio']) || empty($datos['publicador_id']) || empty($datos['fecha_salida'])) {
+                continue; // Saltar filas incompletas
+            }
+
+            // Buscar territorio (puede ser número o código como CEN-1)
+            $territorioInput = strtoupper(trim($datos['territorio']));
+
+            // Extraer número si es código tipo CEN-1, ROQ-95, etc.
+            if (preg_match('/^(CEN|ROQ|T\.?ROM)-?(\d+)$/i', $territorioInput, $matches)) {
+                $numeroTerritorio = $matches[2];
+            } else {
+                $numeroTerritorio = $territorioInput;
+            }
+
+            $territorio = Territorio::where('numero', $numeroTerritorio)->first();
+            if (!$territorio) {
+                $errores[] = "Territorio '{$territorioInput}' no encontrado";
+                continue;
+            }
+
+            // Verificar publicador
+            $publicador = Publicador::find($datos['publicador_id']);
+            if (!$publicador) {
+                $errores[] = "Publicador no encontrado para territorio {$territorioInput}";
+                continue;
+            }
+
+            // Parsear fechas
+            try {
+                $fechaSalida = Carbon::parse($datos['fecha_salida']);
+            } catch (\Exception $e) {
+                $errores[] = "Fecha salida invalida para territorio {$territorioInput}";
+                continue;
+            }
+
+            $fechaEntrada = null;
+            if (!empty($datos['fecha_entrada'])) {
+                try {
+                    $fechaEntrada = Carbon::parse($datos['fecha_entrada']);
+                } catch (\Exception $e) {
+                    $errores[] = "Fecha entrada invalida para territorio {$territorioInput}";
+                    continue;
+                }
+            }
+
+            // Verificar sobreposicion
+            $sobreposicion = $this->importService->verificarSobreposicion(
+                $territorio->id,
+                $fechaSalida,
+                $fechaEntrada
+            );
+
+            if ($sobreposicion['tiene_sobreposicion']) {
+                $errores[] = "Territorio {$territorioInput}: ya existe un registro en esas fechas ({$sobreposicion['publicador_conflicto']})";
+                continue;
+            }
+
+            // Crear registro
+            Registro::create([
+                'territorio_id' => $territorio->id,
+                'publicador_id' => $publicador->id,
+                'fecha_salida' => $fechaSalida,
+                'fecha_entrada' => $fechaEntrada,
+                'notas' => 'Importado desde S-13 (entrada rapida)',
+            ]);
+
+            $importados++;
+        }
+
+        // Preparar mensaje
+        if ($importados > 0) {
+            $mensaje = "Se importaron {$importados} registro" . ($importados > 1 ? 's' : '') . " correctamente.";
+
+            if (!empty($errores)) {
+                session()->flash('errores_importacion', $errores);
+                $mensaje .= " Hubo " . count($errores) . " error" . (count($errores) > 1 ? 'es' : '') . ".";
+            }
+
+            return redirect()->route('s13.index')->with('success', $mensaje);
+        } else {
+            $mensaje = "No se pudo importar ningun registro.";
+            if (!empty($errores)) {
+                $mensaje .= " Errores: " . implode(', ', array_slice($errores, 0, 3));
+                if (count($errores) > 3) {
+                    $mensaje .= "... y " . (count($errores) - 3) . " mas.";
+                }
+            }
+            return back()->with('error', $mensaje);
+        }
     }
 
     /**
@@ -57,7 +164,7 @@ class S13ImportController extends Controller
 
             if (empty(trim($texto))) {
                 Storage::delete($pdfPath);
-                return back()->with('error', 'No se pudo extraer texto del PDF. Asegurate de que tenga OCR aplicado o usa la opcion de imagen.');
+                return back()->with('error', 'No se pudo extraer texto del PDF.');
             }
 
             return $this->procesarTexto($texto, $pdfPath);
@@ -74,16 +181,11 @@ class S13ImportController extends Controller
     {
         $request->validate([
             'texto_ocr' => 'required|string|min:10',
-        ], [
-            'texto_ocr.required' => 'No se recibio texto del OCR.',
-            'texto_ocr.min' => 'El texto detectado es muy corto. Asegurate de que la imagen sea clara.',
         ]);
 
         try {
             $texto = $request->input('texto_ocr');
-
             return $this->procesarTexto($texto, null);
-
         } catch (\Exception $e) {
             return back()->with('error', 'Error al procesar el texto OCR: ' . $e->getMessage());
         }
@@ -100,10 +202,9 @@ class S13ImportController extends Controller
             if ($pdfPath) {
                 Storage::delete($pdfPath);
             }
-            // Mostrar texto para debug
             $textoDebug = mb_substr($texto, 0, 3000);
             return back()
-                ->with('error', 'No se detectaron registros. Verifica el formato del documento.')
+                ->with('error', 'No se detectaron registros.')
                 ->with('texto_debug', $textoDebug);
         }
 
@@ -111,7 +212,6 @@ class S13ImportController extends Controller
 
         foreach ($registrosRaw as $index => $registro) {
             $territorio = Territorio::where('numero', $registro['territorio_numero'])->first();
-
             $matchResult = $this->matcher->findMatch($registro['publicador_nombre_raw']);
 
             $sobreposicion = ['tiene_sobreposicion' => false];
@@ -137,32 +237,17 @@ class S13ImportController extends Controller
                 'tiene_sobreposicion' => $sobreposicion['tiene_sobreposicion'],
                 'conflicto_info' => $sobreposicion,
                 'incluir' => !$sobreposicion['tiene_sobreposicion'] && $territorio !== null,
-                'raw_data' => $registro['raw_data'] ?? null,
             ];
         }
 
         session(['importacion_registros' => $registrosProcesados]);
         session(['importacion_pdf_path' => $pdfPath]);
-        session(['importacion_texto_completo' => $texto]);
 
         $publicadores = Publicador::orderBy('nombre')->get();
-
-        $datosRawJs = [];
-        foreach ($registrosProcesados as $reg) {
-            $datosRawJs[$reg['index']] = [
-                'territorio_numero' => $reg['territorio_numero'],
-                'raw_data' => $reg['raw_data'],
-                'publicador_raw' => $reg['publicador_raw'],
-                'fecha_salida' => $reg['fecha_salida'] ? $reg['fecha_salida']->format('d/m/Y') : null,
-                'fecha_entrada' => $reg['fecha_entrada'] ? $reg['fecha_entrada']->format('d/m/Y') : null,
-            ];
-        }
 
         return view('s13.preview-importacion', [
             'registros' => $registrosProcesados,
             'publicadores' => $publicadores,
-            'textoCompleto' => $texto,
-            'datosRawJs' => $datosRawJs,
             'resumen' => [
                 'total' => count($registrosProcesados),
                 'validos' => collect($registrosProcesados)->where('incluir', true)->count(),
@@ -183,7 +268,7 @@ class S13ImportController extends Controller
 
         if (empty($registrosSession)) {
             return redirect()->route('s13.importar')
-                ->with('error', 'No hay datos de importacion. Por favor sube el archivo nuevamente.');
+                ->with('error', 'No hay datos de importacion.');
         }
 
         $selecciones = $request->input('registros', []);
@@ -211,7 +296,6 @@ class S13ImportController extends Controller
 
             $publicador = Publicador::find($publicadorId);
             if (!$publicador) {
-                $errores[] = "Publicador ID {$publicadorId} no encontrado";
                 continue;
             }
 
@@ -222,7 +306,6 @@ class S13ImportController extends Controller
                 try {
                     $fechaSalida = Carbon::parse($datos['fecha_salida']);
                 } catch (\Exception $e) {
-                    $errores[] = "Fecha salida invalida para territorio {$territorioNumero}";
                     continue;
                 }
             }
@@ -231,13 +314,11 @@ class S13ImportController extends Controller
                 try {
                     $fechaEntrada = Carbon::parse($datos['fecha_entrada']);
                 } catch (\Exception $e) {
-                    $errores[] = "Fecha entrada invalida para territorio {$territorioNumero}";
                     continue;
                 }
             }
 
             if (!$fechaSalida) {
-                $errores[] = "Territorio {$territorioNumero}: fecha de salida requerida";
                 continue;
             }
 
@@ -248,7 +329,7 @@ class S13ImportController extends Controller
             );
 
             if ($sobreposicion['tiene_sobreposicion']) {
-                $errores[] = "Territorio {$territorio->numero}: sobreposicion con registro existente";
+                $errores[] = "Territorio {$territorio->numero}: sobreposicion";
                 continue;
             }
 
@@ -263,19 +344,17 @@ class S13ImportController extends Controller
             $importados++;
         }
 
-        session()->forget(['importacion_registros', 'importacion_pdf_path', 'importacion_texto_completo']);
+        session()->forget(['importacion_registros', 'importacion_pdf_path']);
 
         if ($pdfPath && Storage::exists($pdfPath)) {
             Storage::delete($pdfPath);
         }
 
-        $mensaje = "Se importaron {$importados} registros exitosamente.";
+        $mensaje = "Se importaron {$importados} registros.";
         if (!empty($errores)) {
             $mensaje .= " Hubo " . count($errores) . " errores.";
-            session()->flash('errores_importacion', $errores);
         }
 
-        return redirect()->route('s13.index')
-            ->with('success', $mensaje);
+        return redirect()->route('s13.index')->with('success', $mensaje);
     }
 }
