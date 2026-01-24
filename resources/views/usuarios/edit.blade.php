@@ -68,8 +68,15 @@
         </div>
 
         
-        {{-- Permisos especiales (solo para usuarios normales) --}}
-        @if($usuario->role === 'user')
+        {{-- Permisos especiales (para todos los roles excepto admin/superadmin) --}}
+        @if(!in_array($usuario->role, ['admin', 'superadmin']))
+
+        <div style="margin-bottom: 1rem;">
+            <h4 style="margin: 0 0 0.75rem 0; font-size: 0.95rem; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">Permisos Adicionales</h4>
+        </div>
+
+        {{-- Permiso PPOC (no mostrar si ya es usuario PPOC, porque ya lo tiene) --}}
+        @if($usuario->role !== 'ppoc')
         <div class="form-group mb-4" style="background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%); padding: 1rem; border-radius: 8px; border: 1px solid #e879f9;">
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <div>
@@ -84,6 +91,20 @@
                 </label>
             </div>
         </div>
+        @else
+        <div class="form-group mb-4" style="background: #f3f4f6; padding: 1rem; border-radius: 8px; border: 1px solid #d1d5db;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <label class="form-label" style="margin-bottom: 0.25rem; color: #6b7280;">Acceso al modulo PPOC</label>
+                    <p style="margin: 0; font-size: 0.85rem; color: #9ca3af;">
+                        Incluido por ser Usuario PPOC
+                    </p>
+                </div>
+                <span class="badge badge-success">Incluido</span>
+            </div>
+        </div>
+        @endif
+
         {{-- Permiso S-13 --}}
         <div class="form-group mb-4" style="background: linear-gradient(135deg, #f4f7fb 0%, #e8eef6 100%); padding: 1rem; border-radius: 8px; border: 1px solid #bfdbfe;">
             <div style="display: flex; align-items: center; justify-content: space-between;">

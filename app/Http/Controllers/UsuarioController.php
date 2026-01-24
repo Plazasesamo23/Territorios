@@ -153,9 +153,10 @@ class UsuarioController extends Controller
             $usuario->password = Hash::make($request->password);
         }
 
-        // Actualizar permiso S-13 (solo para usuarios normales)
-        if ($usuario->role === 'user') {
+        // Actualizar permisos (para todos los roles excepto admin/superadmin)
+        if (!in_array($usuario->role, ['admin', 'superadmin'])) {
             $usuario->puede_generar_s13 = $request->has('puede_generar_s13');
+            $usuario->puede_acceder_ppoc = $request->has('puede_acceder_ppoc');
         }
 
         $usuario->save();
