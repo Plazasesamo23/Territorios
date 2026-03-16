@@ -41,16 +41,6 @@
         </script>
     @endif
 
-    <!-- Acciones -->
-    @if(auth()->user()->canEditTerritorios())
-    <div class="shortcuts mb-2">
-        <a href="{{ route('registros.archivados') }}" class="shortcut">
-            <span class="icon">&#x1F4DA;</span>
-            <span>Archivados</span>
-        </a>
-    </div>
-    @endif
-
     <!-- Filtros -->
     <div class="tabs-flat">
         <a href="{{ route('registros.index', ['tipo' => 'todos']) }}" class="tab-item {{ ($tipoFiltro ?? 'todos') === 'todos' ? 'active' : '' }}">
@@ -152,7 +142,6 @@
         <div class="icon">&#x1F4CB;</div>
         <div class="title">No hay registros activos</div>
         <div class="desc">Todos los territorios estan libres o archivados.</div>
-        <a href="{{ route('registros.create') }}" class="btn btn-primary mt-2">Crear Primer Registro</a>
     </div>
     @endif
 </div>

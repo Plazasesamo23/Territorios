@@ -12,10 +12,8 @@
         <!-- Territorios -->
         <div class="admin-section">
             <div class="section-header">Territorios</div>
-            <a href="{{ route('territorios.create', ['tipo' => 'normal']) }}" class="admin-link">Anadir Territorio</a>
-            <a href="{{ route('territorios.create', ['tipo' => 'campana']) }}" class="admin-link">Territorio Campana</a>
-            <a href="{{ route('territorios.create', ['tipo' => 'negocios']) }}" class="admin-link">Territorio Negocios</a>
-            <a href="{{ route('registros.archivados') }}" class="admin-link">Registros Archivados</a>
+            <a href="{{ route('territorios.index') }}" class="admin-link">Ver Territorios</a>
+            <a href="{{ route('registros.index') }}" class="admin-link">Asignaciones Activas</a>
             <a href="{{ route('creador-territorios.index') }}" class="admin-link">Creador de Territorios</a>
         </div>
 
@@ -23,7 +21,6 @@
         <div class="admin-section">
             <div class="section-header">Publicadores</div>
             <a href="{{ route('publicadores.index') }}" class="admin-link">Ver Publicadores</a>
-            <a href="{{ route('publicadores.create') }}" class="admin-link">Crear Publicador</a>
             <a href="{{ route('grupos-predicacion.index') }}" class="admin-link">Grupos de Predicacion</a>
         </div>
 

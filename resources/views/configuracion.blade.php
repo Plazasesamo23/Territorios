@@ -7,9 +7,7 @@
 <!-- Navegación minimalista -->
 <nav class="page-nav">
     <div class="page-breadcrumbs">
-        <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
-        <span class="breadcrumb-separator">›</span>
-        <span class="breadcrumb-current">Configuración</span>
+        <span class="breadcrumb-current">Configuracion</span>
     </div>
 </nav>
 

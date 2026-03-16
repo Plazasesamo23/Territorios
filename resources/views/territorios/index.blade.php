@@ -6,8 +6,6 @@
 <!-- Navegacion y acciones -->
 <div class="page-nav">
     <div class="page-breadcrumbs">
-        <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
-        <span class="breadcrumb-sep">></span>
         <span class="breadcrumb-current">Territorios</span>
     </div>
 
@@ -228,19 +226,16 @@
     </div>
     @endif
 @else
-    <div class="card text-center" style="padding: 3rem;">
-        <div style="font-size: 4rem; margin-bottom: 1rem;">&#128506;</div>
-        <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: #1f2937;">No hay territorios disponibles</h3>
-        <p class="text-muted mb-4">
+    <div class="empty-state">
+        <div class="icon">&#128506;</div>
+        <div class="title">No hay territorios disponibles</div>
+        <div class="desc">
             @if(($tipoFiltro ?? 'todos') !== 'todos')
                 No hay territorios de tipo "{{ ucfirst($tipoFiltro ?? '') }}" en esta congregacion.
             @else
-                Comienza agregando el primer territorio a tu sistema.
+                Usa el boton "+ Nuevo Territorio" de arriba para empezar.
             @endif
-        </p>
-        <a href="{{ route('territorios.create', ['tipo' => ($tipoFiltro ?? 'todos') !== 'todos' ? $tipoFiltro : 'normal']) }}" class="btn btn-primary">
-            + Crear Territorio
-        </a>
+        </div>
     </div>
 @endif
 

@@ -7,14 +7,6 @@
     <h1 class="page-title">Publicadores</h1>
     <p class="page-subtitle">{{ $publicadores->count() }} publicadores registrados</p>
 
-    <!-- Acciones -->
-    <div class="shortcuts mb-2">
-        <a href="{{ route('publicadores.create') }}" class="shortcut">
-            <span class="icon">+</span>
-            <span>Nuevo Publicador</span>
-        </a>
-    </div>
-
     <!-- Buscador -->
     <form method="GET" action="{{ route('publicadores.index') }}" class="form-group">
         <div class="flex gap-1">
@@ -73,8 +65,7 @@
     <div class="empty-state">
         <div class="icon">&#x1F465;</div>
         <div class="title">No hay publicadores</div>
-        <div class="desc">Comienza agregando publicadores para gestionar territorios.</div>
-        <a href="{{ route('publicadores.create') }}" class="btn btn-primary mt-2">Crear Primer Publicador</a>
+        <div class="desc">Usa el submenu para agregar publicadores.</div>
     </div>
     @endif
 </div>

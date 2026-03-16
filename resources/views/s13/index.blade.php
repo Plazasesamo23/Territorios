@@ -15,9 +15,7 @@
 <!-- Navegación -->
 <div class="page-nav">
     <div class="page-breadcrumbs">
-        <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
-        <span class="breadcrumb-sep">›</span>
-        <span class="breadcrumb-current">S13</span>
+        <span class="breadcrumb-current">S-13</span>
         @if(isset($congregacionActiva))
         <span class="breadcrumb-sep">|</span>
         <span class="text-primary font-medium">{{ $congregacionActiva->nombre }}</span>
