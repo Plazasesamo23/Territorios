@@ -13,32 +13,6 @@
         </div>
     </div>
 
-    <!-- Stats rapidas -->
-    <div class="stats-grid">
-        <div class="stat-box">
-            <span class="stat-number">{{ $stats['totalTerritorios'] }}</span>
-            <span class="stat-label">Territorios</span>
-        </div>
-        <div class="stat-box">
-            <span class="stat-number">{{ $stats['territoriosLibres'] }}</span>
-            <span class="stat-label">Libres</span>
-        </div>
-        <div class="stat-box">
-            <span class="stat-number">{{ $stats['territoriosActivos'] }}</span>
-            <span class="stat-label">Activos</span>
-        </div>
-        <div class="stat-box">
-            <span class="stat-number">{{ $stats['publicadoresActivos'] }}</span>
-            <span class="stat-label">Publicadores</span>
-        </div>
-    </div>
-
-    @if($stats['territoriosAtrasados'] > 0)
-    <a href="{{ route('territorios.index', ['estado' => 'atrasado']) }}" class="alert-inline">
-        {{ $stats['territoriosAtrasados'] }} territorio(s) requieren atencion
-    </a>
-    @endif
-
     <!-- Grid de modulos -->
     <div class="module-grid">
         @foreach($modulos as $modulo)
@@ -78,24 +52,12 @@
 </div>
 
 <style>
-.dashboard { max-width: 1200px; margin: 0 auto; }
-.dash-header { margin-bottom: 1.5rem; }
+.dashboard { max-width: 800px; margin: 0 auto; }
+.dash-header { margin-bottom: 2rem; text-align: center; }
 .dash-header h1 { font-size: 1.75rem; font-weight: 700; color: #212529; margin: 0 0 0.25rem; }
 [data-theme="dark"] .dash-header h1 { color: #f1f3f5; }
 .dash-header .subtitle { font-size: 0.9rem; color: #6c757d; margin: 0; text-transform: capitalize; }
 [data-theme="dark"] .dash-header .subtitle { color: #8b939c; }
-.alert-inline { display: inline-block; padding: 0.625rem 1rem; background: #4a6da7; color: white; border-radius: 6px; text-decoration: none; font-size: 0.875rem; margin-bottom: 1rem; }
-[data-theme="dark"] .alert-inline { background: #6b8fc7; color: #121416; }
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
-.stat-box { text-align: center; }
-.stat-number { display: block; font-size: 2.25rem; font-weight: 700; color: #212529; line-height: 1; }
-[data-theme="dark"] .stat-number { color: #f1f3f5; }
-.stat-label { display: block; font-size: 0.75rem; color: #6c757d; text-transform: uppercase; letter-spacing: 0.03em; margin-top: 0.375rem; }
-[data-theme="dark"] .stat-label { color: #8b939c; }
-@media (max-width: 768px) {
-    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-    .stat-number { font-size: 1.75rem; }
-}
 </style>
 
 @endsection

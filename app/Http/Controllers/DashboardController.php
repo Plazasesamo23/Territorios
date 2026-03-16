@@ -3,13 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Territorio;
-use App\Models\Publicador;
-use App\Models\Registro;
 use App\Models\Congregacion;
-use App\Models\GrupoPredicacion;
-use App\Models\TurnoGenerado;
-use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -70,37 +64,7 @@ class DashboardController extends Controller
             ];
         }
 
-        // Estadisticas rapidas
-        $stats = [
-            'totalTerritorios' => 0,
-            'territoriosActivos' => 0,
-            'territoriosLibres' => 0,
-            'territoriosAtrasados' => 0,
-            'publicadoresActivos' => 0,
-        ];
-
-        try {
-            if ($congregacionId) {
-                $allTerritorios = Territorio::where('congregacion_id', $congregacionId)->get();
-                $stats['publicadoresActivos'] = Publicador::where('congregacion_id', $congregacionId)->where('activo', true)->count();
-            } else {
-                $allTerritorios = Territorio::all();
-                $stats['publicadoresActivos'] = Publicador::where('activo', true)->count();
-            }
-
-            $stats['totalTerritorios'] = $allTerritorios->count();
-
-            foreach ($allTerritorios as $territorio) {
-                $estado = $territorio->calcularEstado();
-                if ($estado === 'activo') $stats['territoriosActivos']++;
-                elseif ($estado === 'libre') $stats['territoriosLibres']++;
-                elseif ($estado === 'atrasado') $stats['territoriosAtrasados']++;
-            }
-        } catch (\Exception $e) {
-            \Log::error('Error en DashboardController: ' . $e->getMessage());
-        }
-
-        return view('dashboard', compact('modulos', 'stats', 'congregacion'));
+        return view('dashboard', compact('modulos', 'congregacion'));
     }
 
     /**
