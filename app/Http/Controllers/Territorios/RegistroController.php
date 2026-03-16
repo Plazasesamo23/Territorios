@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Territorios;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Registro;
 use App\Models\Territorio;
@@ -137,9 +138,6 @@ class RegistroController extends Controller
                 ->with('error', 'El publicador seleccionado no está activo.');
         }
 
-        // RESTRICCIÓN ELIMINADA: Los publicadores pueden tener múltiples territorios
-        // Algunos hermanos pueden manejar 2-3 territorios simultáneamente
-
         // Crear el registro
         $registro = Registro::create([
             'territorio_id' => $request->territorio_id,
@@ -163,7 +161,7 @@ class RegistroController extends Controller
     public function show(Registro $registro)
     {
         $registro->load(['territorio', 'publicador']);
-        
+
         // Calcular estadísticas del registro
         $estadisticas = [
             'dias_transcurridos' => null,
@@ -253,7 +251,7 @@ class RegistroController extends Controller
     {
         $territorio = $registro->territorio;
         $publicador = $registro->publicador;
-        
+
         $registro->delete();
 
         return redirect()->route('registros.index')
@@ -267,7 +265,7 @@ class RegistroController extends Controller
     {
         $plantilla = config('territorios.whatsapp.plantilla_asignacion');
         $urlBase = config('territorios.whatsapp.url_base');
-        
+
         $mensaje = str_replace([
             '{numero}',
             '{nombre}',
@@ -281,15 +279,15 @@ class RegistroController extends Controller
         // Limpiar número de teléfono y crear URL de WhatsApp
         $telefono = preg_replace('/[^0-9]/', '', $publicador->telefono);
         $whatsappUrl = "https://wa.me/{$telefono}?text=" . urlencode($mensaje);
-        
+
         // Guardar la URL en sesión para redirigir después
         session(['whatsapp_url' => $whatsappUrl]);
         session(['whatsapp_publicador' => $publicador->nombre_completo]);
         session(['whatsapp_territorio' => $territorio->numero]);
-        
+
         // Registrar el envío
         \Log::info("WhatsApp preparado para {$publicador->telefono}: {$mensaje}");
-        
+
         return true;
     }
 
@@ -302,7 +300,7 @@ class RegistroController extends Controller
         $territoriosLibres = Territorio::get()->filter(function($territorio) {
             return $territorio->calcularEstado() === 'libre';
         })->count();
-        
+
         return response()->json([
             'registros_activos' => $registrosActivos,
             'territorios_libres' => $territoriosLibres,

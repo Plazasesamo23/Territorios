@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Territorios;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Territorio;
 use App\Models\Publicador;
@@ -41,9 +42,9 @@ class TerritorioController extends Controller
             $territorioIds = $territoriosFiltrados->pluck('id')->toArray();
             $query->whereIn('id', $territorioIds);
         }
-        
+
         $territorios = $query->orderBy('numero')->paginate(12)->appends(request()->query());
-        
+
         // Calcular estadísticas de estados con regla de 90 días
         $allTerritoriosForStats = Territorio::with(['registros'])->get();
         $estadisticas = [
@@ -53,22 +54,22 @@ class TerritorioController extends Controller
             'archivo' => 0,
             'disponibles' => 0  // Territorios realmente asignables
         ];
-        
+
         foreach ($allTerritoriosForStats as $territorio) {
             $estado = $territorio->calcularEstado();
             if (isset($estadisticas[$estado])) {
                 $estadisticas[$estado]++;
             }
-            
+
             // Contar territorios realmente disponibles (libres + que cumplan 90 días)
             if ($territorio->estaDisponibleParaAsignar()) {
                 $estadisticas['disponibles']++;
             }
         }
-        
+
         // Variable para mostrar el total (sin conflictos)
         $allTerritorios = $allTerritoriosForStats;
-        
+
         return view('territorios.index', compact('territorios', 'estadisticas', 'allTerritorios'));
     }
 
@@ -122,10 +123,10 @@ class TerritorioController extends Controller
         if (!$territorio || !$territorio->id) {
             return redirect()->route('dashboard')->with('error', 'Territorio no encontrado.');
         }
-        
+
         $territorio->load(['registros.publicador']);
         $registros = $territorio->registros()->with('publicador')->latest()->get();
-        
+
         return view('territorios.show', compact('territorio', 'registros'));
     }
 
@@ -193,15 +194,15 @@ class TerritorioController extends Controller
     public function enviarWhatsapp(Territorio $territorio)
     {
         $publicador = $territorio->publicadorActual();
-        
+
         if (!$publicador) {
             return back()->with('error', 'Este territorio no tiene un publicador asignado.');
         }
-        
+
         $mensaje = "Hola {$publicador->nombre}, aquí tienes el territorio {$territorio->numero}: {$territorio->imagen_url}";
         $telefono = str_replace(['+', ' ', '-'], '', $publicador->telefono);
         $url = "https://wa.me/{$telefono}?text=" . urlencode($mensaje);
-        
+
         return redirect($url);
     }
 }

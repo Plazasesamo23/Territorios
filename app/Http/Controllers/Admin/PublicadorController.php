@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Publicador;
 use App\Models\Registro;
@@ -78,7 +79,7 @@ class PublicadorController extends Controller
             ->with('territorio')
             ->first();
         $publicador->territorio_actual = $registroActivo ? $registroActivo->territorio : null;
-        
+
         return view('publicadores.show', compact('publicador'));
     }
 
@@ -148,7 +149,7 @@ class PublicadorController extends Controller
     {
         // Verificar si tiene registros activos
         $registroActivo = $publicador->registros()->whereNull('fecha_entrada')->first();
-        
+
         if ($registroActivo) {
             return redirect()->route('publicadores.index')
                 ->with('error', 'No se puede eliminar un publicador con territorios asignados.');

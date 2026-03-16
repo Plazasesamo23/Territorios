@@ -6,49 +6,52 @@
     <title>@yield('title', 'Gestión de Territorios')</title>
     <meta name="description" content="Sistema de gestión de territorios para la organización">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/modular.css') }}">
     <script src="{{ asset('js/app.js') }}" defer></script>
 </head>
 <body>
     <!-- Header -->
     <header class="header">
- <div class="container">
+        <div class="container">
             <div class="header-content">
                 <a href="{{ route('dashboard') }}" class="logo">
-                    🗺️ Sistema de Territorios
+                    Sistema de Territorios
                 </a>
-                
+
                 <nav class="nav">
                     <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                        Dashboard
+                        Inicio
                     </a>
-                    <a href="{{ route('territorios.index') }}" class="nav-link {{ request()->routeIs('territorios.*') ? 'active' : '' }}">
-                        Territorios
-                    </a>
-                    <a href="{{ route('publicadores.index') }}" class="nav-link {{ request()->routeIs('publicadores.*') ? 'active' : '' }}">
-                        Publicadores
-                    </a>
-                    <a href="{{ route('registros.index') }}" class="nav-link {{ request()->routeIs('registros.*') ? 'active' : '' }}">
-                        Registros
-                    </a>
-                    <a href="{{ route('s13.index') }}" class="nav-link {{ request()->routeIs('s13.*') ? 'active' : '' }}">
-                        S13
-                    </a>
-                    <a href="{{ route('creador-territorios.visual-editor') }}" class="nav-link {{ request()->routeIs('creador-territorios.*') ? 'active' : '' }}">
-                        Editor Visual
-                    </a>
+                    @php
+                        $currentModule = '';
+                        if (request()->routeIs('territorios.*') || request()->routeIs('registros.*') || request()->routeIs('s13.*') || request()->routeIs('creador-territorios.*')) {
+                            $currentModule = 'territorios';
+                        } elseif (request()->routeIs('publicadores.*') || request()->is('configuracion')) {
+                            $currentModule = 'admin';
+                        }
+                    @endphp
+                    @if($currentModule === 'territorios')
+                        <span class="nav-module-badge nav-module-green">Territorios</span>
+                    @elseif($currentModule === 'admin')
+                        <span class="nav-module-badge nav-module-orange">Administracion</span>
+                    @endif
                 </nav>
-                
+
                 <div class="header-actions">
                     <button id="theme-toggle" class="theme-toggle" title="Cambiar tema">
-                        <span id="theme-icon">🌙</span>
+                        <span id="theme-icon">&#x1F319;</span>
                     </button>
-                    <a href="{{ route('configuracion') }}" class="btn btn-outline">
-                        ⚙️ Configuración
-                    </a>
                 </div>
             </div>
         </div>
     </header>
+
+    <!-- Submenu automático por módulo -->
+    @if(request()->routeIs('territorios.*') || request()->routeIs('registros.*') || request()->routeIs('s13.*') || request()->routeIs('creador-territorios.*'))
+        @include('layouts.partials.submenu-territorios')
+    @elseif(request()->routeIs('publicadores.*') || request()->is('configuracion'))
+        @include('layouts.partials.submenu-admin')
+    @endif
 
     <!-- Main Content -->
     <main class="main">
@@ -70,26 +73,26 @@
             const themeToggle = document.getElementById('theme-toggle');
             const themeIcon = document.getElementById('theme-icon');
             const body = document.body;
-            
+
             // Cargar tema guardado o usar modo claro por defecto
             const savedTheme = localStorage.getItem('theme') || 'light';
             setTheme(savedTheme);
-            
+
             themeToggle.addEventListener('click', function() {
                 const currentTheme = body.getAttribute('data-theme') || 'light';
                 const newTheme = currentTheme === 'light' ? 'dark' : 'light';
                 setTheme(newTheme);
                 localStorage.setItem('theme', newTheme);
             });
-            
+
             function setTheme(theme) {
                 if (theme === 'dark') {
                     body.setAttribute('data-theme', 'dark');
-                    themeIcon.textContent = '☀️';
+                    themeIcon.textContent = '\u2600\uFE0F';
                     themeToggle.title = 'Cambiar a modo claro';
                 } else {
                     body.removeAttribute('data-theme');
-                    themeIcon.textContent = '🌙';
+                    themeIcon.textContent = '\uD83C\uDF19';
                     themeToggle.title = 'Cambiar a modo oscuro';
                 }
             }

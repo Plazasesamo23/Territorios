@@ -11,65 +11,61 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // DEBUG: Verificar que este controlador se está ejecutando
-        \Log::info('DashboardController::index ejecutándose');
-        
-        // Datos básicos y seguros
-        $data = [
-            'totalTerritorios' => 0,
-            'publicadoresActivos' => 0,
-            'totalRegistros' => 0,
-            'territoriosLibres' => 0,
-            'territoriosActivos' => 0,
-            'registrosActivos' => collect([]),
-            'territoriosAtrasados' => 0,
-            'territoriosArchivo' => 0
+        // Módulos disponibles para el dashboard
+        $modulos = [
+            [
+                'nombre' => 'Territorios',
+                'descripcion' => 'Gestionar territorios, asignaciones y estados',
+                'ruta' => route('territorios.index'),
+                'icono' => 'territorios',
+                'color' => 'green',
+            ],
+            [
+                'nombre' => 'Registros',
+                'descripcion' => 'Asignaciones activas, historial y archivados',
+                'ruta' => route('registros.index'),
+                'icono' => 'registros',
+                'color' => 'blue',
+            ],
+            [
+                'nombre' => 'S-13',
+                'descripcion' => 'Reportes S-13, PDF y vista previa',
+                'ruta' => route('s13.index'),
+                'icono' => 's13',
+                'color' => 'purple',
+            ],
+            [
+                'nombre' => 'Administracion',
+                'descripcion' => 'Publicadores, configuracion del sistema',
+                'ruta' => route('publicadores.index'),
+                'icono' => 'admin',
+                'color' => 'orange',
+            ],
         ];
-        
+
+        // Estadísticas rápidas
+        $stats = [
+            'totalTerritorios' => 0,
+            'territoriosActivos' => 0,
+            'territoriosLibres' => 0,
+            'territoriosAtrasados' => 0,
+        ];
+
         try {
-            $data['totalTerritorios'] = Territorio::count();
-            $data['publicadoresActivos'] = Publicador::count();
-            $data['totalRegistros'] = Registro::count();
-            
-            // Calcular estadísticas de estados
             $allTerritorios = Territorio::all();
-            $estadisticas = [
-                'libre' => 0,
-                'activo' => 0,
-                'atrasado' => 0,
-                'archivo' => 0
-            ];
-            
+            $stats['totalTerritorios'] = $allTerritorios->count();
+
             foreach ($allTerritorios as $territorio) {
                 $estado = $territorio->calcularEstado();
-                if (isset($estadisticas[$estado])) {
-                    $estadisticas[$estado]++;
-                }
+                if ($estado === 'activo') $stats['territoriosActivos']++;
+                elseif ($estado === 'libre') $stats['territoriosLibres']++;
+                elseif ($estado === 'atrasado') $stats['territoriosAtrasados']++;
             }
-            
-            $data['territoriosLibres'] = $estadisticas['libre'];
-            $data['territoriosActivos'] = $estadisticas['activo'];
-            $data['territoriosAtrasados'] = $estadisticas['atrasado'];
-            $data['territoriosArchivo'] = $estadisticas['archivo'];
-            
-            // Territorios realmente disponibles para asignar (cumplen regla de 90 días)
-            $data['territoriosDisponibles'] = $allTerritorios->filter(function($territorio) {
-                return $territorio->estaDisponibleParaAsignar();
-            })->count();
-            
-            // Registros activos
-            $data['registrosActivos'] = Registro::with(['territorio', 'publicador'])
-                ->whereNull('fecha_entrada')
-                ->latest('fecha_salida')
-                ->take(5)
-                ->get();
-                
         } catch (\Exception $e) {
             \Log::error('Error en DashboardController: ' . $e->getMessage());
         }
-        
-        // FORZAR la vista dashboard
-        return response()->view('dashboard', $data);
+
+        return view('dashboard', compact('modulos', 'stats'));
     }
 
     /**
