@@ -180,12 +180,12 @@
                 </div>
 
                 <div class="territorio-actions-grid">
-                    <button type="button" onclick="window.location.href='{{ route('territorios.show', $territorio) }}'" class="btn-icon">
-                        &#128065; Ver
-                    </button>
-                    <button type="button" onclick="window.location.href='{{ route('registros.create') }}?territorio_id={{ $territorio->id }}'" class="btn-icon">
-                        &#128203; Registrar
-                    </button>
+                    <a href="{{ route('territorios.show', $territorio) }}" class="btn-icon">
+                        Ver
+                    </a>
+                    <a href="{{ route('registros.create') }}?territorio_id={{ $territorio->id }}" class="btn-icon">
+                        Registrar
+                    </a>
                 </div>
             </div>
 
@@ -275,22 +275,22 @@ document.addEventListener('click', function(e) {
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1.25rem;
-    background: var(--bg-card, #fff);
-    border: 2px solid var(--border-color, #e5e7eb);
+    background: var(--bg-white);
+    border: 2px solid var(--border);
     border-radius: 10px;
     text-decoration: none;
-    color: var(--text-primary);
+    color: var(--text);
     transition: all 0.2s;
     font-weight: 500;
 }
 .tipo-filtro:hover {
-    border-color: var(--color-primary);
+    border-color: var(--primary);
     background: #f8fafc;
 }
 .tipo-filtro.active {
-    border-color: var(--color-primary);
+    border-color: var(--primary);
     background: linear-gradient(135deg, #f4f7fb 0%, #e8eef6 100%);
-    color: var(--color-primary);
+    color: var(--primary);
 }
 .tipo-filtro.tipo-campana.active {
     border-color: #4a6da7;
@@ -309,7 +309,7 @@ document.addEventListener('click', function(e) {
     font-size: 0.9rem;
 }
 .tipo-count {
-    background: var(--color-gray-200, #e5e7eb);
+    background: var(--border);
     padding: 0.15rem 0.5rem;
     border-radius: 10px;
     font-size: 0.75rem;
@@ -349,8 +349,8 @@ document.addEventListener('click', function(e) {
     right: 0;
     top: 100%;
     margin-top: 0.5rem;
-    background: var(--bg-card, #fff);
-    border: 1px solid var(--border-color);
+    background: var(--bg-white);
+    border: 1px solid var(--border);
     border-radius: 8px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.15);
     min-width: 220px;
@@ -365,12 +365,12 @@ document.addEventListener('click', function(e) {
     align-items: center;
     gap: 0.75rem;
     padding: 0.75rem 1rem;
-    color: var(--text-primary);
+    color: var(--text);
     text-decoration: none;
     transition: background 0.2s;
 }
 .dropdown-item:hover {
-    background: var(--color-gray-100);
+    background: var(--bg-hover);
 }
 .dropdown-icon {
     font-size: 1.25rem;

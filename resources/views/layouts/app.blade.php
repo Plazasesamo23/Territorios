@@ -286,33 +286,6 @@
             color: #d8dce1;
         }
 
-        /* Buttons base */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            border-radius: 6px;
-            border: 1px solid transparent;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: white;
-            border-color: rgba(255,255,255,0.5);
-        }
-
-        .btn-outline:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: white;
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
             .header-content {
@@ -468,6 +441,18 @@
                     icon.textContent = '🌙';
                 }
             }
+
+            // Clickable table rows - supports right-click/new tab
+            document.querySelectorAll('.clickable-row[data-href]').forEach(row => {
+                row.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+                    if (e.ctrlKey || e.metaKey) {
+                        window.open(this.dataset.href, '_blank');
+                    } else {
+                        window.location = this.dataset.href;
+                    }
+                });
+            });
 
             setTimeout(() => {
                 document.querySelectorAll('.alert').forEach(a => {

@@ -20,7 +20,7 @@
         <span class="breadcrumb-current">S13</span>
         @if(isset($congregacionActiva))
         <span class="breadcrumb-sep">|</span>
-        <span style="color:#0d6efd;font-weight:bold;">{{ $congregacionActiva->nombre }}</span>
+        <span class="text-primary font-medium">{{ $congregacionActiva->nombre }}</span>
         @endif
     </div>
 </div>
@@ -59,8 +59,8 @@
     <div class="card-title">📋 Información del Reporte</div>
     <div class="grid grid-2">
         <div>
-            <h4 style="margin-bottom: 0.5rem;">Contenido del PDF:</h4>
-            <ul style="margin: 0; padding-left: 1.5rem; color: #666;">
+            <h4 class="mb-1">Contenido del PDF:</h4>
+            <ul style="margin: 0; padding-left: 1.5rem; color: var(--text-muted);">
                 <li>{{ $estadisticas['total_territorios'] }} territorios divididos en {{ ceil($estadisticas['total_territorios'] / 20) }} páginas</li>
                 <li>20 territorios por página</li>
                 <li>Registros del año de servicio seleccionado</li>
@@ -68,8 +68,8 @@
             </ul>
         </div>
         <div>
-            <h4 style="margin-bottom: 0.5rem;">Datos incluidos:</h4>
-            <ul style="margin: 0; padding-left: 1.5rem; color: #666;">
+            <h4 class="mb-1">Datos incluidos:</h4>
+            <ul style="margin: 0; padding-left: 1.5rem; color: var(--text-muted);">
                 <li>Fecha de asignación</li>
                 <li>Nombre del publicador</li>
                 <li>Fecha de devolución</li>

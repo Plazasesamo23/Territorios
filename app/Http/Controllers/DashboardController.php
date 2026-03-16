@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Congregacion;
+use App\Models\Territorio;
+use App\Models\Publicador;
+use App\Models\Registro;
 
 class DashboardController extends Controller
 {
@@ -75,7 +78,14 @@ class DashboardController extends Controller
         $congregacionId = session('congregacion_activa_id');
         $congregacion = Congregacion::find($congregacionId);
 
-        return view('configuracion', compact('congregacion'));
+        $statsConfig = [
+            'totalTerritorios' => Territorio::when($congregacionId, fn($q) => $q->where('congregacion_id', $congregacionId))->count(),
+            'publicadoresActivos' => Publicador::when($congregacionId, fn($q) => $q->where('congregacion_id', $congregacionId))->where('activo', true)->count(),
+            'asignacionesActivas' => Registro::whereNull('fecha_entrada')->when($congregacionId, fn($q) => $q->whereHas('territorio', fn($t) => $t->where('congregacion_id', $congregacionId)))->count(),
+            'totalRegistros' => Registro::when($congregacionId, fn($q) => $q->whereHas('territorio', fn($t) => $t->where('congregacion_id', $congregacionId)))->count(),
+        ];
+
+        return view('configuracion', compact('congregacion', 'statsConfig'));
     }
 
     /**

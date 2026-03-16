@@ -43,7 +43,7 @@
         </thead>
         <tbody>
             @foreach($publicadores as $publicador)
-            <tr onclick="window.location='{{ route('publicadores.show', $publicador) }}'" style="cursor:pointer;">
+            <tr class="clickable-row" data-href="{{ route('publicadores.show', $publicador) }}">
                 <td>
                     <span class="font-medium">{{ $publicador->nombre }}</span>
                     @if($publicador->es_anciano)

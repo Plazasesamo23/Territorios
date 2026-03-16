@@ -7,10 +7,6 @@
     <h1 class="page-title">Registros de Territorios</h1>
     <p class="page-subtitle">Gestiona las asignaciones activas</p>
 
-    @if(session('success'))
-        <div class="alert-banner mb-2">{{ session('success') }}</div>
-    @endif
-
     @if(session('mostrar_whatsapp') && session('whatsapp_url'))
         <div class="alert-banner mb-2" style="flex-direction: column; gap: 0.5rem; text-align: left;">
             <strong>Asignacion Completada</strong>
@@ -135,7 +131,7 @@
         <tbody>
             @foreach($registrosOrdenados as $registro)
             @php $estado = $registro->territorio->calcularEstado(); @endphp
-            <tr onclick="window.location='{{ route('registros.show', $registro) }}'" style="cursor:pointer;">
+            <tr class="clickable-row" data-href="{{ route('registros.show', $registro) }}">
                 <td class="text-muted">{{ $registro->fecha_salida->format('d/m/Y') }}</td>
                 <td><strong>{{ $registro->territorio->numero_completo }}</strong></td>
                 <td>{{ $registro->publicador->nombre_completo }}</td>
