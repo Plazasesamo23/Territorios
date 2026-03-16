@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Territorios;
+
+use App\Http\Controllers\Controller;
 
 use App\Services\PdfParserService;
 use App\Services\PublicadorMatcherService;

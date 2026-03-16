@@ -15,102 +15,92 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+
+        // Redireccion por rol
+        if ($user->isTerritoriosUser()) {
+            return redirect()->route('panel-territorios');
+        }
+        if ($user->isPpocUser()) {
+            return redirect()->route('ppoc.calendario');
+        }
+
         // Obtener la congregacion activa
         $congregacionId = session('congregacion_activa_id');
         $congregacion = Congregacion::find($congregacionId);
 
-        // Datos basicos y seguros
-        $data = [
-            'congregacion' => $congregacion,
+        // Modulos disponibles segun permisos
+        $modulos = [];
+
+        $modulos[] = [
+            'nombre' => 'Territorios',
+            'descripcion' => 'Gestionar territorios, asignaciones y estados',
+            'ruta' => route('panel-territorios'),
+            'icono' => 'territorios',
+            'color' => 'green',
+        ];
+
+        if ($user->canAccessPPOC()) {
+            $modulos[] = [
+                'nombre' => 'PPOC',
+                'descripcion' => 'Calendario, turnos y asignaciones',
+                'ruta' => route('ppoc.calendario'),
+                'icono' => 'ppoc',
+                'color' => 'blue',
+            ];
+        }
+
+        if ($user->canGenerateS13()) {
+            $modulos[] = [
+                'nombre' => 'S-13',
+                'descripcion' => 'Reportes S-13, PDF y vista previa',
+                'ruta' => route('s13.index'),
+                'icono' => 's13',
+                'color' => 'purple',
+            ];
+        }
+
+        if ($user->isAdmin()) {
+            $modulos[] = [
+                'nombre' => 'Administracion',
+                'descripcion' => 'Publicadores, usuarios, grupos, configuracion',
+                'ruta' => route('administracion'),
+                'icono' => 'admin',
+                'color' => 'orange',
+            ];
+        }
+
+        // Estadisticas rapidas
+        $stats = [
             'totalTerritorios' => 0,
-            'publicadoresActivos' => 0,
-            'totalRegistros' => 0,
-            'territoriosLibres' => 0,
             'territoriosActivos' => 0,
-            'registrosActivos' => collect([]),
+            'territoriosLibres' => 0,
             'territoriosAtrasados' => 0,
-            'territoriosArchivo' => 0,
-            'totalGrupos' => 0,
-            'turnosEsteMes' => 0,
-            'publicadoresAprobados' => 0
+            'publicadoresActivos' => 0,
         ];
 
         try {
-            // Filtrar por congregacion si existe
             if ($congregacionId) {
-                $data['totalTerritorios'] = Territorio::where('congregacion_id', $congregacionId)->count();
-                $data['publicadoresActivos'] = Publicador::where('congregacion_id', $congregacionId)->where('activo', true)->count();
-                $data['totalRegistros'] = Registro::whereHas('territorio', function($q) use ($congregacionId) {
-                    $q->where('congregacion_id', $congregacionId);
-                })->count();
-                $data['totalGrupos'] = GrupoPredicacion::where('congregacion_id', $congregacionId)->count();
-
                 $allTerritorios = Territorio::where('congregacion_id', $congregacionId)->get();
-
-                // Estadisticas PPOC
-                $data['publicadoresAprobados'] = Publicador::where('congregacion_id', $congregacionId)
-                    ->where('aprobado_ppoc', true)
-                    ->where('activo', true)
-                    ->count();
-
-                // Turnos de este mes
-                $inicioMes = Carbon::now()->startOfMonth();
-                $finMes = Carbon::now()->endOfMonth();
-                $data['turnosEsteMes'] = TurnoGenerado::where('congregacion_id', $congregacionId)
-                    ->whereBetween('fecha', [$inicioMes, $finMes])
-                    ->count();
-
+                $stats['publicadoresActivos'] = Publicador::where('congregacion_id', $congregacionId)->where('activo', true)->count();
             } else {
-                $data['totalTerritorios'] = Territorio::count();
-                $data['publicadoresActivos'] = Publicador::where('activo', true)->count();
-                $data['totalRegistros'] = Registro::count();
-                $data['totalGrupos'] = GrupoPredicacion::count();
                 $allTerritorios = Territorio::all();
+                $stats['publicadoresActivos'] = Publicador::where('activo', true)->count();
             }
 
-            // Calcular estadisticas de estados
-            $estadisticas = [
-                'libre' => 0,
-                'activo' => 0,
-                'atrasado' => 0,
-                'archivo' => 0
-            ];
+            $stats['totalTerritorios'] = $allTerritorios->count();
 
             foreach ($allTerritorios as $territorio) {
                 $estado = $territorio->calcularEstado();
-                if (isset($estadisticas[$estado])) {
-                    $estadisticas[$estado]++;
-                }
+                if ($estado === 'activo') $stats['territoriosActivos']++;
+                elseif ($estado === 'libre') $stats['territoriosLibres']++;
+                elseif ($estado === 'atrasado') $stats['territoriosAtrasados']++;
             }
-
-            $data['territoriosLibres'] = $estadisticas['libre'];
-            $data['territoriosActivos'] = $estadisticas['activo'];
-            $data['territoriosAtrasados'] = $estadisticas['atrasado'];
-            $data['territoriosArchivo'] = $estadisticas['archivo'];
-
-            // Territorios realmente disponibles para asignar
-            $data['territoriosDisponibles'] = $allTerritorios->filter(function($territorio) {
-                return $territorio->estaDisponibleParaAsignar();
-            })->count();
-
-            // Registros activos
-            $registrosQuery = Registro::with(['territorio', 'publicador'])
-                ->whereNull('fecha_entrada')
-                ->latest('fecha_salida');
-
-            if ($congregacionId) {
-                $registrosQuery->whereHas('territorio', function($q) use ($congregacionId) {
-                    $q->where('congregacion_id', $congregacionId);
-                });
-            }
-
-            $data['registrosActivos'] = $registrosQuery->take(5)->get();
-
         } catch (\Exception $e) {
             \Log::error('Error en DashboardController: ' . $e->getMessage());
         }
 
-        return response()->view('dashboard', $data);
+        return view('dashboard', compact('modulos', 'stats', 'congregacion'));
     }
 
     /**

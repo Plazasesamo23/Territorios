@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\PPOC;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Turno;
 use App\Models\DisponibilidadPpoc;

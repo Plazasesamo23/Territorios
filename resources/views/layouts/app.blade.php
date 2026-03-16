@@ -411,6 +411,16 @@
         </div>
     </header>
 
+    @auth
+        @if(request()->routeIs('panel-territorios') || request()->routeIs('territorios.*') || request()->routeIs('registros.*') || request()->routeIs('s13.*') || request()->routeIs('creador-territorios.*'))
+            @include('layouts.partials.submenu-territorios')
+        @elseif(request()->routeIs('ppoc.*'))
+            @include('layouts.partials.submenu-ppoc')
+        @elseif(request()->routeIs('administracion') || request()->routeIs('publicadores.*') || request()->routeIs('usuarios.*') || request()->routeIs('grupos-predicacion.*') || request()->is('configuracion') || request()->routeIs('congregaciones.*'))
+            @include('layouts.partials.submenu-admin')
+        @endif
+    @endauth
+
     @if(session('success'))
     <div class="container" style="margin-top:1rem;">
         <div class="alert alert-success">{{ session('success') }}</div>
