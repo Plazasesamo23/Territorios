@@ -288,9 +288,20 @@
 
         <div class="form-row">
             <div class="form-group">
+                <label for="genero">Genero</label>
+                <select id="genero" name="genero">
+                    <option value="">-- Seleccionar --</option>
+                    <option value="M" {{ $publicador->genero == 'M' ? 'selected' : '' }}>Hermano</option>
+                    <option value="F" {{ $publicador->genero == 'F' ? 'selected' : '' }}>Hermana</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="telefono">Telefono</label>
                 <input type="text" id="telefono" name="telefono" value="{{ old('telefono', $publicador->telefono) }}">
             </div>
+        </div>
+
+        <div class="form-row">
             <div class="form-group">
                 <label for="grupo_predicacion_id">Grupo de Predicacion</label>
                 <select id="grupo_predicacion_id" name="grupo_predicacion_id">
@@ -347,6 +358,24 @@
                 <label class="checkbox-label">
                     <input type="checkbox" name="aprobado_ppoc" value="1" {{ $publicador->aprobado_ppoc ? 'checked' : '' }}>
                     <span>Aprobado PPOC</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-checkboxes-section">
+            <label class="form-section-label">Reuniones</label>
+            <div class="form-checkboxes">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="puede_dirigir_estudio" value="1" {{ $publicador->puede_dirigir_estudio ? 'checked' : '' }}>
+                    <span>Puede dirigir estudio</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="puede_leer_estudio" value="1" {{ $publicador->puede_leer_estudio ? 'checked' : '' }}>
+                    <span>Puede leer estudio</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="excluido_reuniones" value="1" {{ $publicador->excluido_reuniones ? 'checked' : '' }}>
+                    <span>Excluido de reuniones</span>
                 </label>
             </div>
         </div>

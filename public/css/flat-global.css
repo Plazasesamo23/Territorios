@@ -1794,6 +1794,26 @@ select.form-input {
     font-weight: 400;
 }
 
+/* Boton recomendar */
+.btn-rec {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #14b8a6;
+    color: #121416;
+    border: none;
+    cursor: pointer;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-left: 0.25rem;
+    vertical-align: middle;
+}
+
+.btn-rec:hover { background: #0d9488; }
+
 /* Print styles */
 @media print {
     .header, .submenu, .footer, .no-print, .alert { display: none !important; }

@@ -180,6 +180,12 @@ class AsignacionReunionService
                 $puntuacion -= 40;
             }
 
+            // Ancianos no suelen hacer partes de estudiantes
+            $esParteEstudiante = in_array($tipo, ['empiece_conversaciones', 'haga_revisitas', 'haga_discipulos', 'explique_creencias', 'ayudante']);
+            if ($esParteEstudiante && $candidato->es_anciano) {
+                $puntuacion -= 50;
+            }
+
             // Jitter aleatorio
             $puntuacion += rand(-200, 200) / 100;
 

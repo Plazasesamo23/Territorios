@@ -10,21 +10,8 @@
             <h1 class="page-title">Programas VyM</h1>
             <p class="page-subtitle">Vida y Ministerio Cristianos</p>
         </div>
-        <a href="{{ route('reuniones.create') }}" class="btn btn-teal">+ Crear programa</a>
     </div>
 
-    @if($programas->isEmpty())
-        <div class="empty-state">
-            <div class="icon">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
-                </svg>
-            </div>
-            <div class="title">No hay programas creados</div>
-            <div class="desc">Crea tu primer programa de reunion semanal</div>
-            <a href="{{ route('reuniones.create') }}" class="btn btn-teal mt-2">Crear programa</a>
-        </div>
-    @else
         <table class="table-flat">
             <thead>
                 <tr>
@@ -78,7 +65,6 @@
         <div class="mt-2">
             {{ $programas->links() }}
         </div>
-    @endif
 </div>
 
 @endsection

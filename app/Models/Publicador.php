@@ -17,6 +17,9 @@ class Publicador extends Model
         'nombre',
         'apellidos',
         'genero',
+        'excluido_reuniones',
+        'puede_dirigir_estudio',
+        'puede_leer_estudio',
         'telefono',
         'notas',
         'activo',
@@ -41,6 +44,9 @@ class Publicador extends Model
         'es_siervo_ministerial' => 'boolean',
         'es_menor' => 'boolean',
         'es_capitan_ppoc' => 'boolean',
+        'excluido_reuniones' => 'boolean',
+        'puede_dirigir_estudio' => 'boolean',
+        'puede_leer_estudio' => 'boolean',
         'orden_grupo' => 'integer',
     ];
 
@@ -105,19 +111,19 @@ class Publicador extends Model
      */
     public function puedeHacerParte(string $tipoParte): bool
     {
-        if (!$this->activo || !$this->genero) {
+        if (!$this->activo || !$this->genero || $this->excluido_reuniones) {
             return false;
         }
 
         return match ($tipoParte) {
             'presidente' => $this->es_anciano,
-            'oracion_inicio', 'oracion_final' => $this->esHermano(),
+            'oracion_inicio', 'oracion_final' => $this->esHermano() && !$this->es_menor,
             'discurso_tesoros', 'perlas' => $this->esHermano() && ($this->es_anciano || $this->es_siervo_ministerial),
             'lectura' => $this->esHermano(),
             'empiece_conversaciones', 'haga_revisitas', 'haga_discipulos', 'explique_creencias' => true,
             'discurso_vida' => $this->esHermano() && ($this->es_anciano || $this->es_siervo_ministerial),
-            'conductor_estudio' => $this->es_anciano,
-            'lector_estudio' => $this->esHermano(),
+            'conductor_estudio' => $this->puede_dirigir_estudio,
+            'lector_estudio' => $this->puede_leer_estudio,
             'ayudante' => true,
             default => false,
         };

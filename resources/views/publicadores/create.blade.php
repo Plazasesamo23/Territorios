@@ -27,6 +27,15 @@
             </div>
 
             <div class="form-group">
+                <label class="form-label">Genero *</label>
+                <select name="genero" class="form-input" required>
+                    <option value="">-- Seleccionar --</option>
+                    <option value="M" {{ old('genero') == 'M' ? 'selected' : '' }}>Hermano</option>
+                    <option value="F" {{ old('genero') == 'F' ? 'selected' : '' }}>Hermana</option>
+                </select>
+            </div>
+
+            <div class="form-group">
                 <label class="form-label">Telefono *</label>
                 <input type="tel" name="telefono" required value="{{ old('telefono') }}"
                        class="form-input" placeholder="+34 612 345 678">
@@ -67,6 +76,10 @@
             <label class="option-item">
                 <input type="checkbox" name="es_menor" value="1" {{ old('es_menor') ? 'checked' : '' }}>
                 <span>Menor</span>
+            </label>
+            <label class="option-item">
+                <input type="checkbox" name="excluido_reuniones" value="1" {{ old('excluido_reuniones') ? 'checked' : '' }}>
+                <span>Excluido de reuniones</span>
             </label>
         </div>
 
