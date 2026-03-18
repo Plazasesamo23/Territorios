@@ -14,7 +14,7 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        // Redireccion por rol
+        // Redireccion por rol limitado
         if ($user->isTerritoriosUser()) {
             return redirect()->route('panel-territorios');
         }
@@ -22,9 +22,21 @@ class DashboardController extends Controller
             return redirect()->route('ppoc.calendario');
         }
 
-        // Obtener la congregacion activa
-        $congregacionId = session('congregacion_activa_id');
-        $congregacion = Congregacion::find($congregacionId);
+        // Admin/Superadmin → menu principal con categorias
+        if ($user->isAdmin()) {
+            return view('inicio');
+        }
+
+        // Usuario normal → dashboard de servicio directo
+        return $this->servicio();
+    }
+
+    /**
+     * Dashboard de Servicio (modulos de servicio del campo)
+     */
+    public function servicio()
+    {
+        $user = auth()->user();
 
         // Modulos disponibles segun permisos
         $modulos = [];
@@ -67,7 +79,7 @@ class DashboardController extends Controller
             ];
         }
 
-        return view('dashboard', compact('modulos', 'congregacion'));
+        return view('dashboard', compact('modulos'));
     }
 
     /**

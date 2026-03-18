@@ -6,15 +6,21 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CambiarUsuarioController;
 use App\Http\Controllers\PerfilController;
 
+// Ruta para refrescar el token CSRF (evita error 419 en login)
+Route::get('/refresh-csrf', function () {
+    return response()->json(['token' => csrf_token()]);
+});
+
 // Rutas de autenticacion (Laravel UI/Breeze)
 Auth::routes(['register' => false]);
 
 // Rutas protegidas con autenticacion y filtro de congregacion
 Route::middleware(['auth', 'congregacion'])->group(function () {
 
-    // Ruta principal - Dashboard
+    // Ruta principal - Menu inicio
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/servicio', [DashboardController::class, 'servicio'])->name('servicio');
 
     // Perfil personal
     Route::get('perfil', [PerfilController::class, 'index'])->name('perfil.index');

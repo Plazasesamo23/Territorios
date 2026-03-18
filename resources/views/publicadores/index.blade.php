@@ -3,7 +3,7 @@
 @section('title', 'Publicadores')
 
 @section('content')
-<div class="page-flat">
+<div class="page-md">
     <h1 class="page-title">Publicadores</h1>
     <p class="page-subtitle">{{ $publicadores->count() }} publicadores registrados</p>
 
@@ -69,11 +69,4 @@
     </div>
     @endif
 </div>
-
-<style>
-.page-flat {
-    max-width: 900px;
-    margin: 0 auto;
-}
-</style>
 @endsection

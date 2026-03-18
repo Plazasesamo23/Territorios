@@ -51,13 +51,4 @@
     </div>
 </div>
 
-<style>
-.dashboard { max-width: 800px; margin: 0 auto; }
-.dash-header { margin-bottom: 2rem; text-align: center; }
-.dash-header h1 { font-size: 1.75rem; font-weight: 700; color: #212529; margin: 0 0 0.25rem; }
-[data-theme="dark"] .dash-header h1 { color: #f1f3f5; }
-.dash-header .subtitle { font-size: 0.9rem; color: #6c757d; margin: 0; text-transform: capitalize; }
-[data-theme="dark"] .dash-header .subtitle { color: #8b939c; }
-</style>
-
 @endsection

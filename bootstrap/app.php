@@ -19,6 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
             Route::middleware('web')
                 ->group(base_path('routes/admin.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/reuniones.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
@@ -34,5 +37,14 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // Manejar error 419 (CSRF token expirado) de forma amigable
+        $exceptions->renderable(function (\Illuminate\Session\TokenMismatchException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Tu sesion ha expirado. Por favor, recarga la pagina.'], 419);
+            }
+
+            return redirect()->back()
+                ->withInput($request->except('password', '_token'))
+                ->withErrors(['token' => 'Tu sesion ha expirado. Por favor, intenta de nuevo.']);
+        });
     })->create();

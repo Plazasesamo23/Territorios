@@ -16,6 +16,7 @@ class Publicador extends Model
         'grupo_predicacion_id',
         'nombre',
         'apellidos',
+        'genero',
         'telefono',
         'notas',
         'activo',
@@ -81,5 +82,44 @@ class Publicador extends Model
     public function disponibilidadesPpoc()
     {
         return $this->hasMany(DisponibilidadPpoc::class);
+    }
+
+    /**
+     * Historial de reuniones
+     */
+    public function reunionHistorial()
+    {
+        return $this->hasMany(ReunionHistorial::class);
+    }
+
+    /**
+     * Es hermano (varon)
+     */
+    public function esHermano(): bool
+    {
+        return $this->genero === 'M';
+    }
+
+    /**
+     * Puede hacer una parte especifica de la reunion VyM
+     */
+    public function puedeHacerParte(string $tipoParte): bool
+    {
+        if (!$this->activo || !$this->genero) {
+            return false;
+        }
+
+        return match ($tipoParte) {
+            'presidente' => $this->es_anciano,
+            'oracion_inicio', 'oracion_final' => $this->esHermano(),
+            'discurso_tesoros', 'perlas' => $this->esHermano() && ($this->es_anciano || $this->es_siervo_ministerial),
+            'lectura' => $this->esHermano(),
+            'empiece_conversaciones', 'haga_revisitas', 'haga_discipulos', 'explique_creencias' => true,
+            'discurso_vida' => $this->esHermano() && ($this->es_anciano || $this->es_siervo_ministerial),
+            'conductor_estudio' => $this->es_anciano,
+            'lector_estudio' => $this->esHermano(),
+            'ayudante' => true,
+            default => false,
+        };
     }
 }

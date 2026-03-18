@@ -3,7 +3,7 @@
 @section('title', 'Registros de Territorios')
 
 @section('content')
-<div class="page-flat">
+<div class="page-md">
     <h1 class="page-title">Registros de Territorios</h1>
     <p class="page-subtitle">Gestiona las asignaciones activas</p>
 
@@ -145,15 +145,4 @@
     </div>
     @endif
 </div>
-
-<style>
-.page-flat {
-    max-width: 1000px;
-    margin: 0 auto;
-}
-
-.tabs-flat a {
-    text-decoration: none;
-}
-</style>
 @endsection

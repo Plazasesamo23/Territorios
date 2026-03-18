@@ -11,22 +11,17 @@
     <script src="{{ asset('js/app.js') }}" defer></script>
     <style>
         /* ========================================
-           LAYOUT STYLES - Solo azul, gris, blanco, negro
+           LAYOUT STYLES - Solo modo oscuro
            ======================================== */
 
         /* Congregacion Badge */
         .congregacion-badge {
             padding: 0.25rem 0.75rem;
-            background: #4a6da7;
-            color: white;
+            background: #6b8fc7;
+            color: #121416;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
-        }
-
-        [data-theme="dark"] .congregacion-badge {
-            background: #6b8fc7;
-            color: #121416;
         }
 
         /* Header Buttons */
@@ -46,72 +41,42 @@
             text-decoration: none;
             transition: all 0.2s;
             font-size: 1rem;
-            background: #4a6da7;
-            color: white;
-        }
-
-        .header-btn:hover {
-            background: #3d5a8a;
-            transform: scale(1.05);
-        }
-
-        [data-theme="dark"] .header-btn {
             background: #6b8fc7;
             color: #121416;
         }
 
-        [data-theme="dark"] .header-btn:hover {
+        .header-btn:hover {
             background: #8aa8d6;
+            transform: scale(1.05);
         }
 
         /* Boton volver - gris oscuro para destacar */
         .btn-volver {
-            background: #495057;
-        }
-
-        .btn-volver:hover {
-            background: #343a40;
-        }
-
-        [data-theme="dark"] .btn-volver {
             background: #8b939c;
         }
 
-        [data-theme="dark"] .btn-volver:hover {
+        .btn-volver:hover {
             background: #b8bfc7;
         }
 
         /* Boton logout - gris mas oscuro */
         .btn-logout {
-            background: #6c757d;
+            background: #5c656e;
             border: none;
             cursor: pointer;
         }
 
         .btn-logout:hover {
-            background: #495057;
-        }
-
-        [data-theme="dark"] .btn-logout {
-            background: #5c656e;
-        }
-
-        [data-theme="dark"] .btn-logout:hover {
             background: #8b939c;
         }
 
         /* Header Principal */
         .header {
-            background: #4a6da7;
+            background: #1a1d21;
             padding: 0;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        [data-theme="dark"] .header {
-            background: #1a1d21;
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
@@ -132,12 +97,8 @@
         .logo {
             font-size: 1.125rem;
             font-weight: 700;
-            color: white;
-            text-decoration: none;
-        }
-
-        [data-theme="dark"] .logo {
             color: #f1f3f5;
+            text-decoration: none;
         }
 
         /* Navegacion */
@@ -149,7 +110,7 @@
 
         .nav-link {
             padding: 0.5rem 0.875rem;
-            color: rgba(255,255,255,0.85);
+            color: rgba(241,243,245,0.75);
             text-decoration: none;
             font-size: 0.875rem;
             font-weight: 500;
@@ -158,21 +119,11 @@
         }
 
         .nav-link:hover {
-            background: rgba(255,255,255,0.15);
-            color: white;
+            background: rgba(107,143,199,0.2);
+            color: #f1f3f5;
         }
 
         .nav-link.active {
-            background: rgba(255,255,255,0.2);
-            color: white;
-        }
-
-        [data-theme="dark"] .nav-link {
-            color: rgba(241,243,245,0.75);
-        }
-
-        [data-theme="dark"] .nav-link:hover,
-        [data-theme="dark"] .nav-link.active {
             background: rgba(107,143,199,0.2);
             color: #f1f3f5;
         }
@@ -184,42 +135,10 @@
             gap: 0.75rem;
         }
 
-        /* Theme Toggle */
-        .theme-toggle {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: none;
-            background: rgba(255,255,255,0.15);
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            transition: all 0.2s;
-        }
-
-        .theme-toggle:hover {
-            background: rgba(255,255,255,0.25);
-        }
-
-        [data-theme="dark"] .theme-toggle {
-            background: rgba(107,143,199,0.2);
-        }
-
-        [data-theme="dark"] .theme-toggle:hover {
-            background: rgba(107,143,199,0.3);
-        }
-
         /* Main Content */
         .main {
             min-height: calc(100vh - 56px - 60px);
             padding: 1.5rem 0;
-            background: #f1f3f5;
-        }
-
-        [data-theme="dark"] .main {
             background: #0d0f11;
         }
 
@@ -231,17 +150,11 @@
 
         /* Footer */
         .footer {
-            background: #ffffff;
-            border-top: 1px solid #dee2e6;
+            background: #151719;
+            border-top: 1px solid #2d3339;
             padding: 1rem 0;
             text-align: center;
             font-size: 0.8rem;
-            color: #6c757d;
-        }
-
-        [data-theme="dark"] .footer {
-            background: #151719;
-            border-top-color: #2d3339;
             color: #8b939c;
         }
 
@@ -263,26 +176,14 @@
         }
 
         .alert-success {
-            background: #e8eef6;
-            border: 1px solid #4a6da7;
-            color: #2d4266;
-        }
-
-        [data-theme="dark"] .alert-success {
             background: rgba(107,143,199,0.15);
-            border-color: #6b8fc7;
+            border: 1px solid #6b8fc7;
             color: #b8bfc7;
         }
 
         .alert-error {
-            background: #f8f9fa;
-            border: 1px solid #495057;
-            color: #212529;
-        }
-
-        [data-theme="dark"] .alert-error {
             background: rgba(139,147,156,0.15);
-            border-color: #8b939c;
+            border: 1px solid #8b939c;
             color: #d8dce1;
         }
 
@@ -315,12 +216,13 @@
         }
     </style>
 </head>
-<body>
+<body data-theme="dark">
     <header class="header">
         <div class="container">
             <div class="header-content">
                 <a href="{{ route('dashboard') }}" class="logo">Gestor de Congregacion</a>
 
+                @if(!View::hasSection('hide_nav'))
                 <nav class="nav">
                     @auth
                         @if(Auth::user()->isTerritoriosUser())
@@ -329,7 +231,7 @@
                             <a href="{{ route('s13.index') }}" class="nav-link {{ request()->routeIs('s13.*') ? 'active' : '' }}">S-13</a>
                             @endif
                         @else
-                            <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">Inicio</a>
+                            <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') || request()->routeIs('servicio') ? 'active' : '' }}">Inicio</a>
                             <a href="{{ route('panel-territorios') }}" class="nav-link {{ request()->routeIs('panel-territorios') || request()->routeIs('registros.*') || request()->routeIs('territorios.*') ? 'active' : '' }}">Territorios</a>
                             @if(Auth::user()->canAccessPPOC())
                             <a href="{{ route('ppoc.calendario') }}" class="nav-link {{ request()->routeIs('ppoc.*') ? 'active' : '' }}">PPOC</a>
@@ -338,6 +240,7 @@
                             <a href="{{ route('s13.index') }}" class="nav-link {{ request()->routeIs('s13.*') ? 'active' : '' }}">S-13</a>
                             @endif
                             @if(Auth::user()->isAdmin())
+                            <a href="{{ route('reuniones.index') }}" class="nav-link {{ request()->routeIs('reuniones.*') ? 'active' : '' }}">Reuniones</a>
                             <a href="{{ route('administracion') }}" class="nav-link {{ request()->routeIs('administracion') || request()->routeIs('publicadores.*') || request()->routeIs('grupos-predicacion.*') || request()->routeIs('s13.*') || request()->routeIs('usuarios.*') || request()->routeIs('configuracion') || request()->routeIs('creador-territorios.*') ? 'active' : '' }}">Administracion</a>
                             @endif
                             @can('superadmin')
@@ -346,6 +249,7 @@
                         @endif
                     @endauth
                 </nav>
+                @endif
 
                 <div class="header-actions">
                     @auth
@@ -375,10 +279,6 @@
                     @else
                         <a href="{{ route('login') }}" class="btn btn-outline">Iniciar Sesion</a>
                     @endauth
-
-                    <button id="theme-toggle" class="theme-toggle" title="Cambiar tema">
-                        <span id="theme-icon">🌙</span>
-                    </button>
                 </div>
             </div>
         </div>
@@ -389,6 +289,8 @@
             @include('layouts.partials.submenu-territorios')
         @elseif(request()->routeIs('ppoc.*'))
             @include('layouts.partials.submenu-ppoc')
+        @elseif(request()->routeIs('reuniones.*'))
+            @include('layouts.partials.submenu-reuniones')
         @elseif(request()->routeIs('administracion') || request()->routeIs('publicadores.*') || request()->routeIs('usuarios.*') || request()->routeIs('grupos-predicacion.*') || request()->is('configuracion') || request()->routeIs('congregaciones.*'))
             @include('layouts.partials.submenu-admin')
         @endif
@@ -420,28 +322,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const toggle = document.getElementById('theme-toggle');
-            const icon = document.getElementById('theme-icon');
-            const saved = localStorage.getItem('theme') || 'light';
-            setTheme(saved);
-
-            toggle.addEventListener('click', function() {
-                const current = document.body.getAttribute('data-theme') || 'light';
-                const next = current === 'light' ? 'dark' : 'light';
-                setTheme(next);
-                localStorage.setItem('theme', next);
-            });
-
-            function setTheme(t) {
-                if (t === 'dark') {
-                    document.body.setAttribute('data-theme', 'dark');
-                    icon.textContent = '☀️';
-                } else {
-                    document.body.removeAttribute('data-theme');
-                    icon.textContent = '🌙';
-                }
-            }
-
             // Clickable table rows - supports right-click/new tab
             document.querySelectorAll('.clickable-row[data-href]').forEach(row => {
                 row.addEventListener('click', function(e) {
