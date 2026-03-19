@@ -27,11 +27,12 @@
     <form action="{{ route('reuniones.generos.guardar') }}" method="POST">
         @csrf
 
+        <div class="table-responsive">
         <table class="table-flat">
             <thead>
                 <tr>
                     <th>Publicador</th>
-                    <th>Nombramiento</th>
+                    <th class="hide-mobile">Nombramiento</th>
                     <th style="width: 160px;">Genero</th>
                 </tr>
             </thead>
@@ -39,7 +40,7 @@
                 @foreach($publicadores as $pub)
                 <tr>
                     <td class="font-medium">{{ $pub->nombre_completo }}</td>
-                    <td class="text-muted text-sm">
+                    <td class="text-muted text-sm hide-mobile">
                         @if($pub->es_anciano) Anciano
                         @elseif($pub->es_siervo_ministerial) Siervo ministerial
                         @elseif($pub->es_precursor) Precursor
@@ -58,6 +59,7 @@
                 @endforeach
             </tbody>
         </table>
+        </div>
 
         <div class="flex gap-1 mt-2" style="position: sticky; bottom: 0; padding: 1rem 0; background: var(--bg);">
             <button type="submit" class="btn btn-teal">Guardar generos</button>

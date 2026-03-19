@@ -56,12 +56,13 @@
             @endforeach
         </div>
 
+        <div class="table-responsive">
         <table class="table-flat">
             <thead>
                 <tr>
                     <th>Fecha</th>
                     <th>Tipo de parte</th>
-                    <th>Titulo</th>
+                    <th class="hide-mobile">Titulo</th>
                     <th>Rol</th>
                 </tr>
             </thead>
@@ -100,7 +101,7 @@
                             } }}
                         </span>
                     </td>
-                    <td class="text-muted text-sm">{{ $h->titulo_parte ?? '—' }}</td>
+                    <td class="text-muted text-sm hide-mobile">{{ $h->titulo_parte ?? '—' }}</td>
                     <td>
                         @if($h->rol === 'principal')
                             <span class="badge badge-primary">Principal</span>
@@ -112,6 +113,7 @@
                 @endforeach
             </tbody>
         </table>
+        </div>
     @endif
 </div>
 

@@ -1671,10 +1671,11 @@ select.form-input {
     border-left: 4px solid var(--border);
 }
 
+/* Colores teocraticos del cuadernillo VyM (jw.org) */
 .reunion-seccion-global { border-left-color: #14b8a6; }
-.reunion-seccion-tesoros { border-left-color: #6366f1; }
-.reunion-seccion-maestros { border-left-color: #f59e0b; }
-.reunion-seccion-vida { border-left-color: #ef4444; }
+.reunion-seccion-tesoros { border-left-color: #0f766e; }
+.reunion-seccion-maestros { border-left-color: #b45309; }
+.reunion-seccion-vida { border-left-color: #991b1b; }
 
 .reunion-seccion-titulo {
     font-size: 0.875rem;
@@ -1682,12 +1683,29 @@ select.form-input {
     margin: 0 0 1rem 0;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.reunion-seccion-titulo .seccion-icono {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    flex-shrink: 0;
 }
 
 .reunion-seccion-global .reunion-seccion-titulo { color: #14b8a6; }
-.reunion-seccion-tesoros .reunion-seccion-titulo { color: #6366f1; }
-.reunion-seccion-maestros .reunion-seccion-titulo { color: #f59e0b; }
-.reunion-seccion-vida .reunion-seccion-titulo { color: #ef4444; }
+.reunion-seccion-tesoros .reunion-seccion-titulo { color: #14b8a6; }
+.reunion-seccion-tesoros .seccion-icono { background: rgba(15,118,110,0.2); color: #14b8a6; }
+.reunion-seccion-maestros .reunion-seccion-titulo { color: #d97706; }
+.reunion-seccion-maestros .seccion-icono { background: rgba(180,83,9,0.2); color: #d97706; }
+.reunion-seccion-vida .reunion-seccion-titulo { color: #dc2626; }
+.reunion-seccion-vida .seccion-icono { background: rgba(153,27,27,0.2); color: #dc2626; }
 
 .reunion-parte {
     padding: 0.75rem 0;
@@ -1743,9 +1761,9 @@ select.form-input {
     border-left: 3px solid var(--border);
 }
 
-.reunion-print-tesoros { border-left-color: #6366f1; }
-.reunion-print-maestros { border-left-color: #f59e0b; }
-.reunion-print-vida { border-left-color: #ef4444; }
+.reunion-print-tesoros { border-left-color: #0f766e; }
+.reunion-print-maestros { border-left-color: #b45309; }
+.reunion-print-vida { border-left-color: #991b1b; }
 
 .reunion-print-seccion h3 {
     font-size: 0.8rem;
@@ -1756,9 +1774,9 @@ select.form-input {
     color: var(--text-muted);
 }
 
-.reunion-print-tesoros h3 { color: #6366f1; }
-.reunion-print-maestros h3 { color: #f59e0b; }
-.reunion-print-vida h3 { color: #ef4444; }
+.reunion-print-tesoros h3 { color: #14b8a6; }
+.reunion-print-maestros h3 { color: #d97706; }
+.reunion-print-vida h3 { color: #dc2626; }
 
 .reunion-print-table {
     width: 100%;
@@ -1825,11 +1843,15 @@ select.form-input {
         padding: 0 !important;
     }
     .reunion-print-header { border-bottom-color: #333 !important; }
-    .reunion-print-seccion { border-left-color: #666 !important; }
+    .reunion-print-tesoros { border-left-color: #0f766e !important; }
+    .reunion-print-maestros { border-left-color: #b45309 !important; }
+    .reunion-print-vida { border-left-color: #991b1b !important; }
     .reunion-print-table td { border-bottom-color: #ddd !important; color: black !important; }
     .reunion-print-label { color: #333 !important; }
     .reunion-print-value { color: black !important; }
-    .reunion-print-seccion h3 { color: #333 !important; }
+    .reunion-print-tesoros h3 { color: #0f766e !important; }
+    .reunion-print-maestros h3 { color: #b45309 !important; }
+    .reunion-print-vida h3 { color: #991b1b !important; }
     .reunion-print-header h2 { color: black !important; }
     .reunion-print-header p { color: #666 !important; }
     .reunion-print-min { color: #666 !important; }
@@ -1839,4 +1861,226 @@ select.form-input {
 @media (max-width: 768px) {
     .reunion-seccion { padding: 1rem; }
     .reunion-programa-imprimible { padding: 1rem; }
+}
+
+/* ============================================
+   RESPONSIVE GLOBAL - Mobile First Overrides
+   ============================================ */
+
+/* --- Wrapper para tablas scrolleables en movil --- */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* --- Tabs scrolleables --- */
+@media (max-width: 768px) {
+    .tabs-flat {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .tabs-flat::-webkit-scrollbar { display: none; }
+    .tab-item {
+        white-space: nowrap;
+        flex-shrink: 0;
+        padding: 0.625rem 0.75rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* --- Tables: font y padding reducido en movil --- */
+@media (max-width: 768px) {
+    .table-flat th,
+    .table-flat td {
+        padding: 0.5rem 0.375rem;
+        font-size: 0.8rem;
+    }
+    .table-flat th {
+        font-size: 0.65rem;
+    }
+}
+
+/* --- Stats row en movil --- */
+@media (max-width: 640px) {
+    .stats-row {
+        gap: 1rem;
+    }
+    .stat-number {
+        font-size: 1.5rem;
+    }
+}
+
+/* --- Config rows: stack en movil --- */
+@media (max-width: 768px) {
+    .config-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    .config-input-group {
+        width: 100%;
+    }
+    .config-input {
+        flex: 1;
+    }
+    .tipo-config-section {
+        padding: 1rem;
+    }
+}
+
+/* --- Info rows: stack en movil --- */
+@media (max-width: 480px) {
+    .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    .info-row .value {
+        text-align: left;
+    }
+}
+
+/* --- Search container: adaptable --- */
+@media (max-width: 640px) {
+    .search-container {
+        flex-wrap: wrap;
+    }
+    .search-input {
+        width: 100%;
+        flex: none;
+    }
+    .search-btn,
+    .search-clear {
+        flex: 1;
+        text-align: center;
+    }
+}
+
+/* --- Formularios: full-width en movil --- */
+@media (max-width: 640px) {
+    .form-actions {
+        flex-direction: column;
+    }
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* --- Breadcrumbs --- */
+.page-breadcrumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+}
+
+@media (max-width: 640px) {
+    .page-breadcrumbs {
+        font-size: 0.75rem;
+    }
+    .page-nav {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+}
+
+/* --- Modales: full-width en movil --- */
+@media (max-width: 640px) {
+    .modal {
+        max-width: 100%;
+        margin: 0.5rem;
+        max-height: 95vh;
+    }
+    .modal-backdrop {
+        padding: 0.5rem;
+    }
+}
+
+/* --- Page titles en movil --- */
+@media (max-width: 640px) {
+    .page-title {
+        font-size: 1.25rem;
+    }
+}
+
+/* --- Card en movil --- */
+@media (max-width: 640px) {
+    .card {
+        padding: 0.75rem;
+    }
+}
+
+/* --- Shortcuts/chips en movil --- */
+@media (max-width: 640px) {
+    .shortcut {
+        padding: 0.375rem 0.625rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* --- Dropdown en movil --- */
+@media (max-width: 640px) {
+    .dropdown-menu {
+        min-width: 180px;
+    }
+}
+
+/* --- Reunion parts en movil --- */
+@media (max-width: 768px) {
+    .reunion-parte-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.375rem;
+    }
+    .reunion-print-label {
+        width: auto;
+    }
+    .reunion-print-table td {
+        padding: 0.375rem 0.125rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* --- Texto y utilidades responsive --- */
+@media (max-width: 640px) {
+    .hide-mobile { display: none !important; }
+    .show-mobile { display: block !important; }
+    .text-sm-mobile { font-size: 0.8rem !important; }
+}
+
+@media (min-width: 641px) {
+    .show-mobile { display: none !important; }
+}
+
+/* --- Botones de accion responsive --- */
+@media (max-width: 640px) {
+    .btn {
+        padding: 0.5rem 0.875rem;
+        font-size: 0.8rem;
+    }
+    .btn-lg {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* --- Alert banner responsive --- */
+@media (max-width: 640px) {
+    .alert-banner {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+}
+
+/* --- Grid-2 dentro de forms: 1 col en movil --- */
+@media (max-width: 640px) {
+    .reunion-seccion .grid-2 {
+        grid-template-columns: 1fr;
+    }
 }

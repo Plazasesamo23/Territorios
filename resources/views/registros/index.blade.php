@@ -108,10 +108,11 @@
     </div>
 
     @if($registrosActivos->count() > 0)
+    <div class="table-responsive">
     <table class="table-flat">
         <thead>
             <tr>
-                <th>Fecha</th>
+                <th class="hide-mobile">Fecha</th>
                 <th>Territorio</th>
                 <th>Publicador</th>
                 <th>Dias</th>
@@ -122,7 +123,7 @@
             @foreach($registrosOrdenados as $registro)
             @php $estado = $registro->territorio->calcularEstado(); @endphp
             <tr class="clickable-row" data-href="{{ route('registros.show', $registro) }}">
-                <td class="text-muted">{{ $registro->fecha_salida->format('d/m/Y') }}</td>
+                <td class="text-muted hide-mobile">{{ $registro->fecha_salida->format('d/m/Y') }}</td>
                 <td><strong>{{ $registro->territorio->numero_completo }}</strong></td>
                 <td>{{ $registro->publicador->nombre_completo }}</td>
                 <td class="text-center">{{ round($registro->fecha_salida->diffInDays(now())) }}</td>
@@ -137,6 +138,7 @@
             @endforeach
         </tbody>
     </table>
+    </div>
     @else
     <div class="empty-state">
         <div class="icon">&#x1F4CB;</div>

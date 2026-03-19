@@ -12,28 +12,29 @@
         </div>
     </div>
 
+    <div class="table-responsive">
     <table class="table-flat">
         <thead>
             <tr>
                 <th>Publicador</th>
-                <th>Genero</th>
-                <th>Nombramiento</th>
+                <th class="hide-mobile">Genero</th>
+                <th class="hide-mobile">Nombramiento</th>
                 <th>Asignaciones</th>
-                <th>Ultima asignacion</th>
+                <th>Ultima</th>
             </tr>
         </thead>
         <tbody>
             @foreach($estadisticas as $stat)
             <tr class="clickable-row" data-href="{{ route('reuniones.historial', $stat['publicador']) }}">
                 <td class="font-medium"><a href="{{ route('reuniones.historial', $stat['publicador']) }}" style="color: var(--text); text-decoration: none;">{{ $stat['publicador']->nombre_completo }}</a></td>
-                <td>
+                <td class="hide-mobile">
                     @if($stat['publicador']->genero === 'M')
                         <span class="text-muted text-xs">Hermano</span>
                     @else
                         <span class="text-muted text-xs">Hermana</span>
                     @endif
                 </td>
-                <td class="text-muted text-sm">
+                <td class="text-muted text-sm hide-mobile">
                     @if($stat['publicador']->es_anciano) Anciano
                     @elseif($stat['publicador']->es_siervo_ministerial) Siervo ministerial
                     @elseif($stat['publicador']->es_precursor) Precursor
@@ -51,6 +52,7 @@
             @endforeach
         </tbody>
     </table>
+    </div>
 </div>
 
 @endsection

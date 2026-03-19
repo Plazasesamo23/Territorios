@@ -766,6 +766,14 @@
 
 @media (max-width: 600px) {
     .grupos-grid { grid-template-columns: 1fr; }
+    .page-header { flex-direction: column; align-items: flex-start; }
+    .header-left { flex-wrap: wrap; }
+    .page-header h1 { font-size: 1.1rem; }
+    .btn-exportar, .btn-secondary, .btn-generar, .btn-historial {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.75rem;
+    }
+    .doc-footer { flex-direction: column; gap: 0.5rem; text-align: center; }
 }
 </style>
 

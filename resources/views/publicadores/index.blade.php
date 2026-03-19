@@ -24,12 +24,13 @@
 
     @if($publicadores->count() > 0)
     <!-- Tabla flat -->
+    <div class="table-responsive">
     <table class="table-flat">
         <thead>
             <tr>
                 <th>Nombre</th>
                 <th>Apellidos</th>
-                <th>Telefono</th>
+                <th class="hide-mobile">Telefono</th>
                 <th>Estado</th>
             </tr>
         </thead>
@@ -49,7 +50,7 @@
                     @endif
                 </td>
                 <td class="text-muted">{{ $publicador->apellidos }}</td>
-                <td class="text-muted">{{ $publicador->telefono }}</td>
+                <td class="text-muted hide-mobile">{{ $publicador->telefono }}</td>
                 <td>
                     @if($publicador->activo)
                         <span class="text-primary font-medium">Activo</span>
@@ -61,6 +62,7 @@
             @endforeach
         </tbody>
     </table>
+    </div>
     @else
     <div class="empty-state">
         <div class="icon">&#x1F465;</div>

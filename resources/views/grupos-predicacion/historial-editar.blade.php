@@ -429,6 +429,12 @@
     .grupos-grid { grid-template-columns: repeat(2, 1fr); }
     .panel-disponibles { position: static; max-height: 300px; }
 }
+
+@media (max-width: 600px) {
+    .grupos-grid { grid-template-columns: 1fr; }
+    .page-header { flex-direction: column; align-items: flex-start; }
+    .page-header h1 { font-size: 1.1rem; }
+}
 </style>
 
 <script>

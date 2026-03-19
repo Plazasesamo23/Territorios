@@ -5,7 +5,7 @@
 @section('content')
 
 <div class="page-md">
-    <div class="flex justify-between items-center mb-2">
+    <div class="flex justify-between items-center mb-2" style="flex-wrap: wrap; gap: 1rem;">
         <div>
             <h1 class="page-title">Semana del {{ $programa->fecha_semana->translatedFormat('d \d\e F, Y') }}</h1>
             <p class="page-subtitle">
@@ -17,7 +17,7 @@
                 &mdash; {{ $programa->contarAsignaciones() }}/{{ $programa->totalPartes() }} asignaciones
             </p>
         </div>
-        <div class="flex gap-1">
+        <div class="flex gap-1" style="flex-wrap: wrap;">
             <button type="button" id="btn-importar-jw" class="btn btn-secondary" onclick="importarDesdeJw()">Importar de jw.org</button>
             <form action="{{ route('reuniones.auto-asignar', $programa) }}" method="POST" style="display:inline;">
                 @csrf
@@ -92,7 +92,7 @@
 
         {{-- TESOROS DE LA BIBLIA --}}
         <div class="reunion-seccion reunion-seccion-tesoros">
-            <h3 class="reunion-seccion-titulo">Tesoros de la Biblia</h3>
+            <h3 class="reunion-seccion-titulo"><span class="seccion-icono">&#x1F48E;</span> Tesoros de la Biblia</h3>
             @foreach($programa->partes->where('seccion', 'tesoros') as $parte)
             <div class="reunion-parte">
                 <div class="reunion-parte-header">
@@ -129,7 +129,7 @@
 
         {{-- SEAMOS MEJORES MAESTROS --}}
         <div class="reunion-seccion reunion-seccion-maestros">
-            <h3 class="reunion-seccion-titulo">Seamos mejores maestros</h3>
+            <h3 class="reunion-seccion-titulo"><span class="seccion-icono">&#x1F33E;</span> Seamos mejores maestros</h3>
             @foreach($programa->partes->where('seccion', 'maestros') as $parte)
             <div class="reunion-parte">
                 <div class="reunion-parte-header">
@@ -164,7 +164,7 @@
 
         {{-- NUESTRA VIDA CRISTIANA --}}
         <div class="reunion-seccion reunion-seccion-vida">
-            <h3 class="reunion-seccion-titulo">Nuestra vida cristiana</h3>
+            <h3 class="reunion-seccion-titulo"><span class="seccion-icono">&#x1F411;</span> Nuestra vida cristiana</h3>
             @foreach($programa->partes->where('seccion', 'vida_cristiana') as $parte)
             <div class="reunion-parte">
                 <div class="reunion-parte-header">
@@ -304,7 +304,9 @@ async function importarDesdeJw() {
 
         // Parsear las partes del HTML
         const partes = parsearProgramaVym(html);
-        if (partes.length === 0) throw new Error('No se encontraron partes en el programa');
+        if (partes.length === 0) {
+            throw new Error('No se encontraron partes en el programa');
+        }
 
         // Enviar al servidor
         const saveResp = await fetch('{{ route("reuniones.importar-titulos", $programa) }}', {
@@ -336,30 +338,55 @@ function parsearProgramaVym(html) {
     const doc = parser.parseFromString(html, 'text/html');
     const partes = [];
 
-    // Buscar todos los elementos con ids de partes (p1, p2, etc.)
-    // El programa VyM en wol.jw.org usa clases especificas para secciones
-    const body = doc.body.textContent || doc.body.innerText;
-    const lines = body.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    // Buscar el bloque del programa VyM (pub-mwb)
+    const mwbBlock = doc.querySelector('.todayItem.pub-mwb');
+    if (!mwbBlock) return partes;
 
+    // Recorrer h2 (secciones) y h3 (partes) en orden dentro del bloque mwb
+    const elementos = mwbBlock.querySelectorAll('h2, h3');
     let seccion = null;
 
-    for (const line of lines) {
-        // Detectar secciones
-        if (/TESOROS DE LA BIBLIA/i.test(line)) { seccion = 'tesoros'; continue; }
-        if (/SEAMOS MEJORES MAESTROS/i.test(line)) { seccion = 'maestros'; continue; }
-        if (/NUESTRA VIDA CRISTIANA/i.test(line)) { seccion = 'vida_cristiana'; continue; }
+    for (const el of elementos) {
+        const texto = el.textContent.trim();
+
+        // Detectar secciones (h2)
+        if (el.tagName === 'H2') {
+            if (/TESOROS DE LA BIBLIA/i.test(texto)) seccion = 'tesoros';
+            else if (/SEAMOS MEJORES MAESTROS/i.test(texto)) seccion = 'maestros';
+            else if (/NUESTRA VIDA CRISTIANA/i.test(texto)) seccion = 'vida_cristiana';
+            continue;
+        }
+
         if (!seccion) continue;
 
-        // Detectar partes: "N. Titulo (X min.)" o "Titulo (X min.)"
-        const match = line.match(/^(?:\d+\.\s*)?(.+?)\s*\((\d+)\s*min/i);
-        if (!match) continue;
+        // Extraer titulo del h3: "N. Titulo" o "Titulo"
+        const tituloMatch = texto.match(/^(?:\d+\.\s*)?(.+)/);
+        if (!tituloMatch) continue;
+        let titulo = tituloMatch[1].trim();
 
-        const titulo = match[1].trim();
-        const duracion = parseInt(match[2]);
+        // La duracion puede estar:
+        // 1. Dentro del h3: "Titulo (X min.)"
+        // 2. En el siguiente <p> hermano: "(X min.)"
+        let duracion = 0;
+        const durInH3 = texto.match(/\((\d+)\s*mins?\.?\)/i);
+        if (durInH3) {
+            duracion = parseInt(durInH3[1]);
+            titulo = titulo.replace(/\s*\(\d+\s*mins?\.?\)/, '').trim();
+        } else {
+            // Buscar en el siguiente elemento hermano (p)
+            let next = el.nextElementSibling;
+            if (next) {
+                const durInNext = next.textContent.match(/\((\d+)\s*mins?\.?\)/i);
+                if (durInNext) duracion = parseInt(durInNext[1]);
+            }
+        }
 
-        // Ignorar canticos, oraciones, conclusiones
-        if (/^(Canci[oó]n|Song|Oraci[oó]n|Palabras de conclus)/i.test(titulo)) continue;
-        if (/^Comentarios? iniciales?/i.test(titulo)) continue;
+        // Ignorar canticos, oraciones, conclusiones, introducciones
+        if (/^(Canci[oó]n|Song|Oraci[oó]n|Palabras de conclus|Palabras de introduc|Comentarios? iniciales?)/i.test(titulo)) continue;
+        if (/canci[oó]n.*oraci[oó]n|oraci[oó]n.*canci[oó]n/i.test(titulo)) continue;
+
+        // Necesitamos al menos un titulo valido (con o sin duracion)
+        if (!titulo) continue;
 
         const tipo = clasificarTipo(seccion, titulo, duracion);
         if (!tipo) continue;

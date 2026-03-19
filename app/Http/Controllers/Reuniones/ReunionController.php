@@ -20,9 +20,13 @@ class ReunionController extends Controller
         // Auto-generar las proximas 4 semanas si no existen
         $this->autoGenerarSemanas($congregacionId, 4);
 
+        // Semana actual primero, futuras despues, pasadas al final
+        $lunesActual = Carbon::now()->startOfWeek(Carbon::MONDAY);
+
         $programas = ReunionPrograma::where('congregacion_id', $congregacionId)
-            ->orderByDesc('fecha_semana')
-            ->paginate(12);
+            ->orderByRaw("CASE WHEN fecha_semana = ? THEN 0 WHEN fecha_semana > ? THEN 1 ELSE 2 END", [$lunesActual, $lunesActual])
+            ->orderBy('fecha_semana')
+            ->paginate(20);
 
         return view('reuniones.index', compact('programas'));
     }
@@ -75,13 +79,15 @@ class ReunionController extends Controller
     {
         $request->validate([
             'fecha_semana' => 'required|date',
-            'cantidad_semanas' => 'required|integer|min:1|max:8',
+            'cantidad_semanas' => 'required|integer|min:1|max:52',
         ]);
 
         $congregacionId = session('congregacion_activa_id');
         $fechaInicio = Carbon::parse($request->fecha_semana)->startOfWeek(Carbon::MONDAY);
         $cantidad = $request->cantidad_semanas;
         $creados = 0;
+        $importados = 0;
+        $importador = new ImportadorVymService();
 
         for ($i = 0; $i < $cantidad; $i++) {
             $fecha = $fechaInicio->copy()->addWeeks($i);
@@ -97,7 +103,14 @@ class ReunionController extends Controller
                     'estado' => 'borrador',
                 ]);
 
-                AsignacionReunionService::generarPartesEstandar($programa);
+                // Intentar importar titulos de jw.org automaticamente
+                $resultado = $importador->importar($programa);
+                if (!empty($resultado['success'])) {
+                    $importados++;
+                } else {
+                    // Fallback: partes estandar sin titulos
+                    AsignacionReunionService::generarPartesEstandar($programa);
+                }
                 $creados++;
             }
         }
@@ -106,7 +119,12 @@ class ReunionController extends Controller
             return redirect()->route('reuniones.index')->with('error', 'Los programas para esas semanas ya existen.');
         }
 
-        return redirect()->route('reuniones.index')->with('success', "Se crearon {$creados} programas correctamente.");
+        $msg = "Se crearon {$creados} programas.";
+        if ($importados > 0) {
+            $msg .= " {$importados} con titulos importados de jw.org.";
+        }
+
+        return redirect()->route('reuniones.index')->with('success', $msg);
     }
 
     public function edit(ReunionPrograma $reunione)

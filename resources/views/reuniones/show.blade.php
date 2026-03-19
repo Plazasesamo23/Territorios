@@ -5,12 +5,12 @@
 @section('content')
 
 <div class="page-sm">
-    <div class="flex justify-between items-center mb-2 no-print">
+    <div class="flex justify-between items-center mb-2 no-print" style="flex-wrap: wrap; gap: 1rem;">
         <div>
             <h1 class="page-title">Programa VyM</h1>
             <p class="page-subtitle">Semana del {{ $programa->fecha_semana->translatedFormat('d \d\e F, Y') }}</p>
         </div>
-        <div class="flex gap-1">
+        <div class="flex gap-1" style="flex-wrap: wrap;">
             <button onclick="window.print()" class="btn btn-teal">Imprimir</button>
             <a href="{{ route('reuniones.edit', $programa) }}" class="btn btn-secondary">Editar</a>
             <a href="{{ route('reuniones.index') }}" class="btn btn-ghost">Volver</a>
@@ -37,7 +37,7 @@
 
         {{-- TESOROS DE LA BIBLIA --}}
         <div class="reunion-print-seccion reunion-print-tesoros">
-            <h3>Tesoros de la Biblia</h3>
+            <h3>&#x1F48E; Tesoros de la Biblia</h3>
             <table class="reunion-print-table">
                 @foreach($programa->partes->where('seccion', 'tesoros') as $parte)
                 <tr>
@@ -53,7 +53,7 @@
 
         {{-- SEAMOS MEJORES MAESTROS --}}
         <div class="reunion-print-seccion reunion-print-maestros">
-            <h3>Seamos mejores maestros</h3>
+            <h3>&#x1F33E; Seamos mejores maestros</h3>
             <table class="reunion-print-table">
                 @foreach($programa->partes->where('seccion', 'maestros') as $parte)
                 <tr>
@@ -74,7 +74,7 @@
 
         {{-- NUESTRA VIDA CRISTIANA --}}
         <div class="reunion-print-seccion reunion-print-vida">
-            <h3>Nuestra vida cristiana</h3>
+            <h3>&#x1F411; Nuestra vida cristiana</h3>
             <table class="reunion-print-table">
                 @foreach($programa->partes->where('seccion', 'vida_cristiana') as $parte)
                 <tr>

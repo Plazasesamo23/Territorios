@@ -225,23 +225,55 @@
                 @if(!View::hasSection('hide_nav'))
                 <nav class="nav">
                     @auth
+                        @php
+                            $enTerritorios = request()->routeIs('panel-territorios') || request()->routeIs('territorios.*') || request()->routeIs('registros.*') || request()->routeIs('s13.*') || request()->routeIs('creador-territorios.*');
+                            $enReuniones = request()->routeIs('reuniones.*');
+                            $enPPOC = request()->routeIs('ppoc.*');
+                            $enAdmin = request()->routeIs('administracion') || request()->routeIs('publicadores.*') || request()->routeIs('grupos-predicacion.*') || request()->routeIs('usuarios.*') || request()->is('configuracion') || request()->routeIs('congregaciones.*');
+                            $enModulo = $enTerritorios || $enReuniones || $enPPOC || $enAdmin;
+                        @endphp
+
                         @if(Auth::user()->isTerritoriosUser())
+                            {{-- Usuario solo de territorios --}}
                             <a href="{{ route('panel-territorios') }}" class="nav-link {{ request()->routeIs('panel-territorios') || request()->routeIs('registros.*') ? 'active' : '' }}">Territorios</a>
                             @if(Auth::user()->canGenerateS13())
                             <a href="{{ route('s13.index') }}" class="nav-link {{ request()->routeIs('s13.*') ? 'active' : '' }}">S-13</a>
                             @endif
-                        @else
-                            <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') || request()->routeIs('servicio') ? 'active' : '' }}">Inicio</a>
-                            <a href="{{ route('panel-territorios') }}" class="nav-link {{ request()->routeIs('panel-territorios') || request()->routeIs('registros.*') || request()->routeIs('territorios.*') ? 'active' : '' }}">Territorios</a>
-                            @if(Auth::user()->canAccessPPOC())
-                            <a href="{{ route('ppoc.calendario') }}" class="nav-link {{ request()->routeIs('ppoc.*') ? 'active' : '' }}">PPOC</a>
-                            @endif
-                            @if(Auth::user()->canGenerateS13() && !Auth::user()->isAdmin())
+                        @elseif($enTerritorios)
+                            {{-- Dentro de Territorios: nav de Territorios --}}
+                            <a href="{{ route('dashboard') }}" class="nav-link">Inicio</a>
+                            <a href="{{ route('panel-territorios') }}" class="nav-link {{ request()->routeIs('panel-territorios') ? 'active' : '' }}">Panel</a>
+                            <a href="{{ route('territorios.index') }}" class="nav-link {{ request()->routeIs('territorios.*') ? 'active' : '' }}">Todos</a>
+                            <a href="{{ route('registros.index') }}" class="nav-link {{ request()->routeIs('registros.*') ? 'active' : '' }}">Asignaciones</a>
                             <a href="{{ route('s13.index') }}" class="nav-link {{ request()->routeIs('s13.*') ? 'active' : '' }}">S-13</a>
+                        @elseif($enReuniones)
+                            {{-- Dentro de Reuniones: nav de Reuniones --}}
+                            <a href="{{ route('dashboard') }}" class="nav-link">Inicio</a>
+                            <a href="{{ route('reuniones.index') }}" class="nav-link {{ request()->routeIs('reuniones.index') || request()->routeIs('reuniones.edit') || request()->routeIs('reuniones.show') || request()->routeIs('reuniones.create') ? 'active' : '' }}">VyM</a>
+                            <a href="{{ route('reuniones.finsemana') }}" class="nav-link {{ request()->routeIs('reuniones.finsemana*') ? 'active' : '' }}">Fin de semana</a>
+                            <a href="{{ route('reuniones.asignaciones') }}" class="nav-link {{ request()->routeIs('reuniones.asignaciones') || request()->routeIs('reuniones.historial') ? 'active' : '' }}">Asignaciones</a>
+                            <a href="{{ route('reuniones.generos') }}" class="nav-link {{ request()->routeIs('reuniones.generos') ? 'active' : '' }}">Generos</a>
+                        @elseif($enPPOC)
+                            {{-- Dentro de PPOC --}}
+                            <a href="{{ route('dashboard') }}" class="nav-link">Inicio</a>
+                            <a href="{{ route('ppoc.calendario') }}" class="nav-link active">PPOC</a>
+                        @elseif($enAdmin)
+                            {{-- Dentro de Administracion --}}
+                            <a href="{{ route('dashboard') }}" class="nav-link">Inicio</a>
+                            <a href="{{ route('administracion') }}" class="nav-link {{ request()->routeIs('administracion') ? 'active' : '' }}">Panel</a>
+                            <a href="{{ route('publicadores.index') }}" class="nav-link {{ request()->routeIs('publicadores.*') ? 'active' : '' }}">Publicadores</a>
+                            <a href="{{ route('grupos-predicacion.index') }}" class="nav-link {{ request()->routeIs('grupos-predicacion.*') ? 'active' : '' }}">Grupos</a>
+                            <a href="{{ route('configuracion') }}" class="nav-link {{ request()->is('configuracion') ? 'active' : '' }}">Config</a>
+                        @else
+                            {{-- Dashboard / pagina general: mostrar modulos disponibles --}}
+                            <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">Inicio</a>
+                            <a href="{{ route('panel-territorios') }}" class="nav-link">Territorios</a>
+                            @if(Auth::user()->canAccessPPOC())
+                            <a href="{{ route('ppoc.calendario') }}" class="nav-link">PPOC</a>
                             @endif
                             @if(Auth::user()->isAdmin())
-                            <a href="{{ route('reuniones.index') }}" class="nav-link {{ request()->routeIs('reuniones.*') ? 'active' : '' }}">Reuniones</a>
-                            <a href="{{ route('administracion') }}" class="nav-link {{ request()->routeIs('administracion') || request()->routeIs('publicadores.*') || request()->routeIs('grupos-predicacion.*') || request()->routeIs('s13.*') || request()->routeIs('usuarios.*') || request()->routeIs('configuracion') || request()->routeIs('creador-territorios.*') ? 'active' : '' }}">Administracion</a>
+                            <a href="{{ route('reuniones.index') }}" class="nav-link">Reuniones</a>
+                            <a href="{{ route('administracion') }}" class="nav-link">Administracion</a>
                             @endif
                             @can('superadmin')
                             <a href="{{ route('congregaciones.index') }}" class="nav-link {{ request()->routeIs('congregaciones.*') ? 'active' : '' }}">Congregaciones</a>
@@ -284,17 +316,7 @@
         </div>
     </header>
 
-    @auth
-        @if(request()->routeIs('panel-territorios') || request()->routeIs('territorios.*') || request()->routeIs('registros.*') || request()->routeIs('s13.*') || request()->routeIs('creador-territorios.*'))
-            @include('layouts.partials.submenu-territorios')
-        @elseif(request()->routeIs('ppoc.*'))
-            @include('layouts.partials.submenu-ppoc')
-        @elseif(request()->routeIs('reuniones.*'))
-            @include('layouts.partials.submenu-reuniones')
-        @elseif(request()->routeIs('administracion') || request()->routeIs('publicadores.*') || request()->routeIs('usuarios.*') || request()->routeIs('grupos-predicacion.*') || request()->is('configuracion') || request()->routeIs('congregaciones.*'))
-            @include('layouts.partials.submenu-admin')
-        @endif
-    @endauth
+    {{-- Los submenus ya estan integrados en la nav principal --}}
 
     @if(session('success'))
     <div class="container" style="margin-top:1rem;">
