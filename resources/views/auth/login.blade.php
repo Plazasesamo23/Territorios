@@ -3,147 +3,169 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Iniciar Sesion - Sistema de Territorios</title>
+    <title>Iniciar Sesion - Gestor de Congregacion</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background: #0d0f11;
+            color: #f1f3f5;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
+            padding: 1.5rem;
         }
-        .login-container {
-            background: #151719;
-            border-radius: 1rem;
-            border: 1px solid #2d3339;
-            padding: 2.5rem;
+
+        .login-wrapper {
             width: 100%;
-            max-width: 400px;
+            max-width: 380px;
         }
-        .login-header {
+
+        .login-brand {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
-        .login-header .icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+
+        .login-brand svg {
+            width: 40px;
+            height: 40px;
+            color: #6b8fc7;
+            margin-bottom: 1.25rem;
         }
-        .login-header h1 {
-            font-size: 1.5rem;
+
+        .login-brand h1 {
+            font-size: 1.375rem;
+            font-weight: 700;
             color: #f1f3f5;
-            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
         }
-        .login-header p {
-            color: #8b939c;
+
+        .login-brand p {
+            color: #5c656e;
             font-size: 0.875rem;
+            margin-top: 0.375rem;
         }
-        .form-group {
-            margin-bottom: 1.5rem;
+
+        .login-form-group {
+            margin-bottom: 1.25rem;
         }
-        .form-group label {
+
+        .login-form-group label {
             display: block;
             font-weight: 500;
-            color: #d8dce1;
+            color: #8b939c;
             margin-bottom: 0.5rem;
-            font-size: 0.875rem;
+            font-size: 0.8125rem;
+            letter-spacing: 0.01em;
         }
-        .form-group input {
+
+        .login-form-group input {
             width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid #3d454d;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            background: #1a1d21;
+            padding: 0.6875rem 0.875rem;
+            border: 1px solid #2d3339;
+            border-radius: 6px;
+            font-size: 0.9375rem;
+            background: #151719;
             color: #f1f3f5;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: border-color 0.15s, box-shadow 0.15s;
         }
-        .form-group input:focus {
+
+        .login-form-group input:focus {
             outline: none;
             border-color: #6b8fc7;
-            box-shadow: 0 0 0 3px rgba(107,143,199,0.15);
+            box-shadow: 0 0 0 3px rgba(107,143,199,0.12);
         }
-        .form-group input::placeholder {
-            color: #5c656e;
+
+        .login-form-group input::placeholder {
+            color: #3d454d;
         }
-        .form-group.error input {
+
+        .login-form-group.error input {
             border-color: #ef4444;
         }
-        .error-message {
-            color: #ef4444;
+
+        .login-error-msg {
+            color: #f87171;
             font-size: 0.75rem;
-            margin-top: 0.25rem;
+            margin-top: 0.375rem;
         }
-        .remember-me {
+
+        .login-options {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.75rem;
         }
-        .remember-me input[type="checkbox"] {
-            width: 1rem;
-            height: 1rem;
+
+        .login-options input[type="checkbox"] {
+            width: 0.875rem;
+            height: 0.875rem;
             accent-color: #6b8fc7;
+            cursor: pointer;
         }
-        .remember-me label {
-            font-size: 0.875rem;
-            color: #8b939c;
+
+        .login-options label {
+            font-size: 0.8125rem;
+            color: #5c656e;
+            cursor: pointer;
         }
-        .btn-login {
+
+        .login-btn {
             width: 100%;
-            padding: 0.875rem 1rem;
+            padding: 0.6875rem 1rem;
             background: #6b8fc7;
-            color: #121416;
+            color: #0d0f11;
             border: none;
-            border-radius: 0.5rem;
-            font-size: 1rem;
+            border-radius: 6px;
+            font-size: 0.9375rem;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s, transform 0.2s;
+            transition: background 0.15s;
+            letter-spacing: -0.01em;
         }
-        .btn-login:hover {
+
+        .login-btn:hover {
             background: #8aa8d6;
-            transform: translateY(-1px);
         }
-        .btn-login:active {
-            transform: translateY(0);
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: wait;
         }
-        .alert {
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
+
+        .login-alert {
+            padding: 0.625rem 0.875rem;
+            border-radius: 6px;
             margin-bottom: 1.5rem;
-            font-size: 0.875rem;
-        }
-        .alert-error {
-            background: rgba(239,68,68,0.1);
-            border: 1px solid rgba(239,68,68,0.3);
+            font-size: 0.8125rem;
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.2);
             color: #f87171;
         }
-        .footer-text {
+
+        .login-footer {
             text-align: center;
-            margin-top: 1.5rem;
+            margin-top: 2rem;
             font-size: 0.75rem;
-            color: #5c656e;
+            color: #3d454d;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <div class="icon">🗺️</div>
-            <h1>Sistema de Territorios</h1>
+    <div class="login-wrapper">
+        <div class="login-brand">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/>
+            </svg>
+            <h1>Gestor de Congregacion</h1>
             <p>Inicia sesion para continuar</p>
         </div>
 
         @if ($errors->any())
-            <div class="alert alert-error">
+            <div class="login-alert">
                 @foreach ($errors->all() as $error)
                     <p>{{ $error }}</p>
                 @endforeach
@@ -153,22 +175,22 @@
         <form method="POST" action="{{ route('login') }}" id="login-form">
             @csrf
 
-            <div class="form-group {{ $errors->has('name') ? 'error' : '' }}">
+            <div class="login-form-group {{ $errors->has('name') ? 'error' : '' }}">
                 <label for="name">Congregacion</label>
                 <input type="text" id="name" name="name" value="{{ old('name') }}" placeholder="Ej: Centro Santa Coloma" required autofocus>
             </div>
 
-            <div class="form-group {{ $errors->has('password') ? 'error' : '' }}">
+            <div class="login-form-group {{ $errors->has('password') ? 'error' : '' }}">
                 <label for="password">Contrasena</label>
                 <input type="password" id="password" name="password" required>
             </div>
 
-            <div class="remember-me">
+            <div class="login-options">
                 <input type="checkbox" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }}>
                 <label for="remember">Recordarme</label>
             </div>
 
-            <button type="submit" class="btn-login" id="login-btn">
+            <button type="submit" class="login-btn" id="login-btn">
                 Iniciar Sesion
             </button>
         </form>
@@ -181,7 +203,6 @@
                 btn.disabled = true;
                 btn.textContent = 'Verificando...';
 
-                // Always fetch a fresh CSRF token before submitting
                 fetch('{{ url("/refresh-csrf") }}', {
                     method: 'GET',
                     headers: {
@@ -199,14 +220,13 @@
                     form.submit();
                 })
                 .catch(function() {
-                    // If fetch fails, submit anyway with the existing token
                     form.submit();
                 });
             });
         </script>
 
-        <p class="footer-text">
-            Sistema de Gestion de Territorios &copy; {{ date('Y') }}
+        <p class="login-footer">
+            Gestor de Congregacion &copy; {{ date('Y') }}
         </p>
     </div>
 </body>

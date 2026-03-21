@@ -5,7 +5,7 @@
 @section('content')
 
 <div class="page-md">
-    <div class="flex justify-between items-center mb-2" style="flex-wrap: wrap; gap: 1rem;">
+    <div class="ri-header">
         <div>
             <h1 class="page-title">Programas VyM</h1>
             <p class="page-subtitle">Vida y Ministerio Cristianos</p>
@@ -21,7 +21,7 @@
         $lunesActual = $hoy->copy()->startOfWeek(\Carbon\Carbon::MONDAY);
     @endphp
 
-    <div class="semanas-grid">
+    <div class="ri-list">
         @foreach($programas as $programa)
         @php
             $fechaLunes = $programa->fecha_semana;
@@ -35,201 +35,215 @@
             $total = $programa->totalPartes();
             $pct = $total > 0 ? round($asignadas / $total * 100) : 0;
 
-            // Mes para mostrar
             $mesInicio = $fechaLunes->translatedFormat('M');
             $mesFin = $fechaDomingo->translatedFormat('M');
             $rangoFecha = $fechaLunes->day . ($mesInicio !== $mesFin ? ' ' . $mesInicio : '') . '-' . $fechaDomingo->day . ' ' . $mesFin;
         @endphp
 
         <a href="{{ route('reuniones.edit', $programa) }}"
-           class="semana-card {{ $esSemanaActual ? 'semana-actual' : '' }} {{ $esPasada ? 'semana-pasada' : '' }}">
+           class="ri-card {{ $esSemanaActual ? 'ri-card--current' : '' }} {{ $esPasada ? 'ri-card--past' : '' }}">
 
-            {{-- Indicador lateral --}}
-            <div class="semana-indicator {{ $esSemanaActual ? 'indicator-actual' : ($esPasada ? 'indicator-pasada' : 'indicator-futura') }}"></div>
+            <div class="ri-card__accent {{ $esSemanaActual ? 'ri-card__accent--current' : ($esPasada ? 'ri-card__accent--past' : 'ri-card__accent--future') }}"></div>
 
-            <div class="semana-content">
-                {{-- Cabecera: fecha tipo calendario --}}
-                <div class="semana-fecha">
-                    <div class="semana-mes">{{ $fechaLunes->translatedFormat('M Y') }}</div>
-                    <div class="semana-rango">{{ $rangoFecha }}</div>
+            <div class="ri-card__body">
+                <div class="ri-card__date">
+                    <span class="ri-card__month">{{ $fechaLunes->translatedFormat('M Y') }}</span>
+                    <span class="ri-card__range">{{ $rangoFecha }}</span>
                     @if($esSemanaActual)
-                        <span class="semana-badge-actual">Esta semana</span>
+                        <span class="ri-card__now">Esta semana</span>
                     @endif
                 </div>
 
-                {{-- Info del programa --}}
-                <div class="semana-info">
-                    <div class="semana-estado">
+                <div class="ri-card__meta">
+                    <div class="ri-card__status">
                         @if($programa->estado === 'publicado')
                             <span class="badge badge-green">Publicado</span>
                         @else
                             <span class="badge badge-gray">Borrador</span>
                         @endif
                     </div>
-
-                    <div class="semana-presidente">
+                    <div class="ri-card__pres">
                         @if($programa->presidente)
-                            <span class="text-xs text-muted">Presidente:</span>
-                            <span class="text-sm">{{ $programa->presidente->nombre_completo }}</span>
+                            <span class="ri-card__pres-label">Presidente</span>
+                            <span class="ri-card__pres-name">{{ $programa->presidente->nombre_completo }}</span>
                         @else
-                            <span class="text-muted text-xs">Sin presidente</span>
+                            <span class="ri-card__pres-label">Sin presidente</span>
                         @endif
                     </div>
                 </div>
 
-                {{-- Barra de progreso --}}
-                <div class="semana-progreso">
-                    <div class="progreso-bar">
-                        <div class="progreso-fill {{ $pct === 100 ? 'progreso-completo' : '' }}" style="width: {{ $pct }}%"></div>
+                <div class="ri-card__progress">
+                    <div class="ri-card__bar">
+                        <div class="ri-card__fill {{ $pct === 100 ? 'ri-card__fill--done' : '' }}" style="width: {{ $pct }}%"></div>
                     </div>
-                    <span class="progreso-texto {{ $pct === 100 ? 'text-primary' : 'text-muted' }}">{{ $asignadas }}/{{ $total }}</span>
+                    <span class="ri-card__count {{ $pct === 100 ? 'ri-card__count--done' : '' }}">{{ $asignadas }}/{{ $total }}</span>
                 </div>
             </div>
 
-            {{-- Flecha --}}
-            <div class="semana-arrow">
+            <div class="ri-card__arrow">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </div>
         </a>
         @endforeach
     </div>
 
-    <div class="mt-2">
+    <div class="ri-pagination">
         {{ $programas->links() }}
     </div>
 </div>
 
 <style>
-.semanas-grid {
+/* ---- Index: Header ---- */
+.ri-header {
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 }
 
-.semana-card {
+/* ---- Index: Card list ---- */
+.ri-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ri-card {
     display: flex;
     align-items: center;
-    gap: 0;
     background: var(--bg-white);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 8px;
     text-decoration: none;
     color: var(--text);
-    transition: all 0.2s;
+    transition: border-color 0.15s, background 0.15s;
     overflow: hidden;
 }
 
-.semana-card:hover {
+.ri-card:hover {
     border-color: var(--primary);
-    transform: translateX(2px);
+    background: var(--bg-hover);
     color: var(--text);
 }
 
-/* Semana actual - destacada */
-.semana-actual {
-    border-color: #14b8a6;
-    background: linear-gradient(135deg, rgba(20,184,166,0.08) 0%, var(--bg-white) 100%);
-    box-shadow: 0 0 0 1px rgba(20,184,166,0.3);
+/* Current week */
+.ri-card--current {
+    border-color: var(--color-tesoros-text);
+    background: rgba(20, 184, 166, 0.06);
 }
 
-.semana-actual:hover {
-    border-color: #14b8a6;
-    box-shadow: 0 4px 16px rgba(20,184,166,0.2);
+.ri-card--current:hover {
+    border-color: var(--color-tesoros-text);
+    background: rgba(20, 184, 166, 0.1);
 }
 
-/* Semana pasada - atenuada */
-.semana-pasada {
-    opacity: 0.6;
+/* Past week */
+.ri-card--past {
+    opacity: 0.55;
 }
 
-.semana-pasada:hover {
-    opacity: 0.85;
+.ri-card--past:hover {
+    opacity: 0.8;
 }
 
-/* Indicador lateral de color */
-.semana-indicator {
-    width: 5px;
+/* Accent bar */
+.ri-card__accent {
+    width: 4px;
     align-self: stretch;
     flex-shrink: 0;
 }
 
-.indicator-actual { background: #14b8a6; }
-.indicator-pasada { background: var(--border); }
-.indicator-futura { background: var(--primary); }
+.ri-card__accent--current { background: var(--color-tesoros-text); }
+.ri-card__accent--past    { background: var(--border); }
+.ri-card__accent--future  { background: var(--primary); }
 
-/* Contenido */
-.semana-content {
+/* Card body grid */
+.ri-card__body {
     flex: 1;
     display: grid;
-    grid-template-columns: 200px 1fr auto;
+    grid-template-columns: 190px 1fr 120px;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem 1rem 1rem 0.75rem;
+    gap: 1.25rem;
+    padding: 0.875rem 1rem 0.875rem 0.875rem;
     min-width: 0;
 }
 
-/* Fecha */
-.semana-fecha {
+/* Date column */
+.ri-card__date {
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
+    gap: 2px;
 }
 
-.semana-mes {
-    font-size: 0.65rem;
+.ri-card__month {
+    font-size: 0.625rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--text-muted);
     font-weight: 600;
 }
 
-.semana-rango {
-    font-size: 1.1rem;
+.ri-card__range {
+    font-size: 1.05rem;
     font-weight: 700;
-    color: var(--text);
     text-transform: capitalize;
+    color: var(--text);
+    line-height: 1.3;
 }
 
-.semana-actual .semana-rango {
-    color: #14b8a6;
+.ri-card--current .ri-card__range {
+    color: var(--color-tesoros-text);
 }
 
-.semana-badge-actual {
+.ri-card__now {
     display: inline-block;
-    margin-top: 0.25rem;
-    padding: 0.125rem 0.5rem;
-    background: #14b8a6;
-    color: #121416;
+    margin-top: 4px;
+    padding: 2px 8px;
+    background: var(--color-tesoros-text);
+    color: #0d0f11;
     border-radius: 10px;
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     width: fit-content;
 }
 
-/* Info */
-.semana-info {
+/* Meta column */
+.ri-card__meta {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 4px;
     min-width: 0;
 }
 
-.semana-presidente {
+.ri-card__pres {
     display: flex;
     flex-direction: column;
 }
 
-/* Progreso */
-.semana-progreso {
+.ri-card__pres-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.ri-card__pres-name {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* Progress column */
+.ri-card__progress {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    min-width: 100px;
 }
 
-.progreso-bar {
+.ri-card__bar {
     flex: 1;
     height: 4px;
     background: var(--border);
@@ -237,80 +251,95 @@
     overflow: hidden;
 }
 
-.progreso-fill {
+.ri-card__fill {
     height: 100%;
     background: var(--primary);
     border-radius: 2px;
     transition: width 0.3s;
 }
 
-.progreso-completo {
-    background: #14b8a6;
+.ri-card__fill--done {
+    background: var(--color-tesoros-text);
 }
 
-.progreso-texto {
+.ri-card__count {
     font-size: 0.75rem;
     font-weight: 600;
+    color: var(--text-muted);
     white-space: nowrap;
 }
 
-/* Flecha */
-.semana-arrow {
+.ri-card__count--done {
+    color: var(--color-tesoros-text);
+}
+
+/* Arrow */
+.ri-card__arrow {
     padding: 0 0.75rem;
     color: var(--text-light);
     flex-shrink: 0;
+    transition: transform 0.15s;
 }
 
-.semana-card:hover .semana-arrow {
+.ri-card:hover .ri-card__arrow {
     color: var(--primary);
     transform: translateX(2px);
 }
 
-.semana-actual:hover .semana-arrow {
-    color: #14b8a6;
+.ri-card--current:hover .ri-card__arrow {
+    color: var(--color-tesoros-text);
 }
 
-/* Responsive */
+/* Pagination */
+.ri-pagination {
+    margin-top: 1.5rem;
+}
+
+/* ---- Responsive ---- */
 @media (max-width: 768px) {
-    .semana-content {
+    .ri-card__body {
         grid-template-columns: 1fr;
         gap: 0.5rem;
-        padding: 0.75rem 0.75rem 0.75rem 0.6rem;
+        padding: 0.75rem;
     }
 
-    .semana-fecha {
+    .ri-card__date {
         flex-direction: row;
         align-items: center;
         gap: 0.5rem;
         flex-wrap: wrap;
     }
 
-    .semana-mes { display: none; }
-
-    .semana-rango {
-        font-size: 1rem;
+    .ri-card__month {
+        display: none;
     }
 
-    .semana-info {
+    .ri-card__range {
+        font-size: 0.95rem;
+    }
+
+    .ri-card__meta {
         flex-direction: row;
         align-items: center;
         gap: 0.75rem;
     }
 
-    .semana-presidente {
+    .ri-card__pres {
         flex-direction: row;
         gap: 0.25rem;
     }
 
-    .semana-progreso {
+    .ri-card__progress {
         min-width: 80px;
     }
 
-    .semana-arrow { display: none; }
+    .ri-card__arrow {
+        display: none;
+    }
 }
 
 @media (max-width: 480px) {
-    .semana-info {
+    .ri-card__meta {
         flex-direction: column;
         align-items: flex-start;
     }

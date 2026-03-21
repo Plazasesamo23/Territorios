@@ -14,6 +14,7 @@ class AsignacionReunionService
     private Collection $publicadores;
     private array $historialPorTipo = [];
     private array $conteoGlobal = [];
+    private array $conteoPorTipo = [];
     private array $asignadosEstaSemana = [];
 
     public function __construct(int $congregacionId)
@@ -32,6 +33,7 @@ class AsignacionReunionService
         $this->publicadores = Publicador::where('congregacion_id', $this->congregacionId)
             ->where('activo', true)
             ->whereNotNull('genero')
+            ->where('excluido_reuniones', false)
             ->get();
 
         if ($this->publicadores->isEmpty()) {
@@ -44,13 +46,14 @@ class AsignacionReunionService
             ->whereNull('genero')
             ->count();
 
-        if ($sinGenero > 0) {
-            $resultado['errores'][] = "Hay {$sinGenero} publicadores sin genero asignado. Asignales genero antes de continuar.";
-            return $resultado;
-        }
-
         $this->cargarHistorial($programa->fecha_semana);
         $this->asignadosEstaSemana = [];
+
+        // Recargar partes frescas de la BD
+        $programa->load('partes');
+
+        // Limpiar asignaciones invalidas (publicador sin autorizacion o inexistente)
+        $this->limpiarAsignacionesInvalidas($programa);
 
         // Orden de asignacion: mas restrictivo primero
         $orden = [
@@ -91,9 +94,6 @@ class AsignacionReunionService
         }
 
         // Partes del programa (tesoros, maestros, vida_cristiana)
-        $partesTesoros = ['discurso_tesoros', 'perlas', 'lectura'];
-        $partesVida = ['discurso_vida'];
-
         foreach ($programa->partes as $parte) {
             // Asignar principal
             if (!$parte->publicador_id) {
@@ -109,9 +109,12 @@ class AsignacionReunionService
                 $this->registrarAsignacion($parte->publicador_id, $parte->tipo);
             }
 
-            // Asignar ayudante
+            // Asignar ayudante (mismo genero o conyuge en partes de maestros)
             if ($parte->necesita_ayudante && !$parte->ayudante_id) {
-                $elegido = $this->elegirMejorCandidato('ayudante', $programa->fecha_semana);
+                $estudiante = $parte->publicador_id
+                    ? $this->publicadores->firstWhere('id', $parte->publicador_id)
+                    : null;
+                $elegido = $this->elegirMejorAyudante($programa->fecha_semana, $estudiante);
                 if ($elegido) {
                     $parte->ayudante_id = $elegido->id;
                     $this->registrarAsignacion($elegido->id, 'ayudante');
@@ -143,51 +146,70 @@ class AsignacionReunionService
         $fechaSemanaCarbon = \Carbon\Carbon::parse($fechaSemana);
         $puntuaciones = [];
 
-        // Calcular media de asignaciones del grupo para equidad
-        $conteos = $candidatos->map(fn($p) => $this->conteoGlobal[$p->id] ?? 0);
-        $media = $conteos->avg() ?: 0;
+        // Media POR TIPO entre los candidatos elegibles (equidad por tipo)
+        $conteosTipo = $candidatos->map(fn($p) => $this->conteoPorTipo[$p->id . '-' . $tipo] ?? 0);
+        $mediaTipo = $conteosTipo->avg() ?: 0;
+
+        // Media GLOBAL entre los candidatos (equidad global)
+        $conteosGlobal = $candidatos->map(fn($p) => $this->conteoGlobal[$p->id] ?? 0);
+        $mediaGlobal = $conteosGlobal->avg() ?: 0;
+
+        // Cuantos candidatos hay para este tipo (para calibrar rotacion)
+        $numCandidatos = $candidatos->count();
 
         foreach ($candidatos as $candidato) {
             $puntuacion = 0.0;
 
-            // +0.5 por cada dia desde su ultima asignacion de este TIPO (max +30)
+            // --- ROTACION POR TIPO: dias desde ultima asignacion de este TIPO ---
             $ultimaFecha = $this->getUltimaAsignacionTipo($candidato->id, $tipo);
             if ($ultimaFecha) {
                 $diasDesde = $ultimaFecha->diffInDays($fechaSemanaCarbon);
-                $puntuacion += min($diasDesde * 0.5, 30);
+                // Escalar segun numero de candidatos: con mas candidatos, esperar mas dias
+                $diasIdeal = $numCandidatos * 7; // rotar cada N semanas segun candidatos
+                $puntuacion += min($diasDesde / max($diasIdeal, 1) * 25, 30);
             } else {
-                $puntuacion += 30; // nunca asignado en este tipo
+                $puntuacion += 35; // nunca asignado en este tipo - prioridad alta
             }
 
-            // Equidad: +8 por cada asignacion MENOS que la media, -10 por cada MAS
-            $conteo = $this->conteoGlobal[$candidato->id] ?? 0;
-            $diferencia = $media - $conteo;
-            if ($diferencia > 0) {
-                $puntuacion += $diferencia * 8;
-            } else {
-                $puntuacion += $diferencia * 10; // negativo
-            }
+            // --- EQUIDAD POR TIPO: cuantas veces hizo ESTE tipo vs la media del tipo ---
+            $conteoTipo = $this->conteoPorTipo[$candidato->id . '-' . $tipo] ?? 0;
+            $difTipo = $mediaTipo - $conteoTipo;
+            $puntuacion += $difTipo * 12; // peso fuerte: +12 por cada asignacion menos que la media
 
-            // -15 si ya tiene OTRA parte esta misma semana
+            // --- EQUIDAD GLOBAL: total asignaciones vs media global ---
+            $conteoTotal = $this->conteoGlobal[$candidato->id] ?? 0;
+            $difGlobal = $mediaGlobal - $conteoTotal;
+            $puntuacion += $difGlobal * 5; // peso moderado: evitar sobrecarga total
+
+            // --- PENALIZACION: ya tiene parte esta misma semana ---
             $asignacionesSemana = $this->asignadosEstaSemana[$candidato->id] ?? 0;
             if ($asignacionesSemana > 0) {
-                $puntuacion -= 15 * $asignacionesSemana;
+                $puntuacion -= 20 * $asignacionesSemana;
             }
 
-            // -40 si fue asignado la semana pasada en el mismo TIPO
-            $ultimaTipo = $this->getUltimaAsignacionTipo($candidato->id, $tipo);
-            if ($ultimaTipo && $ultimaTipo->diffInDays($fechaSemanaCarbon) <= 7) {
-                $puntuacion -= 40;
-            }
-
-            // Ancianos no suelen hacer partes de estudiantes
-            $esParteEstudiante = in_array($tipo, ['empiece_conversaciones', 'haga_revisitas', 'haga_discipulos', 'explique_creencias', 'ayudante']);
-            if ($esParteEstudiante && $candidato->es_anciano) {
+            // --- PENALIZACION: mismo tipo la semana pasada ---
+            if ($ultimaFecha && $ultimaFecha->diffInDays($fechaSemanaCarbon) <= 7) {
                 $puntuacion -= 50;
             }
 
-            // Jitter aleatorio
-            $puntuacion += rand(-200, 200) / 100;
+            // --- PENALIZACION: mismo tipo hace 2 semanas ---
+            if ($ultimaFecha && $ultimaFecha->diffInDays($fechaSemanaCarbon) <= 14) {
+                $puntuacion -= 15;
+            }
+
+            // --- CONTEXTO: ancianos no hacen partes de estudiantes ---
+            $esParteEstudiante = in_array($tipo, ['empiece_conversaciones', 'haga_revisitas', 'haga_discipulos', 'explique_creencias', 'ayudante']);
+            if ($esParteEstudiante && $candidato->es_anciano) {
+                $puntuacion -= 60;
+            }
+
+            // --- CONTEXTO: siervos ministeriales menos frecuentes en partes de estudiantes ---
+            if ($esParteEstudiante && $candidato->es_siervo_ministerial) {
+                $puntuacion -= 20;
+            }
+
+            // Jitter minimo (solo para desempate, no para alterar la equidad)
+            $puntuacion += rand(-50, 50) / 100; // +-0.5 puntos
 
             $puntuaciones[$candidato->id] = $puntuacion;
         }
@@ -197,15 +219,166 @@ class AsignacionReunionService
         return $candidatos->firstWhere('id', $mejorId);
     }
 
+    /**
+     * Elegir ayudante respetando regla de genero:
+     * - Mismo genero que el estudiante
+     * - Excepcion: conyuge (matrimonio) puede ser de genero opuesto
+     */
+    private function elegirMejorAyudante($fechaSemana, ?Publicador $estudiante): ?Publicador
+    {
+        $candidatos = $this->publicadores->filter(fn($p) => $p->puedeHacerParte('ayudante'));
+
+        if ($candidatos->isEmpty()) {
+            return null;
+        }
+
+        // Si hay estudiante asignado, filtrar por genero (excepto conyuge)
+        if ($estudiante) {
+            $conyugeId = $estudiante->getConyugeId();
+            $generoEstudiante = $estudiante->genero;
+
+            $candidatos = $candidatos->filter(function ($p) use ($estudiante, $generoEstudiante, $conyugeId) {
+                // No puede ser el mismo estudiante
+                if ($p->id === $estudiante->id) return false;
+                // Mismo genero siempre OK
+                if ($p->genero === $generoEstudiante) return true;
+                // Genero opuesto solo si es conyuge
+                if ($conyugeId && $p->id === $conyugeId) return true;
+                return false;
+            });
+
+            if ($candidatos->isEmpty()) {
+                return null;
+            }
+        }
+
+        // Usar el mismo scoring que elegirMejorCandidato pero para tipo 'ayudante'
+        $fechaSemanaCarbon = \Carbon\Carbon::parse($fechaSemana);
+        $puntuaciones = [];
+
+        $conteosTipo = $candidatos->map(fn($p) => $this->conteoPorTipo[$p->id . '-ayudante'] ?? 0);
+        $mediaTipo = $conteosTipo->avg() ?: 0;
+        $conteosGlobal = $candidatos->map(fn($p) => $this->conteoGlobal[$p->id] ?? 0);
+        $mediaGlobal = $conteosGlobal->avg() ?: 0;
+        $numCandidatos = $candidatos->count();
+
+        foreach ($candidatos as $candidato) {
+            $puntuacion = 0.0;
+
+            $ultimaFecha = $this->getUltimaAsignacionTipo($candidato->id, 'ayudante');
+            if ($ultimaFecha) {
+                $diasDesde = $ultimaFecha->diffInDays($fechaSemanaCarbon);
+                $diasIdeal = $numCandidatos * 7;
+                $puntuacion += min($diasDesde / max($diasIdeal, 1) * 25, 30);
+            } else {
+                $puntuacion += 35;
+            }
+
+            $conteoTipo = $this->conteoPorTipo[$candidato->id . '-ayudante'] ?? 0;
+            $puntuacion += ($mediaTipo - $conteoTipo) * 12;
+
+            $conteoTotal = $this->conteoGlobal[$candidato->id] ?? 0;
+            $puntuacion += ($mediaGlobal - $conteoTotal) * 5;
+
+            $asignacionesSemana = $this->asignadosEstaSemana[$candidato->id] ?? 0;
+            if ($asignacionesSemana > 0) {
+                $puntuacion -= 20 * $asignacionesSemana;
+            }
+
+            if ($ultimaFecha && $ultimaFecha->diffInDays($fechaSemanaCarbon) <= 7) {
+                $puntuacion -= 50;
+            }
+
+            // Conyuge del estudiante tiene bonus leve (natural hacerlo juntos)
+            if ($estudiante && $estudiante->getConyugeId() === $candidato->id) {
+                $puntuacion += 5;
+            }
+
+            $puntuacion += rand(-50, 50) / 100;
+            $puntuaciones[$candidato->id] = $puntuacion;
+        }
+
+        arsort($puntuaciones);
+        $mejorId = array_key_first($puntuaciones);
+        return $candidatos->firstWhere('id', $mejorId);
+    }
+
+    /**
+     * Limpia asignaciones donde el publicador ya no existe, esta inactivo,
+     * fue excluido, o perdio la autorizacion para ese tipo de parte.
+     */
+    private function limpiarAsignacionesInvalidas(ReunionPrograma $programa): void
+    {
+        $pubIds = $this->publicadores->pluck('id')->toArray();
+
+        // Roles globales
+        $rolesGlobales = [
+            'presidente_id' => 'presidente',
+            'oracion_inicio_id' => 'oracion_inicio',
+            'oracion_final_id' => 'oracion_final',
+            'conductor_estudio_id' => 'conductor_estudio',
+            'lector_estudio_id' => 'lector_estudio',
+        ];
+
+        foreach ($rolesGlobales as $campo => $tipo) {
+            if ($programa->$campo) {
+                $pub = $this->publicadores->firstWhere('id', $programa->$campo);
+                if (!$pub || !$pub->puedeHacerParte($tipo)) {
+                    $programa->$campo = null;
+                }
+            }
+        }
+
+        // Partes individuales
+        foreach ($programa->partes as $parte) {
+            if ($parte->publicador_id) {
+                $pub = $this->publicadores->firstWhere('id', $parte->publicador_id);
+                if (!$pub || !$pub->puedeHacerParte($parte->tipo)) {
+                    $parte->publicador_id = null;
+                }
+            }
+            if ($parte->ayudante_id) {
+                $ayu = $this->publicadores->firstWhere('id', $parte->ayudante_id);
+                $invalido = false;
+
+                if (!$ayu || !$ayu->puedeHacerParte('ayudante')) {
+                    $invalido = true;
+                }
+
+                // Verificar compatibilidad de genero con el estudiante
+                if (!$invalido && $parte->publicador_id) {
+                    $est = $this->publicadores->firstWhere('id', $parte->publicador_id);
+                    if ($est && $ayu->genero !== $est->genero) {
+                        // Genero opuesto: solo valido si son conyuges
+                        $conyugeId = $est->getConyugeId();
+                        if (!$conyugeId || $conyugeId !== $ayu->id) {
+                            $invalido = true;
+                        }
+                    }
+                }
+
+                if ($invalido) {
+                    $parte->ayudante_id = null;
+                }
+            }
+            $parte->save();
+        }
+
+        $programa->save();
+    }
+
     private function registrarAsignacion(int $publicadorId, string $tipo): void
     {
         $this->asignadosEstaSemana[$publicadorId] = ($this->asignadosEstaSemana[$publicadorId] ?? 0) + 1;
         $this->conteoGlobal[$publicadorId] = ($this->conteoGlobal[$publicadorId] ?? 0) + 1;
+        $key = $publicadorId . '-' . $tipo;
+        $this->conteoPorTipo[$key] = ($this->conteoPorTipo[$key] ?? 0) + 1;
     }
 
     private function cargarHistorial($fechaSemana): void
     {
-        $fechaDesde = \Carbon\Carbon::parse($fechaSemana)->subMonths(6);
+        // Cargar 12 meses para mejor equidad a largo plazo
+        $fechaDesde = \Carbon\Carbon::parse($fechaSemana)->subMonths(12);
 
         $historial = ReunionHistorial::where('congregacion_id', $this->congregacionId)
             ->where('fecha_semana', '>=', $fechaDesde)
@@ -213,13 +386,18 @@ class AsignacionReunionService
 
         $this->historialPorTipo = [];
         $this->conteoGlobal = [];
+        $this->conteoPorTipo = [];
 
         foreach ($historial as $h) {
+            // Ultima fecha por tipo
             $key = $h->publicador_id . '-' . $h->tipo_parte;
             if (!isset($this->historialPorTipo[$key]) || $h->fecha_semana->gt($this->historialPorTipo[$key])) {
                 $this->historialPorTipo[$key] = $h->fecha_semana;
             }
+            // Conteo global
             $this->conteoGlobal[$h->publicador_id] = ($this->conteoGlobal[$h->publicador_id] ?? 0) + 1;
+            // Conteo por tipo
+            $this->conteoPorTipo[$key] = ($this->conteoPorTipo[$key] ?? 0) + 1;
         }
     }
 
@@ -229,7 +407,7 @@ class AsignacionReunionService
         return $this->historialPorTipo[$key] ?? null;
     }
 
-    private function guardarHistorial(ReunionPrograma $programa): void
+    public function guardarHistorial(ReunionPrograma $programa): void
     {
         // Limpiar historial previo de este programa
         ReunionHistorial::where('programa_id', $programa->id)->delete();
@@ -290,6 +468,7 @@ class AsignacionReunionService
             'discurso_tesoros' => 'Discurso Tesoros',
             'perlas' => 'Perlas escondidas',
             'lectura' => 'Lectura biblica',
+            'discurso_maestros' => 'Discurso Maestros',
             'discurso_vida' => 'Discurso Vida Cristiana',
             default => $tipo,
         };

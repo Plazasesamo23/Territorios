@@ -5,15 +5,11 @@
 @section('content')
 
 <div class="dashboard">
-    <!-- Header -->
     <div class="dash-header">
-        <div>
-            <h1>Bienvenido</h1>
-            <p class="subtitle">{{ $congregacionActiva->nombre ?? 'Tu congregacion' }} · {{ \Carbon\Carbon::now()->locale('es')->isoFormat('dddd, D [de] MMMM') }}</p>
-        </div>
+        <h1>Bienvenido</h1>
+        <p class="subtitle">{{ $congregacionActiva->nombre ?? 'Tu congregacion' }} · {{ \Carbon\Carbon::now()->locale('es')->isoFormat('dddd, D [de] MMMM') }}</p>
     </div>
 
-    <!-- Grid de modulos -->
     <div class="module-grid">
         @foreach($modulos as $modulo)
         <a href="{{ $modulo['ruta'] }}" class="module-card module-card-{{ $modulo['color'] }}">
@@ -43,7 +39,7 @@
             </div>
             <div class="module-card-arrow">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                    <path d="M9 5l7 7-7 7"/>
                 </svg>
             </div>
         </a>

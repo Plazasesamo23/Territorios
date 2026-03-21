@@ -61,6 +61,7 @@ class ReunionParte extends Model
             'haga_revisitas' => 'Haga revisitas',
             'haga_discipulos' => 'Haga discipulos',
             'explique_creencias' => 'Explique sus creencias',
+            'discurso_maestros' => 'Discurso',
             'discurso_vida' => 'Discurso',
             default => $this->tipo,
         };

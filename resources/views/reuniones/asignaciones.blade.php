@@ -5,7 +5,7 @@
 @section('content')
 
 <div class="page-md">
-    <div class="flex justify-between items-center mb-2">
+    <div class="ra-header">
         <div>
             <h1 class="page-title">Asignaciones</h1>
             <p class="page-subtitle">Vista general de asignaciones (ultimos 3 meses)</p>
@@ -26,27 +26,31 @@
         <tbody>
             @foreach($estadisticas as $stat)
             <tr class="clickable-row" data-href="{{ route('reuniones.historial', $stat['publicador']) }}">
-                <td class="font-medium"><a href="{{ route('reuniones.historial', $stat['publicador']) }}" style="color: var(--text); text-decoration: none;">{{ $stat['publicador']->nombre_completo }}</a></td>
+                <td>
+                    <a href="{{ route('reuniones.historial', $stat['publicador']) }}" class="ra-name">{{ $stat['publicador']->nombre_completo }}</a>
+                </td>
                 <td class="hide-mobile">
                     @if($stat['publicador']->genero === 'M')
-                        <span class="text-muted text-xs">Hermano</span>
+                        <span class="ra-tag">Hermano</span>
                     @else
-                        <span class="text-muted text-xs">Hermana</span>
+                        <span class="ra-tag">Hermana</span>
                     @endif
                 </td>
-                <td class="text-muted text-sm hide-mobile">
-                    @if($stat['publicador']->es_anciano) Anciano
-                    @elseif($stat['publicador']->es_siervo_ministerial) Siervo ministerial
-                    @elseif($stat['publicador']->es_precursor) Precursor
-                    @elseif($stat['publicador']->es_menor) Menor
-                    @else Publicador
-                    @endif
+                <td class="hide-mobile">
+                    <span class="ra-role">
+                        @if($stat['publicador']->es_anciano) Anciano
+                        @elseif($stat['publicador']->es_siervo_ministerial) Siervo ministerial
+                        @elseif($stat['publicador']->es_precursor) Precursor
+                        @elseif($stat['publicador']->es_menor) Menor
+                        @else Publicador
+                        @endif
+                    </span>
                 </td>
                 <td>
-                    <span class="{{ $stat['total'] === 0 ? 'text-muted' : '' }}">{{ $stat['total'] }}</span>
+                    <span class="ra-count {{ $stat['total'] === 0 ? 'ra-count--zero' : '' }}">{{ $stat['total'] }}</span>
                 </td>
-                <td class="text-muted text-sm">
-                    {{ $stat['ultima'] ? \Carbon\Carbon::parse($stat['ultima'])->translatedFormat('d M Y') : 'Nunca' }}
+                <td>
+                    <span class="ra-date">{{ $stat['ultima'] ? \Carbon\Carbon::parse($stat['ultima'])->translatedFormat('d M Y') : 'Nunca' }}</span>
                 </td>
             </tr>
             @endforeach
@@ -54,5 +58,46 @@
     </table>
     </div>
 </div>
+
+<style>
+.ra-header {
+    margin-bottom: 1.5rem;
+}
+
+.ra-name {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.ra-name:hover {
+    color: var(--primary);
+}
+
+.ra-tag {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.ra-role {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.ra-count {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+.ra-count--zero {
+    color: var(--text-light);
+}
+
+.ra-date {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+</style>
 
 @endsection

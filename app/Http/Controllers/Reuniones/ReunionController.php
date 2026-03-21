@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Reuniones;
 use App\Http\Controllers\Controller;
 use App\Models\ReunionPrograma;
 use App\Models\ReunionParte;
+use App\Models\ReunionAutorizacion;
 use App\Models\Publicador;
 use App\Services\AsignacionReunionService;
 use App\Services\ImportadorVymService;
@@ -145,7 +146,20 @@ class ReunionController extends Controller
 
         $sinGenero = $publicadores->whereNull('genero')->count();
 
-        return view('reuniones.edit', compact('programa', 'publicadores', 'sinGenero'));
+        // Cargar autorizaciones para los dropdowns
+        $autorizacionesDB = ReunionAutorizacion::where('congregacion_id', $congregacionId)->get();
+        $autPorTipo = [];
+        foreach ($autorizacionesDB->groupBy('tipo_parte') as $tipo => $items) {
+            $autPorTipo[$tipo] = $items->pluck('publicador_id')->toArray();
+        }
+
+        // Mapa de conyuges para filtro de ayudantes
+        $conyuges = \Illuminate\Support\Facades\DB::table('relaciones_familiares')
+            ->where('tipo_relacion', 'conyuge')
+            ->pluck('familiar_id', 'publicador_id')
+            ->toArray();
+
+        return view('reuniones.edit', compact('programa', 'publicadores', 'sinGenero', 'autPorTipo', 'conyuges'));
     }
 
     public function update(Request $request, ReunionPrograma $reunione)
@@ -174,7 +188,7 @@ class ReunionController extends Controller
                 if ($parte && $parte->programa_id === $programa->id) {
                     $parte->update([
                         'publicador_id' => $datos['publicador_id'] ?: null,
-                        'ayudante_id' => $datos['ayudante_id'] ?? null,
+                        'ayudante_id' => $datos['ayudante_id'] ?: null,
                         'titulo' => $datos['titulo'] ?? $parte->titulo,
                         'duracion_minutos' => $datos['duracion_minutos'] ?? $parte->duracion_minutos,
                     ]);
@@ -182,9 +196,10 @@ class ReunionController extends Controller
             }
         }
 
-        // Regenerar historial
+        // Regenerar historial con las asignaciones manuales
         $service = new AsignacionReunionService($congregacionId);
         $programa->load('partes');
+        $service->guardarHistorial($programa);
 
         return redirect()->route('reuniones.edit', $programa)->with('success', 'Programa actualizado correctamente.');
     }
@@ -220,9 +235,24 @@ class ReunionController extends Controller
                 ->with('error', implode(' ', $resultado['errores']));
         }
 
-        $msg = "Auto-asignacion completada: {$resultado['asignados']} asignaciones realizadas.";
+        if ($resultado['asignados'] === 0 && empty($resultado['sin_candidatos'])) {
+            $msg = 'Todas las partes ya estan asignadas.';
+        } else {
+            $msg = "Auto-asignacion: {$resultado['asignados']} asignaciones realizadas.";
+        }
+
         if (!empty($resultado['sin_candidatos'])) {
-            $msg .= ' Sin candidatos para: ' . implode(', ', $resultado['sin_candidatos']);
+            return redirect()->route('reuniones.edit', $programa)
+                ->with('success', $msg)
+                ->with('error', 'Sin candidatos autorizados para: ' . implode(', ', $resultado['sin_candidatos']) . '. Revisa las autorizaciones.');
+        }
+
+        $sinGenero = Publicador::where('congregacion_id', $congregacionId)
+            ->where('activo', true)
+            ->whereNull('genero')
+            ->count();
+        if ($sinGenero > 0) {
+            $msg .= " (Aviso: {$sinGenero} publicadores sin genero asignado)";
         }
 
         return redirect()->route('reuniones.edit', $programa)->with('success', $msg);
@@ -272,6 +302,7 @@ class ReunionController extends Controller
         // Guardar historial al publicar
         $service = new AsignacionReunionService($congregacionId);
         $programa->load('partes');
+        $service->guardarHistorial($programa);
 
         return redirect()->route('reuniones.index')->with('success', 'Programa publicado correctamente.');
     }
@@ -358,30 +389,28 @@ class ReunionController extends Controller
             ->with('partes')
             ->get();
 
-        // Contar asignaciones por publicador hasta esa fecha
-        $conteos = [];
+        // Contar asignaciones por publicador (global y por tipo)
+        $conteosGlobal = [];
+        $conteosTipo = [];
         $ultimaPorTipo = [];
         $asignadosEstaSemana = [];
 
         foreach ($historial as $h) {
-            $conteos[$h->publicador_id] = ($conteos[$h->publicador_id] ?? 0) + 1;
+            $conteosGlobal[$h->publicador_id] = ($conteosGlobal[$h->publicador_id] ?? 0) + 1;
             $key = $h->publicador_id . '-' . $h->tipo_parte;
+            $conteosTipo[$key] = ($conteosTipo[$key] ?? 0) + 1;
             if (!isset($ultimaPorTipo[$key]) || $h->fecha_semana->gt($ultimaPorTipo[$key])) {
                 $ultimaPorTipo[$key] = $h->fecha_semana;
             }
         }
 
-        // Contar asignaciones directas de programas (para los que no tienen historial aun)
+        // Contar asignaciones de esta misma semana desde programas
         foreach ($programasHastaFecha as $prog) {
-            $ids = array_filter([
-                $prog->presidente_id, $prog->oracion_inicio_id, $prog->oracion_final_id,
-                $prog->conductor_estudio_id, $prog->lector_estudio_id,
-            ]);
-            foreach ($ids as $id) {
-                $conteos[$id] = ($conteos[$id] ?? 0);
-            }
-            // Contar los de esta misma semana
             if ($prog->fecha_semana->eq($programa->fecha_semana)) {
+                $ids = array_filter([
+                    $prog->presidente_id, $prog->oracion_inicio_id, $prog->oracion_final_id,
+                    $prog->conductor_estudio_id, $prog->lector_estudio_id,
+                ]);
                 foreach ($ids as $id) {
                     $asignadosEstaSemana[$id] = ($asignadosEstaSemana[$id] ?? 0) + 1;
                 }
@@ -396,39 +425,51 @@ class ReunionController extends Controller
             }
         }
 
-        $media = count($conteos) > 0 ? array_sum($conteos) / count($conteos) : 0;
         $fechaSemana = $programa->fecha_semana;
+        $numCandidatos = $publicadores->count();
 
-        $candidatos = $publicadores->map(function ($p) use ($conteos, $ultimaPorTipo, $asignadosEstaSemana, $media, $tipoParte, $fechaSemana) {
+        // Media por tipo
+        $conteosTipoArr = $publicadores->map(fn($p) => $conteosTipo[$p->id . '-' . $tipoParte] ?? 0);
+        $mediaTipo = $conteosTipoArr->avg() ?: 0;
+        // Media global
+        $conteosGlobalArr = $publicadores->map(fn($p) => $conteosGlobal[$p->id] ?? 0);
+        $mediaGlobal = $conteosGlobalArr->avg() ?: 0;
+
+        $candidatos = $publicadores->map(function ($p) use ($conteosGlobal, $conteosTipo, $ultimaPorTipo, $asignadosEstaSemana, $mediaTipo, $mediaGlobal, $tipoParte, $fechaSemana, $numCandidatos) {
             $puntuacion = 0;
-            $conteo = $conteos[$p->id] ?? 0;
 
-            // Dias desde ultima asignacion de este tipo
+            // Rotacion por tipo
             $key = $p->id . '-' . $tipoParte;
             $ultima = $ultimaPorTipo[$key] ?? null;
             if ($ultima) {
                 $dias = $ultima->diffInDays($fechaSemana);
-                $puntuacion += min($dias * 0.5, 30);
+                $diasIdeal = $numCandidatos * 7;
+                $puntuacion += min($dias / max($diasIdeal, 1) * 25, 30);
             } else {
-                $puntuacion += 30;
+                $puntuacion += 35;
             }
 
-            // Equidad
-            $diferencia = $media - $conteo;
-            $puntuacion += $diferencia > 0 ? $diferencia * 8 : $diferencia * 10;
+            // Equidad por tipo
+            $conteoTipo = $conteosTipo[$key] ?? 0;
+            $puntuacion += ($mediaTipo - $conteoTipo) * 12;
+
+            // Equidad global
+            $conteoTotal = $conteosGlobal[$p->id] ?? 0;
+            $puntuacion += ($mediaGlobal - $conteoTotal) * 5;
 
             // Penalizar si ya tiene parte esta semana
             $estaSemana = $asignadosEstaSemana[$p->id] ?? 0;
-            if ($estaSemana > 0) $puntuacion -= 15 * $estaSemana;
+            if ($estaSemana > 0) $puntuacion -= 20 * $estaSemana;
 
             // Penalizar mismo tipo semana pasada
-            if ($ultima && $ultima->diffInDays($fechaSemana) <= 7) $puntuacion -= 40;
+            if ($ultima && $ultima->diffInDays($fechaSemana) <= 7) $puntuacion -= 50;
 
             return [
                 'id' => $p->id,
                 'nombre' => $p->nombre_completo,
                 'puntuacion' => round($puntuacion, 1),
-                'total_asignaciones' => $conteo,
+                'total_asignaciones' => $conteoTotal,
+                'asignaciones_tipo' => $conteoTipo,
                 'dias_desde_ultima' => $ultima ? $ultima->diffInDays($fechaSemana) : null,
                 'esta_semana' => $estaSemana,
             ];
@@ -475,6 +516,202 @@ class ReunionController extends Controller
             ->get();
 
         return view('reuniones.generos', compact('publicadores'));
+    }
+
+    /**
+     * Tipos de parte disponibles para autorizaciones
+     */
+    private static array $tiposParte = [
+        'presidente', 'oracion', 'tesoros', 'perlas', 'lectura',
+        'maestros', 'discurso_maestros', 'discurso_vida', 'conductor_estudio', 'lector_estudio',
+    ];
+
+    public function autorizaciones()
+    {
+        $congregacionId = session('congregacion_activa_id');
+
+        // Auto-seed si la tabla esta vacia para esta congregacion
+        $existe = ReunionAutorizacion::where('congregacion_id', $congregacionId)->exists();
+        if (!$existe) {
+            $this->seedAutorizaciones($congregacionId);
+        }
+
+        $publicadores = Publicador::where('congregacion_id', $congregacionId)
+            ->where('activo', true)
+            ->whereNotNull('genero')
+            ->orderBy('nombre')
+            ->get();
+
+        $excluidos = Publicador::where('congregacion_id', $congregacionId)
+            ->where('activo', true)
+            ->where('excluido_reuniones', true)
+            ->orderBy('nombre')
+            ->get();
+
+        $activos = $publicadores->where('excluido_reuniones', false);
+
+        // Cargar autorizaciones de la tabla
+        $autorizacionesDB = ReunionAutorizacion::where('congregacion_id', $congregacionId)->get();
+        $porTipo = $autorizacionesDB->groupBy('tipo_parte');
+
+        $autorizaciones = [];
+        foreach (self::$tiposParte as $tipo) {
+            $ids = $porTipo->has($tipo) ? $porTipo[$tipo]->pluck('publicador_id') : collect();
+            $autorizaciones[$tipo] = $activos->filter(fn($p) => $ids->contains($p->id))->values();
+        }
+        $autorizaciones['excluidos'] = $excluidos;
+
+        // Pool: TODOS los activos no excluidos (fuente constante)
+        $pool = $activos;
+
+        // Pool data para el modal JS
+        $poolJson = $activos->map(function ($p) {
+            return [
+                'id' => $p->id,
+                'nombre' => $p->nombre_completo,
+                'genero' => $p->genero,
+                'anciano' => $p->es_anciano,
+                'sm' => $p->es_siervo_ministerial,
+            ];
+        })->values();
+
+        return view('reuniones.autorizaciones', compact('autorizaciones', 'pool', 'poolJson'));
+    }
+
+    /**
+     * Seed autorizaciones para un publicador individual (al des-excluir)
+     */
+    private function seedAutorizacionesPublicador(Publicador $pub, int $congregacionId): void
+    {
+        $tipos = [];
+
+        if ($pub->es_anciano) $tipos[] = 'presidente';
+        if ($pub->esHermano() && !$pub->es_menor) $tipos[] = 'oracion';
+        if ($pub->esHermano() && ($pub->es_anciano || $pub->es_siervo_ministerial)) {
+            $tipos[] = 'tesoros';
+            $tipos[] = 'perlas';
+            $tipos[] = 'discurso_vida';
+        }
+        if ($pub->esHermano()) $tipos[] = 'lectura';
+        if ($pub->esHermano()) $tipos[] = 'discurso_maestros';
+        $tipos[] = 'maestros';
+        if ($pub->puede_dirigir_estudio) $tipos[] = 'conductor_estudio';
+        if ($pub->puede_leer_estudio || $pub->es_anciano || $pub->es_siervo_ministerial) $tipos[] = 'lector_estudio';
+
+        foreach ($tipos as $tipo) {
+            ReunionAutorizacion::firstOrCreate([
+                'publicador_id' => $pub->id,
+                'tipo_parte' => $tipo,
+            ], [
+                'congregacion_id' => $congregacionId,
+            ]);
+        }
+    }
+
+    /**
+     * Auto-rellenar autorizaciones basandose en la logica de nombramientos
+     */
+    private function seedAutorizaciones(int $congregacionId): void
+    {
+        $publicadores = Publicador::where('congregacion_id', $congregacionId)
+            ->where('activo', true)
+            ->whereNotNull('genero')
+            ->where('excluido_reuniones', false)
+            ->get();
+
+        $inserts = [];
+        $now = now();
+
+        foreach ($publicadores as $pub) {
+            $tipos = [];
+
+            if ($pub->es_anciano) $tipos[] = 'presidente';
+            if ($pub->esHermano() && !$pub->es_menor) $tipos[] = 'oracion';
+            if ($pub->esHermano() && ($pub->es_anciano || $pub->es_siervo_ministerial)) {
+                $tipos[] = 'tesoros';
+                $tipos[] = 'perlas';
+                $tipos[] = 'discurso_vida';
+            }
+            if ($pub->esHermano()) $tipos[] = 'lectura';
+            if ($pub->esHermano()) $tipos[] = 'discurso_maestros';
+            $tipos[] = 'maestros';
+            if ($pub->puede_dirigir_estudio) $tipos[] = 'conductor_estudio';
+            // Lector: ancianos, SM, o cualquiera marcado con puede_leer_estudio
+            if ($pub->puede_leer_estudio || $pub->es_anciano || $pub->es_siervo_ministerial) $tipos[] = 'lector_estudio';
+
+            foreach ($tipos as $tipo) {
+                $inserts[] = [
+                    'publicador_id' => $pub->id,
+                    'congregacion_id' => $congregacionId,
+                    'tipo_parte' => $tipo,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
+        }
+
+        // Insertar en lotes
+        foreach (array_chunk($inserts, 500) as $chunk) {
+            ReunionAutorizacion::insert($chunk);
+        }
+    }
+
+    public function guardarAutorizacion(Request $request)
+    {
+        $tiposValidos = implode(',', array_merge(self::$tiposParte, ['excluido_reuniones', 'pool']));
+
+        $request->validate([
+            'publicador_id' => 'required|integer',
+            'campo' => 'required|string|in:' . $tiposValidos,
+            'origen' => 'nullable|string|in:' . $tiposValidos,
+        ]);
+
+        $congregacionId = session('congregacion_activa_id');
+        $pub = Publicador::where('id', $request->publicador_id)
+            ->where('congregacion_id', $congregacionId)
+            ->firstOrFail();
+
+        $campo = $request->campo;
+        $origen = $request->origen;
+
+        // CASO 1: Arrastrar al pool = quitar del panel de origen
+        if ($campo === 'pool') {
+            if ($origen && $origen !== 'pool' && $origen !== 'excluido_reuniones') {
+                ReunionAutorizacion::where('publicador_id', $pub->id)
+                    ->where('tipo_parte', $origen)
+                    ->delete();
+            }
+            if ($origen === 'excluido_reuniones') {
+                $pub->excluido_reuniones = false;
+                $pub->save();
+            }
+            return response()->json(['success' => true]);
+        }
+
+        // CASO 2: Arrastrar a excluidos = excluir y quitar de todos los paneles
+        if ($campo === 'excluido_reuniones') {
+            $pub->excluido_reuniones = true;
+            $pub->save();
+            ReunionAutorizacion::where('publicador_id', $pub->id)->delete();
+            return response()->json(['success' => true]);
+        }
+
+        // CASO 3: Arrastrar del pool o de otro panel a un panel = AGREGAR (sin quitar del origen)
+        if ($origen === 'excluido_reuniones') {
+            $pub->excluido_reuniones = false;
+            $pub->save();
+            // Re-seed autorizaciones basicas al des-excluir
+            $this->seedAutorizacionesPublicador($pub, $congregacionId);
+        }
+
+        ReunionAutorizacion::firstOrCreate([
+            'publicador_id' => $pub->id,
+            'tipo_parte' => $campo,
+        ], [
+            'congregacion_id' => $congregacionId,
+        ]);
+
+        return response()->json(['success' => true]);
     }
 
     public function guardarGeneros(Request $request)

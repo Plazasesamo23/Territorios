@@ -24,6 +24,7 @@
                 <button type="submit" class="btn btn-teal" onclick="return confirm('Auto-asignar todas las partes vacias?')">Auto-asignar</button>
             </form>
             <a href="{{ route('reuniones.show', $programa) }}" class="btn btn-secondary">Vista imprimible</a>
+            <a href="{{ route('reuniones.index') }}" class="btn btn-ghost">Volver</a>
         </div>
     </div>
 
@@ -43,48 +44,93 @@
             <h3 class="reunion-seccion-titulo">Roles generales</h3>
             <div class="grid-2">
                 <div class="form-group">
-                    <label class="form-label">Presidente <button type="button" class="btn-rec" onclick="recomendar('presidente','[name=presidente_id]')">?</button></label>
+                    <label class="form-label">Presidente <button type="button" class="btn-rec" onclick="recomendar('presidente','[name=presidente_id]')" title="Ver recomendaciones">?</button></label>
+                    @php $__autIds = $autPorTipo['presidente'] ?? []; @endphp
                     <select name="presidente_id" class="form-input">
                         <option value="">-- Sin asignar --</option>
-                        @foreach($publicadores->where('es_anciano', true) as $p)
+                        @foreach($publicadores->filter(fn($p) => in_array($p->id, $__autIds)) as $p)
                             <option value="{{ $p->id }}" {{ $programa->presidente_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
                         @endforeach
+                        @php $__otros = $publicadores->filter(fn($p) => !in_array($p->id, $__autIds) && $p->genero === 'M'); @endphp
+                        @if($__otros->isNotEmpty())
+                            <optgroup label="Otros">
+                            @foreach($__otros as $p)
+                                <option value="{{ $p->id }}" {{ $programa->presidente_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
+                            @endforeach
+                            </optgroup>
+                        @endif
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Oracion de inicio <button type="button" class="btn-rec" onclick="recomendar('oracion_inicio','[name=oracion_inicio_id]')">?</button></label>
+                    <label class="form-label">Oracion de inicio <button type="button" class="btn-rec" onclick="recomendar('oracion_inicio','[name=oracion_inicio_id]')" title="Ver recomendaciones">?</button></label>
+                    @php $__autIds = $autPorTipo['oracion'] ?? []; @endphp
                     <select name="oracion_inicio_id" class="form-input">
                         <option value="">-- Sin asignar --</option>
-                        @foreach($publicadores->filter(fn($p) => $p->genero === 'M' && !$p->es_menor) as $p)
+                        @foreach($publicadores->filter(fn($p) => in_array($p->id, $__autIds)) as $p)
                             <option value="{{ $p->id }}" {{ $programa->oracion_inicio_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
                         @endforeach
+                        @php $__otros = $publicadores->filter(fn($p) => !in_array($p->id, $__autIds) && $p->genero === 'M'); @endphp
+                        @if($__otros->isNotEmpty())
+                            <optgroup label="Otros">
+                            @foreach($__otros as $p)
+                                <option value="{{ $p->id }}" {{ $programa->oracion_inicio_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
+                            @endforeach
+                            </optgroup>
+                        @endif
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Conductor estudio <button type="button" class="btn-rec" onclick="recomendar('conductor_estudio','[name=conductor_estudio_id]')">?</button></label>
+                    <label class="form-label">Conductor estudio <button type="button" class="btn-rec" onclick="recomendar('conductor_estudio','[name=conductor_estudio_id]')" title="Ver recomendaciones">?</button></label>
+                    @php $__autIds = $autPorTipo['conductor_estudio'] ?? []; @endphp
                     <select name="conductor_estudio_id" class="form-input">
                         <option value="">-- Sin asignar --</option>
-                        @foreach($publicadores->where('puede_dirigir_estudio', true) as $p)
+                        @foreach($publicadores->filter(fn($p) => in_array($p->id, $__autIds)) as $p)
                             <option value="{{ $p->id }}" {{ $programa->conductor_estudio_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
                         @endforeach
+                        @php $__otros = $publicadores->filter(fn($p) => !in_array($p->id, $__autIds) && $p->genero === 'M'); @endphp
+                        @if($__otros->isNotEmpty())
+                            <optgroup label="Otros">
+                            @foreach($__otros as $p)
+                                <option value="{{ $p->id }}" {{ $programa->conductor_estudio_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
+                            @endforeach
+                            </optgroup>
+                        @endif
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Lector estudio <button type="button" class="btn-rec" onclick="recomendar('lector_estudio','[name=lector_estudio_id]')">?</button></label>
+                    <label class="form-label">Lector estudio <button type="button" class="btn-rec" onclick="recomendar('lector_estudio','[name=lector_estudio_id]')" title="Ver recomendaciones">?</button></label>
+                    @php $__autIds = $autPorTipo['lector_estudio'] ?? []; @endphp
                     <select name="lector_estudio_id" class="form-input">
                         <option value="">-- Sin asignar --</option>
-                        @foreach($publicadores->where('puede_leer_estudio', true) as $p)
+                        @foreach($publicadores->filter(fn($p) => in_array($p->id, $__autIds)) as $p)
                             <option value="{{ $p->id }}" {{ $programa->lector_estudio_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
                         @endforeach
+                        @php $__otros = $publicadores->filter(fn($p) => !in_array($p->id, $__autIds) && $p->genero === 'M'); @endphp
+                        @if($__otros->isNotEmpty())
+                            <optgroup label="Otros">
+                            @foreach($__otros as $p)
+                                <option value="{{ $p->id }}" {{ $programa->lector_estudio_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
+                            @endforeach
+                            </optgroup>
+                        @endif
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Oracion final <button type="button" class="btn-rec" onclick="recomendar('oracion_final','[name=oracion_final_id]')">?</button></label>
+                    <label class="form-label">Oracion final <button type="button" class="btn-rec" onclick="recomendar('oracion_final','[name=oracion_final_id]')" title="Ver recomendaciones">?</button></label>
+                    @php $__autIds = $autPorTipo['oracion'] ?? []; @endphp
                     <select name="oracion_final_id" class="form-input">
                         <option value="">-- Sin asignar --</option>
-                        @foreach($publicadores->filter(fn($p) => $p->genero === 'M' && !$p->es_menor) as $p)
+                        @foreach($publicadores->filter(fn($p) => in_array($p->id, $__autIds)) as $p)
                             <option value="{{ $p->id }}" {{ $programa->oracion_final_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
                         @endforeach
+                        @php $__otros = $publicadores->filter(fn($p) => !in_array($p->id, $__autIds) && $p->genero === 'M'); @endphp
+                        @if($__otros->isNotEmpty())
+                            <optgroup label="Otros">
+                            @foreach($__otros as $p)
+                                <option value="{{ $p->id }}" {{ $programa->oracion_final_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
+                            @endforeach
+                            </optgroup>
+                        @endif
                     </select>
                 </div>
             </div>
@@ -106,18 +152,29 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Asignado</label>
+                        @php
+                            $tipoAuth = match($parte->tipo) {
+                                'discurso_tesoros' => 'tesoros',
+                                'perlas' => 'perlas',
+                                'lectura' => 'lectura',
+                                default => null,
+                            };
+                            $__autIds = $tipoAuth ? ($autPorTipo[$tipoAuth] ?? []) : [];
+                            $__autorizados = $tipoAuth ? $publicadores->filter(fn($p) => in_array($p->id, $__autIds)) : $publicadores;
+                            $__otros = $tipoAuth ? $publicadores->filter(fn($p) => !in_array($p->id, $__autIds) && $p->genero === 'M') : collect();
+                        @endphp
                         <select name="partes[{{ $parte->id }}][publicador_id]" class="form-input">
                             <option value="">-- Sin asignar --</option>
-                            @php
-                                $elegibles = match($parte->tipo) {
-                                    'lectura' => $publicadores->where('genero', 'M'),
-                                    'discurso_tesoros', 'perlas' => $publicadores->filter(fn($p) => $p->genero === 'M' && ($p->es_anciano || $p->es_siervo_ministerial)),
-                                    default => $publicadores,
-                                };
-                            @endphp
-                            @foreach($elegibles as $p)
+                            @foreach($__autorizados as $p)
                                 <option value="{{ $p->id }}" {{ $parte->publicador_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
                             @endforeach
+                            @if($__otros->isNotEmpty())
+                                <optgroup label="Otros">
+                                @foreach($__otros as $p)
+                                    <option value="{{ $p->id }}" {{ $parte->publicador_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
+                                @endforeach
+                                </optgroup>
+                            @endif
                         </select>
                     </div>
                 </div>
@@ -136,28 +193,74 @@
                     <span class="reunion-parte-tipo">{{ $parte->nombre_tipo }}</span>
                     <span class="text-muted text-xs">{{ $parte->duracion_minutos }} min</span>
                 </div>
+                @if($parte->tipo === 'discurso_maestros')
+                {{-- DISCURSO: solo varones, sin ayudante --}}
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Titulo</label>
+                        <input type="text" name="partes[{{ $parte->id }}][titulo]" class="form-input" value="{{ $parte->titulo }}" placeholder="Discurso">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Asignado <span class="text-muted text-xs">(solo varones)</span></label>
+                        @php $__autIds = $autPorTipo['discurso_maestros'] ?? []; @endphp
+                        <select name="partes[{{ $parte->id }}][publicador_id]" class="form-input">
+                            <option value="">-- Sin asignar --</option>
+                            @foreach($publicadores->filter(fn($p) => in_array($p->id, $__autIds)) as $p)
+                                <option value="{{ $p->id }}" {{ $parte->publicador_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
+                            @endforeach
+                            @php $__otros = $publicadores->filter(fn($p) => !in_array($p->id, $__autIds) && $p->genero === 'M'); @endphp
+                            @if($__otros->isNotEmpty())
+                                <optgroup label="Otros">
+                                @foreach($__otros as $p)
+                                    <option value="{{ $p->id }}" {{ $parte->publicador_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
+                                @endforeach
+                                </optgroup>
+                            @endif
+                        </select>
+                    </div>
+                </div>
+                <input type="hidden" name="partes[{{ $parte->id }}][duracion_minutos]" value="{{ $parte->duracion_minutos }}">
+                <input type="hidden" name="partes[{{ $parte->id }}][ayudante_id]" value="">
+                @else
+                {{-- PARTE DE ESTUDIANTE: estudiante + ayudante --}}
                 <div class="grid-2">
                     <div class="form-group">
                         <label class="form-label">Estudiante</label>
-                        <select name="partes[{{ $parte->id }}][publicador_id]" class="form-input">
+                        @php $__autIds = $autPorTipo['maestros'] ?? []; $__otros = $publicadores->filter(fn($p) => !in_array($p->id, $__autIds) && $p->genero); @endphp
+                        <select name="partes[{{ $parte->id }}][publicador_id]" class="form-input" onchange="filtrarAyudante(this, {{ $parte->id }})">
                             <option value="">-- Sin asignar --</option>
-                            @foreach($publicadores as $p)
-                                <option value="{{ $p->id }}" {{ $parte->publicador_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
+                            @foreach($publicadores->filter(fn($p) => in_array($p->id, $__autIds)) as $p)
+                                <option value="{{ $p->id }}" data-genero="{{ $p->genero }}" {{ $parte->publicador_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
                             @endforeach
+                            @if($__otros->isNotEmpty())
+                                <optgroup label="Otros">
+                                @foreach($__otros as $p)
+                                    <option value="{{ $p->id }}" data-genero="{{ $p->genero }}" {{ $parte->publicador_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
+                                @endforeach
+                                </optgroup>
+                            @endif
                         </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Ayudante</label>
-                        <select name="partes[{{ $parte->id }}][ayudante_id]" class="form-input">
+                        <select name="partes[{{ $parte->id }}][ayudante_id]" class="form-input" id="ayudante-{{ $parte->id }}">
                             <option value="">-- Sin asignar --</option>
-                            @foreach($publicadores as $p)
-                                <option value="{{ $p->id }}" {{ $parte->ayudante_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
+                            @foreach($publicadores->filter(fn($p) => in_array($p->id, $__autIds)) as $p)
+                                <option value="{{ $p->id }}" data-genero="{{ $p->genero }}" {{ $parte->ayudante_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
                             @endforeach
+                            @if($__otros->isNotEmpty())
+                                <optgroup label="Otros">
+                                @foreach($__otros as $p)
+                                    <option value="{{ $p->id }}" data-genero="{{ $p->genero }}" {{ $parte->ayudante_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
+                                @endforeach
+                                </optgroup>
+                            @endif
                         </select>
                     </div>
                 </div>
                 <input type="hidden" name="partes[{{ $parte->id }}][titulo]" value="{{ $parte->titulo }}">
                 <input type="hidden" name="partes[{{ $parte->id }}][duracion_minutos]" value="{{ $parte->duracion_minutos }}">
+                @endif
             </div>
             @endforeach
         </div>
@@ -178,11 +281,20 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Asignado</label>
+                        @php $__autIds = $autPorTipo['discurso_vida'] ?? []; @endphp
                         <select name="partes[{{ $parte->id }}][publicador_id]" class="form-input">
                             <option value="">-- Sin asignar --</option>
-                            @foreach($publicadores->filter(fn($p) => $p->genero === 'M' && ($p->es_anciano || $p->es_siervo_ministerial)) as $p)
+                            @foreach($publicadores->filter(fn($p) => in_array($p->id, $__autIds)) as $p)
                                 <option value="{{ $p->id }}" {{ $parte->publicador_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
                             @endforeach
+                            @php $__otros = $publicadores->filter(fn($p) => !in_array($p->id, $__autIds) && $p->genero === 'M'); @endphp
+                            @if($__otros->isNotEmpty())
+                                <optgroup label="Otros">
+                                @foreach($__otros as $p)
+                                    <option value="{{ $p->id }}" {{ $parte->publicador_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
+                                @endforeach
+                                </optgroup>
+                            @endif
                         </select>
                     </div>
                 </div>
@@ -198,18 +310,20 @@
             <textarea name="notas" class="form-input" rows="3" placeholder="Notas internas sobre este programa...">{{ $programa->notas }}</textarea>
         </div>
 
-        <div class="flex gap-1 mt-2">
-            <button type="submit" class="btn btn-teal">Guardar cambios</button>
-            @if($programa->estado === 'borrador')
-            <form action="{{ route('reuniones.publicar', $programa) }}" method="POST" style="display:inline;">
-                @csrf
-                <button type="submit" class="btn btn-secondary" onclick="return confirm('Publicar este programa?')">Publicar</button>
-            </form>
-            @endif
+        <div class="flex justify-between items-center mt-2" style="flex-wrap: wrap; gap: 0.5rem;">
+            <div class="flex gap-1">
+                <button type="submit" class="btn btn-teal">Guardar cambios</button>
+                @if($programa->estado === 'borrador')
+                <form action="{{ route('reuniones.publicar', $programa) }}" method="POST" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-secondary" onclick="return confirm('Publicar este programa?')">Publicar</button>
+                </form>
+                @endif
+            </div>
             <form action="{{ route('reuniones.destroy', $programa) }}" method="POST" style="display:inline;">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn btn-ghost" style="color:#ef4444;" onclick="return confirm('Eliminar este programa? Esta accion no se puede deshacer.')">Eliminar</button>
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Eliminar este programa? Esta accion no se puede deshacer.')">Eliminar</button>
             </form>
         </div>
     </form>
@@ -217,7 +331,7 @@
 
 <!-- Modal de recomendaciones -->
 <div id="modal-recomendar" class="modal-backdrop" style="display:none;" onclick="if(event.target===this)cerrarRecomendar()">
-    <div class="modal" style="max-width:450px;">
+    <div class="modal" style="max-width:450px;" role="dialog" aria-modal="true" aria-label="Recomendaciones de asignacion">
         <div class="modal-header">
             <h3 class="modal-title" id="modal-recomendar-titulo">Recomendaciones</h3>
             <button class="modal-close" onclick="cerrarRecomendar()">&times;</button>
@@ -282,6 +396,10 @@ function seleccionarRecomendado(id) {
 function cerrarRecomendar() {
     document.getElementById('modal-recomendar').style.display = 'none';
 }
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') cerrarRecomendar();
+});
 </script>
 
 <script>
@@ -413,10 +531,8 @@ function clasificarTipo(seccion, titulo, duracion) {
         if (/haga revisita/i.test(titulo)) return 'haga_revisitas';
         if (/haga disc[ií]pulo/i.test(titulo)) return 'haga_discipulos';
         if (/explique.*creencia/i.test(titulo)) return 'explique_creencias';
-        // Parte generica de maestros - clasificar por duracion
-        if (duracion <= 3) return 'empiece_conversaciones';
-        if (duracion <= 4) return 'haga_revisitas';
-        return 'haga_discipulos';
+        // Si no coincide con parte de estudiante, es un discurso (solo varones, sin ayudante)
+        return 'discurso_maestros';
     }
 
     if (seccion === 'vida_cristiana') {
@@ -426,6 +542,66 @@ function clasificarTipo(seccion, titulo, duracion) {
 
     return null;
 }
+</script>
+
+<script>
+// Mapa de conyuges para permitir genero opuesto si son matrimonio
+const conyuges = @json($conyuges);
+
+function filtrarAyudante(selectEstudiante, parteId) {
+    const ayudanteSelect = document.getElementById('ayudante-' + parteId);
+    if (!ayudanteSelect) return;
+
+    const estudianteId = selectEstudiante.value;
+    const opcionEstudiante = selectEstudiante.options[selectEstudiante.selectedIndex];
+    const generoEstudiante = opcionEstudiante ? opcionEstudiante.dataset.genero : null;
+    const conyugeId = estudianteId ? (conyuges[estudianteId] || null) : null;
+
+    // Guardar valor actual del ayudante
+    const ayudanteActual = ayudanteSelect.value;
+
+    // Mostrar/ocultar opciones del ayudante segun genero
+    for (let i = 0; i < ayudanteSelect.options.length; i++) {
+        const opt = ayudanteSelect.options[i];
+        if (!opt.value) continue; // opcion vacia
+
+        if (!estudianteId || !generoEstudiante) {
+            // Sin estudiante, mostrar todos
+            opt.hidden = false;
+            opt.disabled = false;
+        } else if (opt.value === ayudanteActual && ayudanteActual) {
+            // Ayudante ya asignado: siempre visible
+            opt.hidden = false;
+            opt.disabled = false;
+        } else if (opt.value === estudianteId) {
+            // No puede ser el mismo
+            opt.hidden = true;
+            opt.disabled = true;
+        } else if (opt.dataset.genero === generoEstudiante) {
+            // Mismo genero: OK
+            opt.hidden = false;
+            opt.disabled = false;
+        } else if (conyugeId && opt.value === String(conyugeId)) {
+            // Conyuge: OK aunque sea genero opuesto
+            opt.hidden = false;
+            opt.disabled = false;
+        } else {
+            // Genero opuesto y no es conyuge
+            opt.hidden = true;
+            opt.disabled = true;
+        }
+    }
+}
+
+// Ejecutar filtro al cargar para partes que ya tienen estudiante
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('select[onchange^="filtrarAyudante"]').forEach(function(sel) {
+        if (sel.value) {
+            const parteId = sel.getAttribute('onchange').match(/(\d+)/);
+            if (parteId) filtrarAyudante(sel, parteId[1]);
+        }
+    });
+});
 </script>
 
 @endsection

@@ -19,6 +19,10 @@ Route::middleware(['auth', 'congregacion'])->prefix('reuniones')->group(function
     // Historial por publicador
     Route::get('/historial/{publicador}', [ReunionController::class, 'historialPublicador'])->name('reuniones.historial');
 
+    // Autorizaciones (drag & drop)
+    Route::get('/autorizaciones', [ReunionController::class, 'autorizaciones'])->name('reuniones.autorizaciones');
+    Route::post('/autorizaciones', [ReunionController::class, 'guardarAutorizacion'])->name('reuniones.autorizaciones.guardar');
+
     // Generos bulk
     Route::get('/generos', [ReunionController::class, 'generosBulk'])->name('reuniones.generos');
     Route::post('/generos', [ReunionController::class, 'guardarGeneros'])->name('reuniones.generos.guardar');

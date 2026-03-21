@@ -4,140 +4,209 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#0d0f11">
     <title>@yield('title', 'Gestor de Congregacion')</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('css/flat-global.css') }}">
     <script src="{{ asset('js/app.js') }}" defer></script>
+    @stack('styles')
     <style>
         /* ========================================
-           LAYOUT STYLES - Solo modo oscuro
+           LAYOUT — Dark mode only
            ======================================== */
 
-        /* Congregacion Badge */
-        .congregacion-badge {
-            padding: 0.25rem 0.75rem;
-            background: #6b8fc7;
-            color: #121416;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        /* Header Buttons */
-        .header-buttons {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .header-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            transition: all 0.2s;
-            font-size: 1rem;
-            background: #6b8fc7;
-            color: #121416;
-        }
-
-        .header-btn:hover {
-            background: #8aa8d6;
-            transform: scale(1.05);
-        }
-
-        /* Boton volver - gris oscuro para destacar */
-        .btn-volver {
-            background: #8b939c;
-        }
-
-        .btn-volver:hover {
-            background: #b8bfc7;
-        }
-
-        /* Boton logout - gris mas oscuro */
-        .btn-logout {
-            background: #5c656e;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-logout:hover {
-            background: #8b939c;
-        }
-
-        /* Header Principal */
+        /* --- Header --- */
         .header {
             background: #1a1d21;
-            padding: 0;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
         }
 
         .header .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 1rem;
+            padding: 0 1.25rem;
         }
 
         .header-content {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            height: 56px;
-            gap: 1rem;
+            height: 52px;
+            gap: 1.5rem;
         }
 
         .logo {
-            font-size: 1.125rem;
-            font-weight: 700;
+            font-size: 0.9375rem;
+            font-weight: 600;
             color: #f1f3f5;
             text-decoration: none;
+            letter-spacing: -0.01em;
+            white-space: nowrap;
         }
 
-        /* Navegacion */
+        .logo:hover {
+            color: #fff;
+        }
+
+        /* --- Navigation --- */
         .nav {
+            display: flex;
+            align-items: center;
+            gap: 0.125rem;
+        }
+
+        .nav-link {
+            padding: 0.375rem 0.75rem;
+            color: rgba(241,243,245,0.55);
+            text-decoration: none;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: color 0.15s, background 0.15s;
+        }
+
+        .nav-link:hover {
+            color: rgba(241,243,245,0.9);
+            background: rgba(255,255,255,0.06);
+        }
+
+        .nav-link.active {
+            color: #f1f3f5;
+            background: rgba(255,255,255,0.08);
+        }
+
+        /* --- Header Actions --- */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+        }
+
+        .congregacion-badge {
+            padding: 0.1875rem 0.625rem;
+            background: rgba(107,143,199,0.15);
+            color: #8aa8d6;
+            border-radius: 20px;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            border: 1px solid rgba(107,143,199,0.2);
+        }
+
+        .header-buttons {
             display: flex;
             align-items: center;
             gap: 0.25rem;
         }
 
-        .nav-link {
-            padding: 0.5rem 0.875rem;
-            color: rgba(241,243,245,0.75);
-            text-decoration: none;
-            font-size: 0.875rem;
-            font-weight: 500;
+        .header-btn {
+            width: 32px;
+            height: 32px;
             border-radius: 6px;
-            transition: all 0.2s;
-        }
-
-        .nav-link:hover {
-            background: rgba(107,143,199,0.2);
-            color: #f1f3f5;
-        }
-
-        .nav-link.active {
-            background: rgba(107,143,199,0.2);
-            color: #f1f3f5;
-        }
-
-        /* Header Actions */
-        .header-actions {
             display: flex;
             align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: background 0.15s;
+            color: rgba(241,243,245,0.6);
+            background: transparent;
+        }
+
+        .header-btn:hover {
+            background: rgba(255,255,255,0.08);
+            color: #f1f3f5;
+        }
+
+        .btn-volver {
+            color: #8aa8d6;
+        }
+
+        .btn-volver:hover {
+            background: rgba(107,143,199,0.15);
+            color: #b8cceb;
+        }
+
+        .btn-logout {
+            border: none;
+            cursor: pointer;
+            color: rgba(241,243,245,0.4);
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,80,80,0.1);
+            color: #ff6b6b;
+        }
+
+        /* --- Impersonation Bar --- */
+        .impersonation-bar {
+            background: rgba(107,143,199,0.12);
+            border-bottom: 1px solid rgba(107,143,199,0.2);
+            padding: 0.375rem 1.25rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #8aa8d6;
+        }
+
+        .impersonation-bar a {
+            color: #b8cceb;
+            text-decoration: underline;
+            margin-left: 0.5rem;
+        }
+
+        /* --- Flash Messages --- */
+        .flash-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0.75rem 1.25rem 0;
+        }
+
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            font-size: 0.8125rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             gap: 0.75rem;
         }
 
-        /* Main Content */
+        .alert-success {
+            background: rgba(52,199,89,0.1);
+            border: 1px solid rgba(52,199,89,0.2);
+            color: #6ee7a0;
+        }
+
+        .alert-error {
+            background: rgba(255,69,58,0.1);
+            border: 1px solid rgba(255,69,58,0.2);
+            color: #ff8a80;
+        }
+
+        .alert-dismiss {
+            background: none;
+            border: none;
+            color: inherit;
+            opacity: 0.5;
+            cursor: pointer;
+            padding: 0.25rem;
+            line-height: 1;
+            font-size: 1.125rem;
+            flex-shrink: 0;
+            transition: opacity 0.15s;
+        }
+
+        .alert-dismiss:hover {
+            opacity: 1;
+        }
+
+        /* --- Main Content --- */
         .main {
-            min-height: calc(100vh - 56px - 60px);
+            min-height: calc(100vh - 52px - 48px);
             padding: 1.5rem 0;
             background: #0d0f11;
         }
@@ -145,69 +214,51 @@
         .main .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 1rem;
+            padding: 0 1.25rem;
         }
 
-        /* Footer */
+        /* --- Footer --- */
         .footer {
-            background: #151719;
-            border-top: 1px solid #2d3339;
-            padding: 1rem 0;
+            background: #111315;
+            border-top: 1px solid rgba(255,255,255,0.04);
+            padding: 0.875rem 0;
             text-align: center;
-            font-size: 0.8rem;
-            color: #8b939c;
+            font-size: 0.75rem;
+            color: rgba(139,147,156,0.6);
         }
 
         .footer .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 1rem;
+            padding: 0 1.25rem;
         }
 
         .footer p {
             margin: 0;
         }
 
-        /* Alertas */
-        .alert {
-            padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-        }
-
-        .alert-success {
-            background: rgba(107,143,199,0.15);
-            border: 1px solid #6b8fc7;
-            color: #b8bfc7;
-        }
-
-        .alert-error {
-            background: rgba(139,147,156,0.15);
-            border: 1px solid #8b939c;
-            color: #d8dce1;
-        }
-
-        /* Responsive */
+        /* --- Responsive --- */
         @media (max-width: 768px) {
             .header-content {
                 flex-wrap: wrap;
                 height: auto;
-                padding: 0.75rem 0;
+                padding: 0.625rem 0;
             }
 
             .nav {
                 order: 3;
                 width: 100%;
-                justify-content: center;
+                justify-content: flex-start;
                 flex-wrap: wrap;
                 padding-top: 0.5rem;
-                border-top: 1px solid rgba(255,255,255,0.1);
+                border-top: 1px solid rgba(255,255,255,0.06);
                 margin-top: 0.5rem;
+                gap: 0.125rem;
             }
 
             .nav-link {
-                padding: 0.375rem 0.625rem;
-                font-size: 0.8rem;
+                padding: 0.3125rem 0.5rem;
+                font-size: 0.75rem;
             }
 
             .congregacion-badge {
@@ -216,7 +267,14 @@
         }
     </style>
 </head>
-<body data-theme="dark">
+<body>
+    @if(session('usuario_original_id'))
+    <div class="impersonation-bar">
+        Viendo como: <strong>{{ Auth::user()->name }}</strong>
+        <a href="{{ route('cambiar-usuario.volver') }}">Volver a tu cuenta</a>
+    </div>
+    @endif
+
     <header class="header">
         <div class="container">
             <div class="header-content">
@@ -230,42 +288,35 @@
                             $enReuniones = request()->routeIs('reuniones.*');
                             $enPPOC = request()->routeIs('ppoc.*');
                             $enAdmin = request()->routeIs('administracion') || request()->routeIs('publicadores.*') || request()->routeIs('grupos-predicacion.*') || request()->routeIs('usuarios.*') || request()->is('configuracion') || request()->routeIs('congregaciones.*');
-                            $enModulo = $enTerritorios || $enReuniones || $enPPOC || $enAdmin;
                         @endphp
 
                         @if(Auth::user()->isTerritoriosUser())
-                            {{-- Usuario solo de territorios --}}
                             <a href="{{ route('panel-territorios') }}" class="nav-link {{ request()->routeIs('panel-territorios') || request()->routeIs('registros.*') ? 'active' : '' }}">Territorios</a>
                             @if(Auth::user()->canGenerateS13())
                             <a href="{{ route('s13.index') }}" class="nav-link {{ request()->routeIs('s13.*') ? 'active' : '' }}">S-13</a>
                             @endif
                         @elseif($enTerritorios)
-                            {{-- Dentro de Territorios: nav de Territorios --}}
                             <a href="{{ route('dashboard') }}" class="nav-link">Inicio</a>
                             <a href="{{ route('panel-territorios') }}" class="nav-link {{ request()->routeIs('panel-territorios') ? 'active' : '' }}">Panel</a>
                             <a href="{{ route('territorios.index') }}" class="nav-link {{ request()->routeIs('territorios.*') ? 'active' : '' }}">Todos</a>
                             <a href="{{ route('registros.index') }}" class="nav-link {{ request()->routeIs('registros.*') ? 'active' : '' }}">Asignaciones</a>
                             <a href="{{ route('s13.index') }}" class="nav-link {{ request()->routeIs('s13.*') ? 'active' : '' }}">S-13</a>
                         @elseif($enReuniones)
-                            {{-- Dentro de Reuniones: nav de Reuniones --}}
                             <a href="{{ route('dashboard') }}" class="nav-link">Inicio</a>
                             <a href="{{ route('reuniones.index') }}" class="nav-link {{ request()->routeIs('reuniones.index') || request()->routeIs('reuniones.edit') || request()->routeIs('reuniones.show') || request()->routeIs('reuniones.create') ? 'active' : '' }}">VyM</a>
                             <a href="{{ route('reuniones.finsemana') }}" class="nav-link {{ request()->routeIs('reuniones.finsemana*') ? 'active' : '' }}">Fin de semana</a>
                             <a href="{{ route('reuniones.asignaciones') }}" class="nav-link {{ request()->routeIs('reuniones.asignaciones') || request()->routeIs('reuniones.historial') ? 'active' : '' }}">Asignaciones</a>
                             <a href="{{ route('reuniones.generos') }}" class="nav-link {{ request()->routeIs('reuniones.generos') ? 'active' : '' }}">Generos</a>
                         @elseif($enPPOC)
-                            {{-- Dentro de PPOC --}}
                             <a href="{{ route('dashboard') }}" class="nav-link">Inicio</a>
                             <a href="{{ route('ppoc.calendario') }}" class="nav-link active">PPOC</a>
                         @elseif($enAdmin)
-                            {{-- Dentro de Administracion --}}
                             <a href="{{ route('dashboard') }}" class="nav-link">Inicio</a>
                             <a href="{{ route('administracion') }}" class="nav-link {{ request()->routeIs('administracion') ? 'active' : '' }}">Panel</a>
                             <a href="{{ route('publicadores.index') }}" class="nav-link {{ request()->routeIs('publicadores.*') ? 'active' : '' }}">Publicadores</a>
                             <a href="{{ route('grupos-predicacion.index') }}" class="nav-link {{ request()->routeIs('grupos-predicacion.*') ? 'active' : '' }}">Grupos</a>
                             <a href="{{ route('configuracion') }}" class="nav-link {{ request()->is('configuracion') ? 'active' : '' }}">Config</a>
                         @else
-                            {{-- Dashboard / pagina general: mostrar modulos disponibles --}}
                             <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">Inicio</a>
                             <a href="{{ route('panel-territorios') }}" class="nav-link">Territorios</a>
                             @if(Auth::user()->canAccessPPOC())
@@ -291,43 +342,60 @@
 
                         <div class="header-buttons">
                             <a href="{{ route('cambiar-usuario.index') }}" class="header-btn" title="Cambiar usuario">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M23 11h-6"></path></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M23 11h-6"></path></svg>
                             </a>
-                            @if(session('usuario_original_id'))
-                            <a href="{{ route('cambiar-usuario.volver') }}" class="header-btn btn-volver" title="Volver a tu cuenta">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14l-5-5 5-5"></path><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"></path></svg>
-                            </a>
-                            @endif
                             <a href="{{ route('perfil.index') }}" class="header-btn" title="Mi perfil">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             </a>
-                            <form action="{{ route('logout') }}" method="POST" style="margin:0;">
+                            <form action="{{ route('logout') }}" method="POST" style="margin:0">
                                 @csrf
                                 <button type="submit" class="header-btn btn-logout" title="Salir">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                                 </button>
                             </form>
                         </div>
                     @else
-                        <a href="{{ route('login') }}" class="btn btn-outline">Iniciar Sesion</a>
+                        <a href="{{ route('login') }}" class="nav-link">Iniciar Sesion</a>
                     @endauth
                 </div>
             </div>
         </div>
     </header>
 
-    {{-- Los submenus ya estan integrados en la nav principal --}}
-
     @if(session('success'))
-    <div class="container" style="margin-top:1rem;">
-        <div class="alert alert-success">{{ session('success') }}</div>
+    <div class="flash-container">
+        <div class="alert alert-success">
+            <span>{{ session('success') }}</span>
+            <button type="button" class="alert-dismiss" onclick="this.parentElement.remove()">&times;</button>
+        </div>
     </div>
     @endif
 
     @if(session('error'))
-    <div class="container" style="margin-top:1rem;">
-        <div class="alert alert-error">{{ session('error') }}</div>
+    <div class="flash-container">
+        <div class="alert alert-error">
+            <span>{{ session('error') }}</span>
+            <button type="button" class="alert-dismiss" onclick="this.parentElement.remove()">&times;</button>
+        </div>
     </div>
+    @endif
+
+    @php
+        $rutaActual = request()->route()?->getName() ?? '';
+        $submenus = [
+            'reuniones' => 'partials.submenu-reuniones',
+        ];
+        $submenuVista = null;
+        foreach ($submenus as $prefijo => $vista) {
+            if (str_starts_with($rutaActual, $prefijo . '.')) {
+                $submenuVista = $vista;
+                break;
+            }
+        }
+    @endphp
+
+    @if($submenuVista)
+        @include($submenuVista)
     @endif
 
     <main class="main">
@@ -338,16 +406,17 @@
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; {{ date('Y') }} Gestor de Congregacion @if(isset($congregacionActiva)) - {{ $congregacionActiva->nombre }} @endif</p>
+            <p>&copy; {{ date('Y') }} Gestor de Congregacion</p>
         </div>
     </footer>
 
+    @stack('scripts')
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Clickable table rows - supports right-click/new tab
-            document.querySelectorAll('.clickable-row[data-href]').forEach(row => {
+            document.querySelectorAll('.clickable-row[data-href]').forEach(function(row) {
                 row.addEventListener('click', function(e) {
-                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+                    if (e.target.closest('a, button, input, select')) return;
                     if (e.ctrlKey || e.metaKey) {
                         window.open(this.dataset.href, '_blank');
                     } else {
@@ -355,14 +424,6 @@
                     }
                 });
             });
-
-            setTimeout(() => {
-                document.querySelectorAll('.alert').forEach(a => {
-                    a.style.transition = 'opacity 0.5s';
-                    a.style.opacity = '0';
-                    setTimeout(() => a.remove(), 500);
-                });
-            }, 5000);
         });
     </script>
 </body>

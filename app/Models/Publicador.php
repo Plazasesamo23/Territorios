@@ -107,7 +107,37 @@ class Publicador extends Model
     }
 
     /**
+     * Conyuge (matrimonio)
+     */
+    public function conyuge()
+    {
+        return $this->hasOne(\App\Models\RelacionFamiliar::class, 'publicador_id')
+            ->where('tipo_relacion', 'conyuge');
+    }
+
+    /**
+     * Obtener el ID del conyuge
+     */
+    public function getConyugeId(): ?int
+    {
+        $rel = \Illuminate\Support\Facades\DB::table('relaciones_familiares')
+            ->where('publicador_id', $this->id)
+            ->where('tipo_relacion', 'conyuge')
+            ->first();
+        return $rel ? (int)$rel->familiar_id : null;
+    }
+
+    /**
+     * Autorizaciones de reunion
+     */
+    public function reunionAutorizaciones()
+    {
+        return $this->hasMany(ReunionAutorizacion::class);
+    }
+
+    /**
      * Puede hacer una parte especifica de la reunion VyM
+     * Consulta la tabla reuniones_autorizaciones
      */
     public function puedeHacerParte(string $tipoParte): bool
     {
@@ -115,17 +145,26 @@ class Publicador extends Model
             return false;
         }
 
-        return match ($tipoParte) {
-            'presidente' => $this->es_anciano,
-            'oracion_inicio', 'oracion_final' => $this->esHermano() && !$this->es_menor,
-            'discurso_tesoros', 'perlas' => $this->esHermano() && ($this->es_anciano || $this->es_siervo_ministerial),
-            'lectura' => $this->esHermano(),
-            'empiece_conversaciones', 'haga_revisitas', 'haga_discipulos', 'explique_creencias' => true,
-            'discurso_vida' => $this->esHermano() && ($this->es_anciano || $this->es_siervo_ministerial),
-            'conductor_estudio' => $this->puede_dirigir_estudio,
-            'lector_estudio' => $this->puede_leer_estudio,
-            'ayudante' => true,
-            default => false,
+        // Mapear tipos de parte a tipos de autorizacion
+        $tipoAuth = match ($tipoParte) {
+            'presidente' => 'presidente',
+            'oracion_inicio', 'oracion_final' => 'oracion',
+            'discurso_tesoros' => 'tesoros',
+            'perlas' => 'perlas',
+            'lectura' => 'lectura',
+            'empiece_conversaciones', 'haga_revisitas', 'haga_discipulos', 'explique_creencias' => 'maestros',
+            'discurso_maestros' => 'discurso_maestros',
+            'discurso_vida' => 'discurso_vida',
+            'conductor_estudio' => 'conductor_estudio',
+            'lector_estudio' => 'lector_estudio',
+            'ayudante' => 'maestros',
+            default => null,
         };
+
+        if (!$tipoAuth) return false;
+
+        return ReunionAutorizacion::where('publicador_id', $this->id)
+            ->where('tipo_parte', $tipoAuth)
+            ->exists();
     }
 }

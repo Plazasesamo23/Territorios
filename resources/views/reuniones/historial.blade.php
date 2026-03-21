@@ -5,7 +5,7 @@
 @section('content')
 
 <div class="page-md">
-    <div class="flex justify-between items-center mb-2">
+    <div class="rh-header">
         <div>
             <h1 class="page-title">{{ $publicador->nombre_completo }}</h1>
             <p class="page-subtitle">
@@ -31,11 +31,11 @@
             $porTipo = $historial->groupBy('tipo_parte');
         @endphp
 
-        <div class="stats-row mb-2">
+        <div class="rh-stats">
             @foreach($porTipo as $tipo => $items)
-            <div class="stat-item">
-                <span class="stat-number">{{ $items->count() }}</span>
-                <span class="stat-label">{{ match($tipo) {
+            <div class="rh-stat">
+                <span class="rh-stat__number">{{ $items->count() }}</span>
+                <span class="rh-stat__label">{{ match($tipo) {
                     'presidente' => 'Presidente',
                     'oracion_inicio' => 'Oracion inicio',
                     'oracion_final' => 'Oracion final',
@@ -70,18 +70,18 @@
                 @foreach($historial as $h)
                 <tr>
                     <td>
-                        <span class="font-medium">{{ $h->fecha_semana->translatedFormat('d M Y') }}</span>
+                        <span class="rh-date">{{ $h->fecha_semana->translatedFormat('d M Y') }}</span>
                     </td>
                     <td>
                         @php
-                            $seccionColor = match($h->tipo_parte) {
-                                'discurso_tesoros', 'perlas', 'lectura' => '#6366f1',
-                                'empiece_conversaciones', 'haga_revisitas', 'haga_discipulos', 'explique_creencias' => '#f59e0b',
-                                'discurso_vida', 'conductor_estudio', 'lector_estudio' => '#ef4444',
-                                default => '#14b8a6',
+                            $seccionClass = match($h->tipo_parte) {
+                                'discurso_tesoros', 'perlas', 'lectura' => 'rh-tipo--tesoros',
+                                'empiece_conversaciones', 'haga_revisitas', 'haga_discipulos', 'explique_creencias' => 'rh-tipo--maestros',
+                                'discurso_vida', 'conductor_estudio', 'lector_estudio' => 'rh-tipo--vida',
+                                default => 'rh-tipo--general',
                             };
                         @endphp
-                        <span style="border-left: 3px solid {{ $seccionColor }}; padding-left: 0.5rem;">
+                        <span class="rh-tipo {{ $seccionClass }}">
                             {{ match($h->tipo_parte) {
                                 'presidente' => 'Presidente',
                                 'oracion_inicio' => 'Oracion de inicio',
@@ -101,7 +101,9 @@
                             } }}
                         </span>
                     </td>
-                    <td class="text-muted text-sm hide-mobile">{{ $h->titulo_parte ?? '—' }}</td>
+                    <td class="hide-mobile">
+                        <span class="rh-titulo">{{ $h->titulo_parte ?? '---' }}</span>
+                    </td>
                     <td>
                         @if($h->rol === 'principal')
                             <span class="badge badge-primary">Principal</span>
@@ -116,5 +118,90 @@
         </div>
     @endif
 </div>
+
+<style>
+.rh-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Stats chips */
+.rh-stats {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.75rem;
+}
+
+.rh-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 70px;
+    padding: 0.625rem 0.75rem;
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.rh-stat__number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+}
+
+.rh-stat__label {
+    font-size: 0.625rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-top: 0.25rem;
+    text-align: center;
+}
+
+/* Table content */
+.rh-date {
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--text);
+}
+
+.rh-tipo {
+    font-size: 0.85rem;
+    padding-left: 0.625rem;
+    border-left: 3px solid var(--border);
+}
+
+.rh-tipo--tesoros  { border-left-color: var(--color-tesoros-text); }
+.rh-tipo--maestros { border-left-color: var(--color-maestros-text); }
+.rh-tipo--vida     { border-left-color: var(--color-vida-text); }
+.rh-tipo--general  { border-left-color: var(--color-global); }
+
+.rh-titulo {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .rh-stats {
+        gap: 0.5rem;
+    }
+
+    .rh-stat {
+        min-width: 60px;
+        padding: 0.5rem 0.625rem;
+    }
+
+    .rh-stat__number {
+        font-size: 1.25rem;
+    }
+}
+</style>
 
 @endsection

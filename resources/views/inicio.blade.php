@@ -12,7 +12,6 @@
     </div>
 
     <div class="inicio-grid">
-        <!-- Servicio -->
         <a href="{{ route('servicio') }}" class="inicio-card inicio-card-green">
             <div class="inicio-card-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -25,12 +24,11 @@
             </div>
             <div class="inicio-card-arrow">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                    <path d="M9 5l7 7-7 7"/>
                 </svg>
             </div>
         </a>
 
-        <!-- Reuniones -->
         <a href="{{ route('reuniones.index') }}" class="inicio-card inicio-card-teal">
             <div class="inicio-card-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -43,12 +41,11 @@
             </div>
             <div class="inicio-card-arrow">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                    <path d="M9 5l7 7-7 7"/>
                 </svg>
             </div>
         </a>
 
-        <!-- Departamentos -->
         <div class="inicio-card inicio-card-orange inicio-card-disabled">
             <div class="inicio-card-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
