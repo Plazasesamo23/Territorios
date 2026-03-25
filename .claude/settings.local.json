@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.jw.org)",
+      "WebFetch(domain:territorios.trastosbvaa.org)",
+      "WebFetch(domain:docs.ovh.com)",
+      "WebFetch(domain:wol.jw.org)",
+      "WebFetch(domain:n8n.trastosbvaa.org)"
+    ]
+  }
+}
