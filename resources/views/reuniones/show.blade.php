@@ -11,7 +11,7 @@
             <p class="page-subtitle">Semana del {{ $programa->fecha_semana->translatedFormat('d \d\e F, Y') }}</p>
         </div>
         <div class="rs-toolbar__actions">
-            <button onclick="window.print()" class="btn btn-teal">
+            <button onclick="var t=document.title; document.title=' '; setTimeout(function(){window.print(); document.title=t;}, 100);" class="btn btn-teal">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                 Imprimir
             </button>
@@ -20,96 +20,139 @@
         </div>
     </div>
 
+    @php
+        // Calcular horas acumuladas desde 19:30
+        $horaBase = 19 * 60 + 30; // 19:30 en minutos
+        $minActual = $horaBase;
+
+        function formatHora($min) {
+            $h = intdiv($min, 60);
+            $m = $min % 60;
+            return sprintf('%d:%02d', $h, $m);
+        }
+
+        $partesTesorosCol = $programa->partes->where('seccion', 'tesoros')->sortBy('orden');
+        $partesMaestrosCol = $programa->partes->where('seccion', 'maestros')->sortBy('orden');
+        $partesVidaCol = $programa->partes->where('seccion', 'vida_cristiana')->sortBy('orden');
+
+        $congregacionNombre = isset($congregacionActiva) ? $congregacionActiva->nombre : '';
+        $mesAnyo = $programa->fecha_semana->translatedFormat('F Y');
+        $numParte = 1;
+    @endphp
+
     <div class="rs-sheet">
-        <div class="rs-sheet__header">
-            <h2 class="rs-sheet__title">Vida y Ministerio Cristianos</h2>
-            <p class="rs-sheet__date">Semana del {{ $programa->fecha_semana->translatedFormat('d \d\e F \d\e Y') }}</p>
+        {{-- CABECERA --}}
+        <div class="rs-head">
+            <div class="rs-head__left">
+                <h2 class="rs-head__title">Programa para la reunion Vida y Ministerio Cristianos {{ ucfirst($mesAnyo) }}</h2>
+            </div>
+            <div class="rs-head__right">{{ $congregacionNombre }}</div>
         </div>
 
-        {{-- ROLES GENERALES --}}
-        <table class="rs-table">
-            <tr>
-                <td class="rs-table__label">Presidente</td>
-                <td class="rs-table__value">{{ $programa->presidente?->nombre_completo ?? '---' }}</td>
-            </tr>
-            <tr>
-                <td class="rs-table__label">Oracion de inicio</td>
-                <td class="rs-table__value">{{ $programa->oracionInicio?->nombre_completo ?? '---' }}</td>
-            </tr>
-        </table>
+        {{-- BARRA DE FECHA --}}
+        <div class="rs-datebar">
+            {{ $programa->fecha_semana->format('d/m/Y') }}
+        </div>
+
+        {{-- ORACION INICIO + PRESIDENTE --}}
+        <div class="rs-row">
+            <span class="rs-time">{{ formatHora($minActual) }}</span>
+            <span class="rs-desc">Cancion y oracion</span>
+            <span class="rs-name"><strong>Oracion inicio</strong> {{ $programa->oracionInicio?->nombre_completo ?? 'Sin asignar' }}</span>
+        </div>
+        @php $minActual += 5; @endphp
+
+        <div class="rs-row">
+            <span class="rs-time">{{ formatHora($minActual) }}</span>
+            <span class="rs-desc">Palabras de introduccion (1 min.)</span>
+            <span class="rs-name"><strong>Presidente</strong> {{ $programa->presidente?->nombre_completo ?? 'Sin asignar' }}</span>
+        </div>
+        @php $minActual += 1; @endphp
 
         {{-- TESOROS DE LA BIBLIA --}}
-        <div class="rs-section rs-section--tesoros">
-            <h3 class="rs-section__heading">Tesoros de la Biblia</h3>
-            <table class="rs-table">
-                @foreach($programa->partes->where('seccion', 'tesoros') as $parte)
-                <tr>
-                    <td class="rs-table__label">
-                        {{ $parte->titulo ?? $parte->nombre_tipo }}
-                        <span class="rs-table__min">({{ $parte->duracion_minutos }} min)</span>
-                    </td>
-                    <td class="rs-table__value">{{ $parte->publicador?->nombre_completo ?? '---' }}</td>
-                </tr>
-                @endforeach
-            </table>
+        <div class="rs-section-bar rs-section-bar--tesoros">
+            <span class="rs-section-icon">💎</span>
+            <span>TESOROS DE LA BIBLIA</span>
         </div>
+
+        @foreach($partesTesorosCol as $parte)
+        <div class="rs-row">
+            <span class="rs-time">{{ formatHora($minActual) }}</span>
+            <span class="rs-desc">{{ $numParte }}. {{ $parte->titulo ?? $parte->nombre_tipo }} ({{ $parte->duracion_minutos }} min.)</span>
+            <span class="rs-name">{{ $parte->publicador?->nombre_completo ?? '' }}</span>
+        </div>
+        @php $minActual += $parte->duracion_minutos; $numParte++; @endphp
+        @endforeach
 
         {{-- SEAMOS MEJORES MAESTROS --}}
-        <div class="rs-section rs-section--maestros">
-            <h3 class="rs-section__heading">Seamos mejores maestros</h3>
-            <table class="rs-table">
-                @foreach($programa->partes->where('seccion', 'maestros') as $parte)
-                <tr>
-                    <td class="rs-table__label">
-                        {{ $parte->titulo ?? $parte->nombre_tipo }}
-                        <span class="rs-table__min">({{ $parte->duracion_minutos }} min)</span>
-                    </td>
-                    <td class="rs-table__value">
-                        {{ $parte->publicador?->nombre_completo ?? '---' }}
-                        @if($parte->necesita_ayudante)
-                            <span class="rs-table__helper">/ {{ $parte->ayudante?->nombre_completo ?? '---' }}</span>
-                        @endif
-                    </td>
-                </tr>
-                @endforeach
-            </table>
+        <div class="rs-section-bar rs-section-bar--maestros">
+            <span class="rs-section-icon">🌾</span>
+            <span>SEAMOS MEJORES MAESTROS</span>
         </div>
+
+        @foreach($partesMaestrosCol as $parte)
+        <div class="rs-row">
+            <span class="rs-time">{{ formatHora($minActual) }}</span>
+            <span class="rs-desc">{{ $numParte }}. {{ $parte->titulo ?? $parte->nombre_tipo }} ({{ $parte->duracion_minutos }} min.)</span>
+            <span class="rs-name">
+                @if($parte->publicador)
+                    {{ $parte->publicador->nombre_completo }}
+                    @if($parte->necesita_ayudante && $parte->ayudante)
+                        &amp; {{ $parte->ayudante->nombre_completo }}
+                    @endif
+                @endif
+            </span>
+        </div>
+        @php $minActual += $parte->duracion_minutos; $numParte++; @endphp
+        @endforeach
 
         {{-- NUESTRA VIDA CRISTIANA --}}
-        <div class="rs-section rs-section--vida">
-            <h3 class="rs-section__heading">Nuestra vida cristiana</h3>
-            <table class="rs-table">
-                @foreach($programa->partes->where('seccion', 'vida_cristiana') as $parte)
-                <tr>
-                    <td class="rs-table__label">
-                        {{ $parte->titulo ?? $parte->nombre_tipo }}
-                        <span class="rs-table__min">({{ $parte->duracion_minutos }} min)</span>
-                    </td>
-                    <td class="rs-table__value">{{ $parte->publicador?->nombre_completo ?? '---' }}</td>
-                </tr>
-                @endforeach
-                <tr>
-                    <td class="rs-table__label">Estudio biblico de congregacion</td>
-                    <td class="rs-table__value">
-                        Conductor: {{ $programa->conductorEstudio?->nombre_completo ?? '---' }}
-                        <br>Lector: {{ $programa->lectorEstudio?->nombre_completo ?? '---' }}
-                    </td>
-                </tr>
-            </table>
+        <div class="rs-section-bar rs-section-bar--vida">
+            <span class="rs-section-icon">🐑</span>
+            <span>NUESTRA VIDA CRISTIANA</span>
         </div>
 
+        @foreach($partesVidaCol as $parte)
+        <div class="rs-row">
+            <span class="rs-time">{{ formatHora($minActual) }}</span>
+            <span class="rs-desc">{{ $numParte }}. {{ $parte->titulo ?? $parte->nombre_tipo }} ({{ $parte->duracion_minutos }} min.)</span>
+            <span class="rs-name">{{ $parte->publicador?->nombre_completo ?? '' }}</span>
+        </div>
+        @php $minActual += $parte->duracion_minutos; $numParte++; @endphp
+        @endforeach
+
+        {{-- ESTUDIO BIBLICO --}}
+        <div class="rs-row">
+            <span class="rs-time">{{ formatHora($minActual) }}</span>
+            <span class="rs-desc">{{ $numParte }}. Estudio biblico (30 min.)</span>
+            <span class="rs-name">
+                <strong>Conductor</strong> {{ $programa->conductorEstudio?->nombre_completo ?? '' }}
+                &nbsp;&nbsp;<strong>Lector</strong> {{ $programa->lectorEstudio?->nombre_completo ?? '' }}
+            </span>
+        </div>
+        @php $minActual += 30; $numParte++; @endphp
+
         {{-- CIERRE --}}
-        <table class="rs-table rs-table--last">
-            <tr>
-                <td class="rs-table__label">Oracion final</td>
-                <td class="rs-table__value">{{ $programa->oracionFinal?->nombre_completo ?? '---' }}</td>
-            </tr>
-        </table>
+        <div class="rs-row rs-row--cierre">
+            <span class="rs-time">{{ formatHora($minActual) }}</span>
+            <span class="rs-desc">Palabras de conclusion (3 min.)</span>
+            <span class="rs-name"></span>
+        </div>
+        @php $minActual += 4; @endphp
+
+        <div class="rs-row rs-row--cierre">
+            <span class="rs-time">{{ formatHora($minActual) }}</span>
+            <span class="rs-desc">Cancion y oracion</span>
+            <span class="rs-name"><strong>Oracion final</strong> {{ $programa->oracionFinal?->nombre_completo ?? 'Sin asignar' }}</span>
+        </div>
+
+        {{-- PIE --}}
+        <div class="rs-footer">Impreso {{ now()->format('d-m-Y') }}</div>
     </div>
 </div>
 
 <style>
-/* ---- Show: Toolbar ---- */
+/* ---- Toolbar (no-print) ---- */
 .rs-toolbar {
     display: flex;
     justify-content: space-between;
@@ -118,216 +161,201 @@
     gap: 1rem;
     margin-bottom: 1.5rem;
 }
-
 .rs-toolbar__actions {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
 }
 
-/* ---- Show: Sheet (print container) ---- */
+/* ---- Sheet ---- */
 .rs-sheet {
-    background: var(--bg-white);
-    border: 1px solid var(--border);
+    background: #fff;
     border-radius: 8px;
-    padding: 2rem;
+    padding: 2rem 2.5rem;
+    color: #222;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.rs-sheet__header {
-    text-align: center;
-    margin-bottom: 1.75rem;
-    padding-bottom: 1.25rem;
-    border-bottom: 1px solid var(--border);
+/* ---- Header ---- */
+.rs-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+    gap: 1rem;
 }
-
-.rs-sheet__title {
-    font-size: 1.25rem;
+.rs-head__title {
+    font-size: 1.2rem;
     font-weight: 700;
-    color: var(--text);
-    margin: 0 0 0.25rem 0;
-}
-
-.rs-sheet__date {
-    font-size: 0.875rem;
-    color: var(--text-muted);
+    color: #1a1a1a;
     margin: 0;
+    line-height: 1.3;
+}
+.rs-head__right {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-align: right;
+    white-space: nowrap;
 }
 
-/* ---- Show: Section headers ---- */
-.rs-section {
-    margin-top: 1.5rem;
+/* ---- Date bar ---- */
+.rs-datebar {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0;
+    border-radius: 4px 4px 0 0;
 }
 
-.rs-section__heading {
+/* ---- Rows ---- */
+.rs-row {
+    display: flex;
+    align-items: baseline;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0.5rem 0;
+    gap: 0.5rem;
+}
+.rs-row--cierre {
+    background: rgba(0,0,0,0.02);
+}
+.rs-time {
+    width: 42px;
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #555;
+    text-align: right;
+    padding-right: 0.5rem;
+}
+.rs-desc {
+    flex: 1;
+    font-size: 0.85rem;
+    color: #333;
+    min-width: 0;
+}
+.rs-name {
+    font-size: 0.85rem;
+    color: #222;
+    text-align: right;
+    white-space: nowrap;
+}
+.rs-name strong {
+    color: #555;
+    font-weight: 600;
+    margin-right: 0.25rem;
+}
+
+/* ---- Section bars ---- */
+.rs-section-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.25rem;
     font-size: 0.8rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin: 0 0 0.75rem 0;
-    padding: 0.5rem 0 0.5rem 0.75rem;
-    border-left: 4px solid transparent;
+    letter-spacing: 0.03em;
+    color: #fff;
+}
+.rs-section-icon {
+    font-size: 0.9rem;
+}
+.rs-section-bar--tesoros {
+    background: #0f766e;
+}
+.rs-section-bar--maestros {
+    background: #b45309;
+}
+.rs-section-bar--vida {
+    background: #991b1b;
 }
 
-.rs-section--tesoros .rs-section__heading {
-    color: var(--color-tesoros-text);
-    border-left-color: var(--color-tesoros-text);
-}
-
-.rs-section--maestros .rs-section__heading {
-    color: var(--color-maestros-text);
-    border-left-color: var(--color-maestros-text);
-}
-
-.rs-section--vida .rs-section__heading {
-    color: var(--color-vida-text);
-    border-left-color: var(--color-vida-text);
-}
-
-/* ---- Show: Tables ---- */
-.rs-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.rs-table tr {
-    border-bottom: 1px solid var(--border);
-}
-
-.rs-table--last tr:last-child {
-    border-bottom: none;
-}
-
-.rs-table__label {
-    padding: 0.625rem 0.5rem;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    width: 50%;
-    vertical-align: top;
-}
-
-.rs-table__value {
-    padding: 0.625rem 0.5rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text);
-    vertical-align: top;
-}
-
-.rs-table__min {
+/* ---- Footer ---- */
+.rs-footer {
+    text-align: right;
     font-size: 0.7rem;
-    color: var(--text-muted);
-    font-weight: 400;
+    color: #999;
+    font-style: italic;
+    margin-top: 1.5rem;
 }
 
-.rs-table__helper {
-    color: var(--text-muted);
-    font-weight: 400;
-}
-
-/* ---- Print styles ---- */
+/* ---- Print ---- */
 @media print {
-    body {
+    body, html {
         background: #fff !important;
-        color: #000 !important;
     }
-
-    .no-print,
-    .header,
-    .footer,
-    .nav {
+    .no-print, .header, .footer, .submenu, .main > .container > *:not(.page-sm) {
         display: none !important;
     }
-
     .main {
         padding: 0 !important;
         min-height: auto !important;
         background: #fff !important;
     }
-
+    .page-sm {
+        max-width: 100%;
+    }
     .rs-sheet {
-        background: #fff;
         border: none;
         border-radius: 0;
-        padding: 0;
+        padding: 0.5cm;
         box-shadow: none;
-    }
-
-    .rs-sheet__header {
-        border-bottom-color: #ccc;
-    }
-
-    .rs-sheet__title {
-        color: #000;
-    }
-
-    .rs-sheet__date {
-        color: #555;
-    }
-
-    .rs-section__heading {
-        color: #333 !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
-
-    .rs-section--tesoros .rs-section__heading {
-        border-left-color: #0f766e !important;
+    .rs-datebar,
+    .rs-section-bar {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    .rs-row {
+        page-break-inside: avoid;
     }
 
-    .rs-section--maestros .rs-section__heading {
-        border-left-color: #b45309 !important;
+    @page {
+        margin: 1cm;
+        margin-top: 0.5cm;
+        margin-bottom: 0.5cm;
     }
 
-    .rs-section--vida .rs-section__heading {
-        border-left-color: #991b1b !important;
+    /* Ocultar URL, titulo y fecha que el navegador pone al imprimir */
+    @page {
+        @top-left { content: none; }
+        @top-right { content: none; }
+        @bottom-left { content: none; }
+        @bottom-right { content: none; }
     }
 
-    .rs-table tr {
-        border-bottom-color: #ddd;
-    }
-
-    .rs-table__label {
-        color: #333;
-    }
-
-    .rs-table__value {
-        color: #000;
-    }
-
-    .rs-table__min {
-        color: #777;
-    }
-
-    .rs-table__helper {
-        color: #777;
-    }
+    /* Fallback: titulo vacio para que no muestre la URL */
+    title { visibility: hidden; }
 }
 
 /* ---- Responsive ---- */
 @media (max-width: 640px) {
     .rs-sheet {
-        padding: 1.25rem;
+        padding: 1rem;
     }
-
-    .rs-table__label,
-    .rs-table__value {
-        display: block;
-        width: 100%;
-        padding: 0.25rem 0.5rem;
+    .rs-head {
+        flex-direction: column;
     }
-
-    .rs-table__label {
-        padding-top: 0.625rem;
-        padding-bottom: 0;
-        font-weight: 500;
+    .rs-head__right {
+        text-align: left;
     }
-
-    .rs-table__value {
-        padding-bottom: 0.625rem;
+    .rs-name {
+        white-space: normal;
+        text-align: right;
+        min-width: 0;
     }
-
-    .rs-table tr {
-        display: block;
+    .rs-row {
+        flex-wrap: wrap;
+    }
+    .rs-time {
+        width: 36px;
+        font-size: 0.7rem;
     }
 }
 </style>

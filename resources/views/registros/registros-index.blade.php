@@ -62,16 +62,6 @@
          ============================================ -->
     <div id="vista-resumen">
 
-        <!-- Buscador vista resumen -->
-        <div class="form-group">
-            <div class="flex gap-1">
-                <input type="text" id="search-resumen"
-                       placeholder="Buscar publicador..."
-                       class="form-input"
-                       oninput="filtrarResumen()">
-            </div>
-        </div>
-
         <!-- Stats rápidas -->
         <div class="stats-row mb-2">
             <div class="stat-item">
@@ -142,6 +132,12 @@
             <span class="badge badge-primary">{{ $publicadoresResumen->count() }}</span>
         </div>
 
+        <!-- Buscador de publicadores -->
+        <div class="form-group" style="margin-bottom: 0.5rem;">
+            <input type="text" id="buscarPublicador" placeholder="Buscar publicador..."
+                   class="form-input" oninput="filtrarPublicadores()">
+        </div>
+
         <!-- Filtro por nombramiento -->
         <div class="filtro-nombramiento">
             <button class="filtro-btn active" data-filtro="todos" onclick="filtrarNombramiento('todos')">Todos</button>
@@ -202,29 +198,17 @@
     <div id="vista-lista" style="display: none;">
 
         <!-- Filtros por tipo -->
-        <div class="tabs-flat">
-            <button class="tab-item active" data-tipo="todos" onclick="filtrarTipo('todos')">
-                Todos <span class="badge">{{ $conteoTipos['todos'] ?? 0 }}</span>
-            </button>
-            <button class="tab-item" data-tipo="normal" onclick="filtrarTipo('normal')">
-                Normales <span class="badge">{{ $conteoTipos['normal'] ?? 0 }}</span>
-            </button>
-            <button class="tab-item" data-tipo="campana" onclick="filtrarTipo('campana')">
-                Campana <span class="badge">{{ $conteoTipos['campana'] ?? 0 }}</span>
-            </button>
-            <button class="tab-item" data-tipo="negocios" onclick="filtrarTipo('negocios')">
-                Negocios <span class="badge">{{ $conteoTipos['negocios'] ?? 0 }}</span>
-            </button>
+        <div class="tabs-flat" id="tabs-tipo-lista">
+            <button class="tab-item active" data-tipo="todos">Todos <span class="badge">{{ $conteoTipos['todos'] ?? 0 }}</span></button>
+            <button class="tab-item" data-tipo="normal">Normales <span class="badge">{{ $conteoTipos['normal'] ?? 0 }}</span></button>
+            <button class="tab-item" data-tipo="campana">Campana <span class="badge">{{ $conteoTipos['campana'] ?? 0 }}</span></button>
+            <button class="tab-item" data-tipo="negocios">Negocios <span class="badge">{{ $conteoTipos['negocios'] ?? 0 }}</span></button>
         </div>
 
         <!-- Buscador -->
         <div class="form-group">
-            <div class="flex gap-1">
-                <input type="text" id="search-lista"
-                       placeholder="Buscar territorio, publicador..."
-                       class="form-input"
-                       oninput="filtrarLista()">
-            </div>
+            <input type="text" id="buscarLista" placeholder="Buscar territorio, publicador..."
+                   class="form-input" oninput="filtrarLista()">
         </div>
 
         <!-- Stats -->
@@ -279,8 +263,8 @@
                 @php $estado = $registro->territorio->calcularEstado(); @endphp
                 <tr class="clickable-row registro-row"
                     data-href="{{ route('registros.show', $registro) }}"
-                    data-tipo="{{ $registro->territorio->tipo }}"
-                    data-search="{{ strtolower($registro->territorio->numero_completo . ' ' . $registro->publicador->nombre_completo . ' ' . ($registro->territorio->zona ?? '')) }}">
+                    data-tipo="{{ $registro->territorio->tipo ?? 'normal' }}"
+                    data-search="{{ strtolower($registro->territorio->numero_completo . ' ' . ($registro->publicador->nombre_completo ?? '') . ' ' . ($registro->territorio->zona ?? '')) }}">
                     <td class="text-muted hide-mobile">{{ $registro->fecha_salida->format('d/m/Y') }}</td>
                     <td><strong>{{ $registro->territorio->numero_completo }}</strong></td>
                     <td>{{ $registro->publicador->nombre_completo }}</td>
@@ -309,8 +293,6 @@
 
 @push('scripts')
 <script>
-var tipoActivo = 'todos';
-
 function cambiarVista(vista) {
     document.getElementById('vista-resumen').style.display = vista === 'resumen' ? 'block' : 'none';
     document.getElementById('vista-lista').style.display = vista === 'lista' ? 'block' : 'none';
@@ -323,39 +305,46 @@ function filtrarNombramiento(tipo) {
     document.querySelectorAll('.filtro-btn').forEach(function(btn) {
         btn.classList.toggle('active', btn.dataset.filtro === tipo);
     });
-    filtrarResumen();
+    filtrarPublicadores();
 }
 
-function filtrarResumen() {
-    var search = (document.getElementById('search-resumen').value || '').toLowerCase();
-    var nombActivo = document.querySelector('.filtro-btn.active');
-    var filtroNomb = nombActivo ? nombActivo.dataset.filtro : 'todos';
-
+function filtrarPublicadores() {
+    var texto = (document.getElementById('buscarPublicador').value || '').toLowerCase();
+    var filtroActivo = document.querySelector('.filtro-btn.active');
+    var tipo = filtroActivo ? filtroActivo.dataset.filtro : 'todos';
     document.querySelectorAll('.pub-card').forEach(function(card) {
         var nombre = card.querySelector('.pub-nombre').textContent.toLowerCase();
-        var matchSearch = !search || nombre.indexOf(search) !== -1;
-        var matchNomb = filtroNomb === 'todos' || card.dataset.nombramiento === filtroNomb;
-        card.style.display = (matchSearch && matchNomb) ? '' : 'none';
+        var coincideNombre = !texto || nombre.indexOf(texto) !== -1;
+        var coincideTipo = tipo === 'todos' || card.dataset.nombramiento === tipo;
+        card.style.display = (coincideNombre && coincideTipo) ? '' : 'none';
     });
 }
 
-function filtrarTipo(tipo) {
-    tipoActivo = tipo;
-    document.querySelectorAll('.tabs-flat .tab-item').forEach(function(btn) {
-        btn.classList.toggle('active', btn.dataset.tipo === tipo);
-    });
-    filtrarLista();
-}
+// --- Filtrado de lista activa (client-side, sin recargar) ---
+var filtroTipoLista = 'todos';
 
 function filtrarLista() {
-    var search = (document.getElementById('search-lista').value || '').toLowerCase();
-
+    var texto = (document.getElementById('buscarLista').value || '').toLowerCase();
     document.querySelectorAll('.registro-row').forEach(function(row) {
-        var matchTipo = tipoActivo === 'todos' || row.dataset.tipo === tipoActivo;
-        var matchSearch = !search || row.dataset.search.indexOf(search) !== -1;
-        row.style.display = (matchTipo && matchSearch) ? '' : 'none';
+        var tipo = row.dataset.tipo || 'normal';
+        var search = row.dataset.search || '';
+        var pasaTipo = (filtroTipoLista === 'todos' || tipo === filtroTipoLista);
+        var pasaTexto = (!texto || search.indexOf(texto) !== -1);
+        row.style.display = (pasaTipo && pasaTexto) ? '' : 'none';
     });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    var tabsLista = document.querySelectorAll('#tabs-tipo-lista .tab-item');
+    tabsLista.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            tabsLista.forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+            filtroTipoLista = this.dataset.tipo;
+            filtrarLista();
+        });
+    });
+});
 </script>
 @endpush
 @endsection

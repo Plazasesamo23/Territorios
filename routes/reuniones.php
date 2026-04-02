@@ -39,4 +39,8 @@ Route::middleware(['auth', 'congregacion'])->prefix('reuniones')->group(function
     Route::get('/{reunione}/importar-titulos', [ReunionController::class, 'edit'])->name('reuniones.importar-titulos.get');
     Route::post('/{reunione}/publicar', [ReunionController::class, 'publicar'])->name('reuniones.publicar');
     Route::get('/{reunione}/recomendar/{tipoParte}', [ReunionController::class, 'recomendar'])->name('reuniones.recomendar');
+
+    // Emergencia
+    Route::get('/{reunione}/recomendar-emergencia/{tipoParte}', [ReunionController::class, 'recomendarEmergencia'])->name('reuniones.recomendar-emergencia');
+    Route::post('/{reunione}/reemplazo-emergencia', [ReunionController::class, 'guardarReemplazoEmergencia'])->name('reuniones.reemplazo-emergencia');
 });

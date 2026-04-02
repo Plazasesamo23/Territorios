@@ -7,7 +7,7 @@
 <div class="page-sm">
     <div class="rc-header">
         <h1 class="page-title">Crear programas</h1>
-        <p class="page-subtitle">Se importaran automaticamente los titulos desde jw.org</p>
+        <p class="page-subtitle">Genera programas semanales de la reunion VyM</p>
     </div>
 
     <form action="{{ route('reuniones.store') }}" method="POST" class="rc-form">
@@ -15,7 +15,7 @@
 
         <div class="rc-fields">
             <div class="form-group">
-                <label class="form-label">Desde la semana del (lunes)</label>
+                <label class="form-label">Desde la semana del</label>
                 <input type="date" name="fecha_semana" class="form-input rc-input--narrow" value="{{ $proximoLunes->format('Y-m-d') }}" required>
                 @error('fecha_semana')
                     <span class="rc-error">{{ $message }}</span>
@@ -23,7 +23,7 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Cantidad de semanas</label>
+                <label class="form-label">Crear las proximas</label>
                 <select name="cantidad_semanas" class="form-input rc-input--narrow">
                     <option value="4">4 semanas (1 mes)</option>
                     <option value="8">8 semanas (2 meses)</option>
@@ -36,13 +36,13 @@
 
         <div class="rc-notice">
             <svg class="rc-notice__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-            <span>Cada programa se creara con los titulos reales del cuadernillo VyM importados directamente de jw.org. Si alguna semana no esta disponible, se creara con partes estandar.</span>
+            <span>Los titulos de cada semana se importan automaticamente del cuadernillo VyM de jw.org. Si alguna semana no esta disponible, se creara con las partes por defecto (lectura, revisitas, etc.) y luego puedes importar los titulos manualmente desde la pagina de edicion.</span>
         </div>
 
         <div class="rc-actions">
             <button type="submit" class="btn btn-teal">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                Crear e importar de jw.org
+                Crear programas
             </button>
             <a href="{{ route('reuniones.index') }}" class="btn btn-ghost">Cancelar</a>
         </div>

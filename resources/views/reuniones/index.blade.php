@@ -21,6 +21,19 @@
         $lunesActual = $hoy->copy()->startOfWeek(\Carbon\Carbon::MONDAY);
     @endphp
 
+    @if($programas->count() === 0)
+    <div class="empty-state">
+        <div class="icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
+            </svg>
+        </div>
+        <div class="title">No hay programas creados</div>
+        <div class="desc">Crea las primeras semanas para empezar a gestionar la reunion de Vida y Ministerio.</div>
+        <a href="{{ route('reuniones.create') }}" class="btn btn-teal" style="margin-top: 1rem;">Crear semanas</a>
+    </div>
+    @endif
+
     <div class="ri-list">
         @foreach($programas as $programa)
         @php
@@ -76,7 +89,7 @@
                     <div class="ri-card__bar">
                         <div class="ri-card__fill {{ $pct === 100 ? 'ri-card__fill--done' : '' }}" style="width: {{ $pct }}%"></div>
                     </div>
-                    <span class="ri-card__count {{ $pct === 100 ? 'ri-card__count--done' : '' }}">{{ $asignadas }}/{{ $total }}</span>
+                    <span class="ri-card__count {{ $pct === 100 ? 'ri-card__count--done' : '' }}" title="{{ $asignadas }} de {{ $total }} partes asignadas">{{ $asignadas }}/{{ $total }}</span>
                 </div>
             </div>
 

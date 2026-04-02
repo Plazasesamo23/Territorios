@@ -81,10 +81,55 @@ class RegistroController extends Controller
             'promedio_dias' => $registrosActivos->avg('dias_transcurridos') ? round($registrosActivos->avg('dias_transcurridos'), 1) : 0
         ];
 
-        // Historial reciente solo para referencia (ya no se usa en la vista)
-        $historialReciente = collect();
+        // Datos por nombramiento para gráficos
+        $publicadoresConRegistros = Publicador::where('activo', true)
+            ->with(['registros' => function($q) {
+                $q->orderBy('fecha_salida', 'desc');
+            }, 'registros.territorio'])
+            ->get();
 
-        return view('registros.index', compact('registrosActivos', 'historialReciente', 'estadisticas', 'tipoFiltro', 'conteoTipos'));
+        $porNombramiento = [
+            'ancianos' => $publicadoresConRegistros->filter(fn($p) => $p->es_anciano),
+            'siervos' => $publicadoresConRegistros->filter(fn($p) => $p->es_siervo_ministerial && !$p->es_anciano),
+            'publicadores' => $publicadoresConRegistros->filter(fn($p) => !$p->es_anciano && !$p->es_siervo_ministerial),
+        ];
+
+        $datosPastel = [];
+        foreach ($porNombramiento as $tipo => $grupo) {
+            $totalAsignaciones = $grupo->sum(fn($p) => $p->registros->count());
+            $activas = $grupo->sum(fn($p) => $p->registros->where('fecha_entrada', null)->count());
+            $datosPastel[$tipo] = [
+                'personas' => $grupo->count(),
+                'total_asignaciones' => $totalAsignaciones,
+                'activas' => $activas,
+                'completadas' => $totalAsignaciones - $activas,
+            ];
+        }
+
+        // Lista de publicadores con resumen de historial
+        $publicadoresResumen = $publicadoresConRegistros->map(function($p) {
+            $completadas = $p->registros->whereNotNull('fecha_entrada');
+            $activas = $p->registros->whereNull('fecha_entrada');
+            $ultimaAsignacion = $p->registros->first();
+            return [
+                'id' => $p->id,
+                'nombre' => $p->nombre_completo,
+                'nombramiento' => $p->es_anciano ? 'Anciano' : ($p->es_siervo_ministerial ? 'Siervo Ministerial' : 'Publicador'),
+                'total' => $p->registros->count(),
+                'activas' => $activas->count(),
+                'completadas' => $completadas->count(),
+                'ultima_fecha' => $ultimaAsignacion ? $ultimaAsignacion->fecha_salida->format('d/m/Y') : null,
+                'ultimo_territorio' => $ultimaAsignacion ? $ultimaAsignacion->territorio->numero_completo ?? '-' : null,
+                'promedio_dias' => $completadas->count() > 0
+                    ? round($completadas->avg(fn($r) => $r->fecha_salida->diffInDays($r->fecha_entrada)))
+                    : null,
+            ];
+        })->sortByDesc('total')->values();
+
+        return view('registros.index', compact(
+            'registrosActivos', 'estadisticas', 'tipoFiltro', 'conteoTipos',
+            'datosPastel', 'publicadoresResumen'
+        ));
     }
 
     /**

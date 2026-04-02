@@ -7,8 +7,8 @@
     <meta name="theme-color" content="#0d0f11">
     <title>@yield('title', 'Gestor de Congregacion')</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/flat-global.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/flat-global.css') }}?v={{ time() }}">
     <script src="{{ asset('js/app.js') }}" defer></script>
     @stack('styles')
     <style>
@@ -206,9 +206,10 @@
 
         /* --- Main Content --- */
         .main {
-            min-height: calc(100vh - 52px - 48px);
             padding: 1.5rem 0;
             background: #0d0f11;
+            flex: 1;
+            min-height: 0;
         }
 
         .main .container {
@@ -242,7 +243,7 @@
             .header-content {
                 flex-wrap: wrap;
                 height: auto;
-                padding: 0.625rem 0;
+                padding: 0.5rem 0;
             }
 
             .nav {
@@ -250,24 +251,28 @@
                 width: 100%;
                 justify-content: flex-start;
                 flex-wrap: wrap;
-                padding-top: 0.5rem;
+                padding-top: 0.375rem;
                 border-top: 1px solid rgba(255,255,255,0.06);
-                margin-top: 0.5rem;
+                margin-top: 0.375rem;
                 gap: 0.125rem;
             }
 
             .nav-link {
-                padding: 0.3125rem 0.5rem;
+                padding: 0.25rem 0.5rem;
                 font-size: 0.75rem;
             }
 
             .congregacion-badge {
                 display: none;
             }
+
+            .main {
+                padding: 1rem 0;
+            }
         }
     </style>
 </head>
-<body>
+<body style="display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;">
     @if(session('usuario_original_id'))
     <div class="impersonation-bar">
         Viendo como: <strong>{{ Auth::user()->name }}</strong>
@@ -304,8 +309,8 @@
                         @elseif($enReuniones)
                             <a href="{{ route('dashboard') }}" class="nav-link">Inicio</a>
                             <a href="{{ route('reuniones.index') }}" class="nav-link {{ request()->routeIs('reuniones.index') || request()->routeIs('reuniones.edit') || request()->routeIs('reuniones.show') || request()->routeIs('reuniones.create') ? 'active' : '' }}">VyM</a>
-                            <a href="{{ route('reuniones.finsemana') }}" class="nav-link {{ request()->routeIs('reuniones.finsemana*') ? 'active' : '' }}">Fin de semana</a>
                             <a href="{{ route('reuniones.asignaciones') }}" class="nav-link {{ request()->routeIs('reuniones.asignaciones') || request()->routeIs('reuniones.historial') ? 'active' : '' }}">Asignaciones</a>
+                            <a href="{{ route('reuniones.autorizaciones') }}" class="nav-link {{ request()->routeIs('reuniones.autorizaciones') ? 'active' : '' }}">Autorizaciones</a>
                             <a href="{{ route('reuniones.generos') }}" class="nav-link {{ request()->routeIs('reuniones.generos') ? 'active' : '' }}">Generos</a>
                         @elseif($enPPOC)
                             <a href="{{ route('dashboard') }}" class="nav-link">Inicio</a>

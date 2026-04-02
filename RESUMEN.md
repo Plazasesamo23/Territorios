@@ -5,7 +5,7 @@
 ### Servidor SSH (OVH Hosting Compartido)
 - **Host:** `ssh.cluster100.hosting.ovh.net`
 - **Usuario:** `trastos`
-- **Contraseña:** `[PASSWORD]`
+- **Contraseña:** `Bopo191210`
 - **Ruta proyecto:** `/home/trastos/Territorios/`
 - **URL Produccion:** https://territorios.trastosbvaa.org
 
@@ -13,14 +13,14 @@
 - **Host:** `trastos1.mysql.db`
 - **BD:** `trastos1`
 - **Usuario:** `trastos1`
-- **Contraseña:** `[PASSWORD]`
+- **Contraseña:** `Bopo191210`
 
 ### GitHub
 - **Repo:** `https://github.com/Plazasesemo23/Territorios.git`
 - **Rama activa:** `definitivo-servicio`
 - **Rama backup pre-modularizacion:** `pre-modularizacion-backup` (en rama servidor)
-- **Token GitHub (marzo 2026):** `[TOKEN_GITHUB]`
-- **Remote con token:** `https://[TOKEN_GITHUB]@github.com/Plazasesemo23/Territorios.git`
+- **Token GitHub (marzo 2026):** `TOKEN-ELIMINADO-POR-SEGURIDAD`
+- **Remote con token:** `https://TOKEN-ELIMINADO-POR-SEGURIDAD@github.com/Plazasesemo23/Territorios.git`
 
 ---
 
@@ -28,16 +28,16 @@
 
 ```bash
 # Ejecutar comando en servidor
-echo y | plink -pw [PASSWORD] trastos@ssh.cluster100.hosting.ovh.net "cd Territorios && [comando]"
+echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territorios && [comando]"
 
 # Subir archivo
-echo y | pscp -pw [PASSWORD] "C:\Users\bryan\archivo.php" trastos@ssh.cluster100.hosting.ovh.net:/home/trastos/Territorios/ruta/archivo.php
+echo y | pscp -pw Bopo191210 "C:\Users\bryan\archivo.php" trastos@ssh.cluster100.hosting.ovh.net:/home/trastos/Territorios/ruta/archivo.php
 
 # Descargar archivo
-echo y | pscp -pw [PASSWORD] trastos@ssh.cluster100.hosting.ovh.net:/home/trastos/Territorios/ruta/archivo.php "C:\Users\bryan\archivo.php"
+echo y | pscp -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net:/home/trastos/Territorios/ruta/archivo.php "C:\Users\bryan\archivo.php"
 
 # Limpiar cache Laravel
-echo y | plink -pw [PASSWORD] trastos@ssh.cluster100.hosting.ovh.net "cd Territorios && php artisan cache:clear && php artisan view:clear && php artisan route:clear && php artisan config:clear"
+echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territorios && php artisan cache:clear && php artisan view:clear && php artisan route:clear && php artisan config:clear"
 ```
 
 ---
@@ -75,6 +75,7 @@ echo y | plink -pw [PASSWORD] trastos@ssh.cluster100.hosting.ovh.net "cd Territo
 | `routes/web.php` | Auth, Dashboard, Perfil, CambiarUsuario, referencia-ui | auth + congregacion |
 | `routes/territorios.php` | Territorios CRUD, Registros, S13, S13Import, PanelTerritorios, Creador | auth + congregacion + role:admin (escritura) |
 | `routes/ppoc.php` | Disponibilidad publica + Calendario, Turnos, Asignaciones | publicas + auth + congregacion + role:admin |
+| `routes/reuniones.php` | Reunion VyM: CRUD programas, asignaciones, autorizaciones, historial, generos | auth + congregacion |
 | `routes/admin.php` | Publicadores, Usuarios, Grupos, Config, Congregaciones | auth + congregacion + role:admin + can:superadmin |
 
 Registradas en `bootstrap/app.php` con callback `then:` que aplica middleware `web` a cada archivo.
@@ -97,6 +98,8 @@ app/Http/Controllers/
 │   ├── UsuarioController.php
 │   ├── GrupoPredicacionController.php
 │   └── CongregacionController.php
+├── Reuniones/
+│   └── ReunionController.php
 ├── Auth/                          (Laravel auth)
 ├── DashboardController.php        (no se mueve)
 ├── PerfilController.php           (no se mueve)
@@ -129,6 +132,7 @@ Detectados en `layouts/app.blade.php` por nombre de ruta. Se muestran como barra
 |---------|-------|---------------------|
 | `submenu-territorios` | Verde | `panel-territorios`, `territorios.*`, `registros.*`, `s13.*`, `creador-territorios.*` |
 | `submenu-ppoc` | Azul | `ppoc.*` |
+| `submenu-reuniones` | Teal | `reuniones.*` |
 | `submenu-admin` | Naranja | `administracion`, `publicadores.*`, `usuarios.*`, `grupos-predicacion.*`, `configuracion`, `congregaciones.*` |
 
 Partials en `resources/views/layouts/partials/`.
@@ -137,8 +141,8 @@ Partials en `resources/views/layouts/partials/`.
 
 ## Estructura de la aplicacion
 
-### Modelos (13)
-User, Territorio, Publicador, Registro, Congregacion, Turno, TurnoGenerado, TurnoAsignacion, DisponibilidadPpoc, GrupoPredicacion, GrupoHistorico, CoincidenciaHistorico, RelacionFamiliar
+### Modelos (17)
+User, Territorio, Publicador, Registro, Congregacion, Turno, TurnoGenerado, TurnoAsignacion, DisponibilidadPpoc, GrupoPredicacion, GrupoHistorico, CoincidenciaHistorico, RelacionFamiliar, ReunionPrograma, ReunionParte, ReunionHistorial, ReunionAutorizacion
 
 ### Middlewares custom (5)
 - `CheckRole` - Verificar rol del usuario
@@ -147,10 +151,12 @@ User, Territorio, Publicador, Registro, Congregacion, Turno, TurnoGenerado, Turn
 - `VerifyCongregacionPassword` - Verificar password de congregacion
 - `SecurityHeaders` - Headers de seguridad HTTP
 
-### Services (3)
+### Services (5)
 - `AsignacionPpocService` - Logica de asignacion automatica PPOC
 - `GeneradorGruposService` - Generacion automatica de grupos
 - `S13ImportService` - Importacion de datos S-13
+- `AsignacionReunionService` - Auto-asignacion y scoring de partes VyM
+- `ImportadorVymService` - Importacion de titulos desde wol.jw.org via proxy
 
 ---
 
@@ -200,8 +206,325 @@ User, Territorio, Publicador, Registro, Congregacion, Turno, TurnoGenerado, Turn
 ### 5. Publicadores
 - Datos personales, nombramientos, relaciones familiares
 - Toggle precursor, aprobado PPOC, capitan PPOC
+- Campos especificos de reuniones: `genero`, `excluido_reuniones`, `puede_dirigir_estudio`, `puede_leer_estudio`
 
-### 6. Multi-congregacion
+### 6. Modulo Reuniones VyM (Vida y Ministerio)
+
+Gestion completa del programa de la reunion Vida y Ministerio: importacion desde jw.org, asignacion automatica inteligente, sistema de autorizaciones por drag & drop, y vista de impresion.
+
+#### 6.1 Arquitectura
+
+| Capa | Archivo | Responsabilidad |
+|------|---------|-----------------|
+| **Controller** | `App\Http\Controllers\Reuniones\ReunionController` | CRUD programas, auto-asignar, importar, recomendar, autorizaciones, generos |
+| **Service** | `App\Services\AsignacionReunionService` | Algoritmo de scoring, auto-asignacion, historial, partes estandar |
+| **Service** | `App\Services\ImportadorVymService` | Importar HTML de wol.jw.org via proxy, parsear con DOMDocument/XPath |
+| **Model** | `App\Models\ReunionPrograma` | Programa semanal (fecha_semana, roles globales, estado) |
+| **Model** | `App\Models\ReunionParte` | Parte individual (seccion, tipo, titulo, publicador, ayudante) |
+| **Model** | `App\Models\ReunionHistorial` | Auditoria de todas las asignaciones realizadas |
+| **Model** | `App\Models\ReunionAutorizacion` | Quien puede hacer cada tipo de parte |
+| **Routes** | `routes/reuniones.php` | Todas las rutas `reuniones.*` |
+
+#### 6.2 Tablas de base de datos
+
+**`reuniones_programas`** - Programa semanal
+
+| Campo | Tipo | Descripcion |
+|-------|------|-------------|
+| `congregacion_id` | int | FK congregacion |
+| `fecha_semana` | date | Lunes de la semana |
+| `presidente_id` | int/null | FK publicador |
+| `oracion_inicio_id` | int/null | FK publicador |
+| `oracion_final_id` | int/null | FK publicador |
+| `conductor_estudio_id` | int/null | FK publicador |
+| `lector_estudio_id` | int/null | FK publicador |
+| `estado` | string | `borrador` o `publicado` |
+| `notas` | text/null | Notas internas |
+
+**`reuniones_partes`** - Partes individuales del programa
+
+| Campo | Tipo | Descripcion |
+|-------|------|-------------|
+| `programa_id` | int | FK programa |
+| `seccion` | string | `tesoros`, `maestros`, `vida_cristiana` |
+| `tipo` | string | Tipo de parte (ver tabla de tipos) |
+| `titulo` | string/null | Titulo importado de jw.org o manual |
+| `duracion_minutos` | int | Duracion en minutos |
+| `orden` | int | Orden de la parte en el programa |
+| `publicador_id` | int/null | FK publicador asignado |
+| `ayudante_id` | int/null | FK ayudante asignado |
+| `necesita_ayudante` | bool | Si la parte requiere ayudante |
+
+**`reuniones_historial`** - Auditoria de asignaciones
+
+| Campo | Tipo | Descripcion |
+|-------|------|-------------|
+| `congregacion_id` | int | FK congregacion |
+| `publicador_id` | int | FK publicador |
+| `programa_id` | int | FK programa |
+| `fecha_semana` | date | Fecha de la semana |
+| `tipo_parte` | string | Tipo de parte asignada |
+| `rol` | string | `principal` o `ayudante` |
+
+**`reuniones_autorizaciones`** - Permisos por tipo de parte
+
+| Campo | Tipo | Descripcion |
+|-------|------|-------------|
+| `publicador_id` | int | FK publicador |
+| `congregacion_id` | int | FK congregacion |
+| `tipo_parte` | string | Tipo de autorizacion (10 tipos) |
+
+#### 6.3 Tipos de parte
+
+**Tipos usados en `reuniones_partes.tipo`** (partes del programa):
+
+| Tipo | Seccion | Descripcion | Ayudante |
+|------|---------|-------------|----------|
+| `discurso_tesoros` | tesoros | Discurso de 10 min de Tesoros | No |
+| `perlas` | tesoros | Busquemos perlas escondidas (10 min) | No |
+| `lectura` | tesoros | Lectura de la Biblia (4 min) | No |
+| `empiece_conversaciones` | maestros | Empiece conversaciones (3 min) | Si |
+| `haga_revisitas` | maestros | Haga revisitas (4 min) | Si |
+| `haga_discipulos` | maestros | Haga discipulos (5 min) | Si |
+| `explique_creencias` | maestros | Explique sus creencias | Si |
+| `discurso_maestros` | maestros | Discurso sin ayudante (solo varones) | No |
+| `discurso_vida` | vida_cristiana | Discurso Vida Cristiana (15 min) | No |
+
+**Roles globales del programa** (en `reuniones_programas`):
+- `presidente` - Presidente de la reunion
+- `oracion_inicio` / `oracion_final` - Oraciones
+- `conductor_estudio` - Conductor del estudio biblico
+- `lector_estudio` - Lector del estudio biblico
+
+**Tipos de autorizacion** (en `reuniones_autorizaciones.tipo_parte`):
+
+| tipo_parte (auth) | Mapea a tipos de parte |
+|-------------------|----------------------|
+| `presidente` | presidente |
+| `oracion` | oracion_inicio, oracion_final |
+| `tesoros` | discurso_tesoros |
+| `perlas` | perlas |
+| `lectura` | lectura |
+| `maestros` | empiece_conversaciones, haga_revisitas, haga_discipulos, explique_creencias, **ayudante** |
+| `discurso_maestros` | discurso_maestros |
+| `discurso_vida` | discurso_vida |
+| `conductor_estudio` | conductor_estudio |
+| `lector_estudio` | lector_estudio |
+
+El mapeo se define en `Publicador::puedeHacerParte()` con un `match()`. Nota: el tipo `ayudante` mapea a la autorizacion `maestros` (quien puede ser estudiante tambien puede ser ayudante).
+
+#### 6.4 Sistema de autorizaciones
+
+**seedAutorizaciones** - Relleno automatico inicial basado en nombramientos:
+
+| Nombramiento | Autorizaciones que recibe |
+|-------------|--------------------------|
+| Anciano | presidente, oracion, tesoros, perlas, lectura, discurso_maestros, maestros, discurso_vida |
+| Siervo Ministerial | oracion, tesoros, perlas, lectura, discurso_maestros, maestros, discurso_vida |
+| Hermano (varon) | oracion (si no es menor), lectura, discurso_maestros, maestros |
+| Hermana | maestros |
+| Todos | maestros |
+| `puede_dirigir_estudio` | conductor_estudio |
+| `puede_leer_estudio` / anciano / SM | lector_estudio |
+
+**UI de autorizaciones** (`reuniones-autorizaciones.blade.php`):
+- Layout de 2 columnas: paneles de autorizacion a la izquierda, pool de publicadores a la derecha (sticky)
+- **Drag & drop**: arrastrar chips entre paneles para agregar/quitar autorizaciones
+- **Modal (+)**: alternativa al drag & drop, boton + en cada panel abre modal con busqueda
+- **Pool**: lista completa de publicadores activos, con buscador, badges de genero (M/F) y nombramiento (A/SM)
+- **Excluidos**: panel rojo para publicadores que no reciben ninguna asignacion
+- Guardar via AJAX (`POST reuniones.autorizaciones.guardar`) sin recargar pagina
+- 3 casos de guardado:
+  1. Arrastrar al pool = quitar autorizacion del panel origen
+  2. Arrastrar a excluidos = `excluido_reuniones = true` + borrar todas las autorizaciones
+  3. Arrastrar a un panel = agregar autorizacion (sin quitar del origen)
+- Al des-excluir (arrastrar de excluidos a un panel): se ejecuta `seedAutorizacionesPublicador()` para restaurar autorizaciones basicas
+
+#### 6.5 Algoritmo de auto-asignacion
+
+El algoritmo esta en `AsignacionReunionService::autoAsignar()` y usa un sistema de **puntuacion (scoring)** para elegir al mejor candidato para cada parte.
+
+**Orden de asignacion** (mas restrictivo primero):
+1. Presidente
+2. Oracion de inicio
+3. Discurso Tesoros
+4. Perlas escondidas
+5. Discurso Vida Cristiana
+6. Conductor estudio
+7. Lectura biblica
+8. Lector estudio
+9. Oracion final
+10. Partes de maestros (del programa)
+11. Ayudantes (despues de asignar cada estudiante)
+
+**Sistema de puntuacion** (`elegirMejorCandidato`):
+
+| Factor | Puntos | Descripcion |
+|--------|--------|-------------|
+| Rotacion por tipo | 0 a +30 | Mas dias desde ultima asignacion de ese tipo = mas puntos. Escala: `dias / (N_candidatos * 7) * 25` |
+| Nunca asignado en tipo | +35 | Prioridad alta para publicadores sin historial en ese tipo |
+| Equidad por tipo | x12 | `(media_tipo - conteo_tipo) * 12`. Publicadores con menos asignaciones del tipo reciben mas puntos |
+| Equidad global | x5 | `(media_global - conteo_global) * 5`. Evitar sobrecarga total |
+| Ya tiene parte esta semana | -20 por cada | Penalizacion por asignacion multiple en la misma semana |
+| Mismo tipo semana pasada | -50 | Penalizacion fuerte si hizo la misma parte hace <=7 dias |
+| Mismo tipo hace 2 semanas | -15 | Penalizacion leve si hizo la misma parte hace <=14 dias |
+| Anciano en parte de estudiante | -60 | Ancianos no deberian hacer partes de estudiante |
+| SM en parte de estudiante | -20 | Siervos ministeriales menos frecuentes en partes de estudiante |
+| Jitter de desempate | +-0.5 | Random minimo para romper empates |
+
+**Partes de estudiante** = `empiece_conversaciones`, `haga_revisitas`, `haga_discipulos`, `explique_creencias`, `ayudante`
+
+**Reglas de ayudante** (`elegirMejorAyudante`):
+- Mismo genero que el estudiante, siempre permitido
+- Genero opuesto solo si son conyuges (matrimonio registrado en `relaciones_familiares`)
+- No puede ser el mismo publicador que el estudiante
+- Conyuge del estudiante recibe +5 puntos bonus
+- Usa el mismo scoring que `elegirMejorCandidato` con tipo `ayudante`
+
+**Limpieza de asignaciones invalidas** (`limpiarAsignacionesInvalidas`):
+Se ejecuta antes de auto-asignar. Limpia asignaciones donde:
+- El publicador ya no existe o esta inactivo
+- El publicador fue excluido de reuniones
+- El publicador perdio la autorizacion para ese tipo de parte
+- El ayudante es de genero opuesto al estudiante y no es su conyuge
+
+**Historial** (`guardarHistorial`):
+- Metodo **publico** - se puede llamar desde fuera
+- Se ejecuta en 3 momentos:
+  1. Al hacer auto-asignacion (`autoAsignar`)
+  2. Al guardar manualmente el programa (`update`)
+  3. Al publicar el programa (`publicar`)
+- Limpia historial previo del programa y lo recrea completo
+- Registra roles globales (presidente, oraciones, conductor, lector) y partes individuales (publicador + ayudante)
+
+#### 6.6 Importacion desde jw.org
+
+**Proxy**: `https://n8n.trastosbvaa.org/wol-proxy?y=YYYY&m=MM&d=DD`
+- Necesario porque wol.jw.org bloquea CORS y OVH shared hosting bloquea salida HTTPS
+- El proxy corre como Node.js en VPS
+- CORS configurado solo en Nginx (no en Node.js) para evitar header duplicado
+
+**Flujo de importacion**:
+1. Usuario hace clic en "Importar de jw.org" en la vista de edicion
+2. **Client-side**: fetch al proxy → recibe HTML → `parsearProgramaVym()` parsea con DOMParser
+3. **Client-side**: envia array de partes parseadas al servidor via POST JSON
+4. **Server-side**: `importarTitulos()` borra partes existentes y crea nuevas con los titulos
+5. Pagina se recarga mostrando las partes importadas
+
+**Tambien se importa al crear semanas** (`store`):
+- `ImportadorVymService::importar()` hace lo mismo server-side con DOMDocument/XPath
+- Si falla la importacion, cae al fallback `generarPartesEstandar()` (partes sin titulo)
+
+**Logica de parseo** (identica en JS y PHP):
+1. Buscar bloque `.todayItem.pub-mwb` en el HTML
+2. Recorrer `h2` (detectar seccion: TESOROS / MAESTROS / VIDA CRISTIANA) y `h3` (partes)
+3. Extraer titulo limpiando numeracion (`N. Titulo` → `Titulo`)
+4. Extraer duracion: primero del `h3`, luego del `<p>` hermano siguiente
+5. Ignorar canticos, oraciones, conclusiones, introducciones
+6. Clasificar tipo con `clasificarTipo()`:
+   - Tesoros: `perlas` si contiene "perlas escondidas", `lectura` si contiene "lectura de la biblia", sino `discurso_tesoros`
+   - Maestros: patron de titulo → `empiece_conversaciones` / `haga_revisitas` / `haga_discipulos` / `explique_creencias`. **Fallback**: si no coincide con ningun patron de estudiante → `discurso_maestros` (solo varones, sin ayudante)
+   - Vida cristiana: ignora "estudio biblico de la congregacion", el resto es `discurso_vida`
+
+**Partes estandar** (fallback sin importacion):
+
+```
+Tesoros: discurso_tesoros (10 min), perlas (10 min), lectura (4 min)
+Maestros: empiece_conversaciones (3 min), haga_revisitas (4 min), haga_discipulos (5 min)
+Vida cristiana: discurso_vida (15 min)
+```
+
+#### 6.7 Vista de edicion (reuniones-edit.blade.php)
+
+**Dropdowns con autorizados + otros**:
+- Cada dropdown muestra primero los publicadores autorizados para ese tipo
+- Bajo un `<optgroup label="Otros">` aparecen los demas publicadores varones (flexibilidad manual)
+- Esto permite que la auto-asignacion respete autorizaciones, pero el usuario pueda asignar a cualquiera manualmente
+
+**Secciones visuales**:
+| Seccion | Color | Icono |
+|---------|-------|-------|
+| Roles generales | Gris | - |
+| Tesoros de la Biblia | Teal (#0f766e / #14b8a6) | 💎 |
+| Seamos mejores maestros | Amber (#b45309 / #d97706) | 🌾 |
+| Nuestra vida cristiana | Rojo (#991b1b / #dc2626) | 🐑 |
+
+**Funcion `filtrarAyudante` (JS)**:
+- Se ejecuta cuando se cambia el estudiante en una parte de maestros
+- Filtra opciones del dropdown de ayudante segun genero del estudiante
+- Excepcion: conyuge siempre visible aunque sea genero opuesto
+- Usa mapa `conyuges` (JSON inyectado desde PHP via `relaciones_familiares`)
+
+**Boton de recomendacion (?)**:
+- En cada dropdown, boton "?" que abre modal con los 5 mejores candidatos
+- Muestra: nombre, puntuacion, total asignaciones, dias desde ultima, asignaciones esta semana
+- Al hacer clic en un candidato, se selecciona en el dropdown
+- Usa el endpoint `GET reuniones/{id}/recomendar/{tipoParte}` que aplica el mismo scoring
+
+**Botones de accion**:
+- "Importar de jw.org" - importa titulos (reemplaza partes actuales)
+- "Auto-asignar" - asigna publicadores a todas las partes vacias
+- "Vista imprimible" - muestra el programa en formato print
+- "Guardar cambios" - guarda asignaciones manuales + regenera historial
+- "Publicar" - cambia estado a `publicado` + guarda historial
+- "Eliminar" - borra el programa
+
+#### 6.8 Reglas de negocio
+
+**Partes de estudiante** (maestros con ayudante):
+- Normalmente asignadas a hermanas o hermanos no nombrados
+- Ancianos penalizados -60 puntos, SM penalizados -20 puntos
+- Necesitan ayudante del mismo genero (o conyuge)
+
+**Lectura biblica**:
+- Solo hermanos (varones)
+- Preferiblemente no nombrados (misma penalizacion de ancianos/SM)
+
+**Discurso maestros** (`discurso_maestros`):
+- Solo hermanos (varones), requiere autorizacion `discurso_maestros`
+- No necesita ayudante
+- Se detecta como fallback en la importacion cuando una parte de "maestros" no coincide con ningun patron de estudiante
+
+**Al desactivar un publicador**:
+- Se excluye de reuniones
+- Se limpian asignaciones futuras invalidas en la proxima auto-asignacion
+- El historial se conserva para estadisticas
+
+**Historial se guarda en 3 momentos**: guardado manual, auto-asignacion, publicacion
+
+#### 6.9 Rutas
+
+| Metodo | Ruta | Nombre | Accion |
+|--------|------|--------|--------|
+| GET | `/reuniones` | `reuniones.index` | Listado de programas (cards semanales) |
+| GET | `/reuniones/crear` | `reuniones.create` | Formulario crear semanas |
+| POST | `/reuniones` | `reuniones.store` | Crear N semanas con import automatico |
+| GET | `/reuniones/fin-de-semana` | `reuniones.finsemana` | Reunion fin de semana (placeholder) |
+| GET | `/reuniones/asignaciones` | `reuniones.asignaciones` | Estadisticas de asignaciones por publicador |
+| GET | `/reuniones/historial/{publicador}` | `reuniones.historial` | Historial de un publicador |
+| GET | `/reuniones/autorizaciones` | `reuniones.autorizaciones` | UI drag & drop de autorizaciones |
+| POST | `/reuniones/autorizaciones` | `reuniones.autorizaciones.guardar` | Guardar autorizacion (AJAX) |
+| GET | `/reuniones/generos` | `reuniones.generos` | Asignacion masiva de generos |
+| POST | `/reuniones/generos` | `reuniones.generos.guardar` | Guardar generos |
+| GET | `/reuniones/{id}` | `reuniones.show` | Vista imprimible del programa |
+| GET | `/reuniones/{id}/editar` | `reuniones.edit` | Editor del programa |
+| PUT | `/reuniones/{id}` | `reuniones.update` | Guardar cambios manuales |
+| DELETE | `/reuniones/{id}` | `reuniones.destroy` | Eliminar programa |
+| POST | `/reuniones/{id}/auto-asignar` | `reuniones.auto-asignar` | Ejecutar auto-asignacion |
+| POST | `/reuniones/{id}/importar-titulos` | `reuniones.importar-titulos` | Importar partes desde jw.org (AJAX) |
+| POST | `/reuniones/{id}/publicar` | `reuniones.publicar` | Publicar programa |
+| GET | `/reuniones/{id}/recomendar/{tipo}` | `reuniones.recomendar` | Recomendaciones para una parte (AJAX JSON) |
+
+#### 6.10 UI/UX
+
+- **Dark mode only** - diseño exclusivo para modo oscuro
+- **Colores teocraticos**: Tesoros=teal, Maestros=amber, Vida Cristiana=rojo
+- **Diseño limpio** inspirado en Linear.app
+- **Index**: cards semanales con rango de fechas, semana actual destacada en teal con badge "Esta semana", barra de progreso de asignaciones, orden: actual → futuras → pasadas
+- **Auto-generacion**: al entrar al index se generan automaticamente las proximas 4 semanas si no existen
+- **Responsive**: tablas con scroll horizontal en movil, sticky pool en autorizaciones, formularios con flex-wrap
+
+### 7. Multi-congregacion
 - 2 congregaciones activas
 - Cambio estilo Netflix entre congregaciones
 - Filtrado automatico por congregacion en todas las queries
@@ -254,19 +577,19 @@ Siempre usar variables CSS del tema. Nunca hardcodear colores como `#374151` o `
 
 ```bash
 # Ver errores Laravel
-echo y | plink -pw [PASSWORD] trastos@ssh.cluster100.hosting.ovh.net "tail -50 Territorios/storage/logs/laravel.log"
+echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "tail -50 Territorios/storage/logs/laravel.log"
 
 # Verificar sintaxis PHP
-echo y | plink -pw [PASSWORD] trastos@ssh.cluster100.hosting.ovh.net "php -l Territorios/app/Models/Territorio.php"
+echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "php -l Territorios/app/Models/Territorio.php"
 
 # Git status
-echo y | plink -pw [PASSWORD] trastos@ssh.cluster100.hosting.ovh.net "cd Territorios && git status"
+echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territorios && git status"
 
 # Git commit + push
-echo y | plink -pw [PASSWORD] trastos@ssh.cluster100.hosting.ovh.net "cd Territorios && git add . && git commit -m 'mensaje' && git push origin definitivo-servicio"
+echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territorios && git add . && git commit -m 'mensaje' && git push origin definitivo-servicio"
 
 # Listar rutas registradas
-echo y | plink -pw [PASSWORD] trastos@ssh.cluster100.hosting.ovh.net "cd Territorios && php artisan route:list | head -50"
+echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territorios && php artisan route:list | head -50"
 ```
 
 ---
@@ -352,6 +675,46 @@ echo y | plink -pw [PASSWORD] trastos@ssh.cluster100.hosting.ovh.net "cd Territo
 - Quitados botones empty state redundantes
 - Quitados breadcrumbs "Dashboard" innecesarios
 
+### 23 Marzo 2026 - Optimizacion movil + Rediseno asignaciones reuniones
+
+**Fix scroll innecesario en movil (global):**
+- `flat-global.css`: Eliminado `min-height: 100vh` y `display: flex` del body global
+- `flat-global.css`: Añadido `overflow-x: hidden` en html y body (elimina scroll horizontal)
+- `app.blade.php`: `.main` cambiado de `min-height: calc(100vh - 52px - 48px)` a sin min-height
+- `app.blade.php`: Padding `.main` reducido en movil de 1.5rem a 1rem
+- `app.blade.php`: Header movil mas compacto (padding y margins reducidos)
+- `app.blade.php`: Cache-busting añadido a CSS links (`?v={{ time() }}`)
+- `login.blade.php`: `min-height: 100vh` → `100dvh` + `position: fixed` + `overflow: hidden` + `overscroll-behavior: none` para eliminar todo scroll
+- `login.blade.php`: Viewport meta con `maximum-scale=1, user-scalable=no`
+- `login.blade.php`: Meta `Cache-Control: no-cache` para evitar cache del navegador
+
+**Dashboard movil compacto (@media max-width 640px):**
+- `.dash-header`: margin-bottom 2rem → 1rem, h1 font-size reducido
+- `.module-grid`: gap 1rem → 0.625rem, margin-top 1.5rem → 0.75rem
+- `.module-card`: padding reducido, iconos 44px → 36px
+- Textos de cards reducidos para ocupar menos espacio vertical
+
+**Rediseno pagina Asignaciones Reuniones VyM:**
+- Archivos: `ReunionController.php` metodo `asignaciones()`, `reuniones/asignaciones.blade.php`
+- Nuevo toggle de vistas: "Resumen" (graficos) y "Por Nombre" (tabla original)
+- Vista Resumen con 3 graficos donut SVG por nombramiento:
+  - Ancianos (morado #6366f1): % asignaciones, personas, promedio/persona
+  - Siervos Ministeriales (teal #14b8a6): idem
+  - Publicadores (ambar #f59e0b): idem
+- Tarjetas de publicadores con avatar, badge nombramiento, count y ultima fecha
+- Filtros por nombramiento (Todos/Ancianos/Siervos/Publicadores) con JavaScript
+- Controller: datos agrupados por nombramiento (`$porNombramiento`, `$totalAsignaciones`)
+- Vista "Por Nombre": tabla original preservada como opcion secundaria
+
+**CSS nuevo en flat-global.css:**
+- Estilos `.vista-toggle`, `.vista-btn` (toggle de vistas)
+- Estilos `.chart-grid`, `.chart-card`, `.chart-donut` (graficos donut)
+- Estilos `.filtro-nombramiento`, `.filtro-btn` (filtros por tipo)
+- Estilos `.pub-card`, `.pub-avatar`, `.pub-header`, `.pub-detalles` (tarjetas publicadores territorios)
+- Media query 640px para layout responsive de graficos y cards
+
+**Nota sobre OPcache:** Los cambios en vistas requieren `php -r "opcache_reset();"` ademas de `php artisan view:clear` para que se apliquen inmediatamente en OVH compartido.
+
 ### 16 Marzo 2026 - Auditoria de seguridad
 - Eliminados 12 archivos debug/test de /public/
 - Permisos .env corregidos (644 → 600)
@@ -394,3 +757,5 @@ echo y | plink -pw [PASSWORD] trastos@ssh.cluster100.hosting.ovh.net "cd Territo
 - Reemplazar emojis Unicode por SVGs consistentes en todas las vistas
 - Mover CSS inline restante de `territorios/index.blade.php` (~300 lineas) a flat-global.css
 - Estandarizar max-width entre paginas (actualmente varia: 800px, 900px, 1000px, 1200px)
+- Revisar scroll vertical en todas las paginas internas en movil (aplicar mismos fixes dvh/overflow)
+- Auditar paginas con vistas propias (como login) que no usan layouts.app y pueden tener CSS desactualizado

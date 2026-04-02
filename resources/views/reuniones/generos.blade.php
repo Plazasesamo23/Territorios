@@ -7,7 +7,7 @@
 <div class="page-sm">
     <div class="rg-header">
         <h1 class="page-title">Asignar generos</h1>
-        <p class="page-subtitle">Necesario para la auto-asignacion de reuniones VyM</p>
+        <p class="page-subtitle">El genero determina que partes puede hacer cada publicador (ej: lectura biblica solo hermanos, ayudantes del mismo genero)</p>
     </div>
 
     @php
@@ -29,6 +29,10 @@
 
     <form action="{{ route('reuniones.generos.guardar') }}" method="POST">
         @csrf
+
+        <div class="form-group" style="margin-bottom: 0.75rem;">
+            <input type="text" id="buscarGenero" placeholder="Buscar publicador..." class="form-input" oninput="filtrarGeneros()">
+        </div>
 
         <div class="table-responsive">
         <table class="table-flat">
@@ -55,7 +59,7 @@
                     </td>
                     <td>
                         <select name="generos[{{ $pub->id }}]" class="form-input rg-select">
-                            <option value="">-- --</option>
+                            <option value="">Sin asignar</option>
                             <option value="M" {{ $pub->genero === 'M' ? 'selected' : '' }}>Hermano</option>
                             <option value="F" {{ $pub->genero === 'F' ? 'selected' : '' }}>Hermana</option>
                         </select>
@@ -131,5 +135,15 @@
     background: var(--bg);
 }
 </style>
+
+<script>
+function filtrarGeneros() {
+    var texto = (document.getElementById('buscarGenero').value || '').toLowerCase();
+    document.querySelectorAll('.table-flat tbody tr').forEach(function(row) {
+        var nombre = row.querySelector('td').textContent.toLowerCase();
+        row.style.display = (!texto || nombre.indexOf(texto) !== -1) ? '' : 'none';
+    });
+}
+</script>
 
 @endsection

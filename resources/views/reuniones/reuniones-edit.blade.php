@@ -14,14 +14,14 @@
                 @else
                     <span class="badge badge-gray">Borrador</span>
                 @endif
-                &mdash; {{ $programa->contarAsignaciones() }} de {{ $programa->totalPartes() }} partes asignadas
+                &mdash; {{ $programa->contarAsignaciones() }}/{{ $programa->totalPartes() }} asignaciones
             </p>
         </div>
         <div class="flex gap-1" style="flex-wrap: wrap;">
             <button type="button" id="btn-importar-jw" class="btn btn-secondary" onclick="importarDesdeJw()">Importar de jw.org</button>
             <form action="{{ route('reuniones.auto-asignar', $programa) }}" method="POST" style="display:inline;">
                 @csrf
-                <button type="submit" class="btn btn-teal" onclick="return confirm('Asignar automaticamente las partes que estan vacias. Las que ya tienen publicador no se tocan. Continuar?')">Auto-asignar</button>
+                <button type="submit" class="btn btn-teal" onclick="return confirm('Auto-asignar todas las partes vacias?')">Auto-asignar</button>
             </form>
             <a href="{{ route('reuniones.show', $programa) }}" class="btn btn-secondary">Vista imprimible</a>
             <a href="{{ route('reuniones.index') }}" class="btn btn-ghost">Volver</a>
@@ -225,12 +225,9 @@
                 {{-- PARTE DE ESTUDIANTE: estudiante + ayudante --}}
                 <div class="grid-2">
                     <div class="form-group">
-                        <label class="form-label">Estudiante
-                            <button type="button" class="btn-rec btn-emergency" onclick="recomendarEmergencia('{{ $parte->tipo }}', {{ $parte->id }})" title="Reemplazo de emergencia">&#9889;</button>
-                        </label>
-                        <input type="hidden" name="emergencia[{{ $parte->id }}]" id="emergencia-{{ $parte->id }}" value="">
+                        <label class="form-label">Estudiante</label>
                         @php $__autIds = $autPorTipo['maestros'] ?? []; $__otros = $publicadores->filter(fn($p) => !in_array($p->id, $__autIds) && $p->genero); @endphp
-                        <select name="partes[{{ $parte->id }}][publicador_id]" class="form-input" onchange="filtrarAyudante(this, {{ $parte->id }})" id="estudiante-{{ $parte->id }}">
+                        <select name="partes[{{ $parte->id }}][publicador_id]" class="form-input" onchange="filtrarAyudante(this, {{ $parte->id }})">
                             <option value="">-- Sin asignar --</option>
                             @foreach($publicadores->filter(fn($p) => in_array($p->id, $__autIds)) as $p)
                                 <option value="{{ $p->id }}" data-genero="{{ $p->genero }}" {{ $parte->publicador_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
@@ -326,7 +323,7 @@
             <form action="{{ route('reuniones.destroy', $programa) }}" method="POST" style="display:inline;">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn btn-ghost" style="color: var(--error); font-size: 0.8rem;" onclick="return confirm('ELIMINAR este programa completo con todas sus asignaciones? Esta accion no se puede deshacer.')">Eliminar programa</button>
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Eliminar este programa? Esta accion no se puede deshacer.')">Eliminar</button>
             </form>
         </div>
     </form>
@@ -345,22 +342,8 @@
     </div>
 </div>
 
-<!-- Modal de emergencia -->
-<div id="modal-emergencia" class="modal-backdrop" style="display:none;" onclick="if(event.target===this)cerrarEmergencia()">
-    <div class="modal" style="max-width:450px;" role="dialog" aria-modal="true" aria-label="Reemplazo de emergencia">
-        <div class="modal-header" style="border-top: 3px solid #d97706;">
-            <h3 class="modal-title" id="modal-emergencia-titulo">&#9889; Reemplazo de emergencia</h3>
-            <button class="modal-close" onclick="cerrarEmergencia()">&times;</button>
-        </div>
-        <div class="modal-body" id="modal-emergencia-body">
-            <p class="text-muted">Cargando...</p>
-        </div>
-    </div>
-</div>
-
 <script>
 let recomendarSelectActual = null;
-let emergenciaParteIdActual = null;
 
 async function recomendar(tipoParte, selectId) {
     recomendarSelectActual = document.querySelector(selectId) || document.getElementById(selectId);
@@ -414,69 +397,8 @@ function cerrarRecomendar() {
     document.getElementById('modal-recomendar').style.display = 'none';
 }
 
-async function recomendarEmergencia(tipoParte, parteId) {
-    emergenciaParteIdActual = parteId;
-    const modal = document.getElementById('modal-emergencia');
-    const body = document.getElementById('modal-emergencia-body');
-    const titulo = document.getElementById('modal-emergencia-titulo');
-
-    titulo.textContent = '\u26A1 Reemplazo de emergencia';
-    body.innerHTML = '<p class="text-muted">Cargando voluntarios...</p>';
-    modal.style.display = 'flex';
-
-    try {
-        const resp = await fetch(`/reuniones/{{ $programa->id }}/recomendar-emergencia/${tipoParte}`, {
-            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
-        });
-        const data = await resp.json();
-
-        if (!data.candidatos || data.candidatos.length === 0) {
-            body.innerHTML = '<p class="text-muted">No hay voluntarios de emergencia disponibles.<br><small>Agrega voluntarios en Autorizaciones &rarr; Grupo de emergencia</small></p>';
-            return;
-        }
-
-        let html = '<div class="list-flat">';
-        data.candidatos.forEach((c, i) => {
-            const diasTexto = c.dias_desde_ultima !== null ? c.dias_desde_ultima + ' dias' : 'Nunca';
-            const semanaTexto = c.esta_semana > 0 ? ` \u00B7 ${c.esta_semana} esta semana` : '';
-            html += `
-                <a href="#" class="list-item" onclick="seleccionarEmergencia(${c.id});return false;">
-                    <span class="content">
-                        <span class="title">${i === 0 ? '\u26A1 ' : ''}${c.nombre}</span>
-                        <span class="subtitle">${c.total_emergencias} emergencias \u00B7 Ultima: ${diasTexto}${semanaTexto}</span>
-                    </span>
-                    <span class="meta">${c.puntuacion > 0 ? '+' : ''}${c.puntuacion}</span>
-                </a>`;
-        });
-        html += '</div>';
-        body.innerHTML = html;
-    } catch (e) {
-        body.innerHTML = '<p style="color:#ef4444;">Error al cargar voluntarios de emergencia</p>';
-    }
-}
-
-function seleccionarEmergencia(id) {
-    if (emergenciaParteIdActual) {
-        const select = document.getElementById('estudiante-' + emergenciaParteIdActual);
-        if (select) {
-            select.value = id;
-            // Disparar onchange para filtrar ayudante
-            select.dispatchEvent(new Event('change'));
-        }
-        // Marcar como emergencia
-        const hidden = document.getElementById('emergencia-' + emergenciaParteIdActual);
-        if (hidden) hidden.value = '1';
-    }
-    cerrarEmergencia();
-}
-
-function cerrarEmergencia() {
-    document.getElementById('modal-emergencia').style.display = 'none';
-    emergenciaParteIdActual = null;
-}
-
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { cerrarRecomendar(); cerrarEmergencia(); }
+    if (e.key === 'Escape') cerrarRecomendar();
 });
 </script>
 
@@ -484,7 +406,6 @@ document.addEventListener('keydown', function(e) {
 async function importarDesdeJw() {
     const btn = document.getElementById('btn-importar-jw');
     const fecha = new Date('{{ $programa->fecha_semana->format("Y-m-d") }}');
-    const url = `https://wol.jw.org/es/wol/dt/r4/lp-s/${fecha.getFullYear()}/${fecha.getMonth()+1}/${fecha.getDate()}`;
 
     if (!confirm('Importar titulos de jw.org? Se reemplazaran las partes actuales.')) return;
 
@@ -494,34 +415,75 @@ async function importarDesdeJw() {
     try {
         // Fetch via proxy en VPS (wol.jw.org bloquea CORS y OVH bloquea salida HTTPS)
         const proxyUrl = `https://n8n.trastosbvaa.org/wol-proxy?y=${fecha.getFullYear()}&m=${fecha.getMonth()+1}&d=${fecha.getDate()}`;
-        const resp = await fetch(proxyUrl);
-        if (!resp.ok) throw new Error('No se pudo acceder a wol.jw.org');
+
+        // Timeout de 45s para redes moviles lentas
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 45000);
+
+        let resp;
+        try {
+            resp = await fetch(proxyUrl, { signal: controller.signal });
+        } catch (fetchErr) {
+            if (fetchErr.name === 'AbortError') {
+                throw new Error('Tiempo agotado al conectar con jw.org. Verifica tu conexion.');
+            }
+            throw new Error('No se pudo conectar con el proxy: ' + fetchErr.message);
+        } finally {
+            clearTimeout(timeout);
+        }
+
+        if (!resp.ok) throw new Error('No se pudo acceder a wol.jw.org (HTTP ' + resp.status + ')');
         const html = await resp.text();
+
+        if (!html || html.length < 200) {
+            throw new Error('El proxy devolvio una respuesta vacia o invalida');
+        }
 
         // Parsear las partes del HTML
         const partes = parsearProgramaVym(html);
         if (partes.length === 0) {
-            throw new Error('No se encontraron partes en el programa');
+            console.error('Import: HTML recibido pero sin partes. Largo HTML:', html.length);
+            throw new Error('No se encontraron partes en el programa. Es posible que jw.org haya cambiado el formato.');
         }
 
-        // Enviar al servidor
-        const saveResp = await fetch('{{ route("reuniones.importar-titulos", $programa) }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({ partes }),
-        });
+        // Enviar al servidor con timeout
+        const controller2 = new AbortController();
+        const timeout2 = setTimeout(() => controller2.abort(), 30000);
+
+        let saveResp;
+        try {
+            saveResp = await fetch('{{ route("reuniones.importar-titulos", $programa) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ partes }),
+                credentials: 'same-origin',
+                signal: controller2.signal,
+            });
+        } catch (saveErr) {
+            if (saveErr.name === 'AbortError') {
+                throw new Error('Tiempo agotado al guardar. Recarga la pagina e intenta de nuevo.');
+            }
+            throw new Error('Error de red al guardar: ' + saveErr.message);
+        } finally {
+            clearTimeout(timeout2);
+        }
+
+        if (!saveResp.ok) {
+            throw new Error('Error del servidor al guardar (HTTP ' + saveResp.status + ')');
+        }
 
         const result = await saveResp.json();
         if (result.success) {
             window.location.reload();
         } else {
-            alert('Error: ' + (result.error || 'Error desconocido'));
+            throw new Error(result.error || 'Error desconocido al guardar');
         }
     } catch (e) {
+        console.error('Import error:', e);
         alert('Error al importar: ' + e.message);
     } finally {
         btn.textContent = 'Importar de jw.org';

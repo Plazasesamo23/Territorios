@@ -17,6 +17,13 @@
     <div class="config-info-box mt-1 mb-2">{{ session('success') }}</div>
     @endif
 
+    <div class="auth-guide">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <div>
+            <strong>Como funciona:</strong> Usa el boton <strong>+</strong> de cada panel para buscar y agregar publicadores. Haz <strong>clic en un nombre</strong> para ver sus estadisticas y quitarlo del panel.
+        </div>
+    </div>
+
     <div class="auth-layout">
 
         {{-- IZQUIERDA: Paneles de asignaciones --}}
@@ -175,6 +182,23 @@
                 </div>
             </div>
 
+            <div class="section-title" style="color: #d97706;">Grupo de emergencia</div>
+            <div class="auth-panels-row">
+                <div class="auth-panel auth-panel-editable auth-panel-color-emergency">
+                    <div class="auth-panel-header">
+                        <span class="auth-panel-title">Voluntarios de emergencia</span>
+                        <span class="auth-panel-count" data-count></span>
+                        <button type="button" class="auth-btn-add" onclick="abrirModalAgregar('voluntario_emergencia')" title="Agregar publicador">+</button>
+                    </div>
+                    <div class="auth-panel-info">Disponibles para reemplazos de ultimo momento en partes de maestros. Rotacion independiente del ciclo normal.</div>
+                    <div class="auth-panel-list auth-dropzone" data-campo="voluntario_emergencia">
+                        @foreach($autorizaciones['voluntario_emergencia'] as $pub)
+                        <div class="auth-chip auth-chip-emergency" draggable="true" data-id="{{ $pub->id }}" data-nombre="{{ strtolower($pub->nombre_completo) }}">{{ $pub->nombre_completo }}</div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
             <div class="section-title" style="color: #ef4444;">Excluidos</div>
             <div class="auth-panels-row">
                 <div class="auth-panel auth-panel-editable auth-panel-danger auth-panel-color-danger">
@@ -241,8 +265,50 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Pool data for modal
     const poolData = @json($poolJson);
+    const statsData = @json($statsJson);
+    const promedios = @json($promediosPorTipo);
+
+    // Mapeo de campo de panel a tipo(s) de historial para stats
+    const campoATipos = {
+        presidente: ['presidente'],
+        oracion: ['oracion_inicio', 'oracion_final'],
+        tesoros: ['discurso_tesoros'],
+        perlas: ['perlas'],
+        lectura: ['lectura'],
+        maestros: ['empiece_conversaciones', 'haga_revisitas', 'haga_discipulos', 'explique_creencias'],
+        discurso_maestros: ['discurso_maestros'],
+        discurso_vida: ['discurso_vida'],
+        conductor_estudio: ['conductor_estudio'],
+        lector_estudio: ['lector_estudio'],
+    };
+
+    const nombres = {
+        presidente: 'Presidente', oracion: 'Oraciones', conductor_estudio: 'Conductor estudio',
+        lector_estudio: 'Lector estudio', tesoros: 'Tesoros', perlas: 'Perlas',
+        lectura: 'Lectura biblica', maestros: 'Partes de maestros', discurso_maestros: 'Discurso maestros',
+        discurso_vida: 'Discurso Vida Cristiana', voluntario_emergencia: 'Voluntarios de emergencia',
+        excluido_reuniones: 'Excluir de reuniones'
+    };
+
+    function getStatsParaPub(pubId, campo) {
+        const tipos = campoATipos[campo];
+        if (!tipos) return { total: 0, promedio: 0, pct: 0, ultima: null };
+        let total = 0;
+        let ultima = null;
+        let promedioSum = 0;
+        tipos.forEach(t => {
+            const key = pubId + '-' + t;
+            if (statsData[key]) {
+                total += statsData[key].total;
+                if (!ultima || statsData[key].ultima > ultima) ultima = statsData[key].ultima;
+            }
+            promedioSum += (promedios[t] || 0);
+        });
+        const prom = promedioSum || 0;
+        const pct = prom > 0 ? Math.round((total - prom) / prom * 100) : 0;
+        return { total, promedio: Math.round(prom * 10) / 10, pct, ultima };
+    }
 
     function updateCounts() {
         document.querySelectorAll('.auth-panel').forEach(panel => {
@@ -268,6 +334,103 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // === CLICK EN CHIP: popover con stats ===
+    function cerrarPopover() {
+        const existing = document.getElementById('chip-popover');
+        if (existing) existing.remove();
+    }
+
+    function bindChipClick(chip) {
+        chip.addEventListener('click', function(e) {
+            // No abrir popover si estamos arrastrando
+            if (this.classList.contains('dragging')) return;
+            e.stopPropagation();
+
+            const panel = this.closest('.auth-dropzone');
+            if (!panel) return;
+            const campo = panel.dataset.campo;
+            if (campo === 'pool') return; // no popover en el pool
+
+            const pubId = this.dataset.id;
+            const nombre = this.textContent.trim();
+
+            cerrarPopover();
+
+            const popover = document.createElement('div');
+            popover.id = 'chip-popover';
+            popover.className = 'chip-popover';
+
+            if (campo === 'excluido_reuniones' || campo === 'voluntario_emergencia') {
+                // Sin stats, solo opcion de quitar
+                const accion = campo === 'excluido_reuniones' ? 'Des-excluir' : 'Quitar de emergencia';
+                popover.innerHTML = `
+                    <div class="chip-popover-header">${nombre}</div>
+                    <button class="chip-popover-btn chip-popover-btn-remove" onclick="quitarDePanel('${pubId}','${campo}')">
+                        ${accion}
+                    </button>`;
+            } else {
+                const stats = getStatsParaPub(pubId, campo);
+                const pctClass = stats.pct > 0 ? 'chip-stat-high' : stats.pct < 0 ? 'chip-stat-low' : '';
+                const pctSign = stats.pct > 0 ? '+' : '';
+                const ultimaTexto = stats.ultima || 'Nunca';
+                const nombreTipo = nombres[campo] || campo;
+
+                popover.innerHTML = `
+                    <div class="chip-popover-header">${nombre}</div>
+                    <div class="chip-popover-stats">
+                        <div class="chip-stat-row">
+                            <span class="chip-stat-label">${nombreTipo} (12 meses)</span>
+                            <span class="chip-stat-value">${stats.total} asignaciones</span>
+                        </div>
+                        <div class="chip-stat-row">
+                            <span class="chip-stat-label">Promedio del grupo</span>
+                            <span class="chip-stat-value">${stats.promedio}</span>
+                        </div>
+                        <div class="chip-stat-row">
+                            <span class="chip-stat-label">vs promedio</span>
+                            <span class="chip-stat-value ${pctClass}">${pctSign}${stats.pct}%</span>
+                        </div>
+                        <div class="chip-stat-row">
+                            <span class="chip-stat-label">Ultima vez</span>
+                            <span class="chip-stat-value">${ultimaTexto}</span>
+                        </div>
+                    </div>
+                    <button class="chip-popover-btn chip-popover-btn-remove" onclick="quitarDePanel('${pubId}','${campo}')">
+                        Quitar de ${nombreTipo}
+                    </button>`;
+            }
+
+            // Posicionar junto al chip
+            const rect = this.getBoundingClientRect();
+            popover.style.position = 'fixed';
+            popover.style.top = (rect.bottom + 6) + 'px';
+            popover.style.left = Math.min(rect.left, window.innerWidth - 260) + 'px';
+            popover.style.zIndex = '9999';
+
+            document.body.appendChild(popover);
+        });
+    }
+
+    document.querySelectorAll('.auth-dropzone:not([data-campo="pool"]) .auth-chip').forEach(bindChipClick);
+
+    // Cerrar popover al clicar fuera
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#chip-popover') && !e.target.closest('.auth-chip')) {
+            cerrarPopover();
+        }
+    });
+
+    window.quitarDePanel = function(pubId, campo) {
+        cerrarPopover();
+        const dropzone = document.querySelector('[data-campo="' + campo + '"]');
+        if (dropzone) {
+            const chip = dropzone.querySelector('[data-id="' + pubId + '"]');
+            if (chip) chip.remove();
+        }
+        updateCounts();
+        guardarAutorizacion(pubId, 'pool', campo);
+    };
+
     // === MODAL AGREGAR ===
     let modalCampoActual = null;
 
@@ -277,12 +440,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const titulo = document.getElementById('modal-agregar-titulo');
         const buscar = document.getElementById('modal-agregar-buscar');
 
-        const nombres = {
-            presidente: 'Presidente', oracion: 'Oraciones', conductor_estudio: 'Conductor estudio',
-            lector_estudio: 'Lector estudio', tesoros: 'Tesoros', perlas: 'Perlas',
-            lectura: 'Lectura biblica', maestros: 'Partes de maestros', discurso_maestros: 'Discurso maestros',
-            discurso_vida: 'Discurso Vida Cristiana', excluido_reuniones: 'Excluir de reuniones'
-        };
         titulo.textContent = 'Agregar a: ' + (nombres[campo] || campo);
         buscar.value = '';
         renderModalLista('');
@@ -301,7 +458,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderModalLista(filtro) {
         const lista = document.getElementById('modal-agregar-lista');
-        // Check which IDs are already in the target panel
         const dropzone = document.querySelector('[data-campo="' + modalCampoActual + '"]');
         const idsExistentes = new Set();
         if (dropzone) {
@@ -313,10 +469,23 @@ document.addEventListener('DOMContentLoaded', function() {
             if (filtro && !p.nombre.toLowerCase().includes(filtro)) return;
             const yaExiste = idsExistentes.has(String(p.id));
             const tags = (p.anciano ? ' <span class="auth-chip-tag">A</span>' : '') + (p.sm ? ' <span class="auth-chip-tag">SM</span>' : '');
+
+            // Stats del publicador en este tipo
+            let statsHtml = '';
+            if (modalCampoActual && campoATipos[modalCampoActual]) {
+                const stats = getStatsParaPub(p.id, modalCampoActual);
+                if (stats.total > 0) {
+                    const pctSign = stats.pct > 0 ? '+' : '';
+                    statsHtml = `<span class="subtitle">${stats.total} asig. (${pctSign}${stats.pct}% vs prom)</span>`;
+                } else {
+                    statsHtml = '<span class="subtitle">Sin asignaciones</span>';
+                }
+            }
+
             html += '<a href="#" class="list-item' + (yaExiste ? ' disabled' : '') + '" ' +
                 (yaExiste ? 'style="opacity:0.4; pointer-events:none;"' : 'onclick="agregarDesdeModal(' + p.id + ',\'' + p.nombre.replace(/'/g, "\\'") + '\',\'' + p.genero + '\');return false;"') +
-                '><span class="content"><span class="title">' + p.nombre + ' <span class="auth-chip-genero">' + p.genero + '</span>' + tags + '</span></span>' +
-                (yaExiste ? '<span class="meta text-muted">Ya agregado</span>' : '<span class="meta">+</span>') +
+                '><span class="content"><span class="title">' + p.nombre + ' <span class="auth-chip-genero">' + p.genero + '</span>' + tags + '</span>' + statsHtml + '</span>' +
+                (yaExiste ? '<span class="meta text-muted">Ya</span>' : '<span class="meta" style="color:#14b8a6;font-weight:600;">+</span>') +
                 '</a>';
         });
         if (!html) html = '<p class="text-muted" style="padding: 1rem; text-align: center;">Sin resultados</p>';
@@ -329,25 +498,22 @@ document.addEventListener('DOMContentLoaded', function() {
         const dropzone = document.querySelector('[data-campo="' + modalCampoActual + '"]');
         if (!dropzone) return;
 
-        // Check if already exists
         if (dropzone.querySelector('[data-id="' + pubId + '"]')) return;
 
-        // Create chip
         const chip = document.createElement('div');
-        chip.className = 'auth-chip' + (modalCampoActual === 'excluido_reuniones' ? ' auth-chip-excluded' : '');
+        chip.className = 'auth-chip';
+        if (modalCampoActual === 'excluido_reuniones') chip.classList.add('auth-chip-excluded');
+        if (modalCampoActual === 'voluntario_emergencia') chip.classList.add('auth-chip-emergency');
         chip.setAttribute('draggable', 'true');
         chip.dataset.id = pubId;
         chip.dataset.nombre = nombre.toLowerCase();
         chip.textContent = nombre;
         bindDrag(chip);
+        bindChipClick(chip);
         dropzone.appendChild(chip);
 
         updateCounts();
-
-        // Save via AJAX
         guardarAutorizacion(pubId, modalCampoActual, 'pool');
-
-        // Re-render modal list
         renderModalLista(document.getElementById('modal-agregar-buscar').value.toLowerCase().trim());
     };
 
@@ -432,15 +598,16 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (sourceCampo === 'pool') {
                 const clon = draggedEl.cloneNode(true);
                 clon.classList.remove('dragging');
-                if (targetCampo === 'excluido_reuniones') {
-                    clon.classList.add('auth-chip-excluded');
-                }
+                if (targetCampo === 'excluido_reuniones') clon.classList.add('auth-chip-excluded');
+                if (targetCampo === 'voluntario_emergencia') clon.classList.add('auth-chip-emergency');
                 bindDrag(clon);
+                bindChipClick(clon);
                 this.appendChild(clon);
             } else {
                 const clon = draggedEl.cloneNode(true);
                 clon.classList.remove('dragging');
                 bindDrag(clon);
+                bindChipClick(clon);
                 this.appendChild(clon);
             }
 
@@ -456,11 +623,96 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Escape para cerrar modal
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') cerrarModalAgregar();
+        if (e.key === 'Escape') { cerrarModalAgregar(); cerrarPopover(); }
     });
 });
 </script>
+
+@push('styles')
+<style>
+.auth-guide {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    background: rgba(20,184,166,0.08);
+    border: 1px solid rgba(20,184,166,0.2);
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+}
+.auth-guide strong { color: var(--text); }
+
+/* Popover de stats al hacer clic en chip */
+.chip-popover {
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    width: 250px;
+    overflow: hidden;
+    animation: popoverIn 0.15s ease-out;
+}
+@keyframes popoverIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.chip-popover-header {
+    padding: 0.625rem 0.75rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+}
+.chip-popover-stats {
+    padding: 0.5rem 0.75rem;
+}
+.chip-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.2rem 0;
+    font-size: 0.8rem;
+}
+.chip-stat-label {
+    color: var(--text-muted);
+}
+.chip-stat-value {
+    color: var(--text);
+    font-weight: 500;
+}
+.chip-stat-high { color: #f59e0b; }
+.chip-stat-low { color: #14b8a6; }
+.chip-popover-btn {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    text-align: left;
+    transition: background 0.15s;
+}
+.chip-popover-btn-remove {
+    background: rgba(239,68,68,0.08);
+    color: #ef4444;
+    border-top: 1px solid var(--border);
+}
+.chip-popover-btn-remove:hover {
+    background: rgba(239,68,68,0.15);
+}
+
+/* Chips clickeables */
+.auth-dropzone:not([data-campo="pool"]) .auth-chip {
+    cursor: pointer;
+}
+.auth-dropzone:not([data-campo="pool"]) .auth-chip:hover {
+    border-color: var(--primary);
+    background: var(--bg-hover);
+}
+</style>
+@endpush
 
 @endsection

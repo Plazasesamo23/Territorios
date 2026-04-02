@@ -22,12 +22,30 @@
                 <div class="assign-col">
                     <div class="col-header">1. Territorio</div>
 
+                    <!-- Filtro por tipo -->
+                    @php
+                        $conteoNormal = $territoriosDisponibles->filter(fn($t) => empty($t->tipo) || $t->tipo === 'normal')->count();
+                        $conteoCampana = $territoriosDisponibles->where('tipo', 'campana')->count();
+                        $conteoNegocios = $territoriosDisponibles->where('tipo', 'negocios')->count();
+                    @endphp
+                    <div class="tipo-tabs">
+                        <button type="button" class="tipo-btn active" data-tipo="">Todos <span class="badge">{{ $territoriosDisponibles->count() }}</span></button>
+                        <button type="button" class="tipo-btn" data-tipo="normal">Normal <span class="badge">{{ $conteoNormal }}</span></button>
+                        @if($conteoCampana > 0)
+                        <button type="button" class="tipo-btn" data-tipo="campana">Campana <span class="badge">{{ $conteoCampana }}</span></button>
+                        @endif
+                        @if($conteoNegocios > 0)
+                        <button type="button" class="tipo-btn" data-tipo="negocios">Negocios <span class="badge">{{ $conteoNegocios }}</span></button>
+                        @endif
+                    </div>
+
+                    <!-- Filtro por zona -->
                     @php
                         $zonasUnicas = $territoriosDisponibles->pluck('zona')->filter()->unique()->sort();
                     @endphp
                     @if($zonasUnicas->count() > 1)
                     <div class="zona-tabs">
-                        <button type="button" class="zona-btn active" data-zona="">Todas</button>
+                        <button type="button" class="zona-btn active" data-zona="">Todas zonas</button>
                         @foreach($zonasUnicas as $zona)
                             <button type="button" class="zona-btn" data-zona="{{ $zona }}">{{ $zona }}</button>
                         @endforeach
@@ -97,11 +115,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }));
 
     let zonaSeleccionada = '';
+    let tipoSeleccionado = '';
 
     function filtrarTerritorios() {
         territorioSelect.innerHTML = '<option value="">-- Selecciona --</option>';
         opcionesOriginales.forEach(opt => {
-            if (!zonaSeleccionada || opt.zona === zonaSeleccionada) {
+            const tipoOpt = opt.tipo || 'normal';
+            const pasaTipo = !tipoSeleccionado || tipoOpt === tipoSeleccionado;
+            const pasaZona = !zonaSeleccionada || opt.zona === zonaSeleccionada;
+            if (pasaTipo && pasaZona) {
                 const option = document.createElement('option');
                 option.value = opt.value;
                 option.textContent = opt.text;
@@ -115,6 +137,16 @@ document.addEventListener('DOMContentLoaded', function() {
         territorioInfo.classList.add('hidden');
         updateSubmitButton();
     }
+
+    document.querySelectorAll('.tipo-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            tipoSeleccionado = this.dataset.tipo;
+            filtrarTerritorios();
+        });
+    });
 
     document.querySelectorAll('.zona-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
@@ -191,6 +223,45 @@ document.addEventListener('DOMContentLoaded', function() {
     color: var(--text-muted);
     text-transform: uppercase;
     margin-bottom: 0.75rem;
+}
+
+.tipo-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-bottom: 0.625rem;
+}
+
+.tipo-btn {
+    padding: 0.375rem 0.625rem;
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.tipo-btn .badge {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.35rem;
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    color: var(--text-muted);
+}
+
+.tipo-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.tipo-btn.active .badge {
+    background: rgba(255,255,255,0.25);
+    color: white;
 }
 
 .zona-tabs {

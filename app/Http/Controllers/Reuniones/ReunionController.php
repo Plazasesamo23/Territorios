@@ -182,6 +182,7 @@ class ReunionController extends Controller
         ]);
 
         // Actualizar partes
+        $emergencias = $request->input('emergencia', []);
         if ($request->has('partes')) {
             foreach ($request->partes as $parteId => $datos) {
                 $parte = ReunionParte::find($parteId);
@@ -192,11 +193,24 @@ class ReunionController extends Controller
                         'titulo' => $datos['titulo'] ?? $parte->titulo,
                         'duracion_minutos' => $datos['duracion_minutos'] ?? $parte->duracion_minutos,
                     ]);
+
+                    // Si esta parte fue marcada como reemplazo de emergencia
+                    if (!empty($emergencias[$parteId]) && ($datos['publicador_id'] ?? null)) {
+                        \App\Models\ReunionHistorial::create([
+                            'congregacion_id' => $congregacionId,
+                            'publicador_id' => $datos['publicador_id'],
+                            'programa_id' => $programa->id,
+                            'fecha_semana' => $programa->fecha_semana,
+                            'tipo_parte' => $parte->tipo,
+                            'rol' => 'principal',
+                            'es_emergencia' => true,
+                        ]);
+                    }
                 }
             }
         }
 
-        // Regenerar historial con las asignaciones manuales
+        // Regenerar historial normal (no afecta registros de emergencia)
         $service = new AsignacionReunionService($congregacionId);
         $programa->load('partes');
         $service->guardarHistorial($programa);
@@ -355,7 +369,30 @@ class ReunionController extends Controller
             ];
         })->sortBy('total');
 
-        return view('reuniones.asignaciones', compact('estadisticas'));
+        // Datos agrupados por nombramiento para gráficos
+        $porNombramiento = [
+            'ancianos' => ['label' => 'Ancianos', 'color' => '#6366f1', 'personas' => 0, 'asignaciones' => 0],
+            'siervos' => ['label' => 'Siervos Min.', 'color' => '#14b8a6', 'personas' => 0, 'asignaciones' => 0],
+            'publicadores' => ['label' => 'Publicadores', 'color' => '#f59e0b', 'personas' => 0, 'asignaciones' => 0],
+        ];
+
+        foreach ($estadisticas as $stat) {
+            $pub = $stat['publicador'];
+            if ($pub->es_anciano) {
+                $porNombramiento['ancianos']['personas']++;
+                $porNombramiento['ancianos']['asignaciones'] += $stat['total'];
+            } elseif ($pub->es_siervo_ministerial) {
+                $porNombramiento['siervos']['personas']++;
+                $porNombramiento['siervos']['asignaciones'] += $stat['total'];
+            } else {
+                $porNombramiento['publicadores']['personas']++;
+                $porNombramiento['publicadores']['asignaciones'] += $stat['total'];
+            }
+        }
+
+        $totalAsignaciones = collect($porNombramiento)->sum('asignaciones') ?: 1;
+
+        return view('reuniones.asignaciones', compact('estadisticas', 'porNombramiento', 'totalAsignaciones'));
     }
 
     public function recomendar(ReunionPrograma $reunione, string $tipoParte)
@@ -524,6 +561,7 @@ class ReunionController extends Controller
     private static array $tiposParte = [
         'presidente', 'oracion', 'tesoros', 'perlas', 'lectura',
         'maestros', 'discurso_maestros', 'discurso_vida', 'conductor_estudio', 'lector_estudio',
+        'voluntario_emergencia',
     ];
 
     public function autorizaciones()
@@ -575,7 +613,33 @@ class ReunionController extends Controller
             ];
         })->values();
 
-        return view('reuniones.autorizaciones', compact('autorizaciones', 'pool', 'poolJson'));
+        // Stats de historial por publicador y tipo (ultimos 12 meses, solo normales)
+        $fechaDesde = now()->subMonths(12);
+        $historialStats = \App\Models\ReunionHistorial::where('congregacion_id', $congregacionId)
+            ->where('fecha_semana', '>=', $fechaDesde)
+            ->where('es_emergencia', false)
+            ->selectRaw('publicador_id, tipo_parte, COUNT(*) as total, MAX(fecha_semana) as ultima')
+            ->groupBy('publicador_id', 'tipo_parte')
+            ->get();
+
+        // Organizar: { "pubId-tipoParte": { total, ultima } }
+        $statsJson = [];
+        foreach ($historialStats as $s) {
+            $statsJson[$s->publicador_id . '-' . $s->tipo_parte] = [
+                'total' => $s->total,
+                'ultima' => $s->ultima,
+            ];
+        }
+
+        // Promedios por tipo de parte (para calcular % vs promedio)
+        $promediosPorTipo = [];
+        $todosLosTipos = $historialStats->pluck('tipo_parte')->unique();
+        foreach ($todosLosTipos as $tipo) {
+            $totalesDelTipo = $historialStats->where('tipo_parte', $tipo)->pluck('total');
+            $promediosPorTipo[$tipo] = $totalesDelTipo->avg() ?: 0;
+        }
+
+        return view('reuniones.autorizaciones', compact('autorizaciones', 'pool', 'poolJson', 'statsJson', 'promediosPorTipo'));
     }
 
     /**
@@ -726,5 +790,157 @@ class ReunionController extends Controller
         }
 
         return redirect()->route('reuniones.generos')->with('success', 'Generos actualizados correctamente.');
+    }
+
+    /**
+     * Recomendar voluntarios de emergencia para una parte (AJAX)
+     * Solo muestra voluntarios con autorizacion 'voluntario_emergencia' Y 'maestros'
+     * Usa ciclo de historial de emergencia (independiente del normal)
+     */
+    public function recomendarEmergencia(ReunionPrograma $reunione, string $tipoParte)
+    {
+        $programa = $reunione;
+        $congregacionId = session('congregacion_activa_id');
+
+        if ($programa->congregacion_id !== (int)$congregacionId) {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
+
+        // Obtener IDs de voluntarios de emergencia
+        $idsEmergencia = ReunionAutorizacion::where('congregacion_id', $congregacionId)
+            ->where('tipo_parte', 'voluntario_emergencia')
+            ->pluck('publicador_id');
+
+        if ($idsEmergencia->isEmpty()) {
+            return response()->json(['candidatos' => []]);
+        }
+
+        // Filtrar: solo voluntarios de emergencia que puedan hacer la parte
+        $publicadores = Publicador::where('congregacion_id', $congregacionId)
+            ->where('activo', true)
+            ->whereNotNull('genero')
+            ->where('excluido_reuniones', false)
+            ->whereIn('id', $idsEmergencia)
+            ->get()
+            ->filter(fn($p) => $p->puedeHacerParte($tipoParte));
+
+        if ($publicadores->isEmpty()) {
+            return response()->json(['candidatos' => []]);
+        }
+
+        // Cargar SOLO historial de emergencia (ciclo independiente)
+        $historial = \App\Models\ReunionHistorial::where('congregacion_id', $congregacionId)
+            ->where('es_emergencia', true)
+            ->get();
+
+        $conteosGlobal = [];
+        $conteosTipo = [];
+        $ultimaPorTipo = [];
+        $asignadosEstaSemana = [];
+
+        foreach ($historial as $h) {
+            $conteosGlobal[$h->publicador_id] = ($conteosGlobal[$h->publicador_id] ?? 0) + 1;
+            $key = $h->publicador_id . '-' . $h->tipo_parte;
+            $conteosTipo[$key] = ($conteosTipo[$key] ?? 0) + 1;
+            if (!isset($ultimaPorTipo[$key]) || $h->fecha_semana->gt($ultimaPorTipo[$key])) {
+                $ultimaPorTipo[$key] = $h->fecha_semana;
+            }
+        }
+
+        // Contar asignaciones de emergencia de esta misma semana
+        $emergenciaEstaSemana = \App\Models\ReunionHistorial::where('congregacion_id', $congregacionId)
+            ->where('es_emergencia', true)
+            ->where('fecha_semana', $programa->fecha_semana)
+            ->get();
+        foreach ($emergenciaEstaSemana as $h) {
+            $asignadosEstaSemana[$h->publicador_id] = ($asignadosEstaSemana[$h->publicador_id] ?? 0) + 1;
+        }
+
+        $fechaSemana = $programa->fecha_semana;
+        $numCandidatos = $publicadores->count();
+
+        $conteosTipoArr = $publicadores->map(fn($p) => $conteosTipo[$p->id . '-' . $tipoParte] ?? 0);
+        $mediaTipo = $conteosTipoArr->avg() ?: 0;
+        $conteosGlobalArr = $publicadores->map(fn($p) => $conteosGlobal[$p->id] ?? 0);
+        $mediaGlobal = $conteosGlobalArr->avg() ?: 0;
+
+        $candidatos = $publicadores->map(function ($p) use ($conteosGlobal, $conteosTipo, $ultimaPorTipo, $asignadosEstaSemana, $mediaTipo, $mediaGlobal, $tipoParte, $fechaSemana, $numCandidatos) {
+            $puntuacion = 0;
+
+            // Rotacion por tipo (emergencia)
+            $key = $p->id . '-' . $tipoParte;
+            $ultima = $ultimaPorTipo[$key] ?? null;
+            if ($ultima) {
+                $dias = $ultima->diffInDays($fechaSemana);
+                $diasIdeal = $numCandidatos * 7;
+                $puntuacion += min($dias / max($diasIdeal, 1) * 25, 30);
+            } else {
+                $puntuacion += 35;
+            }
+
+            // Equidad por tipo (emergencia)
+            $conteoTipo = $conteosTipo[$key] ?? 0;
+            $puntuacion += ($mediaTipo - $conteoTipo) * 12;
+
+            // Equidad global (emergencia)
+            $conteoTotal = $conteosGlobal[$p->id] ?? 0;
+            $puntuacion += ($mediaGlobal - $conteoTotal) * 5;
+
+            // Penalizar si ya tiene emergencia esta semana
+            $estaSemana = $asignadosEstaSemana[$p->id] ?? 0;
+            if ($estaSemana > 0) $puntuacion -= 20 * $estaSemana;
+
+            return [
+                'id' => $p->id,
+                'nombre' => $p->nombre_completo,
+                'puntuacion' => round($puntuacion, 1),
+                'total_emergencias' => $conteoTotal,
+                'emergencias_tipo' => $conteoTipo,
+                'dias_desde_ultima' => $ultima ? $ultima->diffInDays($fechaSemana) : null,
+                'esta_semana' => $estaSemana,
+            ];
+        })->sortByDesc('puntuacion')->values()->take(5);
+
+        return response()->json(['candidatos' => $candidatos]);
+    }
+
+    /**
+     * Guardar reemplazo de emergencia (AJAX)
+     * Actualiza la asignacion y crea historial con es_emergencia=true
+     */
+    public function guardarReemplazoEmergencia(Request $request, ReunionPrograma $reunione)
+    {
+        $programa = $reunione;
+        $congregacionId = session('congregacion_activa_id');
+
+        if ($programa->congregacion_id !== (int)$congregacionId) {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
+
+        $request->validate([
+            'parte_id' => 'required|integer',
+            'publicador_id' => 'required|integer',
+            'campo' => 'required|string|in:publicador_id,ayudante_id',
+        ]);
+
+        $parte = ReunionParte::where('id', $request->parte_id)
+            ->where('programa_id', $programa->id)
+            ->firstOrFail();
+
+        $campo = $request->campo;
+        $parte->update([$campo => $request->publicador_id]);
+
+        // Crear registro de historial de emergencia
+        \App\Models\ReunionHistorial::create([
+            'congregacion_id' => $congregacionId,
+            'publicador_id' => $request->publicador_id,
+            'programa_id' => $programa->id,
+            'fecha_semana' => $programa->fecha_semana,
+            'tipo_parte' => $parte->tipo,
+            'rol' => $campo === 'ayudante_id' ? 'ayudante' : 'principal',
+            'es_emergencia' => true,
+        ]);
+
+        return response()->json(['success' => true]);
     }
 }
