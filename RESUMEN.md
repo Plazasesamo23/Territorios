@@ -370,7 +370,11 @@ El algoritmo esta en `AsignacionReunionService::autoAsignar()` y usa un sistema 
 | Mismo tipo hace 2 semanas | -15 | Penalizacion leve si hizo la misma parte hace <=14 dias |
 | Anciano en parte de estudiante | -60 | Ancianos no deberian hacer partes de estudiante |
 | SM en parte de estudiante | -20 | Siervos ministeriales menos frecuentes en partes de estudiante |
+| Anciano en parte compartida | -25 | Desincentivar ancianos en partes que SM tambien pueden hacer (tesoros, perlas, vida, lector, oraciones) |
+| SM en parte compartida | +10 | Bonificar SM en partes compartidas para que asuman mas carga que ancianos |
 | Jitter de desempate | +-0.5 | Random minimo para romper empates |
+
+**Partes compartidas** (donde SM tienen prioridad sobre ancianos) = `discurso_tesoros`, `perlas`, `discurso_vida`, `lector_estudio`, `oracion_inicio`, `oracion_final`
 
 **Partes de estudiante** = `empiece_conversaciones`, `haga_revisitas`, `haga_discipulos`, `explique_creencias`, `ayudante`
 
@@ -595,6 +599,156 @@ echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territo
 ---
 
 ## Historial de sesiones
+
+### 2 Abril 2026 - Grupo emergencia VyM + bonus ancianos discurso_tesoros + UX autorizaciones
+
+**Grupo de emergencia VyM:**
+- Nuevo panel "Voluntarios de emergencia" en autorizaciones (naranja, drag & drop)
+- Tipo de autorizacion `voluntario_emergencia` en `reuniones_autorizaciones`
+- Ciclo de rotacion INDEPENDIENTE del normal: asignaciones de emergencia no afectan scoring normal
+- Boton ⚡ en cada parte de maestros (edit) que abre modal con voluntarios de emergencia
+- Modal muestra top 5 voluntarios con scoring basado solo en historial de emergencia
+- Al seleccionar voluntario, se marca `emergencia[parte_id] = 1` en hidden input
+- Al guardar, se crea registro en `reuniones_historial` con `es_emergencia = true`
+- Nuevo endpoint AJAX `POST /{id}/reemplazo-emergencia` para guardado directo
+- Nuevo endpoint AJAX `GET /{id}/recomendar-emergencia/{tipoParte}` para scoring
+
+**Migracion BD:**
+- `reuniones_historial.es_emergencia` (boolean, default false) — separa ciclo normal de emergencia
+
+**Cambios en scoring (`AsignacionReunionService`):**
+- `cargarHistorial()`: filtra `es_emergencia = false` (solo historial normal)
+- `guardarHistorial()`: solo limpia registros normales, preserva los de emergencia
+- `discurso_tesoros` sacado de "partes compartidas" (ya no penaliza ancianos -25)
+- Nuevo bloque: ancianos +15 y SM -5 en `discurso_tesoros` (ratio ~1.5x a favor de ancianos)
+- Partes compartidas restantes: perlas, discurso_vida, lector_estudio, oracion_inicio, oracion_final
+
+**UX Autorizaciones mejorada:**
+- Click en chip de publicador → popover con estadisticas:
+  - Asignaciones del tipo (ultimos 12 meses)
+  - Promedio del grupo
+  - Porcentaje vs promedio (ej: "+30%" o "-15%")
+  - Ultima vez que hizo esa parte
+  - Boton "Quitar de [tipo]"
+- Modal "+" mejorado: ahora muestra stats de cada publicador al agregar (asignaciones y % vs promedio)
+- Guia de uso simplificada: "Usa + para agregar, clic en nombre para ver stats y quitar"
+- Controller pasa `$statsJson` y `$promediosPorTipo` a la vista (historial 12 meses agrupado)
+
+**Fix proxy wol.jw.org (VPS):**
+- Faltaba bloque `location /wol-proxy` en Nginx del VPS (`/etc/nginx/sites-enabled/n8n`)
+- Las peticiones caian al bloque `location /` (n8n) sin headers CORS
+- Agregado bloque con `proxy_pass http://127.0.0.1:3847` y `Access-Control-Allow-Origin: https://territorios.trastosbvaa.org`
+- Proxy Node.js en puerto 3847 (`wol-proxy.mjs`) no fue modificado (sin CORS, como debe ser)
+
+**Rutas nuevas (`routes/reuniones.php`):**
+```
+GET  /{reunione}/recomendar-emergencia/{tipoParte}  → recomendarEmergencia
+POST /{reunione}/reemplazo-emergencia               → guardarReemplazoEmergencia
+```
+
+**Archivos modificados:**
+| Archivo | Cambio |
+|---------|--------|
+| `database/migrations/2026_04_02_000001_*` | NUEVO - Migracion es_emergencia |
+| `app/Models/ReunionHistorial.php` | es_emergencia en fillable y casts |
+| `app/Services/AsignacionReunionService.php` | Scoring ancianos tesoros + filtro emergencia |
+| `app/Http/Controllers/Reuniones/ReunionController.php` | voluntario_emergencia + 2 metodos + stats |
+| `routes/reuniones.php` | 2 rutas nuevas |
+| `resources/views/reuniones/autorizaciones.blade.php` | Panel emergencia + popover stats + modal mejorado |
+| `resources/views/reuniones/edit.blade.php` | Boton ⚡ + modal emergencia + JS |
+| `public/css/flat-global.css` | Estilos emergencia + popover |
+| `/etc/nginx/sites-enabled/n8n` (VPS) | Bloque location /wol-proxy con CORS |
+
+### 25 Marzo 2026 - Fix busqueda client-side en Registros
+
+**Registros (devolver territorios) — `registros/index.blade.php`:**
+- Busqueda convertida de server-side (`<form>` con GET que recargaba pagina) a client-side (JS filtering instantaneo)
+- Tabs de tipo (Todos/Normal/Campana/Negocios) convertidos de `<a href>` a `<button>` con JS
+- Buscador añadido en Vista Resumen (graficos pastel) — antes solo existia en Vista Lista
+- Filas `<tr>` con `data-tipo` y `data-search` para filtrado JS por tipo y texto
+- Funciones JS: `filtrarTipo()`, `filtrarLista()`, `filtrarResumen()`, `filtrarNombramiento()` actualizado para combinar con busqueda
+- Ya no recarga pagina al buscar/filtrar: graficos pastel se mantienen intactos
+- Buscador en vista resumen filtra las tarjetas de publicadores (`.pub-card`) por nombre
+
+### 24 Marzo 2026 - UX Reuniones, scoring SM, vista imprimible, fix movil
+
+**Fix scroll movil (dashboard):**
+- `body` con `display:flex; flex-direction:column; min-height:100dvh` (inline en app.blade.php)
+- `.main` con `flex:1; min-height:0` para que footer quede pegado sin crear espacio vacio
+- Eliminado `min-height: calc(100vh - 140px)` de app.css sobreescribiendolo
+- NO se toca html height (causaba bloqueo de scroll en desktop)
+
+**Fix importador jw.org en movil:**
+- AbortController con timeout 45s (proxy) y 30s (servidor) en vez de sin timeout
+- Verificacion `saveResp.ok` antes de parsear JSON
+- `credentials: 'same-origin'` para cookies en movil
+- Validacion de respuesta vacia del proxy
+- Mensajes de error descriptivos
+
+**Registros (devolver territorios):**
+- ~~Busqueda convertida de server-side a client-side~~ NO se hizo en esta sesion, se hizo el 25 marzo
+- ~~Tabs convertidos a JS~~ NO se hizo en esta sesion, se hizo el 25 marzo
+
+**Asignar territorio:**
+- Filtros por tipo añadidos (Normal/Campana/Negocios) con conteo
+- Se combinan con filtro de zonas existente
+
+**Navegacion Reuniones sincronizada:**
+- Header y submenu ahora muestran los mismos items: VyM | Asignaciones | Autorizaciones | Generos
+- "Fin de semana" deshabilitado (gris, no clicable) con mensaje "En desarrollo"
+- Eliminada inconsistencia donde Autorizaciones solo estaba en submenu y Generos solo en header
+
+**UX Reuniones (auditoria completa):**
+- Autorizaciones: guia de uso añadida arriba explicando drag&drop y boton +
+- Generos: subtitulo explica POR QUE se necesita el genero + buscador + "Sin asignar" en dropdown
+- Create: textos claros, boton "Crear programas" en vez de "Crear e importar de jw.org"
+- Index: estado vacio con boton cuando no hay programas
+- Edit: "X de Y partes asignadas", confirm mejorado en auto-asignar, eliminar discreto
+- Show: "Sin asignar" en vez de "---"
+
+**Vista imprimible rediseñada (show.blade.php):**
+- Nuevo layout tipo programa oficial VyM (como PDF de referencia)
+- Cabecera: titulo + nombre congregacion
+- Barra azul con fecha
+- Columna de hora calculada automaticamente (19:30 + duraciones acumuladas)
+- Cancion+oracion inicio, palabras de introduccion con Presidente
+- Secciones con barras de color: Tesoros (teal #0f766e), Maestros (dorado #b45309), Vida (rojo #991b1b)
+- Partes numeradas con duracion, nombre a la derecha
+- Estudiante & Ayudante con "&"
+- Estudio biblico con Conductor/Lector en misma linea
+- Conclusion + oracion final
+- "Impreso DD-MM-YYYY" al pie
+- Print: titulo vacio para evitar URL en encabezado de impresion
+
+**Scoring auto-asignacion (AsignacionReunionService):**
+- NUEVO: Ancianos penalizados -25 en partes compartidas (tesoros, perlas, vida, lector, oraciones)
+- NUEVO: SM bonificados +10 en partes compartidas
+- Resultado: Ancianos bajan de prom 12.6 a 11.0, SM suben de 6.9 a 8.6
+- Ancianos solo hacen presidente + conductor (inevitable) + 1 discurso_vida
+- SM asumen tesoros, perlas, discurso_vida, lector_estudio
+
+**Autorizaciones actualizadas (24 marzo):**
+- Antonio Milan: quitado `discurso_maestros` (queda: oracion, perlas)
+- Guillermo Rivera: quitado `discurso_maestros` y `maestros` (queda: oracion, perlas)
+
+**Autorizaciones SM vigentes:**
+
+| SM | Autorizaciones |
+|---|---|
+| Adrian Rivera | conductor_estudio, discurso_maestros, discurso_vida, lector_estudio, maestros, oracion, perlas, tesoros |
+| Antonio Milan | oracion, perlas |
+| Benjamin Abarca | discurso_maestros, discurso_vida, lector_estudio, oracion, perlas, tesoros |
+| Bryan Andrade | discurso_maestros, discurso_vida, lector_estudio, oracion, perlas, tesoros |
+| Esteban Mayordomo | discurso_maestros, discurso_vida, lector_estudio, oracion, perlas, tesoros |
+| Francisco Garcia | discurso_maestros, oracion |
+| Guillermo Rivera | oracion, perlas |
+| Harold Alvarado | discurso_maestros, discurso_vida, lector_estudio, oracion, perlas, tesoros |
+| Jose Cortez | discurso_maestros, discurso_vida, lector_estudio, oracion, perlas, tesoros |
+| Jose Martinez | discurso_maestros, discurso_vida, lector_estudio, oracion, perlas, tesoros |
+| Manolo Mateos | discurso_maestros, discurso_vida, lector_estudio, oracion, perlas, tesoros |
+| Mario Fuentes | discurso_maestros, discurso_vida, lector_estudio, oracion, perlas, tesoros |
+| Nacho Pauner | discurso_maestros, discurso_vida, lector_estudio, oracion, perlas, tesoros |
+| Oleg Poznishev | discurso_maestros, discurso_vida, oracion, perlas, tesoros |
 
 ### 19 Marzo 2026 - Responsive, Importador jw.org, Navegacion modular, VyM teocratico
 **Commit:** b21751a
