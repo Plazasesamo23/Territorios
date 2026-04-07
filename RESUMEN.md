@@ -600,6 +600,65 @@ echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territo
 
 ## Historial de sesiones
 
+### 2 Abril 2026 - Grupo emergencia VyM + bonus ancianos discurso_tesoros + UX autorizaciones
+
+**Grupo de emergencia VyM:**
+- Nuevo panel "Voluntarios de emergencia" en autorizaciones (naranja, drag & drop)
+- Tipo de autorizacion `voluntario_emergencia` en `reuniones_autorizaciones`
+- Ciclo de rotacion INDEPENDIENTE del normal: asignaciones de emergencia no afectan scoring normal
+- Boton ⚡ en cada parte de maestros (edit) que abre modal con voluntarios de emergencia
+- Modal muestra top 5 voluntarios con scoring basado solo en historial de emergencia
+- Al seleccionar voluntario, se marca `emergencia[parte_id] = 1` en hidden input
+- Al guardar, se crea registro en `reuniones_historial` con `es_emergencia = true`
+- Nuevo endpoint AJAX `POST /{id}/reemplazo-emergencia` para guardado directo
+- Nuevo endpoint AJAX `GET /{id}/recomendar-emergencia/{tipoParte}` para scoring
+
+**Migracion BD:**
+- `reuniones_historial.es_emergencia` (boolean, default false) — separa ciclo normal de emergencia
+
+**Cambios en scoring (`AsignacionReunionService`):**
+- `cargarHistorial()`: filtra `es_emergencia = false` (solo historial normal)
+- `guardarHistorial()`: solo limpia registros normales, preserva los de emergencia
+- `discurso_tesoros` sacado de "partes compartidas" (ya no penaliza ancianos -25)
+- Nuevo bloque: ancianos +15 y SM -5 en `discurso_tesoros` (ratio ~1.5x a favor de ancianos)
+- Partes compartidas restantes: perlas, discurso_vida, lector_estudio, oracion_inicio, oracion_final
+
+**UX Autorizaciones mejorada:**
+- Click en chip de publicador → popover con estadisticas:
+  - Asignaciones del tipo (ultimos 12 meses)
+  - Promedio del grupo
+  - Porcentaje vs promedio (ej: "+30%" o "-15%")
+  - Ultima vez que hizo esa parte
+  - Boton "Quitar de [tipo]"
+- Modal "+" mejorado: ahora muestra stats de cada publicador al agregar (asignaciones y % vs promedio)
+- Guia de uso simplificada: "Usa + para agregar, clic en nombre para ver stats y quitar"
+- Controller pasa `$statsJson` y `$promediosPorTipo` a la vista (historial 12 meses agrupado)
+
+**Fix proxy wol.jw.org (VPS):**
+- Faltaba bloque `location /wol-proxy` en Nginx del VPS (`/etc/nginx/sites-enabled/n8n`)
+- Las peticiones caian al bloque `location /` (n8n) sin headers CORS
+- Agregado bloque con `proxy_pass http://127.0.0.1:3847` y `Access-Control-Allow-Origin: https://territorios.trastosbvaa.org`
+- Proxy Node.js en puerto 3847 (`wol-proxy.mjs`) no fue modificado (sin CORS, como debe ser)
+
+**Rutas nuevas (`routes/reuniones.php`):**
+```
+GET  /{reunione}/recomendar-emergencia/{tipoParte}  → recomendarEmergencia
+POST /{reunione}/reemplazo-emergencia               → guardarReemplazoEmergencia
+```
+
+**Archivos modificados:**
+| Archivo | Cambio |
+|---------|--------|
+| `database/migrations/2026_04_02_000001_*` | NUEVO - Migracion es_emergencia |
+| `app/Models/ReunionHistorial.php` | es_emergencia en fillable y casts |
+| `app/Services/AsignacionReunionService.php` | Scoring ancianos tesoros + filtro emergencia |
+| `app/Http/Controllers/Reuniones/ReunionController.php` | voluntario_emergencia + 2 metodos + stats |
+| `routes/reuniones.php` | 2 rutas nuevas |
+| `resources/views/reuniones/autorizaciones.blade.php` | Panel emergencia + popover stats + modal mejorado |
+| `resources/views/reuniones/edit.blade.php` | Boton ⚡ + modal emergencia + JS |
+| `public/css/flat-global.css` | Estilos emergencia + popover |
+| `/etc/nginx/sites-enabled/n8n` (VPS) | Bloque location /wol-proxy con CORS |
+
 ### 25 Marzo 2026 - Fix busqueda client-side en Registros
 
 **Registros (devolver territorios) — `registros/index.blade.php`:**

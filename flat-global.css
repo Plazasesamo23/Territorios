@@ -2331,6 +2331,13 @@ a.list-item:hover .arrow {
 
 .btn-rec:hover { background: var(--teal-hover); }
 
+.btn-emergency {
+  background: #d97706;
+  margin-left: 2px;
+  font-size: 0.65rem;
+}
+.btn-emergency:hover { background: #f59e0b; }
+
 @media (max-width: 768px) {
   .reunion-seccion { padding: 1rem; }
   .reunion-programa-imprimible { padding: 1rem; }
@@ -2439,6 +2446,11 @@ a.list-item:hover .arrow {
   text-decoration: line-through;
 }
 
+.auth-chip-emergency {
+  border-color: rgba(217, 119, 6, 0.3);
+  border-left: 2px solid #d97706;
+}
+
 .auth-chip-genero {
   font-size: 0.625rem;
   color: var(--text-disabled);
@@ -2488,6 +2500,7 @@ a.list-item:hover .arrow {
 .auth-panel-color-vida { border-top-color: var(--color-vida-text); }
 .auth-panel-color-global { border-top-color: var(--color-global); }
 .auth-panel-color-danger { border-top-color: var(--error); }
+.auth-panel-color-emergency { border-top-color: #d97706; }
 
 .auth-btn-add {
   display: inline-flex;

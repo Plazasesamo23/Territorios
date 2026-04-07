@@ -225,9 +225,12 @@
                 {{-- PARTE DE ESTUDIANTE: estudiante + ayudante --}}
                 <div class="grid-2">
                     <div class="form-group">
-                        <label class="form-label">Estudiante</label>
+                        <label class="form-label">Estudiante
+                            <button type="button" class="btn-rec btn-emergency" onclick="recomendarEmergencia('{{ $parte->tipo }}', {{ $parte->id }})" title="Reemplazo de emergencia">&#9889;</button>
+                        </label>
+                        <input type="hidden" name="emergencia[{{ $parte->id }}]" id="emergencia-{{ $parte->id }}" value="">
                         @php $__autIds = $autPorTipo['maestros'] ?? []; $__otros = $publicadores->filter(fn($p) => !in_array($p->id, $__autIds) && $p->genero); @endphp
-                        <select name="partes[{{ $parte->id }}][publicador_id]" class="form-input" onchange="filtrarAyudante(this, {{ $parte->id }})">
+                        <select name="partes[{{ $parte->id }}][publicador_id]" class="form-input" onchange="filtrarAyudante(this, {{ $parte->id }})" id="estudiante-{{ $parte->id }}">
                             <option value="">-- Sin asignar --</option>
                             @foreach($publicadores->filter(fn($p) => in_array($p->id, $__autIds)) as $p)
                                 <option value="{{ $p->id }}" data-genero="{{ $p->genero }}" {{ $parte->publicador_id == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }}</option>
@@ -342,8 +345,22 @@
     </div>
 </div>
 
+<!-- Modal de emergencia -->
+<div id="modal-emergencia" class="modal-backdrop" style="display:none;" onclick="if(event.target===this)cerrarEmergencia()">
+    <div class="modal" style="max-width:450px;" role="dialog" aria-modal="true" aria-label="Reemplazo de emergencia">
+        <div class="modal-header" style="border-top: 3px solid #d97706;">
+            <h3 class="modal-title" id="modal-emergencia-titulo">&#9889; Reemplazo de emergencia</h3>
+            <button class="modal-close" onclick="cerrarEmergencia()">&times;</button>
+        </div>
+        <div class="modal-body" id="modal-emergencia-body">
+            <p class="text-muted">Cargando...</p>
+        </div>
+    </div>
+</div>
+
 <script>
 let recomendarSelectActual = null;
+let emergenciaParteIdActual = null;
 
 async function recomendar(tipoParte, selectId) {
     recomendarSelectActual = document.querySelector(selectId) || document.getElementById(selectId);
@@ -397,8 +414,69 @@ function cerrarRecomendar() {
     document.getElementById('modal-recomendar').style.display = 'none';
 }
 
+async function recomendarEmergencia(tipoParte, parteId) {
+    emergenciaParteIdActual = parteId;
+    const modal = document.getElementById('modal-emergencia');
+    const body = document.getElementById('modal-emergencia-body');
+    const titulo = document.getElementById('modal-emergencia-titulo');
+
+    titulo.textContent = '\u26A1 Reemplazo de emergencia';
+    body.innerHTML = '<p class="text-muted">Cargando voluntarios...</p>';
+    modal.style.display = 'flex';
+
+    try {
+        const resp = await fetch(`/reuniones/{{ $programa->id }}/recomendar-emergencia/${tipoParte}`, {
+            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
+        });
+        const data = await resp.json();
+
+        if (!data.candidatos || data.candidatos.length === 0) {
+            body.innerHTML = '<p class="text-muted">No hay voluntarios de emergencia disponibles.<br><small>Agrega voluntarios en Autorizaciones &rarr; Grupo de emergencia</small></p>';
+            return;
+        }
+
+        let html = '<div class="list-flat">';
+        data.candidatos.forEach((c, i) => {
+            const diasTexto = c.dias_desde_ultima !== null ? c.dias_desde_ultima + ' dias' : 'Nunca';
+            const semanaTexto = c.esta_semana > 0 ? ` \u00B7 ${c.esta_semana} esta semana` : '';
+            html += `
+                <a href="#" class="list-item" onclick="seleccionarEmergencia(${c.id});return false;">
+                    <span class="content">
+                        <span class="title">${i === 0 ? '\u26A1 ' : ''}${c.nombre}</span>
+                        <span class="subtitle">${c.total_emergencias} emergencias \u00B7 Ultima: ${diasTexto}${semanaTexto}</span>
+                    </span>
+                    <span class="meta">${c.puntuacion > 0 ? '+' : ''}${c.puntuacion}</span>
+                </a>`;
+        });
+        html += '</div>';
+        body.innerHTML = html;
+    } catch (e) {
+        body.innerHTML = '<p style="color:#ef4444;">Error al cargar voluntarios de emergencia</p>';
+    }
+}
+
+function seleccionarEmergencia(id) {
+    if (emergenciaParteIdActual) {
+        const select = document.getElementById('estudiante-' + emergenciaParteIdActual);
+        if (select) {
+            select.value = id;
+            // Disparar onchange para filtrar ayudante
+            select.dispatchEvent(new Event('change'));
+        }
+        // Marcar como emergencia
+        const hidden = document.getElementById('emergencia-' + emergenciaParteIdActual);
+        if (hidden) hidden.value = '1';
+    }
+    cerrarEmergencia();
+}
+
+function cerrarEmergencia() {
+    document.getElementById('modal-emergencia').style.display = 'none';
+    emergenciaParteIdActual = null;
+}
+
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') cerrarRecomendar();
+    if (e.key === 'Escape') { cerrarRecomendar(); cerrarEmergencia(); }
 });
 </script>
 

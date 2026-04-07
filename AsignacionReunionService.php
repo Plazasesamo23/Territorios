@@ -209,15 +209,25 @@ class AsignacionReunionService
             }
 
             // --- PREFERIR SM SOBRE ANCIANOS en partes compartidas ---
-            // (tesoros, perlas, discurso vida, lector estudio, oraciones)
+            // (perlas, discurso vida, lector estudio, oraciones)
             // Los ancianos ya tienen presidente y conductor que son inevitables,
             // asi que en partes donde SM tambien estan autorizados, preferir SM
-            $esParteCompartida = in_array($tipo, ['discurso_tesoros', 'perlas', 'discurso_vida', 'lector_estudio', 'oracion_inicio', 'oracion_final']);
+            $esParteCompartida = in_array($tipo, ['perlas', 'discurso_vida', 'lector_estudio', 'oracion_inicio', 'oracion_final']);
             if ($esParteCompartida && $candidato->es_anciano) {
                 $puntuacion -= 25; // desincentivar ancianos en partes que SM pueden hacer
             }
             if ($esParteCompartida && $candidato->es_siervo_ministerial) {
                 $puntuacion += 10; // bonificar SM en partes compartidas
+            }
+
+            // --- PREFERIR ANCIANOS en discurso_tesoros (~1.5x mas que SM) ---
+            if ($tipo === 'discurso_tesoros') {
+                if ($candidato->es_anciano) {
+                    $puntuacion += 15;
+                }
+                if ($candidato->es_siervo_ministerial) {
+                    $puntuacion -= 5;
+                }
             }
 
             // Jitter minimo (solo para desempate, no para alterar la equidad)
@@ -392,8 +402,10 @@ class AsignacionReunionService
         // Cargar 12 meses para mejor equidad a largo plazo
         $fechaDesde = \Carbon\Carbon::parse($fechaSemana)->subMonths(12);
 
+        // Solo historial normal (no emergencia) para el ciclo de auto-asignacion
         $historial = ReunionHistorial::where('congregacion_id', $this->congregacionId)
             ->where('fecha_semana', '>=', $fechaDesde)
+            ->where('es_emergencia', false)
             ->get();
 
         $this->historialPorTipo = [];
@@ -421,8 +433,10 @@ class AsignacionReunionService
 
     public function guardarHistorial(ReunionPrograma $programa): void
     {
-        // Limpiar historial previo de este programa
-        ReunionHistorial::where('programa_id', $programa->id)->delete();
+        // Limpiar solo historial normal (no emergencia) de este programa
+        ReunionHistorial::where('programa_id', $programa->id)
+            ->where('es_emergencia', false)
+            ->delete();
 
         $roles = [
             'presidente' => $programa->presidente_id,

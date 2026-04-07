@@ -17,11 +17,13 @@ class ReunionHistorial extends Model
         'fecha_semana',
         'tipo_parte',
         'rol',
+        'es_emergencia',
     ];
 
     protected $casts = [
         'fecha_semana' => 'date',
         'created_at' => 'datetime',
+        'es_emergencia' => 'boolean',
     ];
 
     public function publicador()
