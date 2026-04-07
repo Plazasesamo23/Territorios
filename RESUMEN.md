@@ -600,6 +600,41 @@ echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territo
 
 ## Historial de sesiones
 
+### 7 Abril 2026 - Fix calendario PPOC: dark mode + responsive movil
+
+**Problemas reportados:**
+- Calendario PPOC con fondo blanco — texto de voluntarios invisible (blanco sobre blanco)
+- No responsive para movil — grid de 7 columnas se aplastaba ilegible
+
+**Solucion aplicada:**
+
+1. **Dark mode directo (sin var() fallbacks):** Todos los estilos del calendario PPOC ahora usan colores dark hardcoded en lugar de `var(--bg-card, #fff)`, `var(--text-primary, #1f2937)`, etc. que fallaban cuando `[data-theme="dark"]` no aplicaba correctamente.
+
+2. **Texto voluntarios visible:** `.asignado` cambiado de `background: white` (sin color) a `background: #404040; color: #e5e5e5;`
+
+3. **Responsive movil:** Grid del calendario y weekdays con `min-width: 700px` + contenedor con `overflow-x: auto` para scroll horizontal en pantallas pequeñas.
+
+4. **Limpieza:** Eliminado todo el bloque `[data-theme="dark"]` (~300 lineas redundantes) ya que los colores dark estan directamente en los estilos base.
+
+**Paleta de colores dark aplicada:**
+| Elemento | Color |
+|----------|-------|
+| Fondo principal | `#171717` |
+| Fondo secundario | `#262626` |
+| Fondo terciario | `#0a0a0a` |
+| Bordes | `#262626` |
+| Texto primario | `#e5e5e5` / `#f5f5f5` |
+| Texto muted | `#a3a3a3` |
+| Acento | `#4a6da7` |
+| Voluntario bg | `#404040` |
+
+**Archivo modificado:**
+| Archivo | Cambio |
+|---------|--------|
+| `resources/views/ppoc/calendario.blade.php` | Dark mode directo + responsive + limpieza |
+
+---
+
 ### 2 Abril 2026 - Grupo emergencia VyM + bonus ancianos discurso_tesoros + UX autorizaciones
 
 **Grupo de emergencia VyM:**
