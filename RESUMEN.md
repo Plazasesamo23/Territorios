@@ -16,11 +16,10 @@
 - **Contraseña:** `Bopo191210`
 
 ### GitHub
-- **Repo:** `https://github.com/Plazasesemo23/Territorios.git`
+- **Repo:** `https://github.com/Plazasesamo23/Territorios.git`
 - **Rama activa:** `definitivo-servicio`
 - **Rama backup pre-modularizacion:** `pre-modularizacion-backup` (en rama servidor)
-- **Token GitHub (marzo 2026):** `TOKEN_REVOCADO`
-- **Remote con token:** `https://TOKEN_REVOCADO@github.com/Plazasesemo23/Territorios.git`
+- **Token GitHub:** Guardado en git remote (no commitear tokens en archivos)
 
 ---
 
