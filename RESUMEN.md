@@ -864,6 +864,44 @@ POST /{reunione}/reemplazo-emergencia               → guardarReemplazoEmergenc
 - Quitados botones empty state redundantes
 - Quitados breadcrumbs "Dashboard" innecesarios
 
+### 8 Abril 2026 - Fix disponibilidad PPOC + Calendario movil
+
+**Fix critico: Disponibilidad PPOC no guardaba (global scope)**
+- Archivo: `app/Http/Controllers/PPOC/DisponibilidadPpocController.php`
+- Bug: El metodo `store()` usaba `Publicador::findOrFail()` y `Turno::where()` sin quitar el global scope de `BelongsToCongregacion`. Como los usuarios publicos no tienen sesion, el scope filtraba con `congregacion_id = 0` → no encontraba nada → error 404
+- Los metodos `form()` y `getDisponibilidad()` ya usaban `forCongregacion()` correctamente, solo `store()` fallaba
+- Fix: 3 queries cambiadas a usar `forCongregacion($congregacion->id)`:
+  - `Publicador::findOrFail(...)` → `Publicador::forCongregacion(...)->findOrFail(...)`
+  - `Turno::where('congregacion_id', ...)` → `Turno::forCongregacion(...)`
+  - `Turno::where('id', ...)->where('congregacion_id', ...)` → `Turno::forCongregacion(...)->where('id', ...)`
+
+**Cache anti-navegador en formulario disponibilidad**
+- Archivo: `resources/views/ppoc/disponibilidad/form.blade.php`
+- Añadidas meta tags `Cache-Control: no-cache, no-store, must-revalidate`, `Pragma: no-cache`, `Expires: 0` (misma solucion que login.blade.php)
+- El controller ya tenia headers anti-cache, ahora tambien las meta tags HTML
+
+**Calendario PPOC adaptado para movil**
+- Archivo: `resources/views/ppoc/calendario.blade.php`
+- Nueva vista agenda movil (`@media max-width: 768px`):
+  - Mini-calendario horizontal scrollable con todos los dias del mes (sticky en top)
+  - Dias con turnos marcados con punto indicador, tocables para saltar al dia
+  - Auto-scroll a dia actual al cargar la pagina
+  - Solo muestra dias que tienen turnos asignados (vista agenda vertical)
+  - Cada dia = tarjeta con header "Dia N" + turnos como sub-tarjetas
+  - Turnos muestran hora, ubicacion, asignados con badge de rol (C/V)
+  - Todos los botones admin funcionan (agregar, quitar, cambiar, eliminar turno)
+  - `overflow-x: hidden` en contenedores para evitar scroll horizontal
+  - `display: none !important` en grid desktop para que min-width:700px no afecte
+  - Botones accion y quick-links apilados verticalmente
+  - Modales touch-friendly con `font-size: 16px` en selects (evita zoom iOS)
+- Vista desktop sin cambios
+
+**Nota OPcache:** Para que los cambios se apliquen en OVH compartido, ademas de `php artisan view:clear` hay que resetear OPcache via HTTP (subir script temporal a /public/, ejecutar via web, borrar). Sin esto los cambios PHP no se reflejan.
+
+### 7 Abril 2026 - Fix calendario PPOC dark mode + responsive
+
+Documentado en commit 14c378c.
+
 ### 23 Marzo 2026 - Optimizacion movil + Rediseno asignaciones reuniones
 
 **Fix scroll innecesario en movil (global):**
