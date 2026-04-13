@@ -863,6 +863,28 @@ POST /{reunione}/reemplazo-emergencia               → guardarReemplazoEmergenc
 - Quitados botones empty state redundantes
 - Quitados breadcrumbs "Dashboard" innecesarios
 
+### 13 Abril 2026 - Congregacion Inglesa + Cierre territorios Super
+
+**Nuevo publicador: Congregacion Inglesa (ID 367)**
+- Creado publicador "Congregacion Inglesa" exclusivamente para gestion de territorios
+- La congregacion inglesa solicito 6 territorios para predicar
+
+**Territorios cerrados del Super (fecha entrada: 13/04/2026):**
+- Territorio 166 (registro 551, salida 13/03/2026)
+- Territorio 168 (registro 552, salida 13/03/2026)
+- Territorio 170 (registro 553, salida 13/03/2026)
+- Super (ID 119) queda con 0 territorios activos
+
+**6 territorios asignados a Congregacion Inglesa (fecha salida: 13/04/2026):**
+- Territorio 113
+- Territorio 114
+- Territorio 130
+- Territorio 137
+- Territorio 170
+- Territorio 195
+
+**Backup:** `backup_pre_cong_inglesa_20260413.sql` en `/home/trastos/`
+
 ### 8 Abril 2026 - Fix disponibilidad PPOC + Calendario movil
 
 **Fix critico: Disponibilidad PPOC no guardaba (global scope)**
