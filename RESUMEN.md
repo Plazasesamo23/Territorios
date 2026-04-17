@@ -599,6 +599,80 @@ echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territo
 
 ## Historial de sesiones
 
+### 17 Abril 2026 - UX Reuniones: añadir semanas intuitivo, atajos listado, imprimir mes
+
+**Problemas reportados:**
+- Creacion de semanas confusa: default 16 semanas, error "ya existen" sin explicar por que, auto-generacion silenciosa al visitar `/reuniones`.
+- Listado no accionable: solo permitia entrar al editor, sin atajos contextuales.
+- Falta feedback de estado: no se sabia si una semana tenia titulos importados, presidente, huecos, etc.
+- Usuario mayor se sentia perdido con acciones y microcopy tecnico.
+- Vista "Ver para imprimir" estrecha en desktop (usaba `page-sm` 480px) y nombre de PDF al imprimir = URL del navegador.
+- Necesitan imprimir TODO el mes en un solo PDF (como el "VYMC Abril 4.2.pdf" que usan los hermanos).
+
+**Solucion aplicada:**
+
+1. **Boton grande "+ Añadir proxima semana"** en `/reuniones` (POST a nueva ruta `reuniones.agregar-proxima`) — crea UNA semana en blanco y redirige al editor. Link secundario "o crear varias a la vez" hacia el formulario. Eliminada auto-generacion silenciosa del `index()`.
+
+2. **Formulario `/reuniones/crear` rediseñado:**
+   - Default 1 semana (antes 16), opciones 1/2/4/8/12/24
+   - Checkbox opcional "Importar titulos de jw.org"
+   - Si algunas ya existen, se saltan silenciosamente e informa (no bloquea)
+   - `try/catch` en `ImportadorVymService` (antes las excepciones rompian la request)
+
+3. **Badges dinamicos en cada tarjeta** (nuevo metodo `titulosImportados()` + `queFalta()` en `ReunionPrograma`):
+   - `✓ Publicado` (verde), `Lista para publicar` (teal), `Sin titulos` (naranja), `Falta presidente` (naranja), `Faltan N asignaciones` (gris).
+
+4. **Atajos contextuales en cada tarjeta** (reemplazan el click unico):
+   - Si no tiene titulos → "Traer titulos" (POST backend, nueva ruta `reuniones.importar-desde-listado`)
+   - Si tiene titulos con huecos → "Rellenar huecos"
+   - Si esta completa → "Publicar"
+   - Si esta publicada → "Editar" (explicito)
+
+5. **Despublicar** (nuevo metodo + ruta `reuniones.despublicar`): aviso azul en editor de semanas publicadas con boton "↻ Volver a borrador". Confirmacion al publicar ahora dice "Podras editarla despues si hace falta".
+
+6. **Pasadas ocultas por defecto** (`?pasadas=1` en query). Link al final "Ver N semanas anteriores" / "Ocultar semanas anteriores".
+
+7. **Microcopy claro:**
+   - "Auto-asignar" → "Rellenar huecos"
+   - "Importar de jw.org" → "Traer titulos de jw.org"
+   - "Vista imprimible" → "Ver para imprimir"
+
+8. **Vista imprimir (`show`):**
+   - Contenedor custom `.rs-container` (820px) reemplaza `page-sm` (480px) → comoda en desktop
+   - `@section('title')` = `VMC-DD-MM-YYYY` → el navegador sugiere ese nombre al guardar PDF
+   - Boton `window.print()` directo (se quito el blanqueo del title)
+   - Emojis eliminados de las section-bars (Tesoros, Maestros, Vida Cristiana)
+
+9. **Imprimir mes completo** (nuevo metodo `showMes` + ruta `reuniones.mes` con regex `\d{4}-\d{2}`):
+   - URL: `/reuniones/mes/2026-04`
+   - Renderiza todas las semanas del mes, una por hoja (`page-break-before: always`)
+   - Boton "Imprimir mes completo (Mes Año)" en la vista de una semana
+   - PDF sugerido: `VMC-2026-04.pdf`
+
+**Archivos modificados:**
+| Archivo | Cambio |
+|---------|--------|
+| `app/Models/ReunionPrograma.php` | Metodos `titulosImportados()`, `queFalta()` |
+| `app/Http/Controllers/Reuniones/ReunionController.php` | `index()` simplificado + nuevos `agregarProxima`, `importarDesdeListado`, `despublicar`, `showMes`. `store()` tolerante a existentes + try/catch |
+| `routes/reuniones.php` | 4 rutas nuevas: agregar-proxima, importar-desde-listado, despublicar, mes/{YYYY-MM} |
+| `resources/views/reuniones/index.blade.php` | Boton principal + badges + atajos + toggle pasadas |
+| `resources/views/reuniones/edit.blade.php` | Aviso publicado + microcopy + boton despublicar |
+| `resources/views/reuniones/create.blade.php` | Default 1 semana + checkbox importar + mensaje claro |
+| `resources/views/reuniones/show.blade.php` | Contenedor 820px + nombre PDF + boton mes + sin emojis |
+| `resources/views/reuniones/mes.blade.php` | **NUEVO** — imprimible de mes completo |
+
+**Rutas nuevas:**
+```
+POST   /reuniones/agregar-proxima        reuniones.agregar-proxima
+POST   /reuniones/{id}/importar-desde-listado reuniones.importar-desde-listado
+POST   /reuniones/{id}/despublicar       reuniones.despublicar
+GET    /reuniones/mes/{YYYY-MM}          reuniones.mes
+```
+
+**Backup de archivos originales** en `backup-reuniones-ux/` por si hay que revertir.
+
+---
+
 ### 7 Abril 2026 - Fix calendario PPOC: dark mode + responsive movil
 
 **Problemas reportados:**

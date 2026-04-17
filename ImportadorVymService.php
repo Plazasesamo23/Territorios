@@ -151,6 +151,7 @@ class ImportadorVymService
 
         if ($seccion === 'vida_cristiana') {
             if (preg_match('/estudio b[ií]blico de la congregaci/iu', $titulo)) return null;
+            if (preg_match('/necesidades.*congregaci/iu', $titulo)) return 'necesidades';
             return 'discurso_vida';
         }
 

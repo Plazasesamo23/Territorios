@@ -14,26 +14,17 @@ use Carbon\Carbon;
 
 class ReunionController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         $congregacionId = session('congregacion_activa_id');
+
+        // Semana actual primero, futuras despues, pasadas al final
         $lunesActual = Carbon::now()->startOfWeek(Carbon::MONDAY);
-        $incluirPasadas = $request->boolean('pasadas');
 
-        $query = ReunionPrograma::where('congregacion_id', $congregacionId);
-        if (!$incluirPasadas) {
-            $query->where('fecha_semana', '>=', $lunesActual);
-        }
-
-        $programas = $query
+        $programas = ReunionPrograma::where('congregacion_id', $congregacionId)
             ->orderByRaw("CASE WHEN fecha_semana = ? THEN 0 WHEN fecha_semana > ? THEN 1 ELSE 2 END", [$lunesActual, $lunesActual])
             ->orderBy('fecha_semana')
-            ->paginate(20)
-            ->withQueryString();
-
-        $totalPasadas = ReunionPrograma::where('congregacion_id', $congregacionId)
-            ->where('fecha_semana', '<', $lunesActual)
-            ->count();
+            ->paginate(20);
 
         // Proxima semana disponible (para el boton "Añadir proxima semana")
         $ultimoPrograma = ReunionPrograma::where('congregacion_id', $congregacionId)
@@ -46,36 +37,7 @@ class ReunionController extends Controller
             $proximoLunes = $lunesActual->copy();
         }
 
-        return view('reuniones.index', compact('programas', 'proximoLunes', 'incluirPasadas', 'totalPasadas'));
-    }
-
-    /**
-     * Importa titulos de jw.org para un programa ya creado (desde el listado).
-     * Usa el ImportadorVymService backend. Si falla, deja el programa como estaba.
-     */
-    public function importarDesdeListado(ReunionPrograma $reunione)
-    {
-        $programa = $reunione;
-        $congregacionId = session('congregacion_activa_id');
-
-        if ($programa->congregacion_id !== (int)$congregacionId) {
-            abort(403);
-        }
-
-        try {
-            $importador = new ImportadorVymService();
-            $resultado = $importador->importar($programa);
-            if (!empty($resultado['success'])) {
-                $fechaStr = $programa->fecha_semana->translatedFormat('d M');
-                return redirect()->route('reuniones.index')
-                    ->with('success', "Titulos de la semana del {$fechaStr} importados de jw.org.");
-            }
-            $msg = $resultado['error'] ?? 'No se pudieron importar los titulos.';
-            return redirect()->route('reuniones.index')->with('error', $msg);
-        } catch (\Throwable $e) {
-            return redirect()->route('reuniones.index')
-                ->with('error', 'No se pudo conectar con jw.org. Intentalo en unos minutos.');
-        }
+        return view('reuniones.index', compact('programas', 'proximoLunes'));
     }
 
     /**
@@ -107,7 +69,7 @@ class ReunionController extends Controller
 
         $fechaStr = $fecha->translatedFormat('d M Y');
         return redirect()->route('reuniones.edit', $programa)
-            ->with('success', "Semana del {$fechaStr} creada. Pulsa «Traer titulos de jw.org» cuando quieras.");
+            ->with('success', "Semana del {$fechaStr} creada. Pulsa «Importar de jw.org» cuando quieras traer los titulos.");
     }
 
     public function create()
@@ -310,39 +272,6 @@ class ReunionController extends Controller
         return view('reuniones.show', compact('programa'));
     }
 
-    /**
-     * Vista imprimible con todas las semanas de un mes.
-     * $mes en formato YYYY-MM (ej 2026-04).
-     */
-    public function showMes(string $mes)
-    {
-        if (!preg_match('/^\d{4}-\d{2}$/', $mes)) {
-            abort(404);
-        }
-
-        $congregacionId = session('congregacion_activa_id');
-        $inicio = Carbon::createFromFormat('Y-m-d', $mes . '-01')->startOfMonth();
-        $fin = $inicio->copy()->endOfMonth();
-
-        $programas = ReunionPrograma::where('congregacion_id', $congregacionId)
-            ->whereBetween('fecha_semana', [$inicio, $fin])
-            ->with('partes.publicador', 'partes.ayudante', 'presidente', 'oracionInicio', 'oracionFinal', 'conductorEstudio', 'lectorEstudio')
-            ->orderBy('fecha_semana')
-            ->get();
-
-        if ($programas->isEmpty()) {
-            return redirect()->route('reuniones.index')
-                ->with('error', 'No hay semanas creadas para ' . ucfirst($inicio->translatedFormat('F Y')) . '.');
-        }
-
-        return view('reuniones.mes', [
-            'programas' => $programas,
-            'mesInicio' => $inicio,
-            'mesNombre' => ucfirst($inicio->translatedFormat('F Y')),
-            'mesYYYYMM' => $mes,
-        ]);
-    }
-
     public function autoAsignar(ReunionPrograma $reunione)
     {
         $programa = $reunione;
@@ -430,22 +359,6 @@ class ReunionController extends Controller
         $service->guardarHistorial($programa);
 
         return redirect()->route('reuniones.index')->with('success', 'Programa publicado correctamente.');
-    }
-
-    public function despublicar(ReunionPrograma $reunione)
-    {
-        $programa = $reunione;
-        $congregacionId = session('congregacion_activa_id');
-
-        if ($programa->congregacion_id !== (int)$congregacionId) {
-            abort(403);
-        }
-
-        $programa->update(['estado' => 'borrador']);
-
-        $fechaStr = $programa->fecha_semana->translatedFormat('d M');
-        return redirect()->route('reuniones.edit', $programa)
-            ->with('success', "Semana del {$fechaStr} vuelta a borrador. Haz los cambios y publicala de nuevo cuando quieras.");
     }
 
     public function destroy(ReunionPrograma $reunione)

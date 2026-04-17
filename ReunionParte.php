@@ -63,6 +63,7 @@ class ReunionParte extends Model
             'explique_creencias' => 'Explique sus creencias',
             'discurso_maestros' => 'Discurso',
             'discurso_vida' => 'Discurso',
+            'necesidades' => 'Necesidades de la congregacion',
             default => $this->tipo,
         };
     }

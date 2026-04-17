@@ -180,6 +180,20 @@
                         @endforeach
                     </div>
                 </div>
+
+                <div class="auth-panel auth-panel-editable auth-panel-color-vida">
+                    <div class="auth-panel-header">
+                        <span class="auth-panel-title">Necesidades de la congregacion</span>
+                        <span class="auth-panel-count" data-count></span>
+                        <button type="button" class="auth-btn-add" onclick="abrirModalAgregar('necesidades')" title="Agregar publicador">+</button>
+                    </div>
+                    <div class="auth-panel-info">Solo ancianos</div>
+                    <div class="auth-panel-list auth-dropzone" data-campo="necesidades">
+                        @foreach($autorizaciones['necesidades'] as $pub)
+                        <div class="auth-chip" draggable="true" data-id="{{ $pub->id }}" data-nombre="{{ strtolower($pub->nombre_completo) }}">{{ $pub->nombre_completo }}</div>
+                        @endforeach
+                    </div>
+                </div>
             </div>
 
             <div class="section-title" style="color: #d97706;">Grupo de emergencia</div>
@@ -279,6 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
         maestros: ['empiece_conversaciones', 'haga_revisitas', 'haga_discipulos', 'explique_creencias'],
         discurso_maestros: ['discurso_maestros'],
         discurso_vida: ['discurso_vida'],
+        necesidades: ['necesidades'],
         conductor_estudio: ['conductor_estudio'],
         lector_estudio: ['lector_estudio'],
     };
@@ -287,7 +302,8 @@ document.addEventListener('DOMContentLoaded', function() {
         presidente: 'Presidente', oracion: 'Oraciones', conductor_estudio: 'Conductor estudio',
         lector_estudio: 'Lector estudio', tesoros: 'Tesoros', perlas: 'Perlas',
         lectura: 'Lectura biblica', maestros: 'Partes de maestros', discurso_maestros: 'Discurso maestros',
-        discurso_vida: 'Discurso Vida Cristiana', voluntario_emergencia: 'Voluntarios de emergencia',
+        discurso_vida: 'Discurso Vida Cristiana', necesidades: 'Necesidades de la congregacion',
+        voluntario_emergencia: 'Voluntarios de emergencia',
         excluido_reuniones: 'Excluir de reuniones'
     };
 

@@ -496,6 +496,7 @@ class AsignacionReunionService
             'lectura' => 'Lectura biblica',
             'discurso_maestros' => 'Discurso Maestros',
             'discurso_vida' => 'Discurso Vida Cristiana',
+            'necesidades' => 'Necesidades de la congregacion',
             default => $tipo,
         };
     }

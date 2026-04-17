@@ -110,4 +110,35 @@ class ReunionPrograma extends Model
         }
         return $count;
     }
+
+    /**
+     * Detecta si los titulos fueron importados de jw.org.
+     * Las partes generadas por generarPartesEstandar() dejan titulo=null en
+     * discurso_tesoros y discurso_vida. Si ambos tienen titulo, se importo.
+     */
+    public function titulosImportados(): bool
+    {
+        $claves = ['discurso_tesoros', 'discurso_vida'];
+        foreach ($this->partes as $parte) {
+            if (in_array($parte->tipo, $claves) && empty($parte->titulo)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Devuelve que falta para que el programa este listo.
+     * Ordenado por prioridad. Vacio si esta completo.
+     */
+    public function queFalta(): array
+    {
+        $faltas = [];
+        if (!$this->titulosImportados()) $faltas[] = 'titulos';
+        if (!$this->presidente_id) $faltas[] = 'presidente';
+        $asig = $this->contarAsignaciones();
+        $tot = $this->totalPartes();
+        if ($asig < $tot) $faltas[] = 'asignaciones';
+        return $faltas;
+    }
 }

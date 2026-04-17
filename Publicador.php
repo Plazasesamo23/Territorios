@@ -155,6 +155,7 @@ class Publicador extends Model
             'empiece_conversaciones', 'haga_revisitas', 'haga_discipulos', 'explique_creencias' => 'maestros',
             'discurso_maestros' => 'discurso_maestros',
             'discurso_vida' => 'discurso_vida',
+            'necesidades' => 'necesidades',
             'conductor_estudio' => 'conductor_estudio',
             'lector_estudio' => 'lector_estudio',
             'ayudante' => 'maestros',

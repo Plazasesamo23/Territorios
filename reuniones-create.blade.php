@@ -23,20 +23,29 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Crear las proximas</label>
+                <label class="form-label">¿Cuantas semanas?</label>
                 <select name="cantidad_semanas" class="form-input rc-input--narrow">
+                    <option value="1" selected>1 semana</option>
+                    <option value="2">2 semanas</option>
                     <option value="4">4 semanas (1 mes)</option>
                     <option value="8">8 semanas (2 meses)</option>
                     <option value="12">12 semanas (3 meses)</option>
-                    <option value="16" selected>16 semanas (4 meses)</option>
                     <option value="24">24 semanas (6 meses)</option>
                 </select>
+            </div>
+
+            <div class="form-group">
+                <label class="rc-check">
+                    <input type="checkbox" name="importar_titulos" value="1">
+                    <span>Importar titulos de jw.org al crearlas</span>
+                </label>
+                <span class="rc-check__hint">Si lo dejas sin marcar, las semanas se crean en blanco y puedes importar los titulos desde la pagina de edicion.</span>
             </div>
         </div>
 
         <div class="rc-notice">
             <svg class="rc-notice__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-            <span>Los titulos de cada semana se importan automaticamente del cuadernillo VyM de jw.org. Si alguna semana no esta disponible, se creara con las partes por defecto (lectura, revisitas, etc.) y luego puedes importar los titulos manualmente desde la pagina de edicion.</span>
+            <span>Si alguna de esas semanas ya existe, se omitira y se te indicara cuantas se crearon. No duplica nada.</span>
         </div>
 
         <div class="rc-actions">
@@ -74,6 +83,30 @@
     margin-top: 0.375rem;
     font-size: 0.8rem;
     color: #ef4444;
+}
+
+.rc-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--text);
+}
+
+.rc-check input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--color-tesoros-text);
+}
+
+.rc-check__hint {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.4;
 }
 
 .rc-notice {
