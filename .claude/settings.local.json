@@ -5,7 +5,12 @@
       "WebFetch(domain:territorios.trastosbvaa.org)",
       "WebFetch(domain:docs.ovh.com)",
       "WebFetch(domain:wol.jw.org)",
-      "WebFetch(domain:n8n.trastosbvaa.org)"
+      "WebFetch(domain:n8n.trastosbvaa.org)",
+      "WebFetch(domain:dribbble.com)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:app.jw-cdn.org)"
     ]
   }
 }

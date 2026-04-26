@@ -7,6 +7,7 @@ use App\Models\Congregacion;
 use App\Models\Territorio;
 use App\Models\Publicador;
 use App\Models\Registro;
+use App\Models\Tarea;
 
 class DashboardController extends Controller
 {
@@ -24,7 +25,11 @@ class DashboardController extends Controller
 
         // Admin/Superadmin → menu principal con categorias
         if ($user->isAdmin()) {
-            return view('inicio');
+            $tareasPendientesCount = Tarea::pendientes()
+                ->visiblePara($user)
+                ->where('asignado_a', $user->id)
+                ->count();
+            return view('inicio', compact('tareasPendientesCount'));
         }
 
         // Usuario normal → dashboard de servicio directo

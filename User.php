@@ -222,4 +222,65 @@ class User extends Authenticatable
     {
         return !$this->isTerritoriosUser() && !$this->isPpocUser();
     }
+
+    /**
+     * Departamentos a los que pertenece el usuario por su rol.
+     * Define qué tareas públicas puede ver/gestionar de cada modulo.
+     */
+    public function departamentosPropios(): array
+    {
+        if ($this->isAdmin()) {
+            return ['territorios', 'ppoc', 'reuniones', 'administracion', 'general'];
+        }
+        $deptos = ['general'];
+        if ($this->isTerritoriosUser()) $deptos[] = 'territorios';
+        if ($this->isPpocUser()) $deptos[] = 'ppoc';
+        return $deptos;
+    }
+
+    /**
+     * Puede crear una tarea publica en el departamento dado.
+     * Admin puede en todos. Roles de departamento solo en el suyo.
+     */
+    public function canCrearTareaPublica(string $departamento): bool
+    {
+        if ($this->isAdmin()) return true;
+        return in_array($departamento, $this->departamentosPropios(), true)
+            && $departamento !== 'general';
+    }
+
+    /**
+     * Puede ver tareas publicas del departamento.
+     */
+    public function canVerTareasDepartamento(string $departamento): bool
+    {
+        if ($this->isAdmin()) return true;
+        return in_array($departamento, $this->departamentosPropios(), true);
+    }
+
+    /**
+     * Puede editar/marcar hecha una tarea.
+     * El asignado, el creador o un admin.
+     */
+    public function canEditarTarea(\App\Models\Tarea $tarea): bool
+    {
+        if ($this->isAdmin()) return true;
+        return $tarea->asignado_a === $this->id || $tarea->creado_por === $this->id;
+    }
+
+    /**
+     * Tareas pendientes del usuario (asignadas o creadas por el).
+     */
+    public function tareasAsignadas()
+    {
+        return $this->hasMany(\App\Models\Tarea::class, 'asignado_a');
+    }
+
+    /**
+     * Tareas que el usuario ha anclado para tener a mano.
+     */
+    public function tareasAncladas()
+    {
+        return $this->belongsToMany(\App\Models\Tarea::class, 'tarea_anclajes', 'user_id', 'tarea_id')->withTimestamps();
+    }
 }
