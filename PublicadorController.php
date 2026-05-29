@@ -64,6 +64,7 @@ class PublicadorController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'apellidos' => 'nullable|string|max:255',
+            'genero' => 'required|in:M,F',
             'telefono' => 'required|string|max:20',
             'notas' => 'nullable|string|max:1000',
             'activo' => 'boolean',
@@ -71,6 +72,7 @@ class PublicadorController extends Controller
             'es_anciano' => 'boolean',
             'es_siervo_ministerial' => 'boolean',
             'es_precursor' => 'boolean',
+            'excluido_reuniones' => 'boolean',
             'aprobado_ppoc' => 'boolean',
             'grupo_predicacion_id' => 'nullable|exists:grupos_predicacion,id'
         ]);
@@ -90,6 +92,7 @@ class PublicadorController extends Controller
         $publicador = Publicador::create(array_merge([
             'nombre' => $request->nombre,
             'apellidos' => $request->apellidos,
+            'genero' => $request->genero,
             'telefono' => $request->telefono,
             'notas' => $request->notas,
             'activo' => $request->boolean('activo', true),
@@ -97,6 +100,7 @@ class PublicadorController extends Controller
             'es_anciano' => $esAnciano,
             'es_siervo_ministerial' => $esSm,
             'es_precursor' => $request->boolean('es_precursor'),
+            'excluido_reuniones' => $request->boolean('excluido_reuniones'),
             'grupo_predicacion_id' => $request->grupo_predicacion_id
         ], $nombramientos, $cargosSm));
 

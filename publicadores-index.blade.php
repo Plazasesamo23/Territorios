@@ -4,8 +4,15 @@
 
 @section('content')
 <div class="page-md">
-    <h1 class="page-title">Publicadores</h1>
-    <p class="page-subtitle">{{ $publicadores->count() }} publicadores registrados</p>
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem;">
+        <div>
+            <h1 class="page-title">Publicadores</h1>
+            <p class="page-subtitle">{{ $publicadores->count() }} publicadores registrados</p>
+        </div>
+        @if(auth()->user()->canEditPublicadores())
+        <a href="{{ route('publicadores.create') }}" class="btn btn-primary" style="white-space:nowrap;">+ Nuevo publicador</a>
+        @endif
+    </div>
 
     <!-- Buscador -->
     <form method="GET" action="{{ route('publicadores.index') }}" class="form-group">
@@ -67,7 +74,7 @@
     <div class="empty-state">
         <div class="icon">&#x1F465;</div>
         <div class="title">No hay publicadores</div>
-        <div class="desc">Usa el submenu para agregar publicadores.</div>
+        <div class="desc">Usa el boton "Nuevo publicador" para agregar el primero.</div>
     </div>
     @endif
 </div>
