@@ -4,8 +4,10 @@
 
 @section('content')
 <div class="page-md">
-    <h1 class="page-title">Registros de Territorios</h1>
+    <h1 class="page-title">Asignaciones de Territorios</h1>
     <p class="page-subtitle">Gestiona las asignaciones activas</p>
+
+    @php $vistaInicial = request('vista') === 'lista' ? 'lista' : 'resumen'; @endphp
 
     @if(session('mostrar_whatsapp') && session('whatsapp_url'))
         <div class="alert-banner mb-2" style="flex-direction: column; gap: 0.5rem; text-align: left;">
@@ -24,14 +26,15 @@
             function copyMessageAndOpenWhatsApp() {
                 var mensaje = {!! json_encode(session('whatsapp_mensaje', 'Hola, te envio el territorio asignado.')) !!};
                 var whatsappUrl = "{{ session('whatsapp_url') }}";
+                // whatsappUrl ya incluye el mensaje (?text=...); abrimos esa URL directamente
+                var abrir = function() { window.open(whatsappUrl, '_blank'); };
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(mensaje).then(function() {
                         document.getElementById('copyMessageBtn').innerHTML = 'Copiado!';
-                        setTimeout(function() {
-                            var match = whatsappUrl.match(/wa\.me\/(\d+)/);
-                            if (match) window.open('https://wa.me/' + match[1], '_blank');
-                        }, 500);
-                    });
+                        setTimeout(abrir, 400);
+                    }).catch(abrir);
+                } else {
+                    abrir();
                 }
             }
             function openTerritorioImage() {
@@ -43,13 +46,13 @@
 
     <!-- Toggle de vistas -->
     <div class="vista-toggle">
-        <button class="vista-btn active" data-vista="resumen" onclick="cambiarVista('resumen')">
+        <button class="vista-btn {{ $vistaInicial === 'resumen' ? 'active' : '' }}" data-vista="resumen" onclick="cambiarVista('resumen')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                 <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path d="M9 12l2 2 4-4"/>
             </svg>
             Resumen
         </button>
-        <button class="vista-btn" data-vista="lista" onclick="cambiarVista('lista')">
+        <button class="vista-btn {{ $vistaInicial === 'lista' ? 'active' : '' }}" data-vista="lista" onclick="cambiarVista('lista')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                 <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
             </svg>
@@ -60,7 +63,7 @@
     <!-- ============================================
          VISTA RESUMEN — Gráficos + Publicadores
          ============================================ -->
-    <div id="vista-resumen">
+    <div id="vista-resumen" style="display: {{ $vistaInicial === 'resumen' ? 'block' : 'none' }};">
 
         <!-- Buscador vista resumen -->
         <div class="form-group">
@@ -199,7 +202,7 @@
     <!-- ============================================
          VISTA LISTA — Lista activa original
          ============================================ -->
-    <div id="vista-lista" style="display: none;">
+    <div id="vista-lista" style="display: {{ $vistaInicial === 'lista' ? 'block' : 'none' }};">
 
         <!-- Filtros por tipo -->
         <div class="tabs-flat">
@@ -210,7 +213,7 @@
                 Normales <span class="badge">{{ $conteoTipos['normal'] ?? 0 }}</span>
             </button>
             <button class="tab-item" data-tipo="campana" onclick="filtrarTipo('campana')">
-                Campana <span class="badge">{{ $conteoTipos['campana'] ?? 0 }}</span>
+                Campaña <span class="badge">{{ $conteoTipos['campana'] ?? 0 }}</span>
             </button>
             <button class="tab-item" data-tipo="negocios" onclick="filtrarTipo('negocios')">
                 Negocios <span class="badge">{{ $conteoTipos['negocios'] ?? 0 }}</span>
@@ -272,6 +275,7 @@
                     <th>Publicador</th>
                     <th>Dias</th>
                     <th>Estado</th>
+                    <th class="text-center">Acción</th>
                 </tr>
             </thead>
             <tbody>
@@ -289,8 +293,15 @@
                         @if($estado === 'activo')
                             <span class="text-primary font-medium">Activo</span>
                         @elseif($estado === 'atrasado')
-                            <span class="text-muted font-medium">Atrasado</span>
+                            <span class="font-medium" style="color: var(--warning, #f59e0b)">Atrasado</span>
                         @endif
+                    </td>
+                    <td class="text-center">
+                        <form action="{{ route('registros.entrada', $registro) }}" method="POST" style="margin:0"
+                              onsubmit="event.stopPropagation(); return confirm('¿Devolver el territorio {{ $registro->territorio->numero_completo }} de {{ $registro->publicador->nombre_completo }}?');">
+                            @csrf
+                            <button type="submit" class="btn btn-secondary btn-sm">Devolver</button>
+                        </form>
                     </td>
                 </tr>
                 @endforeach

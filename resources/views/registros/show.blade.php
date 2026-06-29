@@ -1,16 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Registro #{{ $registro->id }} - Gestión de Territorios')
+@section('title', 'Asignación #{{ $registro->id }} - Gestión de Territorios')
 
 @section('content')
 <!-- Navegación minimalista -->
 <nav class="page-nav">
     <div class="page-breadcrumbs">
-        <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+        <a href="{{ route('dashboard') }}" class="breadcrumb-link">Inicio</a>
         <span class="breadcrumb-separator">›</span>
-        <a href="{{ route('registros.index') }}" class="breadcrumb-link">Registros</a>
+        <a href="{{ route('registros.index') }}" class="breadcrumb-link">Asignaciones</a>
         <span class="breadcrumb-separator">›</span>
-        <span class="breadcrumb-current">Registro #{{ $registro->id }}</span>
+        <span class="breadcrumb-current">Asignación #{{ $registro->id }}</span>
     </div>
     <div class="page-actions">
         <a href="{{ route('registros.index') }}" class="btn btn-secondary">
@@ -36,7 +36,7 @@
 <!-- Información principal -->
 <div class="card">
     <div class="card-title">
-        Registro #{{ $registro->id }}
+        Asignación #{{ $registro->id }}
         <div style="float: right;">
             @if($registro->fecha_entrada)
                 <span class="badge" style="background: #dcfce7; color: #166534;">✅ DEVUELTO</span>
@@ -91,7 +91,7 @@
                         T{{ $registro->territorio->numero }}
                     </a>
                     @if($registro->territorio->nombre)
-                        <div style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">
+                        <div style="font-size: 0.875rem; color: #9ca3af; margin-top: 0.25rem;">
                             {{ $registro->territorio->nombre }}
                         </div>
                     @endif
@@ -102,11 +102,11 @@
             <div>
                 <strong>Publicador:</strong>
                 <div style="margin-top: 0.5rem;">
-                    <a href="{{ route('publicadores.show', $registro->publicador) }}" 
-                       style="font-weight: 600; color: #374151; text-decoration: none;">
+                    <a href="{{ route('publicadores.show', $registro->publicador) }}"
+                       style="font-weight: 600; color: #e5e7eb; text-decoration: none;">
                         {{ $registro->publicador->nombre_completo }}
                     </a>
-                    <div style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">
+                    <div style="font-size: 0.875rem; color: #9ca3af; margin-top: 0.25rem;">
                         {{ $registro->publicador->telefono }}
                     </div>
                 </div>
@@ -122,7 +122,7 @@
                         {{ $registro->fecha_salida->diffInDays(now()) }} días
                     @endif
                 </div>
-                <div style="font-size: 0.875rem; color: #6b7280;">
+                <div style="font-size: 0.875rem; color: #9ca3af;">
                     @if($registro->fecha_entrada)
                         Completado
                     @else
@@ -141,7 +141,7 @@
                     @if($registro->fecha_entrada)
                         <div>📥 Entrada: {{ $registro->fecha_entrada->format('d/m/Y') }}</div>
                     @else
-                        <div style="color: #6b7280;">📥 Entrada: Pendiente</div>
+                        <div style="color: #9ca3af;">📥 Entrada: Pendiente</div>
                     @endif
                 </div>
             </div>
@@ -171,7 +171,7 @@
         @if($registro->notas)
             <div>
                 <strong>Notas:</strong>
-                <div style="margin-top: 0.5rem; background: #f9fafb; padding: 0.75rem; border-radius: 6px; border: 1px solid #e5e7eb;">
+                <div style="margin-top: 0.5rem; background: #262626; padding: 0.75rem; border-radius: 6px; border: 1px solid #404040;">
                     {{ $registro->notas }}
                 </div>
             </div>
@@ -182,7 +182,7 @@
     <div id="dangerZone" style="display: none; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #495057;">
         <div style="margin-bottom: 1rem;">
             <strong style="color: #495057;">⚠️ Zona de Peligro</strong>
-            <div style="font-size: 0.875rem; color: #6b7280;">Estas acciones no se pueden deshacer</div>
+            <div style="font-size: 0.875rem; color: #9ca3af;">Estas acciones no se pueden deshacer</div>
         </div>
         
         <form action="{{ route('registros.destroy', $registro) }}" method="POST" class="inline"
@@ -190,7 +190,7 @@
             @csrf
             @method('DELETE')
             <button type="submit" class="btn" style="background: #495057; color: white; padding: 0.75rem 1.5rem;">
-                🗑️ Eliminar Registro
+                🗑️ Eliminar Asignación
             </button>
         </form>
     </div>
@@ -198,7 +198,7 @@
 
 <!-- Modal para marcar como devuelto -->
 <div id="dateModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
-    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 8px; min-width: 300px;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1d21; color: #f1f3f5; padding: 2rem; border-radius: 8px; min-width: 300px; border: 1px solid #2d3339;">
         <h3 style="margin-bottom: 1rem;">Marcar Territorio como Devuelto</h3>
         
         <form action="{{ route('registros.entrada', $registro) }}" method="POST">

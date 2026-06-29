@@ -10,7 +10,7 @@
     @if($territoriosDisponibles->count() == 0)
         <div class="empty-state">
             <div class="title">No hay territorios disponibles</div>
-            <div class="desc">Todos estan asignados o en periodo de descanso.</div>
+            <div class="desc">Todos están asignados o en período de descanso.</div>
             <a href="{{ route('panel-territorios') }}" class="btn btn-secondary mt-1">Volver</a>
         </div>
     @else
@@ -32,7 +32,7 @@
                         <button type="button" class="tipo-btn active" data-tipo="">Todos <span class="badge">{{ $territoriosDisponibles->count() }}</span></button>
                         <button type="button" class="tipo-btn" data-tipo="normal">Normal <span class="badge">{{ $conteoNormal }}</span></button>
                         @if($conteoCampana > 0)
-                        <button type="button" class="tipo-btn" data-tipo="campana">Campana <span class="badge">{{ $conteoCampana }}</span></button>
+                        <button type="button" class="tipo-btn" data-tipo="campana">Campaña <span class="badge">{{ $conteoCampana }}</span></button>
                         @endif
                         @if($conteoNegocios > 0)
                         <button type="button" class="tipo-btn" data-tipo="negocios">Negocios <span class="badge">{{ $conteoNegocios }}</span></button>
@@ -92,7 +92,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary btn-lg btn-full" id="btn-submit" disabled>
-                Asignar y Enviar WhatsApp
+                Asignar territorio
             </button>
         </form>
     @endif

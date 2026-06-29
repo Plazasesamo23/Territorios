@@ -979,7 +979,7 @@
 
 <script>
     // Datos raw para cada registro (preparados en el controlador)
-    const datosRaw = @json($datosRawJs);
+    const datosRaw = @json($datosRawJs ?? []);
 
     function mostrarOriginal(index) {
         const data = datosRaw[index];

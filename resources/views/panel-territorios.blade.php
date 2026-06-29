@@ -14,7 +14,7 @@
             <span class="btn-icono">+</span>
             <span class="btn-texto">Asignar</span>
         </a>
-        <a href="{{ route('registros.index') }}" class="btn-accion btn-devolver">
+        <a href="{{ route('registros.index', ['vista' => 'lista']) }}" class="btn-accion btn-devolver">
             <span class="btn-icono">&#x21A9;</span>
             <span class="btn-texto">Devolver</span>
         </a>
@@ -24,7 +24,7 @@
     <div class="tabs-flat">
         <button class="tab-item active" data-tipo="todos">Todos <span class="badge">{{ $territorios->count() }}</span></button>
         <button class="tab-item" data-tipo="normal">Normales <span class="badge">{{ $territorios->filter(fn($t) => empty($t->tipo) || $t->tipo === 'normal')->count() }}</span></button>
-        <button class="tab-item" data-tipo="campana">Campana <span class="badge">{{ $territorios->where('tipo', 'campana')->count() }}</span></button>
+        <button class="tab-item" data-tipo="campana">Campaña <span class="badge">{{ $territorios->where('tipo', 'campana')->count() }}</span></button>
         <button class="tab-item" data-tipo="negocios">Negocios <span class="badge">{{ $territorios->where('tipo', 'negocios')->count() }}</span></button>
     </div>
 
@@ -42,7 +42,7 @@
             $estado = $territorio->calcularEstado();
             $imgUrl = $territorio->getImagenUrl();
         @endphp
-        <a href="{{ $imgUrl }}" target="_blank" class="territorio-item estado-{{ $estado }}"
+        <a href="{{ route('territorios.show', $territorio) }}" class="territorio-item estado-{{ $estado }}"
              data-tipo="{{ $territorio->tipo ?? 'normal' }}"
              data-numero="{{ $territorio->numero }}"
              data-nombre="{{ $territorio->nombre }}">

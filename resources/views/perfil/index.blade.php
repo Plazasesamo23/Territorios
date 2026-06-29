@@ -32,21 +32,21 @@
                 <div class="form-group">
                     <label>Correo Electrónico</label>
                     <input type="email" value="{{ Auth::user()->email }}" class="form-control" disabled
-                           style="background: #f3f4f6; cursor: not-allowed;">
-                    <small style="color: #6b7280;">El correo no se puede cambiar</small>
+                           style="background: #1f2024; color: #9ca3af; cursor: not-allowed;">
+                    <small style="color: #9ca3af;">El correo no se puede cambiar</small>
                 </div>
 
                 <div class="form-group">
                     <label>Rol</label>
                     <input type="text" value="{{ Auth::user()->rol_nombre }}" class="form-control" disabled
-                           style="background: #f3f4f6; cursor: not-allowed;">
+                           style="background: #1f2024; color: #9ca3af; cursor: not-allowed;">
                 </div>
 
                 @if(Auth::user()->congregacion)
                 <div class="form-group">
                     <label>Congregación</label>
                     <input type="text" value="{{ Auth::user()->congregacion->nombre }}" class="form-control" disabled
-                           style="background: #f3f4f6; cursor: not-allowed;">
+                           style="background: #1f2024; color: #9ca3af; cursor: not-allowed;">
                 </div>
                 @endif
 
@@ -103,21 +103,23 @@
     .form-control {
         width: 100%;
         padding: 0.75rem 1rem;
-        border: 1px solid #d1d5db;
+        border: 1px solid #2d3339;
         border-radius: 0.5rem;
         font-size: 1rem;
+        background: #151719;
+        color: #f1f3f5;
         transition: border-color 0.2s;
     }
     .form-control:focus {
         outline: none;
-        border-color: #4a6da7;
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        border-color: #6b8fc7;
+        box-shadow: 0 0 0 3px rgba(107, 143, 199, 0.12);
     }
     .form-control.is-invalid {
-        border-color: #495057;
+        border-color: #ff6b6b;
     }
     .error-message {
-        color: #495057;
+        color: #ff8a80;
         font-size: 0.75rem;
         margin-top: 0.25rem;
         display: block;

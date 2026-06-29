@@ -36,7 +36,7 @@
                     <polyline points="17 21 17 13 7 13 7 21"/>
                     <polyline points="7 3 7 8 15 8"/>
                 </svg>
-                Cerrar Ano
+                Cerrar Año
             </button>
             <button onclick="generarAutomatico()" class="btn-generar">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -866,7 +866,7 @@ function filtrarPublicadores() {
 }
 
 function guardarHistorial() {
-    if (!confirm('¿Guardar el historial del ano actual? Esto creara un snapshot de los grupos que se usara para la generacion automatica.')) return;
+    if (!confirm('¿Guardar el historial del año actual? Esto creará una copia de los grupos que se usará para la generación automática.')) return;
 
     fetch('/grupos-predicacion/guardar-historial', {
         method: 'POST',
@@ -884,7 +884,7 @@ function guardarHistorial() {
 }
 
 function generarAutomatico() {
-    if (!confirm('¿Generar grupos automaticamente?\n\n- Los SUP/AUX se mantienen en sus grupos\n- Los precursores se distribuyen equitativamente\n- Se evita repetir las mismas parejas de anos anteriores')) return;
+    if (!confirm('¿Generar grupos automáticamente?\n\n- Los SUP/AUX se mantienen en sus grupos\n- Los precursores se distribuyen equitativamente\n- Se evita repetir las mismas parejas de años anteriores')) return;
 
     fetch('/grupos-predicacion/generar-automatico', {
         method: 'POST',

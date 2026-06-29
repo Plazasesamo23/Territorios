@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#0d0f11">
-    <title>@yield('title', 'Gestor de Congregacion')</title>
+    <title>@yield('title', 'Gestor de Congregación')</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ time() }}">
     <link rel="stylesheet" href="{{ asset('css/flat-global.css') }}?v={{ time() }}">
@@ -100,12 +100,12 @@
         .header-buttons {
             display: flex;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.375rem;
         }
 
         .header-btn {
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
             border-radius: 6px;
             display: flex;
             align-items: center;
@@ -238,6 +238,115 @@
             margin: 0;
         }
 
+        /* --- Widget tareas (popup ancladas) --- */
+        .widget-tareas-wrap { position: relative; }
+        .widget-tareas-btn { position: relative; }
+        .widget-badge {
+            position: absolute; top: -2px; right: -2px;
+            background: #ff6b6b; color: #fff;
+            font-size: 0.6rem; font-weight: 700;
+            min-width: 16px; height: 16px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0 4px; line-height: 1;
+            border: 2px solid #1a1d21;
+        }
+        .widget-dropdown {
+            display: none;
+            position: absolute; top: calc(100% + 6px); right: 0;
+            width: 340px; max-width: calc(100vw - 1rem);
+            max-height: 480px; overflow-y: auto;
+            background: #1a1d21;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+            z-index: 1500;
+        }
+        .widget-dropdown.abierto { display: block; }
+        .widget-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            font-size: 0.8125rem; color: #f1f3f5;
+        }
+        .widget-ver-todas {
+            font-size: 0.75rem; color: #8aa8d6;
+            text-decoration: none;
+        }
+        .widget-ver-todas:hover { color: #b8cceb; }
+        .widget-contenido { padding: 0.25rem 0; }
+        .widget-loading {
+            padding: 1.5rem 1rem; text-align: center;
+            color: rgba(241,243,245,0.4); font-size: 0.8125rem;
+        }
+        .widget-empty {
+            padding: 2rem 1rem; text-align: center;
+            color: rgba(241,243,245,0.5); font-size: 0.8125rem;
+        }
+        .widget-empty-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .widget-empty p { margin: 0 0 0.25rem 0; color: rgba(241,243,245,0.7); }
+        .widget-empty small { font-size: 0.6875rem; opacity: 0.7; }
+
+        .widget-lista { list-style: none; margin: 0; padding: 0; }
+        .widget-item {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 0.5rem;
+            align-items: center;
+            padding: 0.625rem 0.875rem;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .widget-item:last-child { border-bottom: none; }
+        .widget-item.vencida { background: rgba(255,69,58,0.06); }
+
+        .widget-check-form, .widget-anclar-form { margin: 0; }
+        .widget-check {
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 5px;
+            background: transparent; cursor: pointer;
+            transition: all 0.15s;
+        }
+        .widget-check:hover { border-color: #34c759; background: rgba(52,199,89,0.1); }
+
+        .widget-cuerpo { min-width: 0; }
+        .widget-titulo {
+            font-size: 0.8125rem; color: #f1f3f5;
+            line-height: 1.3; margin-bottom: 0.25rem;
+            word-break: break-word;
+        }
+        .widget-meta {
+            display: flex; flex-wrap: wrap; gap: 0.25rem;
+            font-size: 0.625rem;
+        }
+        .widget-tag-depto {
+            padding: 0.0625rem 0.375rem; border-radius: 3px;
+            background: rgba(107,143,199,0.15); color: #8aa8d6;
+            text-transform: uppercase; letter-spacing: 0.04em;
+        }
+        .widget-tag-prio {
+            padding: 0.0625rem 0.375rem; border-radius: 3px;
+            background: rgba(255,69,58,0.15); color: #ff8a80;
+        }
+        .widget-tag-fecha {
+            color: rgba(241,243,245,0.55);
+            padding: 0.0625rem 0.375rem;
+        }
+        .widget-tag-fecha.vencida { color: #ff8a80; font-weight: 600; }
+
+        .widget-desanclar {
+            width: 22px; height: 22px;
+            border: none; background: transparent;
+            color: rgba(241,243,245,0.3);
+            font-size: 1.1rem; line-height: 1;
+            cursor: pointer; border-radius: 4px;
+            transition: all 0.15s;
+        }
+        .widget-desanclar:hover {
+            background: rgba(255,159,10,0.12);
+            color: #ffb86b;
+        }
+
         /* --- Responsive --- */
         @media (max-width: 768px) {
             .header-content {
@@ -283,7 +392,7 @@
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <a href="{{ route('dashboard') }}" class="logo">Gestor de Congregacion</a>
+                <a href="{{ route('dashboard') }}" class="logo">Gestor de Congregación</a>
 
                 @if(!View::hasSection('hide_nav'))
                 <nav class="nav">
@@ -331,6 +440,7 @@
                             <a href="{{ route('reuniones.index') }}" class="nav-link">Reuniones</a>
                             <a href="{{ route('administracion') }}" class="nav-link">Administracion</a>
                             @endif
+                            <a href="{{ route('tareas.index') }}" class="nav-link {{ request()->routeIs('tareas.*') ? 'active' : '' }}">Tareas</a>
                             @can('superadmin')
                             <a href="{{ route('congregaciones.index') }}" class="nav-link {{ request()->routeIs('congregaciones.*') ? 'active' : '' }}">Congregaciones</a>
                             @endcan
@@ -346,15 +456,40 @@
                         @endif
 
                         <div class="header-buttons">
-                            <a href="{{ route('cambiar-usuario.index') }}" class="header-btn" title="Cambiar usuario">
+                            @php
+                                $countAncladas = Auth::user()->tareasAncladas()
+                                    ->whereIn('estado', ['pendiente', 'en_curso', 'bloqueada'])
+                                    ->count();
+                            @endphp
+                            <div class="widget-tareas-wrap">
+                                <button type="button" class="header-btn widget-tareas-btn" id="widget-tareas-btn" title="Mis tareas ancladas" aria-label="Mis tareas ancladas">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                                    @if($countAncladas > 0)
+                                        <span class="widget-badge" id="widget-badge">{{ $countAncladas > 99 ? '99+' : $countAncladas }}</span>
+                                    @endif
+                                </button>
+                                <div class="widget-dropdown" id="widget-dropdown">
+                                    <div class="widget-header">
+                                        <strong>Tareas ancladas</strong>
+                                        <a href="{{ route('tareas.index') }}" class="widget-ver-todas">Ver todas →</a>
+                                    </div>
+                                    <div class="widget-contenido" id="widget-contenido">
+                                        <div class="widget-loading">Cargando…</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if(Auth::user()->isAdmin())
+                            <a href="{{ route('cambiar-usuario.index') }}" class="header-btn" title="Cambiar usuario" aria-label="Cambiar usuario">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M23 11h-6"></path></svg>
                             </a>
-                            <a href="{{ route('perfil.index') }}" class="header-btn" title="Mi perfil">
+                            @endif
+                            <a href="{{ route('perfil.index') }}" class="header-btn" title="Mi perfil" aria-label="Mi perfil">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             </a>
                             <form action="{{ route('logout') }}" method="POST" style="margin:0">
                                 @csrf
-                                <button type="submit" class="header-btn btn-logout" title="Salir">
+                                <button type="submit" class="header-btn btn-logout" title="Salir" aria-label="Cerrar sesión">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                                 </button>
                             </form>
@@ -411,7 +546,7 @@
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; {{ date('Y') }} Gestor de Congregacion</p>
+            <p>&copy; {{ date('Y') }} Gestor de Congregación</p>
         </div>
     </footer>
 
@@ -431,5 +566,76 @@
             });
         });
     </script>
+
+    @auth
+    <script>
+    (function() {
+        const btn = document.getElementById('widget-tareas-btn');
+        const dropdown = document.getElementById('widget-dropdown');
+        const contenido = document.getElementById('widget-contenido');
+        const badge = document.getElementById('widget-badge');
+        if (!btn || !dropdown) return;
+
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
+        let cargado = false;
+
+        function cargarWidget() {
+            contenido.innerHTML = '<div class="widget-loading">Cargando…</div>';
+            fetch("{{ route('tareas.widget') }}", { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.text())
+                .then(html => { contenido.innerHTML = html; cargado = true; bindAcciones(); })
+                .catch(() => { contenido.innerHTML = '<div class="widget-loading">Error al cargar</div>'; });
+        }
+
+        function actualizarBadge(count) {
+            const wrap = document.querySelector('.widget-tareas-wrap');
+            let b = document.getElementById('widget-badge');
+            if (count > 0) {
+                if (!b) {
+                    b = document.createElement('span');
+                    b.id = 'widget-badge';
+                    b.className = 'widget-badge';
+                    btn.appendChild(b);
+                }
+                b.textContent = count > 99 ? '99+' : count;
+            } else if (b) {
+                b.remove();
+            }
+        }
+
+        function bindAcciones() {
+            contenido.querySelectorAll('form').forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrf,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    }).then(r => r.json()).then(() => {
+                        cargarWidget();
+                        const items = contenido.querySelectorAll('.widget-item');
+                        actualizarBadge(items.length);
+                    });
+                });
+            });
+        }
+
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const abierto = dropdown.classList.toggle('abierto');
+            if (abierto && !cargado) cargarWidget();
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.remove('abierto');
+            }
+        });
+    })();
+    </script>
+    @endauth
 </body>
 </html>

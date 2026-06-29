@@ -19,7 +19,7 @@
                     <line x1="12" y1="5" x2="12" y2="19"/>
                     <line x1="5" y1="12" x2="19" y2="12"/>
                 </svg>
-                Nuevo Ano
+                Nuevo Año
             </button>
         </div>
     </div>
@@ -62,8 +62,8 @@
                 <line x1="8" y1="2" x2="8" y2="6"/>
                 <line x1="3" y1="10" x2="21" y2="10"/>
             </svg>
-            <p>No hay anos guardados</p>
-            <p class="hint">Crea un nuevo ano para empezar a registrar el historial</p>
+            <p>No hay años guardados</p>
+            <p class="hint">Crea un nuevo año para empezar a registrar el historial</p>
         </div>
         @endforelse
 
@@ -73,7 +73,7 @@
                 <line x1="12" y1="5" x2="12" y2="19"/>
                 <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
-            <span>Nuevo Ano</span>
+            <span>Nuevo Año</span>
         </div>
     </div>
 </div>
@@ -82,13 +82,13 @@
 <div id="modal-crear" class="modal" style="display:none;">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Crear Ano de Servicio</h3>
+            <h3>Crear Año de Servicio</h3>
             <button onclick="cerrarModal()" class="btn-close">&times;</button>
         </div>
         <div class="modal-body">
-            <p class="modal-hint">El ano de servicio va de Septiembre a Agosto</p>
+            <p class="modal-hint">El año de servicio va de Septiembre a Agosto</p>
             <div class="form-group">
-                <label>Ano de inicio</label>
+                <label>Año de inicio</label>
                 <select id="ano-inicio">
                     @for($i = now()->year; $i >= 2015; $i--)
                     <option value="{{ $i }}">{{ $i }}</option>

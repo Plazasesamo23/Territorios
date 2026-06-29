@@ -24,6 +24,15 @@ class S13Controller extends Controller
     }
 
     /**
+     * Año de servicio en curso. El año de servicio teocrático va de
+     * septiembre a agosto; antes de septiembre seguimos en el año anterior.
+     */
+    private function añoServicioActual(): int
+    {
+        return now()->month < 9 ? now()->year - 1 : now()->year;
+    }
+
+    /**
      * Obtener territorios de la congregacion activa
      */
     private function getTerritoriosCongregacion(): \Illuminate\Database\Eloquent\Collection
@@ -74,7 +83,7 @@ class S13Controller extends Controller
             'total_registros' => count($territorioIds) > 0
                 ? Registro::whereIn('territorio_id', $territorioIds)->count()
                 : 0,
-            'año_actual' => now()->year,
+            'año_actual' => $this->añoServicioActual(),
         ];
 
         $congregacionActiva = Congregacion::find($congregacionId);
@@ -166,7 +175,7 @@ class S13Controller extends Controller
      */
     public function generarPdf(Request $request)
     {
-        $añoServicio = $request->get('año', $request->get('ano', now()->year));
+        $añoServicio = (int) $request->get('año', $request->get('ano', $this->añoServicioActual()));
         $añoSiguiente = $añoServicio + 1;
         $congregacionId = $this->getCongregacionActivaId();
 
@@ -216,7 +225,7 @@ class S13Controller extends Controller
      */
     public function vistaPrevia(Request $request)
     {
-        $añoServicio = $request->get('año', $request->get('ano', now()->year));
+        $añoServicio = (int) $request->get('año', $request->get('ano', $this->añoServicioActual()));
         $añoSiguiente = $añoServicio + 1;
         $congregacionId = $this->getCongregacionActivaId();
 

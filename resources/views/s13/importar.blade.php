@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Importar S-13')
+@section('title', 'Añadir registros S-13')
 
 @section('content')
 <style>
@@ -14,10 +14,10 @@
     .entry-table tr:hover { background: var(--bg-secondary, #f9fafb); }
 
     .entry-table input, .entry-table select {
-        width: 100%; padding: 0.5rem; border: 1px solid var(--border-color, #d1d5db);
+        width: 100%; padding: 0.5rem; border: 1px solid #2d3339;
         border-radius: 6px; font-size: 0.9rem;
-        background-color: #ffffff !important;
-        color: #1f2937 !important;
+        background-color: #151719 !important;
+        color: #f1f3f5 !important;
     }
     .entry-table input:focus, .entry-table select:focus {
         outline: none; border-color: #5c7fb8; box-shadow: 0 0 0 2px rgba(92,127,184,0.2);
@@ -95,46 +95,46 @@
     .autocomplete-wrapper { position: relative; }
     .autocomplete-list {
         position: absolute; top: 100%; left: 0; right: 0; z-index: 100;
-        background-color: #ffffff !important;
-        border: 1px solid #d1d5db; border-radius: 6px;
+        background-color: #1a1d21 !important;
+        border: 1px solid #2d3339; border-radius: 6px;
         max-height: 200px; overflow-y: auto;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
         display: none;
     }
     .autocomplete-list.show { display: block; }
     .autocomplete-item {
         padding: 0.6rem 0.75rem; cursor: pointer; font-size: 0.9rem;
-        color: #1f2937 !important;
-        background-color: #ffffff !important;
-        border-bottom: 1px solid #f3f4f6;
+        color: #f1f3f5 !important;
+        background-color: #1a1d21 !important;
+        border-bottom: 1px solid #2d3339;
     }
     .autocomplete-item:last-child { border-bottom: none; }
     .autocomplete-item:hover, .autocomplete-item.selected {
-        background-color: #e0e7ff !important;
-        color: #1e40af !important;
+        background-color: #2d3a52 !important;
+        color: #b8cceb !important;
     }
     .autocomplete-item small {
-        color: #6b7280 !important;
+        color: #9ca3af !important;
         margin-left: 0.25rem;
     }
 
     /* Forzar colores en inputs */
     .publicador-search {
-        background-color: #ffffff !important;
-        color: #1f2937 !important;
+        background-color: #151719 !important;
+        color: #f1f3f5 !important;
     }
     .publicador-search::placeholder {
-        color: #9ca3af !important;
+        color: #6b7682 !important;
     }
 </style>
 
 <div class="page-nav">
     <div class="page-breadcrumbs">
-        <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+        <a href="{{ route('dashboard') }}" class="breadcrumb-link">Inicio</a>
         <span class="breadcrumb-sep">›</span>
-        <a href="{{ route('s13.index') }}" class="breadcrumb-link">S13</a>
+        <a href="{{ route('s13.index') }}" class="breadcrumb-link">S-13</a>
         <span class="breadcrumb-sep">›</span>
-        <span class="breadcrumb-current">Importar</span>
+        <span class="breadcrumb-current">Añadir registros</span>
     </div>
 </div>
 
@@ -148,14 +148,14 @@
 
     <div class="import-card">
         <div class="import-card-title">
-            <span>Entrada rapida de registros S-13</span>
+            <span>Añadir registros del S-13 manualmente</span>
             <span class="count-badge" id="rowCount">0 registros</span>
         </div>
 
         <div class="tips-box">
-            <strong>Atajos:</strong>
-            Tab para avanzar ·
-            Boton 📋 copia fechas anteriores
+            <strong>Cómo funciona:</strong>
+            escribe una fila por asignación (territorio, publicador y fechas) y pulsa Guardar.
+            Atajos: Tab para avanzar · botón 📋 copia las fechas de la fila anterior.
         </div>
 
         <form action="{{ route('s13.importar.guardar-rapido') }}" method="POST" id="quickEntryForm">

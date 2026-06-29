@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'S13 - Gestión de Territorios')
+@section('title', 'S-13 - Informe de territorios')
 
 @section('content')
 @if(!Auth::user()->canGenerateS13())
@@ -8,7 +8,7 @@
     <div style="font-size: 4rem; margin-bottom: 1rem;">&#128274;</div>
     <h3>Acceso Restringido</h3>
     <p class="text-muted">No tienes permisos para generar el reporte S-13.</p>
-    <p class="text-muted">Contacta con el administrador de tu congregacion si necesitas acceso.</p>
+    <p class="text-muted">Contacta con el administrador de tu congregación si necesitas acceso.</p>
     <a href="{{ route('territorios.index') }}" class="btn btn-primary">Volver a Territorios</a>
 </div>
 @else
@@ -25,7 +25,11 @@
 
 <!-- Configuración del reporte -->
 <div class="card mb-4">
-    <div class="card-title">📊 Configuración del Reporte S13</div>
+    <div class="card-title">📊 Informe S-13 · Registro de Asignación de Territorio</div>
+    <p class="text-muted mb-4" style="font-size: 0.9rem;">
+        El S-13 es el informe oficial de la congregación con el historial de asignación de cada territorio.
+        Elige el año de servicio y genera el PDF para imprimirlo o consultarlo.
+    </p>
     <form method="GET" action="{{ route('s13.generar-pdf') }}" id="form-s13" target="_blank">
         <div class="form-group mb-4">
             <label for="año" class="form-label">Año de Servicio:</label>
@@ -48,6 +52,9 @@
             <button type="submit" class="btn btn-primary">
                 📄 Generar PDF
             </button>
+            <a href="{{ route('s13.importar') }}" class="btn btn-secondary">
+                📥 Importar registros
+            </a>
         </div>
     </form>
 </div>
@@ -62,7 +69,7 @@
                 <li>{{ $estadisticas['total_territorios'] }} territorios divididos en {{ ceil($estadisticas['total_territorios'] / 20) }} páginas</li>
                 <li>20 territorios por página</li>
                 <li>Registros del año de servicio seleccionado</li>
-                <li>Formato oficial S13</li>
+                <li>Formato oficial S-13</li>
             </ul>
         </div>
         <div>

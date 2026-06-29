@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Territorios - Gestion de Territorios')
+@section('title', 'Territorios - Gestión de Territorios')
 
 @section('content')
 <!-- Navegacion y acciones -->
@@ -20,7 +20,7 @@
                     <span class="dropdown-icon">&#128203;</span> Territorio Normal
                 </a>
                 <a href="{{ route('territorios.create', ['tipo' => 'campana']) }}" class="dropdown-item">
-                    <span class="dropdown-icon">&#128227;</span> Territorio Campana (C-)
+                    <span class="dropdown-icon">&#128227;</span> Territorio Campaña (C-)
                 </a>
                 <a href="{{ route('territorios.create', ['tipo' => 'negocios']) }}" class="dropdown-item">
                     <span class="dropdown-icon">&#127970;</span> Territorio Negocios (N-)
@@ -47,7 +47,7 @@
     <a href="{{ route('territorios.index', array_merge(request()->except('tipo'), ['tipo' => 'campana'])) }}"
        class="tipo-filtro tipo-campana {{ ($tipoFiltro ?? '') === 'campana' ? 'active' : '' }}">
         <span class="tipo-icono">&#128227;</span>
-        <span class="tipo-nombre">Campana</span>
+        <span class="tipo-nombre">Campaña</span>
         <span class="tipo-count">{{ $conteoTipos['campana'] ?? 0 }}</span>
     </a>
     <a href="{{ route('territorios.index', array_merge(request()->except('tipo'), ['tipo' => 'negocios'])) }}"
@@ -62,7 +62,7 @@
 @if(($tipoFiltro ?? 'todos') === 'campana' || ($tipoFiltro ?? 'todos') === 'negocios')
 <div class="alert-info-tipo mb-4">
     <span class="alert-icon">&#9432;</span>
-    <span>Los territorios de <strong>{{ ($tipoFiltro ?? '') === 'campana' ? 'Campana' : 'Negocios' }}</strong> NO se incluyen en el reporte S-13.</span>
+    <span>Los territorios de <strong>{{ ($tipoFiltro ?? '') === 'campana' ? 'Campaña' : 'Negocios' }}</strong> NO se incluyen en el reporte S-13.</span>
 </div>
 @endif
 
@@ -73,7 +73,7 @@
             <input type="text"
                    name="search"
                    value="{{ request('search') }}"
-                   placeholder="Buscar territorio por numero, zona, descripcion..."
+                   placeholder="Buscar territorio por número, zona, descripción..."
                    class="search-input">
             <input type="hidden" name="estado" value="{{ request('estado') }}">
             <input type="hidden" name="tipo" value="{{ $tipoFiltro ?? 'todos' }}">
@@ -100,7 +100,7 @@
         <div class="stat-label">Activos</div>
     </a>
     <a href="{{ route('territorios.index', ['estado' => 'atrasado', 'search' => request('search'), 'tipo' => $tipoFiltro ?? 'todos']) }}" class="stat-card {{ request('estado') == 'atrasado' ? 'active' : '' }}">
-        <div class="stat-number text-muted">{{ $estadisticas['atrasado'] }}</div>
+        <div class="stat-number" style="color: var(--warning, #f59e0b)">{{ $estadisticas['atrasado'] }}</div>
         <div class="stat-label">Atrasados</div>
     </a>
     <a href="{{ route('territorios.index', ['estado' => 'archivo', 'search' => request('search'), 'tipo' => $tipoFiltro ?? 'todos']) }}" class="stat-card {{ request('estado') == 'archivo' ? 'active' : '' }}">
@@ -182,7 +182,7 @@
                         Ver
                     </a>
                     <a href="{{ route('registros.create') }}?territorio_id={{ $territorio->id }}" class="btn-icon">
-                        Registrar
+                        Asignar
                     </a>
                 </div>
             </div>
@@ -216,7 +216,7 @@
                     <a href="{{ $territorios->appends(request()->query())->previousPageUrl() }}" class="btn btn-secondary">Anterior</a>
                 @endif
                 <span class="btn btn-page-current">
-                    Pagina {{ $territorios->currentPage() }} de {{ $territorios->lastPage() }}
+                    Página {{ $territorios->currentPage() }} de {{ $territorios->lastPage() }}
                 </span>
                 @if($territorios->nextPageUrl())
                     <a href="{{ $territorios->appends(request()->query())->nextPageUrl() }}" class="btn btn-secondary">Siguiente</a>
@@ -231,7 +231,7 @@
         <div class="title">No hay territorios disponibles</div>
         <div class="desc">
             @if(($tipoFiltro ?? 'todos') !== 'todos')
-                No hay territorios de tipo "{{ ucfirst($tipoFiltro ?? '') }}" en esta congregacion.
+                No hay territorios de tipo "{{ ucfirst($tipoFiltro ?? '') }}" en esta congregación.
             @else
                 Usa el boton "+ Nuevo Territorio" de arriba para empezar.
             @endif

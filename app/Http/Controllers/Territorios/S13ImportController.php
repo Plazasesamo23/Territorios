@@ -28,6 +28,14 @@ class S13ImportController extends Controller
         $this->pdfParser = $pdfParser;
         $this->matcher = $matcher;
         $this->importService = $importService;
+
+        // Importar crea registros: exige el mismo permiso que ver/generar el S-13
+        $this->middleware(function ($request, $next) {
+            if (!auth()->user() || !auth()->user()->canGenerateS13()) {
+                abort(403, 'No tienes permisos para importar el reporte S-13.');
+            }
+            return $next($request);
+        });
     }
 
     /**

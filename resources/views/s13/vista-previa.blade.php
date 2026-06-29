@@ -140,7 +140,7 @@
     <div class="preview-header">
         <h1>📋 Vista Previa - Reporte S13</h1>
         <p><strong>Año de servicio:</strong> {{ $añoServicio }}-{{ $añoSiguiente }}</p>
-        <p><strong>Total de páginas:</strong> {{ $paginas->count() }} | <strong>Territorios:</strong> 1-214</p>
+        <p><strong>Total de páginas:</strong> {{ $paginas->count() }} | <strong>Territorios:</strong> {{ $totalTerritorios ?? 0 }}</p>
         
         <div style="margin-top: 20px;">
             <a href="{{ route('s13.generar-pdf', ['año' => $añoServicio]) }}" target="_blank" class="btn btn-success">
@@ -163,8 +163,10 @@
             </div>
             
             <div class="page-info">
-                Página {{ $indicePagina + 1 }} de {{ $paginas->count() }} | 
-                Territorios {{ $territoriosPagina->first()->numero }} - {{ $territoriosPagina->last()->numero }}
+                Página {{ $indicePagina + 1 }} de {{ $paginas->count() }}
+                @if($territoriosPagina->count())
+                    | Territorios {{ $territoriosPagina->first()->numero }} - {{ $territoriosPagina->last()->numero }}
+                @endif
             </div>
             
             <table class="table-container">

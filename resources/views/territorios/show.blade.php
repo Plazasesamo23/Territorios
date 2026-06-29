@@ -24,7 +24,7 @@
 <!-- Navegacion de pagina minimalista -->
 <div class="page-nav">
     <div class="page-breadcrumbs">
-        <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+        <a href="{{ route('dashboard') }}" class="breadcrumb-link">Inicio</a>
         <span class="breadcrumb-sep">></span>
         <a href="{{ route('territorios.index', ['tipo' => $tipoActual]) }}" class="breadcrumb-link">Territorios</a>
         <span class="breadcrumb-sep">></span>
@@ -254,10 +254,10 @@
 
 /* Header */
 .detail-header {
-    background: white;
+    background: #1a1d21;
     border-radius: 12px;
     padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -317,7 +317,7 @@
 .title-content h1 {
     font-size: 2rem;
     font-weight: 700;
-    color: #1f2937;
+    color: #f1f3f5;
     margin: 0;
 }
 
@@ -337,8 +337,8 @@
 
 .estado-libre { background: #dcfce7; color: #166534; }
 .estado-activo { background: #e8eef6; color: #2d4266; }
-.estado-atrasado { background: #e9ecef; color: #212529; }
-.estado-archivo { background: #f3f4f6; color: #374151; }
+.estado-atrasado { background: rgba(245,158,11,0.18); color: #fbbf24; }
+.estado-archivo { background: #262626; color: #9ca3af; }
 
 .inactive-badge {
     background: #fef3c7;
@@ -387,19 +387,19 @@
 
 /* Cards */
 .card {
-    background: white;
+    background: #1a1d21;
     border-radius: 12px;
     padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     margin-bottom: 1.5rem;
 }
 
 .card h3 {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #1f2937;
+    color: #f1f3f5;
     margin: 0 0 1rem 0;
-    border-bottom: 2px solid #f3f4f6;
+    border-bottom: 2px solid #2d3339;
     padding-bottom: 0.5rem;
 }
 
@@ -473,7 +473,7 @@
 .field-group label {
     display: block;
     font-weight: 600;
-    color: #374151;
+    color: #e5e7eb;
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
 }
@@ -483,9 +483,11 @@
  .field-group select {
      width: 100%;
      padding: 0.75rem;
-     border: 2px solid #e5e7eb;
+     border: 2px solid #2d3339;
      border-radius: 8px;
      font-size: 0.95rem;
+     background: #151719;
+     color: #f1f3f5;
  }
 
 .field-group input:focus,
@@ -497,14 +499,14 @@
 }
 
 .campo-lectura {
-    background: #f9fafb !important;
-    color: #6b7280 !important;
+    background: #1f2024 !important;
+    color: #9ca3af !important;
     cursor: not-allowed;
 }
 
 .campo-edicion {
-    background: white !important;
-    color: #1f2937 !important;
+    background: #151719 !important;
+    color: #f1f3f5 !important;
     cursor: text;
 }
 
@@ -523,9 +525,9 @@
 .field-value {
     display: block;
     padding: 0.75rem;
-    background: #f9fafb;
+    background: #262626;
     border-radius: 8px;
-    color: #6b7280;
+    color: #cbd5e1;
     font-size: 0.95rem;
 }
 
@@ -552,16 +554,18 @@
 }
 
 .modal-content {
-    background: white;
+    background: #1a1d21;
+    color: #f1f3f5;
     border-radius: 12px;
     padding: 2rem;
     max-width: 400px;
     width: 90%;
     text-align: center;
+    border: 1px solid #2d3339;
 }
 
 .modal-content h3 {
-    color: #495057;
+    color: #f1f3f5;
     margin-bottom: 1rem;
 }
 

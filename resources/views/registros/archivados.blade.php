@@ -6,18 +6,18 @@
 <!-- Navegación minimalista -->
 <nav class="page-nav">
     <div class="page-breadcrumbs">
-        <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+        <a href="{{ route('dashboard') }}" class="breadcrumb-link">Inicio</a>
         <span class="breadcrumb-separator">›</span>
-        <a href="{{ route('registros.index') }}" class="breadcrumb-link">Registros</a>
+        <a href="{{ route('registros.index') }}" class="breadcrumb-link">Asignaciones</a>
         <span class="breadcrumb-separator">›</span>
-        <span class="breadcrumb-current">Archivados</span>
+        <span class="breadcrumb-current">Archivadas</span>
     </div>
     <div class="page-actions">
         <a href="{{ route('registros.index') }}" class="btn btn-primary">
-            ← Registros Activos
+            ← Asignaciones Activas
         </a>
         <a href="{{ route('registros.create') }}" class="btn btn-secondary">
-            ➕ Nuevo Registro
+            ➕ Asignar
         </a>
     </div>
 </nav>
@@ -51,7 +51,7 @@
 
     @if($registrosArchivados->count() > 0)
         <!-- Header de tabla -->
-        <div style="display: grid; grid-template-columns: 120px 120px 1fr 1fr 120px 120px 120px; gap: 1rem; padding: 0.75rem 1rem; background: #f8fafc; border-bottom: 2px solid #e5e7eb; font-weight: 600; font-size: 0.875rem; color: #6b7280;">
+        <div style="display: grid; grid-template-columns: 120px 120px 1fr 1fr 120px 120px 120px; gap: 1rem; padding: 0.75rem 1rem; background: #1a1d21; border-bottom: 2px solid #2d3339; font-weight: 600; font-size: 0.875rem; color: #9ca3af;">
             <div>FECHA SALIDA</div>
             <div>TERRITORIO</div>
             <div>PUBLICADOR</div>
@@ -62,19 +62,19 @@
 
         <!-- Filas de datos -->
         @foreach($registrosArchivados as $index => $registro)
-            <a href="{{ route('registros.show', $registro) }}" 
-               style="display: grid; grid-template-columns: 120px 120px 1fr 1fr 120px 120px 120px; gap: 1rem; padding: 0.75rem 1rem; border-bottom: 1px solid #e5e7eb; text-decoration: none; color: inherit; {{ $index % 2 == 0 ? 'background: #ffffff;' : 'background: #f9fafb;' }}"
-               onmouseover="this.style.backgroundColor='#f1f5f9'"
-               onmouseout="this.style.backgroundColor='{{ $index % 2 == 0 ? '#ffffff' : '#f9fafb' }}'">
+            <a href="{{ route('registros.show', $registro) }}"
+               style="display: grid; grid-template-columns: 120px 120px 1fr 1fr 120px 120px 120px; gap: 1rem; padding: 0.75rem 1rem; border-bottom: 1px solid #2d3339; text-decoration: none; color: inherit; {{ $index % 2 == 0 ? 'background: #171717;' : 'background: #1f2024;' }}"
+               onmouseover="this.style.backgroundColor='#262626'"
+               onmouseout="this.style.backgroundColor='{{ $index % 2 == 0 ? '#171717' : '#1f2024' }}'">
                 
                 <!-- Fecha Salida -->
-                <div style="font-size: 0.875rem; color: #6b7280;">
+                <div style="font-size: 0.875rem; color: #9ca3af;">
                     {{ $registro->fecha_salida->format('d/m/Y') }}
                 </div>
                 
                 <!-- Territorio -->
                 <div style="text-align: center;">
-                    <span style="font-size: 1.5rem; font-weight: 700; color: #6b7280;">{{ $registro->territorio->numero }}</span>
+                    <span style="font-size: 1.5rem; font-weight: 700; color: #e5e7eb;">{{ $registro->territorio->numero }}</span>
                 </div>
                 
                 <!-- Publicador -->

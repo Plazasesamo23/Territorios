@@ -225,12 +225,19 @@ class RegistroController extends Controller
             'notas' => $request->notas
         ]);
 
-        // Preparar WhatsApp automático
-        $this->enviarWhatsAppAsignacion($territorio, $publicador);
+        // Preparar WhatsApp automático (solo si el publicador tiene teléfono)
+        $whatsappListo = $this->enviarWhatsAppAsignacion($territorio, $publicador);
 
-        return redirect()->route('registros.index')
-            ->with('success', "Territorio {$territorio->numero_completo} asignado a {$publicador->nombre}.")
-            ->with('mostrar_whatsapp', true);
+        $redirect = redirect()->route('registros.index');
+
+        if ($whatsappListo) {
+            return $redirect
+                ->with('success', "Territorio {$territorio->numero_completo} asignado a {$publicador->nombre}.")
+                ->with('mostrar_whatsapp', true);
+        }
+
+        return $redirect
+            ->with('success', "Territorio {$territorio->numero_completo} asignado a {$publicador->nombre}. Nota: este publicador no tiene teléfono, así que no se puede enviar por WhatsApp.");
     }
 
     /**
@@ -341,24 +348,28 @@ class RegistroController extends Controller
      */
     private function enviarWhatsAppAsignacion($territorio, $publicador)
     {
+        // Limpiar número de teléfono; si no hay, no se puede preparar WhatsApp
+        $telefono = preg_replace('/[^0-9]/', '', $publicador->telefono ?? '');
+        if ($telefono === '') {
+            return false;
+        }
+
         // Obtener el mensaje personalizado de la congregación
-         $congregacion = $territorio->congregacion;
+        $congregacion = $territorio->congregacion;
         $mensaje = $congregacion->getMensajeWhatsappFormateado($publicador, $territorio);
 
-        // Limpiar número de teléfono y crear URL de WhatsApp
-        $telefono = preg_replace('/[^0-9]/', '', $publicador->telefono);
         $whatsappUrl = "https://wa.me/{$telefono}?text=" . urlencode($mensaje);
-        
+
         // Guardar la URL en sesión para redirigir después
         session(['whatsapp_url' => $whatsappUrl]);
         session(['whatsapp_publicador' => $publicador->nombre_completo]);
         session(['whatsapp_territorio' => $territorio->numero_completo]);
         session(['whatsapp_imagen_url' => $territorio->getImagenUrl()]);
         session(["whatsapp_mensaje" => $mensaje]);
-        
+
         // Registrar el envío
         \Log::info("WhatsApp preparado para {$publicador->telefono}: {$mensaje}");
-        
+
         return true;
     }
 

@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>Iniciar Sesion - Gestor de Congregacion</title>
+    <title>Iniciar Sesión - Gestor de Congregación</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -92,6 +92,13 @@
             color: #3d454d;
         }
 
+        .login-hint {
+            color: #6b7682;
+            font-size: 0.75rem;
+            margin-top: 0.375rem;
+            line-height: 1.4;
+        }
+
         .login-form-group.error input {
             border-color: #ef4444;
         }
@@ -169,8 +176,8 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/>
             </svg>
-            <h1>Gestor de Congregacion</h1>
-            <p>Inicia sesion para continuar</p>
+            <h1>Gestor de Congregación</h1>
+            <p>Inicia sesión para continuar</p>
         </div>
 
         @if ($errors->any())
@@ -185,12 +192,13 @@
             @csrf
 
             <div class="login-form-group {{ $errors->has('name') ? 'error' : '' }}">
-                <label for="name">Congregacion</label>
-                <input type="text" id="name" name="name" value="{{ old('name') }}" placeholder="Ej: Centro Santa Coloma" required autofocus>
+                <label for="name">Usuario</label>
+                <input type="text" id="name" name="name" value="{{ old('name') }}" placeholder="Tu nombre de acceso" required autofocus>
+                <p class="login-hint">El responsable de la congregación te facilita tu usuario y contraseña.</p>
             </div>
 
             <div class="login-form-group {{ $errors->has('password') ? 'error' : '' }}">
-                <label for="password">Contrasena</label>
+                <label for="password">Contraseña</label>
                 <input type="password" id="password" name="password" required>
             </div>
 
@@ -200,7 +208,7 @@
             </div>
 
             <button type="submit" class="login-btn" id="login-btn">
-                Iniciar Sesion
+                Iniciar Sesión
             </button>
         </form>
 
