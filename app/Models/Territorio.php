@@ -306,6 +306,52 @@ class Territorio extends Model
     }
 
     /**
+     * Dias que lleva asignado el territorio ahora mismo (registro activo).
+     * Devuelve null si no esta asignado.
+     */
+    public function diasEnUso(): ?int
+    {
+        $reg = $this->registroActivo();
+        if (!$reg) {
+            return null;
+        }
+        return (int) round(Carbon::parse($reg->fecha_salida)->diffInDays(now()));
+    }
+
+    /**
+     * Limite de dias antes de considerarse pasado de tiempo (segun tipo y congregacion).
+     */
+    public function diasLimiteUso(): int
+    {
+        return $this->getDiasLimiteActivo();
+    }
+
+    /**
+     * Nivel de uso del territorio asignado, para destacarlo visualmente:
+     *  - 'en_uso'     : dentro de plazo
+     *  - 'por_vencer' : se acerca el limite, conviene pedir la devolucion
+     *  - 'pasado'     : se ha pasado del tiempo (atrasado)
+     * Devuelve null si no esta asignado.
+     */
+    public function nivelUso(): ?string
+    {
+        $dias = $this->diasEnUso();
+        if ($dias === null) {
+            return null;
+        }
+        $limite = $this->getDiasLimiteActivo();
+        if ($dias > $limite) {
+            return 'pasado';
+        }
+        // Aviso cuando faltan 15 dias o menos (o el 20% final en limites cortos)
+        $margenAviso = min(15, (int) ceil($limite * 0.2));
+        if ($dias >= $limite - $margenAviso) {
+            return 'por_vencer';
+        }
+        return 'en_uso';
+    }
+
+    /**
      * Obtener la clase CSS para el estado
      */
     public function getClaseEstado()
