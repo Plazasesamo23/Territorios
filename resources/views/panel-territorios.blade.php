@@ -5,13 +5,13 @@
 @section('content')
 
 @php
-    $prioridad = ['pasado' => 0, 'por_vencer' => 1, 'en_uso' => 2];
+    $prioridad = ['pasado' => 0, 'en_uso' => 1];
     $fuera = $territorios->filter(fn($t) => $t->registroActivo())
         ->sortBy(fn($t) => sprintf('%d_%09d', $prioridad[$t->nivelUso()] ?? 3, 999999999 - ($t->diasEnUso() ?? 0)))
         ->values();
     $zonas = $fuera->map(fn($t) => $t->zona)->filter()->unique()->sort()->values();
 
-    $conteoNivel = ['pasado' => 0, 'por_vencer' => 0, 'en_uso' => 0];
+    $conteoNivel = ['pasado' => 0, 'en_uso' => 0];
     foreach ($fuera as $t) {
         $n = $t->nivelUso();
         if (isset($conteoNivel[$n])) $conteoNivel[$n]++;
@@ -48,9 +48,8 @@
                 <!-- Filtro rápido por estado -->
                 <div class="fuera-chips">
                     <button type="button" class="chip activo" data-nivel="">Todos <span class="chip-n">{{ $fuera->count() }}</span></button>
-                    <button type="button" class="chip chip-pasado" data-nivel="pasado">Pasados de tiempo <span class="chip-n">{{ $conteoNivel['pasado'] }}</span></button>
-                    <button type="button" class="chip chip-vencer" data-nivel="por_vencer">Toca pedirlas <span class="chip-n">{{ $conteoNivel['por_vencer'] }}</span></button>
-                    <button type="button" class="chip chip-uso" data-nivel="en_uso">En uso <span class="chip-n">{{ $conteoNivel['en_uso'] }}</span></button>
+                    <button type="button" class="chip chip-pasado" data-nivel="pasado">Vencidos <span class="chip-n">{{ $conteoNivel['pasado'] }}</span></button>
+                    <button type="button" class="chip chip-uso" data-nivel="en_uso">En plazo <span class="chip-n">{{ $conteoNivel['en_uso'] }}</span></button>
                 </div>
 
                 <div class="fuera-filtros">
@@ -79,12 +78,10 @@
                         $nombrePub = trim(($reg->publicador->nombre ?? '') . ' ' . ($reg->publicador->apellidos ?? ''));
                         $nivel = $territorio->nivelUso() ?? 'en_uso';
                         $limite = $territorio->diasLimiteUso();
-                        $faltan = max(0, $limite - $dias);
                         $deMas = max(0, $dias - $limite);
                         $etiquetas = [
-                            'pasado'     => '⚠ Pasado de tiempo',
-                            'por_vencer' => '⏰ Toca pedirla',
-                            'en_uso'     => '✓ En uso',
+                            'pasado' => '⚠ Vencido',
+                            'en_uso' => '✓ En plazo',
                         ];
                     @endphp
                     <div class="fuera-item nivel-{{ $nivel }}"
@@ -102,8 +99,6 @@
                                 {{ $etiquetas[$nivel] }}
                                 @if($nivel === 'pasado')
                                     · {{ $deMas }} {{ $deMas === 1 ? 'día' : 'días' }} de más
-                                @elseif($nivel === 'por_vencer')
-                                    · faltan {{ $faltan }} {{ $faltan === 1 ? 'día' : 'días' }}
                                 @endif
                             </span>
                             <span class="fuera-dias">{{ $dias }} días fuera</span>
@@ -242,7 +237,6 @@
 
 .chip.activo { border-color: #6b8fc7; color: #fff; background: #233047; }
 .chip-pasado.activo { border-color: #dc2626; background: rgba(220,38,38,0.18); color: #fca5a5; }
-.chip-vencer.activo { border-color: #f59e0b; background: rgba(245,158,11,0.18); color: #fcd34d; }
 .chip-uso.activo { border-color: #22c55e; background: rgba(34,197,94,0.15); color: #86efac; }
 
 .fuera-filtros { display: flex; gap: 0.6rem; flex-wrap: wrap; }
@@ -276,9 +270,8 @@
 }
 
 /* Distintivo por nivel (borde izquierdo) */
-.fuera-item.nivel-pasado     { border-left-color: #dc2626; background: rgba(220,38,38,0.06); }
-.fuera-item.nivel-por_vencer { border-left-color: #f59e0b; background: rgba(245,158,11,0.05); }
-.fuera-item.nivel-en_uso     { border-left-color: #22c55e; }
+.fuera-item.nivel-pasado { border-left-color: #dc2626; background: rgba(220,38,38,0.06); }
+.fuera-item.nivel-en_uso { border-left-color: #22c55e; }
 
 .fuera-info { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
 
@@ -297,9 +290,8 @@
     border-radius: 6px;
     margin: 0.1rem 0;
 }
-.nivel-badge-pasado     { background: rgba(220,38,38,0.18); color: #fca5a5; }
-.nivel-badge-por_vencer { background: rgba(245,158,11,0.18); color: #fcd34d; }
-.nivel-badge-en_uso     { background: rgba(34,197,94,0.15); color: #86efac; }
+.nivel-badge-pasado { background: rgba(220,38,38,0.18); color: #fca5a5; }
+.nivel-badge-en_uso { background: rgba(34,197,94,0.15); color: #86efac; }
 
 .btn-devolver-grande {
     flex-shrink: 0;

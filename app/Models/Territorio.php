@@ -328,9 +328,8 @@ class Territorio extends Model
 
     /**
      * Nivel de uso del territorio asignado, para destacarlo visualmente:
-     *  - 'en_uso'     : dentro de plazo
-     *  - 'por_vencer' : se acerca el limite, conviene pedir la devolucion
-     *  - 'pasado'     : se ha pasado del tiempo (atrasado)
+     *  - 'en_uso' : dentro de plazo
+     *  - 'pasado' : se ha pasado del tiempo (vencido)
      * Devuelve null si no esta asignado.
      */
     public function nivelUso(): ?string
@@ -339,16 +338,7 @@ class Territorio extends Model
         if ($dias === null) {
             return null;
         }
-        $limite = $this->getDiasLimiteActivo();
-        if ($dias > $limite) {
-            return 'pasado';
-        }
-        // Aviso cuando faltan 15 dias o menos (o el 20% final en limites cortos)
-        $margenAviso = min(15, (int) ceil($limite * 0.2));
-        if ($dias >= $limite - $margenAviso) {
-            return 'por_vencer';
-        }
-        return 'en_uso';
+        return $dias > $this->getDiasLimiteActivo() ? 'pasado' : 'en_uso';
     }
 
     /**
