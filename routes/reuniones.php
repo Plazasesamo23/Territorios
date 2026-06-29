@@ -9,6 +9,7 @@ Route::middleware(['auth', 'congregacion'])->prefix('reuniones')->group(function
     Route::get('/', [ReunionController::class, 'index'])->name('reuniones.index');
     Route::get('/crear', [ReunionController::class, 'create'])->name('reuniones.create');
     Route::post('/', [ReunionController::class, 'store'])->name('reuniones.store');
+    Route::post('/agregar-proxima', [ReunionController::class, 'agregarProxima'])->name('reuniones.agregar-proxima');
 
     // Fin de semana
     Route::get('/fin-de-semana', [ReunionController::class, 'finSemana'])->name('reuniones.finsemana');
@@ -28,6 +29,9 @@ Route::middleware(['auth', 'congregacion'])->prefix('reuniones')->group(function
     Route::post('/generos', [ReunionController::class, 'guardarGeneros'])->name('reuniones.generos.guardar');
 
     // CRUD programas VyM
+    // Mes completo imprimible (debe ir antes del slug {reunione})
+    Route::get('/mes/{mes}', [ReunionController::class, 'showMes'])->where('mes', '\d{4}-\d{2}')->name('reuniones.mes');
+
     Route::get('/{reunione}', [ReunionController::class, 'show'])->name('reuniones.show');
     Route::get('/{reunione}/editar', [ReunionController::class, 'edit'])->name('reuniones.edit');
     Route::put('/{reunione}', [ReunionController::class, 'update'])->name('reuniones.update');
@@ -35,9 +39,11 @@ Route::middleware(['auth', 'congregacion'])->prefix('reuniones')->group(function
 
     // Acciones especiales
     Route::post('/{reunione}/auto-asignar', [ReunionController::class, 'autoAsignar'])->name('reuniones.auto-asignar');
+    Route::post('/{reunione}/importar-desde-listado', [ReunionController::class, 'importarDesdeListado'])->name('reuniones.importar-desde-listado');
     Route::post('/{reunione}/importar-titulos', [ReunionController::class, 'importarTitulos'])->name('reuniones.importar-titulos');
     Route::get('/{reunione}/importar-titulos', [ReunionController::class, 'edit'])->name('reuniones.importar-titulos.get');
     Route::post('/{reunione}/publicar', [ReunionController::class, 'publicar'])->name('reuniones.publicar');
+    Route::post('/{reunione}/despublicar', [ReunionController::class, 'despublicar'])->name('reuniones.despublicar');
     Route::get('/{reunione}/recomendar/{tipoParte}', [ReunionController::class, 'recomendar'])->name('reuniones.recomendar');
 
     // Emergencia

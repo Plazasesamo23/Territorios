@@ -1654,6 +1654,10 @@ a.list-item:hover .arrow {
 .inicio-card-orange:hover { border-color: #f97316; }
 .inicio-card-orange .inicio-card-icon { color: #f97316; background: rgba(249, 115, 22, 0.1); }
 
+.inicio-card-purple { border-left-color: #a855f7; }
+.inicio-card-purple:hover { border-color: #a855f7; }
+.inicio-card-purple .inicio-card-icon { color: #a855f7; background: rgba(168, 85, 247, 0.1); }
+
 .inicio-card-icon {
   flex-shrink: 0;
   width: 48px;

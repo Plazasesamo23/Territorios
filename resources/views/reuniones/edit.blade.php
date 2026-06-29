@@ -18,15 +18,28 @@
             </p>
         </div>
         <div class="flex gap-1" style="flex-wrap: wrap;">
-            <button type="button" id="btn-importar-jw" class="btn btn-secondary" onclick="importarDesdeJw()">Importar de jw.org</button>
+            <button type="button" id="btn-importar-jw" class="btn btn-secondary" onclick="importarDesdeJw()">Traer titulos de jw.org</button>
             <form action="{{ route('reuniones.auto-asignar', $programa) }}" method="POST" style="display:inline;">
                 @csrf
-                <button type="submit" class="btn btn-teal" onclick="return confirm('Asignar automaticamente las partes que estan vacias. Las que ya tienen publicador no se tocan. Continuar?')">Auto-asignar</button>
+                <button type="submit" class="btn btn-teal" onclick="return confirm('Rellenar automaticamente las partes que estan vacias. Las que ya tienen publicador no se tocan. Continuar?')">Rellenar huecos</button>
             </form>
-            <a href="{{ route('reuniones.show', $programa) }}" class="btn btn-secondary">Vista imprimible</a>
+            <a href="{{ route('reuniones.show', $programa) }}" class="btn btn-secondary">Ver para imprimir</a>
             <a href="{{ route('reuniones.index') }}" class="btn btn-ghost">Volver</a>
         </div>
     </div>
+
+    @if($programa->estado === 'publicado')
+    <div class="alert-info-tipo mb-2" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+        <span style="display: flex; align-items: center; gap: 0.5rem;">
+            <span class="alert-icon">i</span>
+            <span>Esta semana ya esta <strong>publicada</strong>. Puedes editar lo que necesites: los cambios se guardan al instante.</span>
+        </span>
+        <form action="{{ route('reuniones.despublicar', $programa) }}" method="POST" style="margin:0;">
+            @csrf
+            <button type="submit" class="btn btn-secondary" onclick="return confirm('Volver la semana a borrador para editarla con calma?')">↻ Volver a borrador</button>
+        </form>
+    </div>
+    @endif
 
     @if($sinGenero > 0)
     <div class="alert-info-tipo mb-2">
@@ -284,7 +297,7 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Asignado</label>
-                        @php $__autIds = $autPorTipo['discurso_vida'] ?? []; @endphp
+                        @php $__autIds = $autPorTipo[$parte->tipo] ?? []; @endphp
                         <select name="partes[{{ $parte->id }}][publicador_id]" class="form-input">
                             <option value="">-- Sin asignar --</option>
                             @foreach($publicadores->filter(fn($p) => in_array($p->id, $__autIds)) as $p)
@@ -486,7 +499,7 @@ async function importarDesdeJw() {
     const fecha = new Date('{{ $programa->fecha_semana->format("Y-m-d") }}');
     const url = `https://wol.jw.org/es/wol/dt/r4/lp-s/${fecha.getFullYear()}/${fecha.getMonth()+1}/${fecha.getDate()}`;
 
-    if (!confirm('Importar titulos de jw.org? Se reemplazaran las partes actuales.')) return;
+    if (!confirm('Traer titulos de jw.org? Se reemplazaran las partes actuales (no se pierden las personas asignadas).')) return;
 
     btn.textContent = 'Importando...';
     btn.disabled = true;
@@ -524,7 +537,7 @@ async function importarDesdeJw() {
     } catch (e) {
         alert('Error al importar: ' + e.message);
     } finally {
-        btn.textContent = 'Importar de jw.org';
+        btn.textContent = 'Traer titulos de jw.org';
         btn.disabled = false;
     }
 }
@@ -615,6 +628,7 @@ function clasificarTipo(seccion, titulo, duracion) {
 
     if (seccion === 'vida_cristiana') {
         if (/estudio b[ií]blico de la congregaci/i.test(titulo)) return null;
+        if (/necesidades.*congregaci/i.test(titulo)) return 'necesidades';
         return 'discurso_vida';
     }
 

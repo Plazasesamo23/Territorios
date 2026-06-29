@@ -64,6 +64,7 @@ class PublicadorController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'apellidos' => 'nullable|string|max:255',
+            'genero' => 'required|in:M,F',
             'telefono' => 'required|string|max:20',
             'notas' => 'nullable|string|max:1000',
             'activo' => 'boolean',
@@ -71,25 +72,59 @@ class PublicadorController extends Controller
             'es_anciano' => 'boolean',
             'es_siervo_ministerial' => 'boolean',
             'es_precursor' => 'boolean',
+            'excluido_reuniones' => 'boolean',
             'aprobado_ppoc' => 'boolean',
             'grupo_predicacion_id' => 'nullable|exists:grupos_predicacion,id'
         ]);
 
-        Publicador::create([
+        $esAnciano = $request->boolean('es_anciano');
+        $esSm = $request->boolean('es_siervo_ministerial');
+        $nombramientos = [];
+        foreach (array_keys(Publicador::NOMBRAMIENTOS_CUERPO) as $campo) {
+            $nombramientos[$campo] = $esAnciano ? $request->boolean($campo) : false;
+        }
+        $cargosSm = [];
+        foreach (Publicador::CARGOS_SM_CATEGORIAS as $cat) {
+            $cargosSm[$cat['titular']] = $esSm ? $request->boolean($cat['titular']) : false;
+            $cargosSm[$cat['aux']] = $esSm ? $request->boolean($cat['aux']) : false;
+        }
+
+        $publicador = Publicador::create(array_merge([
             'nombre' => $request->nombre,
             'apellidos' => $request->apellidos,
+            'genero' => $request->genero,
             'telefono' => $request->telefono,
             'notas' => $request->notas,
             'activo' => $request->boolean('activo', true),
             'es_menor' => $request->boolean('es_menor'),
-            'es_anciano' => $request->boolean('es_anciano'),
-            'es_siervo_ministerial' => $request->boolean('es_siervo_ministerial'),
+            'es_anciano' => $esAnciano,
+            'es_siervo_ministerial' => $esSm,
             'es_precursor' => $request->boolean('es_precursor'),
+            'excluido_reuniones' => $request->boolean('excluido_reuniones'),
             'grupo_predicacion_id' => $request->grupo_predicacion_id
-        ]);
+        ], $nombramientos, $cargosSm));
+
+        // Asegurar unicidad de los titulares SM en la congregacion
+        $this->aplicarUnicidadTitularesSm($publicador);
 
         return redirect()->route('publicadores.index')
             ->with('success', 'Publicador creado exitosamente.');
+    }
+
+    /**
+     * Si el publicador esta marcado como titular de algun cargo SM (es_siervo_X),
+     * quitar ese mismo titular a cualquier otro publicador de la congregacion.
+     */
+    private function aplicarUnicidadTitularesSm(Publicador $publicador): void
+    {
+        foreach (array_keys(Publicador::CARGOS_SM_TITULARES) as $campo) {
+            if ($publicador->{$campo}) {
+                Publicador::where('congregacion_id', $publicador->congregacion_id)
+                    ->where('id', '!=', $publicador->id)
+                    ->where($campo, true)
+                    ->update([$campo => false]);
+            }
+        }
     }
 
     /**
@@ -357,19 +392,33 @@ class PublicadorController extends Controller
             'grupo_predicacion_id' => 'nullable|exists:grupos_predicacion,id'
         ]);
 
-        $publicador->update([
+        $esAnciano = $request->boolean('es_anciano');
+        $esSm = $request->boolean('es_siervo_ministerial');
+        $nombramientos = [];
+        foreach (array_keys(Publicador::NOMBRAMIENTOS_CUERPO) as $campo) {
+            $nombramientos[$campo] = $esAnciano ? $request->boolean($campo) : false;
+        }
+        $cargosSm = [];
+        foreach (Publicador::CARGOS_SM_CATEGORIAS as $cat) {
+            $cargosSm[$cat['titular']] = $esSm ? $request->boolean($cat['titular']) : false;
+            $cargosSm[$cat['aux']] = $esSm ? $request->boolean($cat['aux']) : false;
+        }
+
+        $publicador->update(array_merge([
             'nombre' => $request->nombre,
             'apellidos' => $request->apellidos,
             'telefono' => $request->telefono,
             'notas' => $request->notas,
             'activo' => $request->boolean('activo'),
             'es_menor' => $request->boolean('es_menor'),
-            'es_anciano' => $request->boolean('es_anciano'),
-            'es_siervo_ministerial' => $request->boolean('es_siervo_ministerial'),
+            'es_anciano' => $esAnciano,
+            'es_siervo_ministerial' => $esSm,
             'es_precursor' => $request->boolean('es_precursor'),
             'aprobado_ppoc' => $request->boolean('aprobado_ppoc'),
             'grupo_predicacion_id' => $request->grupo_predicacion_id
-        ]);
+        ], $nombramientos, $cargosSm));
+
+        $this->aplicarUnicidadTitularesSm($publicador);
 
         return redirect()->route('publicadores.show', $publicador)
             ->with('success', 'Publicador actualizado exitosamente.');

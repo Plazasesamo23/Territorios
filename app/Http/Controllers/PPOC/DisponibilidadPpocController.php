@@ -50,7 +50,11 @@ class DisponibilidadPpocController extends Controller
             ->orderBy('apellidos')
             ->get();
 
-        return view('ppoc.disponibilidad.form', compact('congregacion', 'turnos', 'publicadores'));
+        return response()
+            ->view('ppoc.disponibilidad.form', compact('congregacion', 'turnos', 'publicadores'))
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     /**
@@ -99,7 +103,7 @@ class DisponibilidadPpocController extends Controller
             'publicador_id.required' => 'Selecciona tu nombre.',
         ]);
 
-        $publicador = Publicador::findOrFail($request->publicador_id);
+        $publicador = Publicador::forCongregacion($congregacion->id)->findOrFail($request->publicador_id);
 
         // Verificar que el publicador pertenece a esta congregacion
         if ($publicador->congregacion_id !== $congregacion->id) {
@@ -107,7 +111,7 @@ class DisponibilidadPpocController extends Controller
         }
 
         // Eliminar disponibilidades anteriores de este publicador para esta congregacion
-        $turnoIds = Turno::where('congregacion_id', $congregacion->id)->pluck('id');
+        $turnoIds = Turno::forCongregacion($congregacion->id)->pluck('id');
         DisponibilidadPpoc::where('publicador_id', $publicador->id)
             ->whereIn('turno_id', $turnoIds)
             ->delete();
@@ -116,8 +120,8 @@ class DisponibilidadPpocController extends Controller
         if ($request->turnos && count($request->turnos) > 0) {
             foreach ($request->turnos as $turnoId) {
                 // Verificar que el turno pertenece a esta congregacion
-                $turno = Turno::where('id', $turnoId)
-                    ->where('congregacion_id', $congregacion->id)
+                $turno = Turno::forCongregacion($congregacion->id)
+                    ->where('id', $turnoId)
                     ->first();
 
                 if ($turno) {

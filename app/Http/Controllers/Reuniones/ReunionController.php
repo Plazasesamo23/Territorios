@@ -14,46 +14,100 @@ use Carbon\Carbon;
 
 class ReunionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $congregacionId = session('congregacion_activa_id');
-
-        // Auto-generar las proximas 4 semanas si no existen
-        $this->autoGenerarSemanas($congregacionId, 4);
-
-        // Semana actual primero, futuras despues, pasadas al final
         $lunesActual = Carbon::now()->startOfWeek(Carbon::MONDAY);
+        $incluirPasadas = $request->boolean('pasadas');
 
-        $programas = ReunionPrograma::where('congregacion_id', $congregacionId)
+        $query = ReunionPrograma::where('congregacion_id', $congregacionId);
+        if (!$incluirPasadas) {
+            $query->where('fecha_semana', '>=', $lunesActual);
+        }
+
+        $programas = $query
             ->orderByRaw("CASE WHEN fecha_semana = ? THEN 0 WHEN fecha_semana > ? THEN 1 ELSE 2 END", [$lunesActual, $lunesActual])
             ->orderBy('fecha_semana')
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
 
-        return view('reuniones.index', compact('programas'));
+        $totalPasadas = ReunionPrograma::where('congregacion_id', $congregacionId)
+            ->where('fecha_semana', '<', $lunesActual)
+            ->count();
+
+        // Proxima semana disponible (para el boton "Añadir proxima semana")
+        $ultimoPrograma = ReunionPrograma::where('congregacion_id', $congregacionId)
+            ->orderByDesc('fecha_semana')
+            ->first();
+
+        if ($ultimoPrograma && $ultimoPrograma->fecha_semana->gte($lunesActual)) {
+            $proximoLunes = $ultimoPrograma->fecha_semana->copy()->addWeek();
+        } else {
+            $proximoLunes = $lunesActual->copy();
+        }
+
+        return view('reuniones.index', compact('programas', 'proximoLunes', 'incluirPasadas', 'totalPasadas'));
     }
 
-    private function autoGenerarSemanas(int $congregacionId, int $semanas): void
+    /**
+     * Importa titulos de jw.org para un programa ya creado (desde el listado).
+     * Usa el ImportadorVymService backend. Si falla, deja el programa como estaba.
+     */
+    public function importarDesdeListado(ReunionPrograma $reunione)
     {
-        $lunes = Carbon::now()->startOfWeek(Carbon::MONDAY);
+        $programa = $reunione;
+        $congregacionId = session('congregacion_activa_id');
 
-        for ($i = 0; $i < $semanas; $i++) {
-            $fecha = $lunes->copy()->addWeeks($i);
-
-            $existe = ReunionPrograma::where('congregacion_id', $congregacionId)
-                ->where('fecha_semana', $fecha)
-                ->exists();
-
-            if (!$existe) {
-                $programa = ReunionPrograma::create([
-                    'congregacion_id' => $congregacionId,
-                    'fecha_semana' => $fecha,
-                    'estado' => 'borrador',
-                ]);
-
-                // Partes estandar como placeholder - el usuario importa de jw.org desde el editor
-                AsignacionReunionService::generarPartesEstandar($programa);
-            }
+        if ($programa->congregacion_id !== (int)$congregacionId) {
+            abort(403);
         }
+
+        try {
+            $importador = new ImportadorVymService();
+            $resultado = $importador->importar($programa);
+            if (!empty($resultado['success'])) {
+                $fechaStr = $programa->fecha_semana->translatedFormat('d M');
+                return redirect()->route('reuniones.index')
+                    ->with('success', "Titulos de la semana del {$fechaStr} importados de jw.org.");
+            }
+            $msg = $resultado['error'] ?? 'No se pudieron importar los titulos.';
+            return redirect()->route('reuniones.index')->with('error', $msg);
+        } catch (\Throwable $e) {
+            return redirect()->route('reuniones.index')
+                ->with('error', 'No se pudo conectar con jw.org. Intentalo en unos minutos.');
+        }
+    }
+
+    /**
+     * Crea la siguiente semana en blanco (sin importar de jw.org) y abre el editor.
+     * Pensado para un boton "+ Añadir proxima semana" en el indice.
+     */
+    public function agregarProxima(Request $request)
+    {
+        $congregacionId = session('congregacion_activa_id');
+        $lunesActual = Carbon::now()->startOfWeek(Carbon::MONDAY);
+
+        $ultimoPrograma = ReunionPrograma::where('congregacion_id', $congregacionId)
+            ->orderByDesc('fecha_semana')
+            ->first();
+
+        if ($ultimoPrograma && $ultimoPrograma->fecha_semana->gte($lunesActual)) {
+            $fecha = $ultimoPrograma->fecha_semana->copy()->addWeek();
+        } else {
+            $fecha = $lunesActual->copy();
+        }
+
+        $programa = ReunionPrograma::create([
+            'congregacion_id' => $congregacionId,
+            'fecha_semana' => $fecha,
+            'estado' => 'borrador',
+        ]);
+
+        AsignacionReunionService::generarPartesEstandar($programa);
+
+        $fechaStr = $fecha->translatedFormat('d M Y');
+        return redirect()->route('reuniones.edit', $programa)
+            ->with('success', "Semana del {$fechaStr} creada. Pulsa «Traer titulos de jw.org» cuando quieras.");
     }
 
     public function create()
@@ -81,14 +135,17 @@ class ReunionController extends Controller
         $request->validate([
             'fecha_semana' => 'required|date',
             'cantidad_semanas' => 'required|integer|min:1|max:52',
+            'importar_titulos' => 'nullable|boolean',
         ]);
 
         $congregacionId = session('congregacion_activa_id');
         $fechaInicio = Carbon::parse($request->fecha_semana)->startOfWeek(Carbon::MONDAY);
-        $cantidad = $request->cantidad_semanas;
+        $cantidad = (int) $request->cantidad_semanas;
+        $importarTitulos = $request->boolean('importar_titulos');
         $creados = 0;
         $importados = 0;
-        $importador = new ImportadorVymService();
+        $saltados = 0;
+        $importador = $importarTitulos ? new ImportadorVymService() : null;
 
         for ($i = 0; $i < $cantidad; $i++) {
             $fecha = $fechaInicio->copy()->addWeeks($i);
@@ -97,33 +154,54 @@ class ReunionController extends Controller
                 ->where('fecha_semana', $fecha)
                 ->exists();
 
-            if (!$existe) {
-                $programa = ReunionPrograma::create([
-                    'congregacion_id' => $congregacionId,
-                    'fecha_semana' => $fecha,
-                    'estado' => 'borrador',
-                ]);
-
-                // Intentar importar titulos de jw.org automaticamente
-                $resultado = $importador->importar($programa);
-                if (!empty($resultado['success'])) {
-                    $importados++;
-                } else {
-                    // Fallback: partes estandar sin titulos
-                    AsignacionReunionService::generarPartesEstandar($programa);
-                }
-                $creados++;
+            if ($existe) {
+                $saltados++;
+                continue;
             }
+
+            $programa = ReunionPrograma::create([
+                'congregacion_id' => $congregacionId,
+                'fecha_semana' => $fecha,
+                'estado' => 'borrador',
+            ]);
+
+            $importadoOk = false;
+            if ($importador) {
+                try {
+                    $resultado = $importador->importar($programa);
+                    if (!empty($resultado['success'])) {
+                        $importadoOk = true;
+                        $importados++;
+                    }
+                } catch (\Throwable $e) {
+                    // Silencioso: cae a partes estandar abajo
+                }
+            }
+
+            if (!$importadoOk) {
+                AsignacionReunionService::generarPartesEstandar($programa);
+            }
+
+            $creados++;
         }
 
         if ($creados === 0) {
-            return redirect()->route('reuniones.index')->with('error', 'Los programas para esas semanas ya existen.');
+            $msg = $saltados > 0
+                ? "Esas {$saltados} semanas ya existian. Ve al listado y edítalas si quieres."
+                : 'No se creo ninguna semana.';
+            return redirect()->route('reuniones.index')->with('error', $msg);
         }
 
-        $msg = "Se crearon {$creados} programas.";
+        $palabra = $creados === 1 ? 'semana creada' : 'semanas creadas';
+        $msg = "{$creados} {$palabra}";
         if ($importados > 0) {
-            $msg .= " {$importados} con titulos importados de jw.org.";
+            $plu = $importados === 1 ? 'con titulos de jw.org' : 'con titulos de jw.org';
+            $msg .= " ({$importados} {$plu})";
         }
+        if ($saltados > 0) {
+            $msg .= ". {$saltados} ya existian y se omitieron";
+        }
+        $msg .= '.';
 
         return redirect()->route('reuniones.index')->with('success', $msg);
     }
@@ -232,6 +310,39 @@ class ReunionController extends Controller
         return view('reuniones.show', compact('programa'));
     }
 
+    /**
+     * Vista imprimible con todas las semanas de un mes.
+     * $mes en formato YYYY-MM (ej 2026-04).
+     */
+    public function showMes(string $mes)
+    {
+        if (!preg_match('/^\d{4}-\d{2}$/', $mes)) {
+            abort(404);
+        }
+
+        $congregacionId = session('congregacion_activa_id');
+        $inicio = Carbon::createFromFormat('Y-m-d', $mes . '-01')->startOfMonth();
+        $fin = $inicio->copy()->endOfMonth();
+
+        $programas = ReunionPrograma::where('congregacion_id', $congregacionId)
+            ->whereBetween('fecha_semana', [$inicio, $fin])
+            ->with('partes.publicador', 'partes.ayudante', 'presidente', 'oracionInicio', 'oracionFinal', 'conductorEstudio', 'lectorEstudio')
+            ->orderBy('fecha_semana')
+            ->get();
+
+        if ($programas->isEmpty()) {
+            return redirect()->route('reuniones.index')
+                ->with('error', 'No hay semanas creadas para ' . ucfirst($inicio->translatedFormat('F Y')) . '.');
+        }
+
+        return view('reuniones.mes', [
+            'programas' => $programas,
+            'mesInicio' => $inicio,
+            'mesNombre' => ucfirst($inicio->translatedFormat('F Y')),
+            'mesYYYYMM' => $mes,
+        ]);
+    }
+
     public function autoAsignar(ReunionPrograma $reunione)
     {
         $programa = $reunione;
@@ -319,6 +430,22 @@ class ReunionController extends Controller
         $service->guardarHistorial($programa);
 
         return redirect()->route('reuniones.index')->with('success', 'Programa publicado correctamente.');
+    }
+
+    public function despublicar(ReunionPrograma $reunione)
+    {
+        $programa = $reunione;
+        $congregacionId = session('congregacion_activa_id');
+
+        if ($programa->congregacion_id !== (int)$congregacionId) {
+            abort(403);
+        }
+
+        $programa->update(['estado' => 'borrador']);
+
+        $fechaStr = $programa->fecha_semana->translatedFormat('d M');
+        return redirect()->route('reuniones.edit', $programa)
+            ->with('success', "Semana del {$fechaStr} vuelta a borrador. Haz los cambios y publicala de nuevo cuando quieras.");
     }
 
     public function destroy(ReunionPrograma $reunione)
@@ -560,7 +687,8 @@ class ReunionController extends Controller
      */
     private static array $tiposParte = [
         'presidente', 'oracion', 'tesoros', 'perlas', 'lectura',
-        'maestros', 'discurso_maestros', 'discurso_vida', 'conductor_estudio', 'lector_estudio',
+        'maestros', 'discurso_maestros', 'discurso_vida', 'necesidades',
+        'conductor_estudio', 'lector_estudio',
         'voluntario_emergencia',
     ];
 
@@ -656,6 +784,7 @@ class ReunionController extends Controller
             $tipos[] = 'perlas';
             $tipos[] = 'discurso_vida';
         }
+        if ($pub->esHermano() && $pub->es_anciano) $tipos[] = 'necesidades';
         if ($pub->esHermano()) $tipos[] = 'lectura';
         if ($pub->esHermano()) $tipos[] = 'discurso_maestros';
         $tipos[] = 'maestros';
@@ -696,6 +825,7 @@ class ReunionController extends Controller
                 $tipos[] = 'perlas';
                 $tipos[] = 'discurso_vida';
             }
+            if ($pub->esHermano() && $pub->es_anciano) $tipos[] = 'necesidades';
             if ($pub->esHermano()) $tipos[] = 'lectura';
             if ($pub->esHermano()) $tipos[] = 'discurso_maestros';
             $tipos[] = 'maestros';

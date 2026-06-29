@@ -34,6 +34,12 @@
             @if($publicador->es_siervo_ministerial)
                 <span class="badge badge-sm">Siervo Ministerial</span>
             @endif
+            @foreach($publicador->nombramientos_cuerpo_activos as $etiqueta)
+                <span class="badge badge-nombramiento">{{ $etiqueta }}</span>
+            @endforeach
+            @foreach($publicador->cargos_sm_activos as $etiqueta)
+                <span class="badge badge-cargo-sm">{{ $etiqueta }}</span>
+            @endforeach
             @if($publicador->es_menor)
                 <span class="badge badge-menor">Menor</span>
             @endif
@@ -338,15 +344,71 @@
             <label class="form-section-label">Nombramientos</label>
             <div class="form-checkboxes">
                 <label class="checkbox-label checkbox-anciano">
-                    <input type="checkbox" name="es_anciano" value="1" {{ $publicador->es_anciano ? 'checked' : '' }}>
+                    <input type="checkbox" name="es_anciano" id="edit-anciano" value="1" {{ $publicador->es_anciano ? 'checked' : '' }} onchange="onEditAncianoSm(this, 'sm')">
                     <span>Anciano</span>
                 </label>
                 <label class="checkbox-label checkbox-sm">
-                    <input type="checkbox" name="es_siervo_ministerial" value="1" {{ $publicador->es_siervo_ministerial ? 'checked' : '' }}>
+                    <input type="checkbox" name="es_siervo_ministerial" id="edit-sm" value="1" {{ $publicador->es_siervo_ministerial ? 'checked' : '' }} onchange="onEditAncianoSm(this, 'anciano')">
                     <span>Siervo Ministerial</span>
                 </label>
             </div>
         </div>
+
+        <div id="edit-bloque-nombramientos" class="form-checkboxes-section nombramientos-cuerpo-section" style="{{ $publicador->es_anciano ? '' : 'display:none' }}">
+            <label class="form-section-label">Nombramientos del cuerpo</label>
+            <div class="form-checkboxes">
+                @foreach(\App\Models\Publicador::NOMBRAMIENTOS_CUERPO as $campo => $etiqueta)
+                    <label class="checkbox-label checkbox-nombramiento">
+                        <input type="checkbox" name="{{ $campo }}" value="1" {{ $publicador->{$campo} ? 'checked' : '' }}>
+                        <span>{{ $etiqueta }}</span>
+                    </label>
+                @endforeach
+            </div>
+        </div>
+
+        <div id="edit-bloque-cargos-sm" class="form-checkboxes-section cargos-sm-edit-section" style="{{ $publicador->es_siervo_ministerial ? '' : 'display:none' }}">
+            <label class="form-section-label">Cargos del siervo ministerial</label>
+            <table class="cargos-sm-tabla-edit">
+                <thead>
+                    <tr><th>Categoría</th><th>Titular</th><th>Auxiliar</th></tr>
+                </thead>
+                <tbody>
+                    @foreach(\App\Models\Publicador::CARGOS_SM_CATEGORIAS as $cat)
+                        <tr>
+                            <td>{{ $cat['etiqueta'] }}</td>
+                            <td><input type="checkbox" name="{{ $cat['titular'] }}" value="1" {{ $publicador->{$cat['titular']} ? 'checked' : '' }}></td>
+                            <td><input type="checkbox" name="{{ $cat['aux'] }}" value="1" {{ $publicador->{$cat['aux']} ? 'checked' : '' }}></td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            <p class="cargos-sm-hint-edit">Solo un publicador puede ser titular de cada categoría — al guardar se le retirará al anterior.</p>
+        </div>
+
+        <script>
+        function onEditAncianoSm(elem, otro) {
+            const anciano = document.getElementById('edit-anciano');
+            const sm = document.getElementById('edit-sm');
+            const bloqueAnc = document.getElementById('edit-bloque-nombramientos');
+            const bloqueSm = document.getElementById('edit-bloque-cargos-sm');
+            if (elem.checked) {
+                if (otro === 'sm') sm.checked = false;
+                else if (otro === 'anciano') anciano.checked = false;
+            }
+            if (anciano.checked) {
+                bloqueAnc.style.display = '';
+            } else {
+                bloqueAnc.style.display = 'none';
+                bloqueAnc.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+            }
+            if (sm.checked) {
+                bloqueSm.style.display = '';
+            } else {
+                bloqueSm.style.display = 'none';
+                bloqueSm.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+            }
+        }
+        </script>
 
         <div class="form-checkboxes-section">
             <label class="form-section-label">Privilegios</label>
@@ -476,6 +538,56 @@ function toggleEditMode() {
 .badge-sup { background: rgba(139,92,246,0.9); color: white; }
 .badge-aux { background: rgba(6,182,212,0.9); color: white; }
 .badge-ppoc { background: rgba(245,158,11,0.9); color: white; }
+.badge-nombramiento { background: rgba(168,85,247,0.85); color: white; }
+.badge-cargo-sm { background: rgba(59,130,246,0.85); color: white; }
+
+.nombramientos-cuerpo-section {
+    background: rgba(168,85,247,0.06);
+    border: 1px solid rgba(168,85,247,0.18);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-top: 0.75rem;
+}
+.checkbox-nombramiento input:checked + span { color: #c98ee3; font-weight: 600; }
+
+.cargos-sm-edit-section {
+    background: rgba(59,130,246,0.06);
+    border: 1px solid rgba(59,130,246,0.18);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-top: 0.75rem;
+}
+.cargos-sm-tabla-edit {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+    margin-top: 0.5rem;
+}
+.cargos-sm-tabla-edit th, .cargos-sm-tabla-edit td {
+    padding: 0.375rem 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    text-align: left;
+}
+.cargos-sm-tabla-edit th {
+    color: rgba(241,243,245,0.55);
+    font-weight: 500;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.cargos-sm-tabla-edit th:nth-child(2),
+.cargos-sm-tabla-edit th:nth-child(3),
+.cargos-sm-tabla-edit td:nth-child(2),
+.cargos-sm-tabla-edit td:nth-child(3) {
+    text-align: center;
+    width: 80px;
+}
+.cargos-sm-hint-edit {
+    font-size: 0.6875rem;
+    color: rgba(241,243,245,0.5);
+    margin: 0.5rem 0 0 0;
+    font-style: italic;
+}
 
 .pub-contact {
     color: rgba(255,255,255,0.9);

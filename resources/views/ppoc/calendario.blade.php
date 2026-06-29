@@ -195,6 +195,81 @@
                     @endforeach
                 </div>
             </div>
+
+            <!-- Vista agenda para movil -->
+            <div class="mobile-agenda">
+                {{-- Mini calendario horizontal --}}
+                <div class="mini-cal-strip">
+                    <div class="mini-cal-scroll">
+                        @php
+                            $diasCortos = ['L','M','X','J','V','S','D'];
+                        @endphp
+                        @foreach($semanas as $semana)
+                            @foreach($semana as $idx => $dia)
+                                @if($dia !== null && $dia['esMesActual'])
+                                    @php $tieneTurnos = isset($dia['turnos']) && count($dia['turnos']) > 0; @endphp
+                                    <a href="{{ $tieneTurnos ? '#agenda-dia-'.$dia['numero'] : 'javascript:void(0)' }}"
+                                       class="mini-day {{ $dia['esHoy'] ? 'mini-today' : '' }} {{ $tieneTurnos ? 'has-turnos' : '' }}">
+                                        <span class="mini-weekday">{{ $diasCortos[$idx] ?? '' }}</span>
+                                        <span class="mini-number">{{ $dia['numero'] }}</span>
+                                    </a>
+                                @endif
+                            @endforeach
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- Lista agenda: solo dias con turnos --}}
+                @php $nombresDias = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo']; @endphp
+                @foreach($semanas as $semana)
+                    @foreach($semana as $idx => $dia)
+                        @if($dia !== null && isset($dia['turnos']) && count($dia['turnos']) > 0)
+                            <div class="agenda-day-card {{ $dia['esHoy'] ? 'agenda-today' : '' }}" id="agenda-dia-{{ $dia['numero'] }}">
+                                <div class="agenda-day-header">
+                                    <span class="agenda-weekday">{{ $nombresDias[$idx] ?? '' }}</span>
+                                    <span class="agenda-daynumber">{{ $dia['numero'] }}</span>
+                                </div>
+                                @foreach($dia['turnos'] as $turno)
+                                    <div class="agenda-turno {{ $turno->estaCompleto() ? 'completo' : 'incompleto' }}">
+                                        <div class="agenda-turno-top">
+                                            <span class="agenda-hora">{{ \Carbon\Carbon::parse($turno->hora_inicio)->format('H:i') }}</span>
+                                            @if($turno->ubicacion)
+                                                <span class="agenda-ubicacion">{{ $turno->ubicacion }}</span>
+                                            @endif
+                                            @if(auth()->user()->canManagePPOC())
+                                            <form action="{{ route('ppoc.turno-generado.destroy', $turno) }}" method="POST" class="delete-form">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn-delete-turno" title="Eliminar turno" onclick="return confirm('¿Eliminar este turno?')">×</button>
+                                            </form>
+                                            @endif
+                                        </div>
+                                        <div class="agenda-asignados">
+                                            @foreach($turno->asignaciones as $asig)
+                                                <div class="agenda-asignado {{ $asig->rol }}">
+                                                    <span class="agenda-nombre">{{ $asig->publicador->nombre ?? 'N/A' }}</span>
+                                                    <span class="agenda-rol-badge">{{ $asig->rol === 'capitan' ? 'C' : 'V' }}</span>
+                                                    <div class="asignado-btns">
+                                                        <button type="button" class="btn-cambiar-asig" title="Cambiar" onclick="abrirModalSugerencias({{ $asig->id }})">&#x21C4;</button>
+                                                        <form action="{{ route('ppoc.asignaciones.destroy', $asig) }}" method="POST" class="remove-asig">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn-remove-asig" title="Quitar">×</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                            @if($turno->tieneEspacioDisponible())
+                                                <button class="btn-add-pub" onclick="abrirModal({{ $turno->id }})" title="Agregar publicador">+ Agregar</button>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    @endforeach
+                @endforeach
+            </div>
         </div>
 
         <!-- Panel lateral de estadisticas (lado derecho) -->
@@ -466,9 +541,32 @@ function seleccionarReemplazo(publicadorId, nombre) {
 document.getElementById('modal-sugerencias').addEventListener('click', function(e) {
     if (e.target === this) cerrarModalSugerencias();
 });
+
+// Auto-scroll mini-cal strip to today and scroll to today's agenda card on mobile
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.innerWidth <= 768) {
+        // Scroll mini-cal strip to center today
+        var miniToday = document.querySelector('.mini-day.mini-today');
+        var strip = document.querySelector('.mini-cal-strip');
+        if (miniToday && strip) {
+            var offset = miniToday.offsetLeft - (strip.clientWidth / 2) + (miniToday.offsetWidth / 2);
+            strip.scrollLeft = Math.max(0, offset);
+        }
+        // Scroll page to today's agenda card
+        var agendaToday = document.querySelector('.agenda-day-card.agenda-today');
+        if (agendaToday) {
+            setTimeout(function() {
+                agendaToday.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+        }
+    }
+});
 </script>
 
 <style>
+html {
+    scroll-behavior: smooth;
+}
 .ppoc-page {
     max-width: 1600px;
     margin: 0 auto;
@@ -492,9 +590,9 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 .stats-panel {
     width: 280px;
     flex-shrink: 0;
-    background: var(--bg-card, #fff);
+    background: #171717;
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     overflow: hidden;
     position: sticky;
     top: 1rem;
@@ -514,7 +612,7 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 
 .panel-section {
     padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    border-bottom: 1px solid #262626;
 }
 
 .panel-section:last-child {
@@ -526,7 +624,7 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
     align-items: center;
     gap: 0.5rem;
     font-weight: 700;
-    color: var(--text-primary, #1f2937);
+    color: #f5f5f5;
     margin-bottom: 0.75rem;
     font-size: 0.95rem;
 }
@@ -549,16 +647,16 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 }
 
 .stat-key {
-    color: var(--text-muted, #6b7280);
+    color: #a3a3a3;
 }
 
 .stat-val {
     font-weight: 600;
-    color: var(--text-primary, #1f2937);
+    color: #e5e5e5;
 }
 
 .stat-row.highlight {
-    background: var(--bg-secondary, #f9fafb);
+    background: #262626;
     padding: 0.5rem 0.75rem;
     border-radius: 6px;
     margin: 0.25rem -0.75rem;
@@ -591,7 +689,7 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 
 /* Seccion de equilibrio */
 .balance-section {
-    background: var(--bg-secondary, #f9fafb);
+    background: #0a0a0a;
 }
 
 .balance-indicator {
@@ -620,13 +718,13 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 .balance-text {
     font-weight: 600;
     font-size: 0.85rem;
-    color: var(--text-primary, #1f2937);
+    color: #e5e5e5;
 }
 
 .ratio-info {
     text-align: center;
     font-size: 0.75rem;
-    color: var(--text-muted, #6b7280);
+    color: #a3a3a3;
 }
 
 /* Header del calendario */
@@ -636,15 +734,16 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
     align-items: center;
     margin-bottom: 1.5rem;
     padding: 1rem;
-    background: var(--bg-card, #fff);
+    background: #171717;
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    border: 1px solid #262626;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
 .nav-month-btn {
     padding: 0.75rem 1.25rem;
-    background: var(--bg-secondary, #f3f4f6);
-    color: var(--text-primary, #374151);
+    background: #262626;
+    color: #e5e5e5;
     text-decoration: none;
     border-radius: 8px;
     font-weight: 600;
@@ -665,7 +764,7 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 .month-title h1 {
     margin: 0;
     font-size: 1.75rem;
-    color: var(--text-primary, #1f2937);
+    color: #f5f5f5;
 }
 
 .btn-today {
@@ -776,12 +875,12 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 
 .quick-link {
     padding: 0.75rem 1rem;
-    background: var(--bg-card, #fff);
-    color: var(--text-primary, #374151);
+    background: #171717;
+    color: #e5e5e5;
     text-decoration: none;
     border-radius: 8px;
     font-size: 0.875rem;
-    border: 1px solid var(--border-color, #e5e7eb);
+    border: 1px solid #262626;
     transition: all 0.2s;
 }
 
@@ -792,11 +891,11 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 
 /* Estadisticas */
 .stats-section {
-    background: var(--bg-card, #fff);
+    background: #171717;
     border-radius: 12px;
     padding: 1rem;
     margin-bottom: 1.5rem;
-    border: 1px solid var(--border-color, #e5e7eb);
+    border: 1px solid #262626;
 }
 
 .stats-cards {
@@ -809,7 +908,7 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 .stat-card {
     flex: 1;
     min-width: 120px;
-    background: var(--bg-secondary, #f9fafb);
+    background: #262626;
     border-radius: 8px;
     padding: 1rem;
     text-align: center;
@@ -825,7 +924,7 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 .stat-label {
     display: block;
     font-size: 0.75rem;
-    color: var(--text-muted, #6b7280);
+    color: #a3a3a3;
     margin-top: 0.25rem;
 }
 
@@ -859,10 +958,10 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 .publicadores-stats summary {
     cursor: pointer;
     padding: 0.75rem;
-    background: var(--bg-secondary, #f9fafb);
+    background: #262626;
     border-radius: 8px;
     font-weight: 600;
-    color: var(--text-primary, #374151);
+    color: #e5e5e5;
 }
 
 .pub-stats-grid {
@@ -880,7 +979,8 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem 0.75rem;
-    background: var(--bg-secondary, #f9fafb);
+    background: #262626;
+    color: #e5e5e5;
     border-radius: 6px;
     font-size: 0.8rem;
     border-left: 3px solid #4a6da7;
@@ -928,15 +1028,17 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 
 /* Calendario */
 .calendar-container {
-    background: var(--bg-card, #fff);
+    background: #171717;
     border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow-x: auto;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    border: 1px solid #262626;
 }
 
 .calendar-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
+    min-width: 700px;
     background: linear-gradient(135deg, #4a6da7 0%, #2d4266 100%);
 }
 
@@ -955,22 +1057,23 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
+    min-width: 700px;
 }
 
 .calendar-day {
     min-height: 140px;
-    border: 1px solid var(--border-color, #e5e7eb);
+    border: 1px solid #262626;
     border-top: none;
     padding: 0.5rem;
-    background: var(--bg-card, #fff);
+    background: #171717;
 }
 
 .calendar-day.empty {
-    background: var(--bg-secondary, #f9fafb);
+    background: #0a0a0a;
 }
 
 .calendar-day.today {
-    background: rgba(59, 130, 246, 0.05);
+    background: rgba(249, 115, 22, 0.1);
 }
 
 .calendar-day.other-month {
@@ -983,7 +1086,7 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 
 .day-number {
     font-weight: 600;
-    color: var(--text-primary, #1f2937);
+    color: #e5e5e5;
 }
 
 .day-number.today-badge {
@@ -999,7 +1102,7 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 
 /* Turnos */
 .turno-item {
-    background: var(--bg-secondary, #f3f4f6);
+    background: #262626;
     border-radius: 8px;
     padding: 0.5rem;
     margin-bottom: 0.5rem;
@@ -1024,7 +1127,7 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 
 .turno-hora {
     font-weight: 700;
-    color: var(--text-primary, #1f2937);
+    color: #f5f5f5;
 }
 
 .btn-delete-turno {
@@ -1045,7 +1148,7 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 }
 
 .turno-ubicacion {
-    color: var(--text-muted, #6b7280);
+    color: #a3a3a3;
     font-size: 0.7rem;
     margin-top: 0.25rem;
 }
@@ -1059,7 +1162,8 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
     justify-content: space-between;
     align-items: center;
     padding: 0.25rem 0.5rem;
-    background: white;
+    background: #404040;
+    color: #e5e5e5;
     border-radius: 4px;
     margin-bottom: 0.25rem;
 }
@@ -1152,7 +1256,8 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 }
 
 .modal-content {
-    background: var(--bg-card, #fff);
+    background: #171717;
+    border: 1px solid #262626;
     border-radius: 16px;
     width: 90%;
     max-width: 400px;
@@ -1193,17 +1298,17 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 600;
-    color: var(--text-primary, #374151);
+    color: #e5e5e5;
 }
 
 .form-select {
     width: 100%;
     padding: 0.75rem;
-    border: 2px solid var(--border-color, #e5e7eb);
+    border: 2px solid #404040;
     border-radius: 8px;
     font-size: 1rem;
-    background: var(--bg-card, #fff);
-    color: var(--text-primary, #374151);
+    background: #262626;
+    color: #e5e5e5;
 }
 
 .form-select:focus {
@@ -1216,13 +1321,13 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
     justify-content: flex-end;
     gap: 0.75rem;
     padding: 1rem 1.5rem;
-    background: var(--bg-secondary, #f9fafb);
+    background: #0a0a0a;
 }
 
 .btn-cancel {
     padding: 0.75rem 1.25rem;
-    background: var(--bg-secondary, #e5e7eb);
-    color: var(--text-primary, #374151);
+    background: #262626;
+    color: #e5e5e5;
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -1245,7 +1350,7 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 }
 
 .sugerencia-info {
-    background: var(--bg-secondary, #f9fafb);
+    background: #262626;
     padding: 0.75rem 1rem;
     border-radius: 8px;
     margin-bottom: 1rem;
@@ -1259,7 +1364,7 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 .loading-spinner {
     text-align: center;
     padding: 2rem;
-    color: var(--text-muted, #6b7280);
+    color: #a3a3a3;
 }
 
 .sugerencias-lista {
@@ -1272,7 +1377,7 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 1rem;
-    border: 1px solid var(--border-color, #e5e7eb);
+    border: 1px solid #404040;
     border-radius: 8px;
     margin-bottom: 0.5rem;
     cursor: pointer;
@@ -1280,13 +1385,13 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 }
 
 .sugerencia-item:hover {
-    background: var(--bg-secondary, #f9fafb);
+    background: #262626;
     border-color: #4a6da7;
 }
 
 .sug-nombre {
     font-weight: 600;
-    color: var(--text-primary, #1f2937);
+    color: #e5e5e5;
 }
 
 .sug-meta {
@@ -1297,7 +1402,7 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 
 .sug-turnos {
     font-size: 0.75rem;
-    color: var(--text-muted, #6b7280);
+    color: #a3a3a3;
 }
 
 .sug-badge {
@@ -1324,7 +1429,12 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 .sugerencias-vacio {
     text-align: center;
     padding: 2rem;
-    color: var(--text-muted, #6b7280);
+    color: #a3a3a3;
+}
+
+/* Mobile agenda - oculto en desktop */
+.mobile-agenda {
+    display: none;
 }
 
 /* Responsive */
@@ -1346,7 +1456,7 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 
     .panel-section {
         border-bottom: none;
-        border-right: 1px solid var(--border-color, #e5e7eb);
+        border-right: 1px solid #262626;
     }
 
     .panel-section:last-child {
@@ -1359,364 +1469,264 @@ document.getElementById('modal-sugerencias').addEventListener('click', function(
 }
 
 @media (max-width: 768px) {
+    /* Ocultar grid desktop, mostrar agenda movil */
+    .calendar-container { display: none !important; }
+    .mobile-agenda { display: block; }
+
+    /* Prevent horizontal page scroll from desktop grid leaking */
+    .ppoc-page { max-width: 100vw; overflow-x: hidden; }
+    .ppoc-main-layout { overflow: hidden; }
+    .calendar-section { max-width: 100%; overflow: hidden; }
+
     .calendar-header {
         flex-direction: column;
-        gap: 1rem;
+        gap: 0.75rem;
+        padding: 0.75rem;
     }
+    .month-title h1 { font-size: 1.25rem; }
+    .nav-month-btn { padding: 0.5rem 1rem; font-size: 0.85rem; }
 
     .generate-section {
         flex-direction: column;
         align-items: stretch;
     }
-
-    .action-buttons {
-        flex-direction: column;
+    .action-buttons { flex-direction: column; }
+    .action-buttons .btn-generate,
+    .action-buttons .btn-auto-assign,
+    .action-buttons .btn-danger,
+    .action-buttons .btn-export {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
     }
-
     .quick-links {
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
     }
+    .quick-link { text-align: center; font-size: 0.8rem; padding: 0.6rem; }
 
-    .calendar-day {
-        min-height: 100px;
-        padding: 0.25rem;
-    }
+    .stats-cards { flex-direction: row; gap: 0.5rem; }
+    .stat-card { padding: 0.75rem 0.5rem; min-width: 0; }
+    .stat-value { font-size: 1.2rem; }
 
-    .weekday {
-        padding: 0.5rem;
-        font-size: 0.7rem;
-    }
+    .stats-panel { grid-template-columns: 1fr; }
+    .panel-section { border-right: none; border-bottom: 1px solid #262626; }
 
-    .turno-item {
-        font-size: 0.65rem;
+    /* Mini calendario strip - compacto */
+    .mini-cal-strip {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 0.5rem;
+        background: #171717;
+        border-radius: 10px;
         padding: 0.35rem;
+        border: 1px solid #262626;
+        scrollbar-width: none;
+        max-width: 100%;
+        position: sticky;
+        top: 0;
+        z-index: 10;
     }
-
-    .stats-cards {
+    .mini-cal-strip::-webkit-scrollbar { display: none; }
+    .mini-cal-scroll {
+        display: flex;
+        gap: 1px;
+        min-width: max-content;
+    }
+    .mini-day {
+        display: flex;
         flex-direction: column;
+        align-items: center;
+        min-width: 32px;
+        padding: 0.25rem 0.15rem;
+        border-radius: 6px;
+        text-decoration: none;
+        color: #525252;
+        font-size: 0.7rem;
+        transition: background 0.2s;
+    }
+    .mini-day.has-turnos { color: #e5e5e5; background: #262626; }
+    .mini-day.mini-today { background: #4a6da7; color: white; }
+    .mini-weekday { font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.3px; }
+    .mini-number { font-weight: 700; font-size: 0.75rem; margin-top: 1px; }
+    .mini-day.has-turnos .mini-number::after {
+        content: '';
+        display: block;
+        width: 3px;
+        height: 3px;
+        background: #4a6da7;
+        border-radius: 50%;
+        margin: 1px auto 0;
+    }
+    .mini-day.mini-today .mini-number::after { background: white; }
+
+    /* Agenda day cards */
+    /* Agenda day cards - compacto */
+    .agenda-day-card {
+        background: #171717;
+        border: 1px solid #262626;
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+        overflow: hidden;
+    }
+    .agenda-day-card.agenda-today {
+        border-color: #4a6da7;
+    }
+    .agenda-day-header {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 0.75rem;
+        background: #1e1e32;
+        border-bottom: 1px solid #262626;
+    }
+    .agenda-day-card.agenda-today .agenda-day-header {
+        background: linear-gradient(135deg, #4a6da7 0%, #2d4266 100%);
+    }
+    .agenda-weekday {
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: #737373;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .agenda-day-card.agenda-today .agenda-weekday { color: rgba(255,255,255,0.7); }
+    .agenda-daynumber {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #e5e5e5;
+    }
+    .agenda-day-card.agenda-today .agenda-daynumber { color: white; }
+
+    /* Turno sub-cards - compacto */
+    .agenda-turno {
+        margin: 0.35rem 0.5rem;
+        padding: 0.4rem 0.5rem;
+        background: #262626;
+        border-radius: 8px;
+        border-left: 3px solid #4a6da7;
+    }
+    .agenda-turno:last-child { margin-bottom: 0.5rem; }
+    .agenda-turno.completo {
+        background: rgba(34, 197, 94, 0.1);
+        border-left-color: #22c55e;
+    }
+    .agenda-turno-top {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 0.25rem;
+    }
+    .agenda-hora {
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #f5f5f5;
+    }
+    .agenda-ubicacion {
+        font-size: 0.7rem;
+        color: #737373;
+        flex: 1;
     }
 
-    .stats-panel {
-        grid-template-columns: 1fr;
+    /* Asignados en agenda - compacto */
+    .agenda-asignados {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    .agenda-asignado {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.3rem 0.5rem;
+        background: #333;
+        border-radius: 6px;
+    }
+    .agenda-asignado.capitan {
+        background: linear-gradient(135deg, #4a6da7 0%, #2d4266 100%);
+    }
+    .agenda-nombre {
+        flex: 1;
+        font-weight: 500;
+        font-size: 0.8rem;
+        color: #e5e5e5;
+    }
+    .agenda-asignado.capitan .agenda-nombre { color: white; }
+    .agenda-rol-badge {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6rem;
+        font-weight: 700;
+        background: rgba(255,255,255,0.1);
+        color: #737373;
+    }
+    .agenda-asignado.capitan .agenda-rol-badge {
+        background: rgba(255,255,255,0.2);
+        color: white;
+    }
+    .agenda-asignado .asignado-btns { margin-left: auto; }
+    .agenda-asignado .btn-cambiar-asig {
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+    }
+    .agenda-asignado .btn-remove-asig {
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
+    }
+    .agenda-asignados .btn-add-pub {
+        padding: 0.3rem;
+        font-size: 0.75rem;
+        border-radius: 6px;
     }
 
-    .panel-section {
-        border-right: none;
-        border-bottom: 1px solid var(--border-color, #e5e7eb);
+    /* Modal touch-friendly */
+    .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    .form-select {
+        font-size: 16px; /* evita zoom en iOS */
     }
 }
 
-/* ========================================
-   DARK THEME
-   ======================================== */
-[data-theme="dark"] .calendar-header {
-    background: #171717;
-    border: 1px solid #262626;
-}
-
-[data-theme="dark"] .nav-month-btn {
-    background: #262626;
-    color: #e5e5e5;
-}
-
-[data-theme="dark"] .nav-month-btn:hover {
-    background: #4a6da7;
-    color: #0a0a0a;
-}
-
-[data-theme="dark"] .month-title h1 {
-    color: #f5f5f5;
-}
-
-[data-theme="dark"] .btn-today {
-    background: #4a6da7;
-    color: #0a0a0a;
-}
-
-[data-theme="dark"] .btn-generate {
-    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
-}
-
-[data-theme="dark"] .btn-auto-assign {
-    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
-    color: #0a0a0a;
-}
-
-[data-theme="dark"] .quick-link {
-    background: #171717;
-    border-color: #262626;
-    color: #e5e5e5;
-}
-
-[data-theme="dark"] .quick-link:hover {
-    border-color: #4a6da7;
-    color: #4a6da7;
-}
-
-[data-theme="dark"] .stats-section {
-    background: #171717;
-    border-color: #262626;
-}
-
-[data-theme="dark"] .stat-card {
-    background: #262626;
-}
-
-[data-theme="dark"] .stat-value {
-    color: #4a6da7;
-}
-
-[data-theme="dark"] .stat-label {
-    color: #a3a3a3;
-}
-
-[data-theme="dark"] .alerta-danger {
+/* Alertas dark */
+.alerta-danger {
     background: rgba(220, 38, 38, 0.2);
     border-color: rgba(220, 38, 38, 0.4);
     color: #ced4da;
 }
 
-[data-theme="dark"] .alerta-warning {
+.alerta-warning {
     background: rgba(245, 158, 11, 0.2);
     border-color: rgba(245, 158, 11, 0.4);
     color: #fcd34d;
 }
 
-[data-theme="dark"] .publicadores-stats summary {
-    background: #262626;
-    color: #e5e5e5;
-}
-
-[data-theme="dark"] .pub-stat-item {
-    background: #262626;
-    color: #e5e5e5;
-}
-
-[data-theme="dark"] .pub-stat-item.estado-warning {
+.pub-stat-item.estado-warning {
     background: rgba(245, 158, 11, 0.2);
 }
 
-[data-theme="dark"] .pub-stat-item.estado-danger {
+.pub-stat-item.estado-danger {
     background: rgba(220, 38, 38, 0.2);
 }
 
-[data-theme="dark"] .calendar-container {
-    background: #171717;
-    border: 1px solid #262626;
-}
-
-[data-theme="dark"] .calendar-weekdays {
-    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
-}
-
-[data-theme="dark"] .weekday {
-    color: #0a0a0a;
-}
-
-[data-theme="dark"] .calendar-day {
-    background: #171717;
-    border-color: #262626;
-}
-
-[data-theme="dark"] .calendar-day.empty {
-    background: #0a0a0a;
-}
-
-[data-theme="dark"] .calendar-day.today {
-    background: rgba(249, 115, 22, 0.1);
-}
-
-[data-theme="dark"] .day-number {
-    color: #e5e5e5;
-}
-
-[data-theme="dark"] .day-number.today-badge {
-    background: #4a6da7;
-    color: #0a0a0a;
-}
-
-[data-theme="dark"] .turno-item {
-    background: #262626;
-}
-
-[data-theme="dark"] .turno-item.completo {
+.turno-item.completo {
     background: rgba(34, 197, 94, 0.15);
 }
 
-[data-theme="dark"] .turno-hora {
-    color: #f5f5f5;
-}
-
-[data-theme="dark"] .turno-ubicacion {
-    color: #a3a3a3;
-}
-
-[data-theme="dark"] .asignado {
-    background: #404040;
-    color: #e5e5e5;
-}
-
-[data-theme="dark"] .asignado.capitan {
-    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
-    color: #0a0a0a;
-}
-
-[data-theme="dark"] .btn-add-pub {
-    border-color: #4a6da7;
-    color: #4a6da7;
-}
-
-[data-theme="dark"] .btn-add-pub:hover {
-    background: #4a6da7;
-    color: #0a0a0a;
-}
-
-[data-theme="dark"] .modal-content {
-    background: #171717;
-    border: 1px solid #262626;
-}
-
-[data-theme="dark"] .modal-header {
-    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
-    color: #0a0a0a;
-}
-
-[data-theme="dark"] .form-group label {
-    color: #e5e5e5;
-}
-
-[data-theme="dark"] .form-select {
-    background: #262626;
-    border-color: #404040;
-    color: #e5e5e5;
-}
-
-[data-theme="dark"] .form-select:focus {
-    border-color: #4a6da7;
-}
-
-[data-theme="dark"] .modal-footer {
-    background: #0a0a0a;
-}
-
-[data-theme="dark"] .btn-cancel {
-    background: #262626;
-    color: #e5e5e5;
-}
-
-[data-theme="dark"] .btn-submit {
-    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
-    color: #0a0a0a;
-}
-
-/* Dark theme - Modal sugerencias */
-[data-theme="dark"] .btn-cambiar-asig {
-    background: rgba(249, 115, 22, 0.2);
-    color: #4a6da7;
-}
-
-[data-theme="dark"] .btn-cambiar-asig:hover {
-    background: #4a6da7;
-    color: #0a0a0a;
-}
-
-[data-theme="dark"] .sugerencia-info {
-    background: #262626;
-}
-
-[data-theme="dark"] .sugerencia-item {
-    border-color: #404040;
-}
-
-[data-theme="dark"] .sugerencia-item:hover {
-    background: #262626;
-    border-color: #4a6da7;
-}
-
-[data-theme="dark"] .sug-nombre {
-    color: #e5e5e5;
-}
-
-[data-theme="dark"] .sug-turnos {
-    color: #a3a3a3;
-}
-
-[data-theme="dark"] .sug-badge.capitan {
-    background: #4a6da7;
-    color: #0a0a0a;
-}
-
-[data-theme="dark"] .loading-spinner,
-[data-theme="dark"] .sugerencias-vacio {
-    color: #a3a3a3;
-}
-
-/* Dark theme - Panel lateral */
-[data-theme="dark"] .stats-panel {
-    background: #171717;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-}
-
-[data-theme="dark"] .panel-header {
-    background: linear-gradient(135deg, #4a6da7 0%, #3d5a8a 100%);
-}
-
-[data-theme="dark"] .panel-header h3 {
-    color: #0a0a0a;
-}
-
-[data-theme="dark"] .panel-section {
-    border-color: #262626;
-}
-
-[data-theme="dark"] .section-title {
-    color: #f5f5f5;
-}
-
-[data-theme="dark"] .stat-key {
-    color: #a3a3a3;
-}
-
-[data-theme="dark"] .stat-val {
-    color: #e5e5e5;
-}
-
-[data-theme="dark"] .stat-row.highlight {
-    background: #262626;
-}
-
-[data-theme="dark"] .stat-row.highlight .stat-val {
-    color: #4a6da7;
-}
-
-[data-theme="dark"] .stat-row.extremo.min .stat-key {
+.stat-row.extremo.min .stat-key {
     color: #fbbf24;
 }
 
-[data-theme="dark"] .stat-row.extremo.max .stat-key {
+.stat-row.extremo.max .stat-key {
     color: #34d399;
-}
-
-[data-theme="dark"] .balance-section {
-    background: #0a0a0a;
-}
-
-[data-theme="dark"] .balance-indicator.bueno {
-    background: rgba(16, 185, 129, 0.15);
-    border-color: rgba(16, 185, 129, 0.4);
-}
-
-[data-theme="dark"] .balance-indicator.revisar {
-    background: rgba(245, 158, 11, 0.15);
-    border-color: rgba(245, 158, 11, 0.4);
-}
-
-[data-theme="dark"] .balance-text {
-    color: #e5e5e5;
-}
-
-[data-theme="dark"] .ratio-info {
-    color: #a3a3a3;
 }
 </style>
 

@@ -685,20 +685,47 @@ class TurnoController extends Controller
             ->where('activo', true)
             ->get();
 
-        // Determinar horarios de mañana y tarde (según las plantillas)
-        $horarioManana = '10:00-13:00';
-        $horarioTarde = '17:30-19:30';
-        $horarioSabado = '9:00-11:00 / 11:00-13:00';
-        $horarioDomingo = '10:00-12:00';
+        // Determinar horarios reales a partir de las plantillas activas.
+        // dia_semana: 0=Lunes ... 5=Sabado, 6=Domingo
+        $fmtRango = function ($p) {
+            return substr($p->hora_inicio, 0, 5) . '-' . substr($p->hora_fin, 0, 5);
+        };
 
+        // Mañana/tarde entre semana: usar el horario mas frecuente (lun-vie)
+        $mananasSemana = [];
+        $tardesSemana = [];
         foreach ($plantillas as $p) {
-            $hora = substr($p->hora_inicio, 0, 5);
-            if ($hora < '14:00' && $p->dia_semana < 5) {
-                $horarioManana = substr($p->hora_inicio, 0, 5) . '-' . substr($p->hora_fin, 0, 5);
-            } elseif ($hora >= '14:00' && $p->dia_semana < 5) {
-                $horarioTarde = substr($p->hora_inicio, 0, 5) . '-' . substr($p->hora_fin, 0, 5);
+            if ($p->dia_semana >= 5) {
+                continue;
+            }
+            if (substr($p->hora_inicio, 0, 5) < '14:00') {
+                $mananasSemana[] = $fmtRango($p);
+            } else {
+                $tardesSemana[] = $fmtRango($p);
             }
         }
+        $masFrecuente = function (array $rangos, $default) {
+            if (empty($rangos)) {
+                return $default;
+            }
+            $conteo = array_count_values($rangos);
+            arsort($conteo);
+            return array_key_first($conteo);
+        };
+        $horarioManana = $masFrecuente($mananasSemana, '10:00-13:00');
+        $horarioTarde = $masFrecuente($tardesSemana, '17:30-19:30');
+
+        // Sabado y domingo: concatenar todos sus turnos (ordenados por hora)
+        $rangosDia = function ($diaSemana, $default) use ($plantillas, $fmtRango) {
+            $turnosDia = $plantillas->where('dia_semana', $diaSemana)
+                ->sortBy('hora_inicio');
+            if ($turnosDia->isEmpty()) {
+                return $default;
+            }
+            return $turnosDia->map($fmtRango)->implode(' / ');
+        };
+        $horarioSabado = $rangosDia(5, '9:00-11:00 / 11:00-13:00');
+        $horarioDomingo = $rangosDia(6, '10:00-12:00');
 
         // Calcular semanas del mes (agrupando de Lunes a Domingo)
         $primerDia = Carbon::create($year, $month, 1);

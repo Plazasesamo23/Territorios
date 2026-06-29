@@ -1,20 +1,29 @@
 @extends('layouts.app')
 
-@section('title', 'Programa VyM - ' . $programa->fecha_semana->format('d/m/Y'))
+@section('title', 'VMC-' . $programa->fecha_semana->format('d-m-Y'))
 
 @section('content')
 
-<div class="page-sm">
+@php
+    $mesYYYYMM = $programa->fecha_semana->format('Y-m');
+    $mesNombre = ucfirst($programa->fecha_semana->translatedFormat('F Y'));
+@endphp
+
+<div class="rs-container">
     <div class="rs-toolbar no-print">
         <div>
             <h1 class="page-title">Programa VyM</h1>
             <p class="page-subtitle">Semana del {{ $programa->fecha_semana->translatedFormat('d \d\e F, Y') }}</p>
         </div>
         <div class="rs-toolbar__actions">
-            <button onclick="var t=document.title; document.title=' '; setTimeout(function(){window.print(); document.title=t;}, 100);" class="btn btn-teal">
+            <button onclick="window.print();" class="btn btn-teal">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-                Imprimir
+                Imprimir solo esta
             </button>
+            <a href="{{ route('reuniones.mes', $mesYYYYMM) }}" class="btn btn-secondary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                Imprimir mes completo ({{ $mesNombre }})
+            </a>
             <a href="{{ route('reuniones.edit', $programa) }}" class="btn btn-secondary">Editar</a>
             <a href="{{ route('reuniones.index') }}" class="btn btn-ghost">Volver</a>
         </div>
@@ -71,7 +80,6 @@
 
         {{-- TESOROS DE LA BIBLIA --}}
         <div class="rs-section-bar rs-section-bar--tesoros">
-            <span class="rs-section-icon">💎</span>
             <span>TESOROS DE LA BIBLIA</span>
         </div>
 
@@ -86,7 +94,6 @@
 
         {{-- SEAMOS MEJORES MAESTROS --}}
         <div class="rs-section-bar rs-section-bar--maestros">
-            <span class="rs-section-icon">🌾</span>
             <span>SEAMOS MEJORES MAESTROS</span>
         </div>
 
@@ -108,7 +115,6 @@
 
         {{-- NUESTRA VIDA CRISTIANA --}}
         <div class="rs-section-bar rs-section-bar--vida">
-            <span class="rs-section-icon">🐑</span>
             <span>NUESTRA VIDA CRISTIANA</span>
         </div>
 
@@ -152,6 +158,13 @@
 </div>
 
 <style>
+/* ---- Container ---- */
+.rs-container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
 /* ---- Toolbar (no-print) ---- */
 .rs-toolbar {
     display: flex;
@@ -296,8 +309,9 @@
         min-height: auto !important;
         background: #fff !important;
     }
-    .page-sm {
+    .rs-container {
         max-width: 100%;
+        padding: 0;
     }
     .rs-sheet {
         border: none;
