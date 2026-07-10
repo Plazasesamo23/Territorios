@@ -599,6 +599,36 @@ echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territo
 
 ## Historial de sesiones
 
+### 10 Julio 2026 - Auditoría global "golpe de vista" + 42 archivos desplegados + agentes .md
+
+**Auditoría con 6 subagentes** (shell/nav, Territorios, Reuniones, PPOC, Admin, CSS global) sobre el código vivo bajado a `_mirror/`. Se implementó y desplegó en producción:
+
+**Bugs funcionales corregidos:**
+- Rol elegido al crear/editar usuario NO se guardaba (UsuarioController forzaba 'user'); ahora persiste user/territorios/ppoc y activa puede_acceder_ppoc si rol ppoc.
+- `registros.edit` daba 500 (vista inexistente) → redirige a `registros.show` (edición en línea).
+- Turnos PPOC: create ofrecía "3er turno" pero la validación es max:2 → opción eliminada.
+- territorios/show mostraba Editar/Eliminar a no-admins (403 al pulsar) → envuelto en isAdmin().
+- `substr(apellidos)` rompía con apellidos null en publicadores/registros.
+- generarPdf/vistaPrevia del S-13 sin gate canGenerateS13() → añadido.
+
+**Golpe de vista (diccionario único de estados de territorio):** Libre=verde, En plazo=azul, ⚠ Atrasado=ámbar, Archivo=gris — unificado en panel-territorios (antes "Vencido" rojo/"En plazo" verde), registros/index (columna Estado ya no queda vacía), territorios/index (antes "Disponible"/badge-red) y territorios/show. nivelUso() y calcularEstado() comparten getDiasLimiteActivo() (verificado).
+
+**Fix raíz de fugas de modo claro:** flat-global.css ahora define en :root alias oscuros de las variables heredadas de app.css (`--bg-card`, `--text-primary`, `--bg-secondary`, `--border-color`, `--color-gray-50`...). Todo `var(--bg-card, #fff)` del código resuelve oscuro sin tocar cada vista. Además se oscurecieron a mano: grupos-predicacion (index/historial/historial-editar, el peor módulo), territorios create/edit, publicadores show/registros, registros show, usuarios index/edit, congregaciones create/edit/index, cambiar-usuario (gradientes), congregacion/verificar (página entera era blanca/morada).
+
+**Otras mejoras UX:** submenú Reuniones recupera "Géneros" y desactiva "Fin de semana (próximamente)"; botones `?`→"Sugerir" y `⚡`→"⚡ Sustituto" con área táctil 34px+; modal de recomendación sin puntuación cruda (muestra "Le toca"); badge congregación visible en móvil; nav-links móviles 42px; enlace "Usuarios" en nav admin; configuración sin botón "Reiniciar Base de Datos" ni controles placebo; contraseñas de congregación ocultas tras "Mostrar" y `type="password"` en formularios; tarjeta info de roles documenta los 4 roles reales; grupos con hint de uso, botones S/A 26px y "Cerrar Año"→"Guardar historial del año"; barra de progreso del territorio usa el límite real del tipo (no 120 fijo); PPOC form público con instrucciones 1-2-3 + confirmación si 0 turnos (evita borrado silencioso) + alertas verde/rojo; calendario PPOC distingue completo (verde) / incompleto (ámbar), botón × rojo 26px; S-13 "Importar registros"→"Añadir registros a mano"; tarjeta muerta "Departamentos" oculta en inicio; pasada de tildes en textos visibles (Administración, Géneros, Iniciar Sesión, Campaña, Año, Días, Estadísticas...).
+
+**Limpieza (movidos a `backups_ux/orphans_20260710/` en servidor):** welcome.blade.php, reuniones-edit.blade.php (duplicado), layouts/partials/submenu-{reuniones,admin,ppoc} (huérfanos; el activo es views/partials/), creador-territorios/{simple,visual-editor}, 5 archivos .backup.
+
+**Hallazgo OPcache:** OVH bloquea `opcache_reset()` (`opcache.restrict_api`), pero `validate_timestamps=1` + `revalidate_freq=2` ⇒ los archivos subidos se recargan solos en ~2s. El reset HTTP ya no es necesario; basta subir + artisan view:clear.
+
+**Verificación:** php -l OK en los 3 controllers, `php artisan view:cache` compila todas las vistas sin error, smoke test HTTP 200/302 en rutas principales.
+
+**Nuevo tooling del repo:** `CLAUDE.md` + agentes expertos en `.claude/agents/` (deploy-servidor, experto-territorios, experto-reuniones, experto-ppoc, experto-admin, auditor-ux). Copia viva del servidor en `_mirror/` (backup pre-cambios en `_mirror_backup_20260710/`).
+
+**Pendiente (backlog):** reescribir ppoc/turnos/{index,edit} (usan Bootstrap/FontAwesome que ya no se cargan → se ven rotas); conectar o retirar la importación OCR del S-13 (rutas y preview sin UI que las dispare); tematizar el creador de territorios (página clara, CDNs externos, no guarda en BD); PDF PPOC asume 2 turnos/día fijos; drag&drop de grupos sin soporte táctil (hay hint pero no alternativa); paleta de errors/404 y token-invalido distinta al resto.
+
+---
+
 ### 17 Abril 2026 - UX Reuniones: añadir semanas intuitivo, atajos listado, imprimir mes
 
 **Problemas reportados:**

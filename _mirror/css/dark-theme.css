@@ -1,0 +1,1507 @@
+/* DARK THEME - Negro y Naranja - Sin azul */
+
+/* Sobrescribir variables de app.css */
+[data-theme="dark"] {
+    --bg-body: #0a0a0a !important;
+    --bg-card: #0d0d0d !important;
+    --bg-header: #0a0a0a !important;
+    --text-primary: #f5f5f5 !important;
+    --text-secondary: #a3a3a3 !important;
+    --text-muted: #737373 !important;
+    --border-color: #222222 !important;
+    --border-light: #333333 !important;
+    --color-gray-50: #111111 !important;
+    --color-gray-100: #1a1a1a !important;
+    --color-gray-700: #1a1a1a !important;
+    --color-gray-800: #111111 !important;
+    --color-gray-900: #0a0a0a !important;
+}
+
+/* BODY */
+[data-theme="dark"] body {
+    background: #0a0a0a !important;
+    color: #f5f5f5;
+}
+
+/* HEADER */
+[data-theme="dark"] .header {
+    background: #0a0a0a !important;
+    border-bottom: 2px solid #6b8fc7;
+}
+
+[data-theme="dark"] .logo {
+    color: #6b8fc7;
+}
+
+[data-theme="dark"] .nav-link {
+    color: #a3a3a3;
+}
+
+[data-theme="dark"] .nav-link:hover,
+[data-theme="dark"] .nav-link.active {
+    background: #1a1a1a;
+    color: #6b8fc7;
+}
+
+[data-theme="dark"] .config-btn,
+[data-theme="dark"] .profile-btn {
+    background: #1a1a1a;
+    border: 1px solid #6b8fc7;
+    color: #6b8fc7;
+}
+
+[data-theme="dark"] .config-btn:hover,
+[data-theme="dark"] .profile-btn:hover {
+    background: #6b8fc7;
+    color: #0a0a0a;
+}
+
+[data-theme="dark"] .congregacion-badge {
+    background: #1a1a1a !important;
+    border: 1px solid #6b8fc7;
+    color: #6b8fc7;
+}
+
+/* CARDS */
+[data-theme="dark"] .card {
+    background: #0d0d0d !important;
+    border: 1px solid #222222;
+}
+
+[data-theme="dark"] .card:hover {
+    border-color: #6b8fc7;
+}
+
+[data-theme="dark"] .card-title {
+    color: #6b8fc7;
+}
+
+[data-theme="dark"] .card-description {
+    color: #a3a3a3;
+}
+
+[data-theme="dark"] .card-header {
+    background: #111111 !important;
+}
+
+/* HERO */
+[data-theme="dark"] .hero {
+    background: #111111 !important;
+    border: 1px solid #6b8fc7;
+}
+
+[data-theme="dark"] .hero h1 {
+    color: #6b8fc7;
+}
+
+/* STAT CARDS */
+[data-theme="dark"] .stat-card {
+    background: #111111 !important;
+    border: 1px solid #222222;
+}
+
+[data-theme="dark"] .stat-card:hover {
+    border-color: #6b8fc7;
+}
+
+[data-theme="dark"] .stat-number {
+    color: #6b8fc7;
+}
+
+[data-theme="dark"] .stat-label {
+    color: #a3a3a3;
+}
+
+[data-theme="dark"] .stat-number-purple,
+[data-theme="dark"] .stat-number-yellow {
+    color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .text-red {
+    color: #f87171 !important;
+}
+
+/* BOTONES */
+[data-theme="dark"] .btn-primary {
+    background: #6b8fc7 !important;
+    border: none;
+    color: #0a0a0a !important;
+}
+
+[data-theme="dark"] .btn-primary:hover {
+    background: #8aa8d6 !important;
+}
+
+[data-theme="dark"] .btn-secondary {
+    background: #1a1a1a !important;
+    border: 1px solid #333333;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+    border-color: #6b8fc7;
+}
+
+[data-theme="dark"] .btn-success {
+    background: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .btn-danger {
+    background: #8b939c !important;
+}
+
+[data-theme="dark"] .btn-outline {
+    background: transparent !important;
+    border-color: #6b8fc7 !important;
+    color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .btn-outline:hover {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+}
+
+/* FORMULARIOS */
+[data-theme="dark"] .form-input,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] .form-textarea {
+    background: #111111 !important;
+    border: 1px solid #333333 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .form-input:focus,
+[data-theme="dark"] .form-select:focus,
+[data-theme="dark"] .form-textarea:focus {
+    border-color: #6b8fc7 !important;
+    box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2) !important;
+    outline: none;
+}
+
+[data-theme="dark"] .form-label {
+    color: #8aa8d6;
+}
+
+/* TABLAS */
+[data-theme="dark"] .table-header,
+[data-theme="dark"] .table-7-col {
+    background: #111111 !important;
+    border-bottom: 2px solid #6b8fc7 !important;
+    color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .table-row {
+    background: #0d0d0d !important;
+    border-bottom: 1px solid #222222 !important;
+}
+
+[data-theme="dark"] .table-row:nth-child(2n) {
+    background: #111111 !important;
+}
+
+[data-theme="dark"] .table-row:hover {
+    background: #1a1a1a !important;
+    border-left: 3px solid #6b8fc7;
+}
+
+/* REGISTROS - FILAS */
+[data-theme="dark"] .card a[style*="display: grid"],
+[data-theme="dark"] .card a[style*="grid-template-columns"] {
+    background: #0d0d0d !important;
+    border-bottom: 1px solid #222222 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .card a[style*="display: grid"]:nth-child(odd),
+[data-theme="dark"] .card a[style*="grid-template-columns"]:nth-child(odd) {
+    background: #0a0a0a !important;
+}
+
+[data-theme="dark"] .card a[style*="display: grid"]:nth-child(even),
+[data-theme="dark"] .card a[style*="grid-template-columns"]:nth-child(even) {
+    background: #111111 !important;
+}
+
+[data-theme="dark"] .card a[style*="display: grid"]:hover,
+[data-theme="dark"] .card a[style*="grid-template-columns"]:hover {
+    background: #1a1a1a !important;
+    border-left: 3px solid #6b8fc7 !important;
+}
+
+[data-theme="dark"] .card a[style*="grid-template-columns"] div {
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .card a[style*="grid-template-columns"] div[style*="color: #6b7280"] {
+    color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .card a[style*="grid-template-columns"] span[style*="color: #6b8fc7"] {
+    color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .card a[style*="grid-template-columns"] span[style*="color: #374151"] {
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .card a[style*="grid-template-columns"] span[style*="color: #8b939c"] {
+    color: #f87171 !important;
+}
+
+[data-theme="dark"] .card a[style*="grid-template-columns"] span[style*="color: #5c7fb8"] {
+    color: #34d399 !important;
+}
+
+/* Estados badges */
+[data-theme="dark"] .card a span[style*="background: #e8eef6"] {
+    background: #1a1a1a !important;
+    color: #6b8fc7 !important;
+    border: 1px solid #6b8fc7;
+}
+
+[data-theme="dark"] .card a span[style*="background: #f8f9fa"] {
+    background: #2a1515 !important;
+    color: #f87171 !important;
+    border: 1px solid #8b939c;
+}
+
+/* TERRITORIO CARDS */
+[data-theme="dark"] .territorio-card {
+    background: #0d0d0d !important;
+    border: 1px solid #222222;
+}
+
+[data-theme="dark"] .territorio-card:hover {
+    border-color: #6b8fc7;
+}
+
+[data-theme="dark"] .territorio-numero-destacado {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+}
+
+[data-theme="dark"] .territorio-image-half {
+    background: #111111 !important;
+    border-color: #222222;
+}
+
+/* BADGES */
+[data-theme="dark"] .badge-success {
+    background: #6b8fc7 !important;
+    color: white !important;
+}
+
+[data-theme="dark"] .badge-warning {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+}
+
+[data-theme="dark"] .badge-danger {
+    background: #8b939c !important;
+    color: white !important;
+}
+
+[data-theme="dark"] .badge-secondary,
+[data-theme="dark"] .badge-gray {
+    background: #1a1a1a !important;
+    color: #f5f5f5 !important;
+    border: 1px solid #333333;
+}
+
+[data-theme="dark"] .badge-blue {
+    background: #1a1a1a !important;
+    color: #6b8fc7 !important;
+    border: 1px solid #6b8fc7;
+}
+
+[data-theme="dark"] .badge-green {
+    background: #0a1a0a !important;
+    color: #34d399 !important;
+}
+
+[data-theme="dark"] .badge-yellow {
+    background: #1a1505 !important;
+    color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .badge-red {
+    background: #1a0a0a !important;
+    color: #f87171 !important;
+}
+
+/* BREADCRUMBS */
+[data-theme="dark"] .page-breadcrumbs {
+    color: #737373;
+}
+
+[data-theme="dark"] .breadcrumb-link {
+    color: #6b8fc7;
+}
+
+[data-theme="dark"] .breadcrumb-link:hover {
+    color: #8aa8d6;
+}
+
+[data-theme="dark"] .breadcrumb-current {
+    color: #6b8fc7;
+}
+
+/* ICONOS */
+[data-theme="dark"] .icon {
+    background: #1a1a1a !important;
+    border: 1px solid #6b8fc7;
+    color: #6b8fc7;
+}
+
+[data-theme="dark"] .icon-blue,
+[data-theme="dark"] .icon-purple,
+[data-theme="dark"] .icon-green,
+[data-theme="dark"] .icon-yellow,
+[data-theme="dark"] .icon-red {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+}
+
+/* ACTIVITY */
+[data-theme="dark"] .activity-item {
+    border-bottom-color: #222222;
+}
+
+[data-theme="dark"] .activity-icon {
+    background: #1a1a1a !important;
+    color: #6b8fc7;
+}
+
+/* FILTER STAT BUTTONS */
+[data-theme="dark"] .filter-stat-btn {
+    background: #0d0d0d !important;
+    border-color: #222222 !important;
+}
+
+[data-theme="dark"] .filter-stat-btn:hover {
+    border-color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .filter-stat-btn.active {
+    background: #1a1a1a !important;
+    border-color: #6b8fc7 !important;
+}
+
+/* SEARCH */
+[data-theme="dark"] .search-input {
+    background: #111111 !important;
+    border: 1px solid #333333 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .search-input:focus {
+    border-color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .search-btn {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+}
+
+[data-theme="dark"] .search-clear {
+    background: #8b939c !important;
+}
+
+[data-theme="dark"] .search-results-info {
+    border-top-color: #222222 !important;
+}
+
+/* INFO BOX */
+[data-theme="dark"] .info-box {
+    background: #111111 !important;
+    border: 1px solid #333333 !important;
+}
+
+[data-theme="dark"] .info-box-title {
+    color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .info-box-text {
+    color: #a3a3a3 !important;
+}
+
+/* USEFUL LINKS */
+[data-theme="dark"] .useful-links {
+    background: #111111 !important;
+    border-color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .useful-link {
+    color: #6b8fc7 !important;
+}
+
+/* CARD WARNING */
+[data-theme="dark"] .card-warning {
+    background: #1a0a0a !important;
+    border-color: #8b939c !important;
+}
+
+/* FOOTER */
+[data-theme="dark"] .footer {
+    background: #0a0a0a !important;
+    border-top: 1px solid #222222;
+    color: #737373;
+}
+
+/* THEME TOGGLE */
+[data-theme="dark"] .theme-toggle {
+    background: #1a1a1a;
+    border: 1px solid #6b8fc7;
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+    background: #6b8fc7;
+}
+
+/* LINKS */
+[data-theme="dark"] a {
+    color: #6b8fc7;
+}
+
+[data-theme="dark"] a:hover {
+    color: #8aa8d6;
+}
+
+/* DROPDOWN */
+[data-theme="dark"] .dropdown-menu {
+    background: #0d0d0d !important;
+    border-color: #333333 !important;
+}
+
+[data-theme="dark"] .dropdown-item {
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .dropdown-item:hover {
+    background: #1a1a1a !important;
+}
+
+[data-theme="dark"] .dropdown-item.active {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+}
+
+/* SCROLLBAR */
+[data-theme="dark"] ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: #0a0a0a;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: #333333;
+    border-radius: 4px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: #6b8fc7;
+}
+
+/* SELECTION */
+[data-theme="dark"] ::selection {
+    background: #6b8fc7;
+    color: #0a0a0a;
+}
+
+/* TEXT */
+[data-theme="dark"] .text-muted {
+    color: #737373 !important;
+}
+
+/* ALERTS */
+[data-theme="dark"] .alert-success,
+[data-theme="dark"] div[style*="background: #d4edda"] {
+    background: #0a1a0a !important;
+    color: #34d399 !important;
+    border-color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .alert-error {
+    background: #1a0a0a !important;
+    color: #f87171 !important;
+    border-color: #8b939c !important;
+}
+
+/* WHATSAPP MODAL */
+[data-theme="dark"] .whatsapp-modal,
+[data-theme="dark"] div[style*="background: #e8f5e8"] {
+    background: #0a1a0a !important;
+    border-color: #6b8fc7 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] div[style*="background: #e8f5e8"] div[style*="color: #666"] {
+    color: #a3a3a3 !important;
+}
+
+/* PAGINATION */
+[data-theme="dark"] .pagination a,
+[data-theme="dark"] .pagination span {
+    background: #111111 !important;
+    border: 1px solid #222222 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .pagination a:hover,
+[data-theme="dark"] .pagination .active {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+}
+
+/* STATUS BADGES */
+[data-theme="dark"] .status-active {
+    background: #0a1a0a !important;
+    color: #34d399 !important;
+}
+
+[data-theme="dark"] .status-inactive {
+    background: #1a0a0a !important;
+    color: #f87171 !important;
+}
+
+[data-theme="dark"] .status-badge-active {
+    background: #1a1a1a !important;
+    color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .status-badge-overdue {
+    background: #1a0a0a !important;
+    color: #f87171 !important;
+}
+
+/* EMPTY STATES */
+[data-theme="dark"] .text-center div[style*="color: #d1d5db"] {
+    color: #444444 !important;
+}
+
+[data-theme="dark"] .text-center h3[style*="color: #6b7280"] {
+    color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .text-center p[style*="color: #9ca3af"] {
+    color: #737373 !important;
+}
+
+/* ==========================================
+   MODALES - Negro y Naranja
+   ========================================== */
+
+/* Overlay de modales */
+[data-theme="dark"] .modal-overlay,
+[data-theme="dark"] [style*="background: rgba(0, 0, 0"],
+[data-theme="dark"] [style*="background-color: rgba(0, 0, 0"] {
+    background: rgba(0, 0, 0, 0.85) !important;
+}
+
+/* Contenido de modales */
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .modal-box,
+[data-theme="dark"] [class*="modal"] > div[style*="background: white"],
+[data-theme="dark"] [class*="modal"] > div[style*="background: #fff"],
+[data-theme="dark"] [class*="modal"] > div[style*="background-color: white"],
+[data-theme="dark"] div[style*="position: fixed"] > div[style*="background: white"],
+[data-theme="dark"] div[style*="position: fixed"] > div[style*="background: #fff"] {
+    background: #0d0d0d !important;
+    border: 1px solid #333333 !important;
+    color: #f5f5f5 !important;
+}
+
+/* Headers de modales */
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] [class*="modal"] h2,
+[data-theme="dark"] [class*="modal"] h3 {
+    color: #6b8fc7 !important;
+    border-bottom-color: #333333 !important;
+}
+
+/* Botones cerrar modales */
+[data-theme="dark"] .modal-close,
+[data-theme="dark"] [class*="modal"] button[style*="position: absolute"] {
+    color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .modal-close:hover,
+[data-theme="dark"] [class*="modal"] button[style*="position: absolute"]:hover {
+    color: #6b8fc7 !important;
+}
+
+/* ==========================================
+   INPUTS Y SELECTS INLINE STYLES
+   ========================================== */
+
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="email"],
+[data-theme="dark"] input[type="password"],
+[data-theme="dark"] input[type="number"],
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="time"],
+[data-theme="dark"] input[type="search"],
+[data-theme="dark"] input[type="tel"],
+[data-theme="dark"] input[type="url"],
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+    background: #111111 !important;
+    border-color: #333333 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] textarea:focus,
+[data-theme="dark"] select:focus {
+    border-color: #6b8fc7 !important;
+    box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2) !important;
+    outline: none !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+    color: #666666 !important;
+}
+
+[data-theme="dark"] select option {
+    background: #111111 !important;
+    color: #f5f5f5 !important;
+}
+
+/* ==========================================
+   S-13 IMPORT - Preview y Modales
+   ========================================== */
+
+/* Panel de texto completo */
+[data-theme="dark"] .texto-completo-panel,
+[data-theme="dark"] [id*="textoCompleto"],
+[data-theme="dark"] div[style*="background: #f8fafc"] {
+    background: #111111 !important;
+    border-color: #333333 !important;
+    color: #a3a3a3 !important;
+}
+
+/* Raw data sections */
+[data-theme="dark"] .raw-section,
+[data-theme="dark"] .raw-content {
+    background: #0d0d0d !important;
+    border-color: #333333 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .raw-section-title {
+    color: #6b8fc7 !important;
+}
+
+/* Comparación OCR vs Interpretado */
+[data-theme="dark"] .raw-comparison,
+[data-theme="dark"] .raw-row {
+    border-color: #333333 !important;
+}
+
+[data-theme="dark"] .raw-col-label {
+    color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .raw-col-value.original {
+    background: #1a1a0a !important;
+    color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .raw-col-value.interpreted {
+    background: #0a1a1a !important;
+    color: #22d3ee !important;
+}
+
+/* ==========================================
+   GRUPOS PREDICACION - Estadísticas Modal
+   ========================================== */
+
+[data-theme="dark"] .estadisticas-modal,
+[data-theme="dark"] #estadisticasModal {
+    background: rgba(0, 0, 0, 0.9) !important;
+}
+
+[data-theme="dark"] .estadisticas-content {
+    background: #0d0d0d !important;
+    border: 1px solid #6b8fc7 !important;
+}
+
+[data-theme="dark"] .estadisticas-header {
+    background: #111111 !important;
+    border-bottom: 2px solid #6b8fc7 !important;
+    color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .estadisticas-body {
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .estadisticas-stat {
+    background: #111111 !important;
+    border: 1px solid #333333 !important;
+}
+
+[data-theme="dark"] .estadisticas-stat:hover {
+    border-color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .estadisticas-stat-number {
+    color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .estadisticas-stat-label {
+    color: #a3a3a3 !important;
+}
+
+/* ==========================================
+   PPOC - Calendario y Turnos
+   ========================================== */
+
+[data-theme="dark"] .calendario-dia {
+    background: #0d0d0d !important;
+    border-color: #333333 !important;
+}
+
+[data-theme="dark"] .calendario-dia:hover {
+    border-color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .calendario-dia.hoy {
+    border-color: #6b8fc7 !important;
+    background: #1a1a1a !important;
+}
+
+[data-theme="dark"] .calendario-numero {
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .turno-card {
+    background: #111111 !important;
+    border-color: #333333 !important;
+}
+
+[data-theme="dark"] .turno-card:hover {
+    border-color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .turno-hora {
+    color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .turno-nombre {
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .turno-asignado {
+    background: #1a1a1a !important;
+    color: #a3a3a3 !important;
+}
+
+/* ==========================================
+   CHECKBOXES Y RADIOS
+   ========================================== */
+
+[data-theme="dark"] input[type="checkbox"],
+[data-theme="dark"] input[type="radio"] {
+    accent-color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] input[type="checkbox"]:checked,
+[data-theme="dark"] input[type="radio"]:checked {
+    background-color: #6b8fc7 !important;
+    border-color: #6b8fc7 !important;
+}
+
+/* ==========================================
+   TABLAS CON ESTILOS INLINE
+   ========================================== */
+
+[data-theme="dark"] div[style*="display: grid"][style*="font-weight: 600"],
+[data-theme="dark"] div[style*="display: grid"][style*="background: #f9fafb"],
+[data-theme="dark"] div[style*="display: grid"][style*="background: #f3f4f6"] {
+    background: #111111 !important;
+    color: #6b8fc7 !important;
+    border-bottom: 2px solid #6b8fc7 !important;
+}
+
+[data-theme="dark"] div[style*="display: grid"][style*="border-bottom: 1px"] {
+    border-bottom-color: #333333 !important;
+}
+
+/* Filas alternadas en tablas inline */
+[data-theme="dark"] div[style*="display: grid"]:nth-child(odd) {
+    background: #0a0a0a !important;
+}
+
+[data-theme="dark"] div[style*="display: grid"]:nth-child(even) {
+    background: #0d0d0d !important;
+}
+
+/* ==========================================
+   RESUMEN CARDS (S-13 Import, etc)
+   ========================================== */
+
+[data-theme="dark"] .resumen-card,
+[data-theme="dark"] div[style*="background: linear-gradient"] {
+    background: #111111 !important;
+    border: 1px solid #333333 !important;
+}
+
+[data-theme="dark"] .resumen-numero {
+    color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .resumen-label {
+    color: #a3a3a3 !important;
+}
+
+/* ==========================================
+   MENSAJES Y TOOLTIPS
+   ========================================== */
+
+[data-theme="dark"] .tooltip,
+[data-theme="dark"] [role="tooltip"] {
+    background: #1a1a1a !important;
+    border: 1px solid #6b8fc7 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .tooltip::before,
+[data-theme="dark"] .tooltip::after {
+    border-color: #6b8fc7 transparent transparent transparent !important;
+}
+
+/* ==========================================
+   DRAG AND DROP (Grupos)
+   ========================================== */
+
+[data-theme="dark"] .draggable,
+[data-theme="dark"] [draggable="true"] {
+    background: #111111 !important;
+    border-color: #333333 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .draggable:hover,
+[data-theme="dark"] [draggable="true"]:hover {
+    border-color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .dragging {
+    opacity: 0.7 !important;
+    border-color: #6b8fc7 !important;
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.3) !important;
+}
+
+[data-theme="dark"] .drop-zone.drag-over {
+    background: rgba(249, 115, 22, 0.1) !important;
+    border-color: #6b8fc7 !important;
+}
+
+/* ==========================================
+   MOBILE MENU
+   ========================================== */
+
+[data-theme="dark"] .mobile-menu,
+[data-theme="dark"] .mobile-nav {
+    background: #0a0a0a !important;
+    border-color: #333333 !important;
+}
+
+[data-theme="dark"] .mobile-menu-item,
+[data-theme="dark"] .mobile-nav-link {
+    color: #a3a3a3 !important;
+    border-bottom-color: #222222 !important;
+}
+
+[data-theme="dark"] .mobile-menu-item:hover,
+[data-theme="dark"] .mobile-nav-link:hover,
+[data-theme="dark"] .mobile-menu-item.active,
+[data-theme="dark"] .mobile-nav-link.active {
+    background: #1a1a1a !important;
+    color: #6b8fc7 !important;
+}
+
+/* ==========================================
+   CODE BLOCKS Y PRE
+   ========================================== */
+
+[data-theme="dark"] pre,
+[data-theme="dark"] code,
+[data-theme="dark"] .code-block {
+    background: #111111 !important;
+    border-color: #333333 !important;
+    color: #f5f5f5 !important;
+}
+
+/* ==========================================
+   LOADING STATES
+   ========================================== */
+
+[data-theme="dark"] .loading,
+[data-theme="dark"] .spinner {
+    border-color: #333333 !important;
+    border-top-color: #6b8fc7 !important;
+}
+
+/* ==========================================
+   INLINE STYLES OVERRIDE - Colores específicos
+   ========================================== */
+
+/* Forzar colores en elementos con estilos inline */
+[data-theme="dark"] [style*="color: #333"],
+[data-theme="dark"] [style*="color: #374151"],
+[data-theme="dark"] [style*="color: #1f2937"] {
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] [style*="color: #6b7280"],
+[data-theme="dark"] [style*="color: #9ca3af"] {
+    color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] [style*="color: #6b8fc7"],
+[data-theme="dark"] [style*="color: #5c7fb8"],
+[data-theme="dark"] [style*="color: #6b8fc7"] {
+    color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] [style*="background: #fff"],
+[data-theme="dark"] [style*="background: white"],
+[data-theme="dark"] [style*="background-color: #fff"],
+[data-theme="dark"] [style*="background-color: white"] {
+    background: #0d0d0d !important;
+}
+
+[data-theme="dark"] [style*="background: #f9fafb"],
+[data-theme="dark"] [style*="background: #f3f4f6"],
+[data-theme="dark"] [style*="background: #e5e7eb"],
+[data-theme="dark"] [style*="background-color: #f9fafb"],
+[data-theme="dark"] [style*="background-color: #f3f4f6"] {
+    background: #111111 !important;
+}
+
+[data-theme="dark"] [style*="border-color: #e5e7eb"],
+[data-theme="dark"] [style*="border: 1px solid #e5e7eb"],
+[data-theme="dark"] [style*="border: 1px solid #d1d5db"] {
+    border-color: #333333 !important;
+}
+
+/* ==========================================
+   OVERRIDE COMPLETO - Verdes a Naranja
+   ========================================== */
+
+/* Todos los verdes -> naranja */
+[data-theme="dark"] [style*="#6b8fc7"],
+[data-theme="dark"] [style*="#5c7fb8"],
+[data-theme="dark"] [style*="#6b8fc7"],
+[data-theme="dark"] [style*="#5c7fb8"],
+[data-theme="dark"] [style*="#34d399"],
+[data-theme="dark"] [style*="#dcfce7"],
+[data-theme="dark"] [style*="#bbf7d0"],
+[data-theme="dark"] [style*="#166534"] {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+    border-color: #6b8fc7 !important;
+}
+
+/* Verdes para texto */
+[data-theme="dark"] [style*="color: #6b8fc7"],
+[data-theme="dark"] [style*="color: #5c7fb8"],
+[data-theme="dark"] [style*="color: #6b8fc7"],
+[data-theme="dark"] [style*="color: #5c7fb8"],
+[data-theme="dark"] [style*="color: #166534"] {
+    color: #6b8fc7 !important;
+}
+
+/* ==========================================
+   OVERRIDE COMPLETO - Azules a Naranja
+   ========================================== */
+
+/* Todos los azules -> naranja */
+[data-theme="dark"] [style*="#6b8fc7"],
+[data-theme="dark"] [style*="#5c7fb8"],
+[data-theme="dark"] [style*="#4a6da7"],
+[data-theme="dark"] [style*="#e8eef6"],
+[data-theme="dark"] [style*="#bfdbfe"],
+[data-theme="dark"] [style*="#f4f7fb"],
+[data-theme="dark"] [style*="#2d4266"],
+[data-theme="dark"] [style*="#6b8fc7"] {
+    background: #1a1a1a !important;
+    border-color: #6b8fc7 !important;
+}
+
+/* Azules para texto */
+[data-theme="dark"] [style*="color: #6b8fc7"],
+[data-theme="dark"] [style*="color: #5c7fb8"],
+[data-theme="dark"] [style*="color: #4a6da7"],
+[data-theme="dark"] [style*="color: #2d4266"],
+[data-theme="dark"] [style*="color: #6b8fc7"] {
+    color: #6b8fc7 !important;
+}
+
+/* ==========================================
+   CLASES ESPECÍFICAS - Estados
+   ========================================== */
+
+/* Estados de territorio */
+[data-theme="dark"] .estado-disponible,
+[data-theme="dark"] .estado-libre {
+    background: rgba(249, 115, 22, 0.15) !important;
+    color: #8aa8d6 !important;
+    border: 1px solid #6b8fc7 !important;
+}
+
+[data-theme="dark"] .estado-activo {
+    background: rgba(249, 115, 22, 0.25) !important;
+    color: #6b8fc7 !important;
+    border: 1px solid #6b8fc7 !important;
+}
+
+[data-theme="dark"] .estado-vencido,
+[data-theme="dark"] .estado-overdue {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #f87171 !important;
+    border: 1px solid #8b939c !important;
+}
+
+/* Tipos de territorio badges */
+[data-theme="dark"] .territorio-tipo-badge,
+[data-theme="dark"] .territorio-tipo-badge.regular,
+[data-theme="dark"] .territorio-tipo-badge.campana,
+[data-theme="dark"] .territorio-tipo-badge.negocios {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+}
+
+/* ==========================================
+   BOTONES CON ESTILOS INLINE
+   ========================================== */
+
+[data-theme="dark"] .btn-primary,
+[data-theme="dark"] [class*="btn"][style*="#6b8fc7"],
+[data-theme="dark"] [class*="btn"][style*="#5c7fb8"],
+[data-theme="dark"] button[style*="#6b8fc7"],
+[data-theme="dark"] a[style*="#6b8fc7"] {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+    border-color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .btn-success,
+[data-theme="dark"] [class*="btn"][style*="#6b8fc7"],
+[data-theme="dark"] [class*="btn"][style*="#6b8fc7"],
+[data-theme="dark"] button[style*="#6b8fc7"],
+[data-theme="dark"] button[style*="#6b8fc7"] {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+    border-color: #6b8fc7 !important;
+}
+
+/* ==========================================
+   GRADIENTES - Convertir a negro/naranja
+   ========================================== */
+
+[data-theme="dark"] [style*="linear-gradient"][style*="#6b8fc7"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#6b8fc7"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#5c7fb8"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#5c7fb8"] {
+    background: linear-gradient(135deg, #6b8fc7 0%, #5c7fb8 100%) !important;
+}
+
+[data-theme="dark"] [style*="linear-gradient"][style*="#6b8fc7"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#5c7fb8"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#4a6da7"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#e8eef6"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#f4f7fb"] {
+    background: linear-gradient(135deg, #1a1a1a 0%, #111111 100%) !important;
+    border: 1px solid #6b8fc7 !important;
+}
+
+[data-theme="dark"] [style*="linear-gradient"][style*="#dcfce7"],
+[data-theme="dark"] [style*="linear-gradient"][style*="#bbf7d0"] {
+    background: linear-gradient(135deg, #1a1508 0%, #0a0a0a 100%) !important;
+    border: 1px solid #6b8fc7 !important;
+}
+
+/* ==========================================
+   PROGRESO BARS
+   ========================================== */
+
+[data-theme="dark"] .progreso-success,
+[data-theme="dark"] [class*="progreso"][style*="#6b8fc7"],
+[data-theme="dark"] [class*="progress"][style*="#6b8fc7"] {
+    background: linear-gradient(90deg, #6b8fc7, #8aa8d6) !important;
+}
+
+/* ==========================================
+   CARDS INFO/TIPS con fondos azules/verdes
+   ========================================== */
+
+[data-theme="dark"] div[style*="background: #e8eef6"],
+[data-theme="dark"] div[style*="background: #f4f7fb"],
+[data-theme="dark"] div[style*="background: #bfdbfe"] {
+    background: #111111 !important;
+    border: 1px solid #6b8fc7 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] div[style*="background: #dcfce7"],
+[data-theme="dark"] div[style*="background: #bbf7d0"],
+[data-theme="dark"] div[style*="background: #e8eef6"] {
+    background: #0f1a0a !important;
+    border: 1px solid #6b8fc7 !important;
+    color: #f5f5f5 !important;
+}
+
+/* ==========================================
+   ICONOS Y ELEMENTOS DECORATIVOS
+   ========================================== */
+
+[data-theme="dark"] .icon-green,
+[data-theme="dark"] .icon-blue,
+[data-theme="dark"] [class*="icon"][style*="#6b8fc7"],
+[data-theme="dark"] [class*="icon"][style*="#6b8fc7"],
+[data-theme="dark"] [class*="icon"][style*="#6b8fc7"] {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+}
+
+/* ==========================================
+   STEPS/PASOS (creador territorios)
+   ========================================== */
+
+[data-theme="dark"] .step.completed,
+[data-theme="dark"] .step.completed .step-number {
+    color: #6b8fc7 !important;
+    background: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .step .step-number {
+    background: #333333 !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .step.active .step-number {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+}
+
+/* ==========================================
+   ADMINISTRACION CARDS
+   ========================================== */
+
+[data-theme="dark"] .admin-card,
+[data-theme="dark"] .config-card {
+    background: #0d0d0d !important;
+    border: 1px solid #333333 !important;
+}
+
+[data-theme="dark"] .admin-card:hover,
+[data-theme="dark"] .config-card:hover {
+    border-color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .admin-card .icon,
+[data-theme="dark"] .config-card .icon {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+}
+
+/* ==========================================
+   USUARIOS
+   ========================================== */
+
+[data-theme="dark"] .user-status-active,
+[data-theme="dark"] [style*="color: #6b8fc7"] {
+    color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .user-role-badge {
+    background: #1a1a1a !important;
+    color: #6b8fc7 !important;
+    border: 1px solid #6b8fc7 !important;
+}
+
+/* ==========================================
+   FORZAR TODOS LOS BACKGROUNDS CLAROS
+   ========================================== */
+
+[data-theme="dark"] [style*="background: white"],
+[data-theme="dark"] [style*="background:#fff"],
+[data-theme="dark"] [style*="background: #fff"],
+[data-theme="dark"] [style*="background-color: white"],
+[data-theme="dark"] [style*="background-color: #fff"],
+[data-theme="dark"] [style*="background-color:#fff"] {
+    background: #0d0d0d !important;
+}
+
+/* ==========================================
+   FORZAR TODOS LOS TEXTOS OSCUROS
+   ========================================== */
+
+[data-theme="dark"] [style*="color: #111"],
+[data-theme="dark"] [style*="color: #000"],
+[data-theme="dark"] [style*="color: black"],
+[data-theme="dark"] [style*="color:#333"],
+[data-theme="dark"] [style*="color: #333"] {
+    color: #f5f5f5 !important;
+}
+
+/* ==========================================
+   LINKS EN CUALQUIER CONTEXTO
+   ========================================== */
+
+[data-theme="dark"] a[style*="color: #6b8fc7"],
+[data-theme="dark"] a[style*="color: #5c7fb8"],
+[data-theme="dark"] a[style*="color: #4a6da7"] {
+    color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] a[style*="color: #6b8fc7"]:hover,
+[data-theme="dark"] a[style*="color: #5c7fb8"]:hover {
+    color: #8aa8d6 !important;
+}
+
+/* ==========================================
+   BOTONES ESPECÍFICOS DE VISTAS
+   ========================================== */
+
+/* Territorios - Botones de acción */
+[data-theme="dark"] .btn-asignar {
+    background: linear-gradient(135deg, #6b8fc7 0%, #5c7fb8 100%) !important;
+    color: #0a0a0a !important;
+}
+
+[data-theme="dark"] .btn-asignar:hover {
+    background: linear-gradient(135deg, #8aa8d6 0%, #6b8fc7 100%) !important;
+    box-shadow: 0 20px 50px rgba(249, 115, 22, 0.3) !important;
+}
+
+[data-theme="dark"] .btn-devolver {
+    background: linear-gradient(135deg, #6b8fc7 0%, #5c7fb8 100%) !important;
+    color: #0a0a0a !important;
+}
+
+[data-theme="dark"] .btn-devolver:hover {
+    background: linear-gradient(135deg, #8aa8d6 0%, #6b8fc7 100%) !important;
+    box-shadow: 0 20px 50px rgba(249, 115, 22, 0.3) !important;
+}
+
+/* Territorio tipo badges */
+[data-theme="dark"] .territorio-tipo-badge.campana {
+    background: #8aa8d6 !important;
+    color: #0a0a0a !important;
+}
+
+[data-theme="dark"] .territorio-tipo-badge.negocios {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+}
+
+/* Territorio foto número */
+[data-theme="dark"] .territorio-foto-numero {
+    background: linear-gradient(135deg, #6b8fc7 0%, #5c7fb8 100%) !important;
+    color: #0a0a0a !important;
+}
+
+[data-theme="dark"] .territorio-foto-numero.numero-campana {
+    background: linear-gradient(135deg, #8aa8d6 0%, #6b8fc7 100%) !important;
+}
+
+[data-theme="dark"] .territorio-foto-numero.numero-negocios {
+    background: linear-gradient(135deg, #6b8fc7 0%, #5c7fb8 100%) !important;
+}
+
+[data-theme="dark"] .territorio-foto-nombre {
+    color: #f5f5f5 !important;
+}
+
+/* ==========================================
+   TODOS LOS BTN-SUCCESS Y BTN-PRIMARY
+   ========================================== */
+
+[data-theme="dark"] .btn-success,
+[data-theme="dark"] .btn-success:hover,
+[data-theme="dark"] .btn-success:focus {
+    background: linear-gradient(135deg, #6b8fc7 0%, #5c7fb8 100%) !important;
+    background-color: #6b8fc7 !important;
+    color: #0a0a0a !important;
+    border-color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .btn-primary,
+[data-theme="dark"] .btn-primary:hover,
+[data-theme="dark"] .btn-primary:focus {
+    background: linear-gradient(135deg, #6b8fc7 0%, #5c7fb8 100%) !important;
+    background-color: #6b8fc7 !important;
+    color: #0a0a0a !important;
+    border-color: #6b8fc7 !important;
+}
+
+/* ==========================================
+   BOTONES CON CUALQUIER VERDE O AZUL
+   ========================================== */
+
+[data-theme="dark"] button[class*="success"],
+[data-theme="dark"] a[class*="success"],
+[data-theme="dark"] .btn[class*="success"] {
+    background: #6b8fc7 !important;
+    background-color: #6b8fc7 !important;
+    color: #0a0a0a !important;
+    border-color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] button[class*="primary"],
+[data-theme="dark"] a[class*="primary"],
+[data-theme="dark"] .btn[class*="primary"] {
+    background: #6b8fc7 !important;
+    background-color: #6b8fc7 !important;
+    color: #0a0a0a !important;
+    border-color: #6b8fc7 !important;
+}
+
+/* ==========================================
+   ESTADOS DE TERRITORIO
+   ========================================== */
+
+[data-theme="dark"] .estado-disponible {
+    background: rgba(249, 115, 22, 0.15) !important;
+    color: #8aa8d6 !important;
+    border-color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .estado-activo {
+    background: rgba(249, 115, 22, 0.25) !important;
+    color: #6b8fc7 !important;
+    border-color: #6b8fc7 !important;
+}
+
+/* ==========================================
+   PUBLICADORES - Botones y badges
+   ========================================== */
+
+[data-theme="dark"] .publicador-activo,
+[data-theme="dark"] .badge-activo {
+    background: rgba(249, 115, 22, 0.15) !important;
+    color: #6b8fc7 !important;
+}
+
+/* ==========================================
+   REGISTROS Y HISTORIAL
+   ========================================== */
+
+[data-theme="dark"] .registro-activo,
+[data-theme="dark"] .registro-completado {
+    border-left-color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .progreso-bar,
+[data-theme="dark"] .progress-bar {
+    background: linear-gradient(90deg, #6b8fc7, #8aa8d6) !important;
+}
+
+/* ==========================================
+   WHATSAPP BUTTON (mantener verde)
+   ========================================== */
+
+[data-theme="dark"] .btn-whatsapp,
+[data-theme="dark"] [class*="whatsapp"] .btn,
+[data-theme="dark"] button[class*="whatsapp"] {
+    background: #25D366 !important;
+    color: white !important;
+}
+
+/* ==========================================
+   DANGER BUTTONS (mantener rojo)
+   ========================================== */
+
+[data-theme="dark"] .btn-danger,
+[data-theme="dark"] .btn-danger:hover {
+    background: #8b939c !important;
+    background-color: #8b939c !important;
+    color: white !important;
+    border-color: #8b939c !important;
+}
+
+/* ==========================================
+   SECONDARY/OUTLINE BUTTONS
+   ========================================== */
+
+[data-theme="dark"] .btn-secondary {
+    background: #1a1a1a !important;
+    color: #f5f5f5 !important;
+    border: 1px solid #444444 !important;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+    background: #262626 !important;
+    border-color: #6b8fc7 !important;
+    color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .btn-outline-primary,
+[data-theme="dark"] .btn-outline-success {
+    background: transparent !important;
+    color: #6b8fc7 !important;
+    border: 2px solid #6b8fc7 !important;
+}
+
+[data-theme="dark"] .btn-outline-primary:hover,
+[data-theme="dark"] .btn-outline-success:hover {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+}
+
+/* ==========================================
+   ADMINISTRACION - Iconos de cards
+   ========================================== */
+
+[data-theme="dark"] .admin-icon,
+[data-theme="dark"] .card-icon,
+[data-theme="dark"] .feature-icon {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+}
+
+/* ==========================================
+   CREADOR TERRITORIOS
+   ========================================== */
+
+[data-theme="dark"] .step.completed {
+    color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .step.completed .step-number {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+}
+
+[data-theme="dark"] .step.active .step-number {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+    border-color: #6b8fc7 !important;
+}
+
+/* ==========================================
+   FILTROS Y TABS
+   ========================================== */
+
+[data-theme="dark"] .filter-btn.active,
+[data-theme="dark"] .tab-btn.active,
+[data-theme="dark"] .nav-tab.active {
+    background: #6b8fc7 !important;
+    color: #0a0a0a !important;
+    border-color: #6b8fc7 !important;
+}
+
+[data-theme="dark"] .filter-btn:hover,
+[data-theme="dark"] .tab-btn:hover,
+[data-theme="dark"] .nav-tab:hover {
+    border-color: #6b8fc7 !important;
+    color: #6b8fc7 !important;
+}

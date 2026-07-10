@@ -1,0 +1,52 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Reuniones\ReunionController;
+
+Route::middleware(['auth', 'congregacion'])->prefix('reuniones')->group(function () {
+
+    // VyM (entre semana)
+    Route::get('/', [ReunionController::class, 'index'])->name('reuniones.index');
+    Route::get('/crear', [ReunionController::class, 'create'])->name('reuniones.create');
+    Route::post('/', [ReunionController::class, 'store'])->name('reuniones.store');
+    Route::post('/agregar-proxima', [ReunionController::class, 'agregarProxima'])->name('reuniones.agregar-proxima');
+
+    // Fin de semana
+    Route::get('/fin-de-semana', [ReunionController::class, 'finSemana'])->name('reuniones.finsemana');
+
+    // Asignaciones (vista general)
+    Route::get('/asignaciones', [ReunionController::class, 'asignaciones'])->name('reuniones.asignaciones');
+
+    // Historial por publicador
+    Route::get('/historial/{publicador}', [ReunionController::class, 'historialPublicador'])->name('reuniones.historial');
+
+    // Autorizaciones (drag & drop)
+    Route::get('/autorizaciones', [ReunionController::class, 'autorizaciones'])->name('reuniones.autorizaciones');
+    Route::post('/autorizaciones', [ReunionController::class, 'guardarAutorizacion'])->name('reuniones.autorizaciones.guardar');
+
+    // Generos bulk
+    Route::get('/generos', [ReunionController::class, 'generosBulk'])->name('reuniones.generos');
+    Route::post('/generos', [ReunionController::class, 'guardarGeneros'])->name('reuniones.generos.guardar');
+
+    // CRUD programas VyM
+    // Mes completo imprimible (debe ir antes del slug {reunione})
+    Route::get('/mes/{mes}', [ReunionController::class, 'showMes'])->where('mes', '\d{4}-\d{2}')->name('reuniones.mes');
+
+    Route::get('/{reunione}', [ReunionController::class, 'show'])->name('reuniones.show');
+    Route::get('/{reunione}/editar', [ReunionController::class, 'edit'])->name('reuniones.edit');
+    Route::put('/{reunione}', [ReunionController::class, 'update'])->name('reuniones.update');
+    Route::delete('/{reunione}', [ReunionController::class, 'destroy'])->name('reuniones.destroy');
+
+    // Acciones especiales
+    Route::post('/{reunione}/auto-asignar', [ReunionController::class, 'autoAsignar'])->name('reuniones.auto-asignar');
+    Route::post('/{reunione}/importar-desde-listado', [ReunionController::class, 'importarDesdeListado'])->name('reuniones.importar-desde-listado');
+    Route::post('/{reunione}/importar-titulos', [ReunionController::class, 'importarTitulos'])->name('reuniones.importar-titulos');
+    Route::get('/{reunione}/importar-titulos', [ReunionController::class, 'edit'])->name('reuniones.importar-titulos.get');
+    Route::post('/{reunione}/publicar', [ReunionController::class, 'publicar'])->name('reuniones.publicar');
+    Route::post('/{reunione}/despublicar', [ReunionController::class, 'despublicar'])->name('reuniones.despublicar');
+    Route::get('/{reunione}/recomendar/{tipoParte}', [ReunionController::class, 'recomendar'])->name('reuniones.recomendar');
+
+    // Emergencia
+    Route::get('/{reunione}/recomendar-emergencia/{tipoParte}', [ReunionController::class, 'recomendarEmergencia'])->name('reuniones.recomendar-emergencia');
+    Route::post('/{reunione}/reemplazo-emergencia', [ReunionController::class, 'guardarReemplazoEmergencia'])->name('reuniones.reemplazo-emergencia');
+});
