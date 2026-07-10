@@ -37,8 +37,8 @@
                 @enderror
             </div>
 
-            <div style="background: #f0fdf4; border: 1px solid #8aa8d6; border-radius: 0.5rem; padding: 1rem; margin: 1rem 0;">
-                <h4 style="margin: 0 0 1rem 0; color: #166534;">Credenciales de Acceso</h4>
+            <div style="background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); border-radius: 0.5rem; padding: 1rem; margin: 1rem 0;">
+                <h4 style="margin: 0 0 1rem 0; color: #4ade80;">Credenciales de Acceso</h4>
 
                 <div class="form-group">
                     <label for="usuario">Usuario para iniciar sesión *</label>
@@ -53,7 +53,7 @@
 
                 <div class="form-group" style="margin-bottom: 0;">
                     <label for="password_plain">Contraseña *</label>
-                    <input type="text" id="password_plain" name="password_plain" value="{{ old('password_plain', $congregacion->password_plain) }}"
+                    <input type="password" autocomplete="new-password" id="password_plain" name="password_plain" value="{{ old('password_plain', $congregacion->password_plain) }}"
                            class="form-control @error('password_plain') is-invalid @enderror"
                            placeholder="Ej: centro123" required>
                     @error('password_plain')
@@ -107,15 +107,15 @@
     </div>
     <div class="card-body">
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
-            <div style="text-align: center; padding: 1rem; background: #f3f4f6; border-radius: 0.5rem;">
+            <div style="text-align: center; padding: 1rem; background: var(--bg-hover); border-radius: 0.5rem;">
                 <div style="font-size: 2rem; font-weight: bold; color: #4a6da7;">{{ $congregacion->territorios()->count() }}</div>
                 <div style="font-size: 0.875rem; color: #6b7280;">Territorios</div>
             </div>
-            <div style="text-align: center; padding: 1rem; background: #f3f4f6; border-radius: 0.5rem;">
+            <div style="text-align: center; padding: 1rem; background: var(--bg-hover); border-radius: 0.5rem;">
                 <div style="font-size: 2rem; font-weight: bold; color: #3d5a8a;">{{ $congregacion->publicadores()->count() }}</div>
                 <div style="font-size: 0.875rem; color: #6b7280;">Publicadores</div>
             </div>
-            <div style="text-align: center; padding: 1rem; background: #f3f4f6; border-radius: 0.5rem;">
+            <div style="text-align: center; padding: 1rem; background: var(--bg-hover); border-radius: 0.5rem;">
                 <div style="font-size: 2rem; font-weight: bold; color: #3d5a8a;">{{ $congregacion->users()->count() }}</div>
                 <div style="font-size: 0.875rem; color: #6b7280;">Usuarios</div>
             </div>

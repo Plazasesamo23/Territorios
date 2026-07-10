@@ -19,7 +19,7 @@
     <!-- Header -->
     <div class="page-header">
         <div class="header-left">
-            <h1>Grupos de Predicacion</h1>
+            <h1>Grupos de Predicación</h1>
             <span class="ano-servicio">{{ $anoServicio }}</span>
         </div>
         <div class="header-actions">
@@ -36,7 +36,7 @@
                     <polyline points="17 21 17 13 7 13 7 21"/>
                     <polyline points="7 3 7 8 15 8"/>
                 </svg>
-                Cerrar Año
+                Guardar historial del año
             </button>
             <button onclick="generarAutomatico()" class="btn-generar">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -53,6 +53,11 @@
                 Exportar PDF
             </button>
         </div>
+    </div>
+
+    <div class="grupos-hint no-print" style="display:flex;align-items:flex-start;gap:0.5rem;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.9rem;color:var(--text-muted);">
+        <span aria-hidden="true">&#128161;</span>
+        <div><strong style="color:var(--text);">Cómo funciona:</strong> arrastra un publicador de un grupo a otro para moverlo (en ordenador). Los botones <strong>S</strong> y <strong>A</strong> junto a cada nombre marcan al superintendente y al auxiliar del grupo.</div>
     </div>
 
     <!-- Layout principal -->
@@ -278,7 +283,7 @@
 
 /* Grupos */
 .grupos-section {
-    background: white;
+    background: var(--bg-white);
     border-radius: 10px;
     padding: 1rem;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
@@ -296,7 +301,7 @@
 }
 
 .grupo-box {
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border);
     border-radius: 8px;
     overflow: hidden;
 }
@@ -337,11 +342,11 @@
 .grupo-lista {
     min-height: 150px;
     padding: 0.4rem;
-    background: #fafafa;
+    background: var(--bg);
 }
 
 .grupo-lista.drag-over {
-    background: #f4f7fb;
+    background: rgba(59,130,246,0.10);
 }
 
 .pub-item {
@@ -350,7 +355,7 @@
     justify-content: space-between;
     padding: 0.3rem 0.4rem;
     margin-bottom: 0.25rem;
-    background: white;
+    background: var(--bg-white);
     border-radius: 4px;
     font-size: 0.75rem;
     cursor: grab;
@@ -358,7 +363,7 @@
 }
 
 .pub-item:hover {
-    border-color: #d1d5db;
+    border-color: var(--border-medium);
 }
 
 .pub-item.dragging {
@@ -366,15 +371,15 @@
 }
 
 .pub-item.superintendente {
-    color: #343a40;
+    color: var(--text);
     font-weight: 600;
-    background: #f8f9fa;
+    background: var(--bg-hover);
 }
 
 .pub-item.auxiliar {
     color: #3d5a8a;
     font-weight: 600;
-    background: #f4f7fb;
+    background: rgba(59,130,246,0.10);
 }
 
 .pub-item.precursor {
@@ -384,7 +389,7 @@
 .pub-item.nombramiento {
     font-weight: 600;
     color: #3d5a8a;
-    background: #f5f3ff;
+    background: rgba(168,85,247,0.10);
 }
 
 .pub-nombre {
@@ -406,12 +411,12 @@
 }
 
 .btn-rol {
-    width: 18px;
-    height: 18px;
-    border: 1px solid #d1d5db;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--border-medium);
     border-radius: 3px;
-    background: white;
-    font-size: 0.6rem;
+    background: var(--bg-white);
+    font-size: 0.72rem;
     font-weight: 700;
     cursor: pointer;
     color: #9ca3af;
@@ -433,10 +438,10 @@
     align-items: center;
     gap: 0.4rem;
     padding: 0.35rem 0.5rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border);
     font-size: 0.7rem;
     font-weight: 600;
-    background: white;
+    background: var(--bg-white);
 }
 
 .grupo-total span:first-child {
@@ -446,7 +451,7 @@
 }
 
 .total-num {
-    background: #e5e7eb;
+    background: var(--bg-hover);
     padding: 0.15rem 0.4rem;
     border-radius: 3px;
 }
@@ -457,7 +462,7 @@
     justify-content: space-between;
     align-items: center;
     padding-top: 0.75rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border);
     font-size: 0.8rem;
 }
 
@@ -480,7 +485,7 @@
 
 /* Panel sin grupo */
 .panel-sin-grupo {
-    background: white;
+    background: var(--bg-white);
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     overflow: hidden;
@@ -514,13 +519,13 @@
 
 .panel-search {
     padding: 0.5rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border);
 }
 
 .panel-search input {
     width: 100%;
     padding: 0.4rem 0.6rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border);
     border-radius: 4px;
     font-size: 0.8rem;
 }
@@ -880,7 +885,7 @@ function guardarHistorial() {
             alert(data.error || 'Error al guardar');
         }
     })
-    .catch(err => alert('Error de conexion'));
+    .catch(err => alert('Error de conexión. Comprueba tu internet e inténtalo de nuevo.'));
 }
 
 function generarAutomatico() {
@@ -899,7 +904,7 @@ function generarAutomatico() {
             alert(data.error || 'Error al generar');
         }
     })
-    .catch(err => alert('Error de conexion'));
+    .catch(err => alert('Error de conexión. Comprueba tu internet e inténtalo de nuevo.'));
 }
 </script>
 

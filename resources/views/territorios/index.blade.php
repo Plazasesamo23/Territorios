@@ -92,12 +92,12 @@
         <div class="stat-label">Total</div>
     </a>
     <a href="{{ route('territorios.index', ['estado' => 'libre', 'search' => request('search'), 'tipo' => $tipoFiltro ?? 'todos']) }}" class="stat-card {{ request('estado') == 'libre' ? 'active' : '' }}">
-        <div class="stat-number text-primary">{{ $estadisticas['libre'] }}</div>
+        <div class="stat-number" style="color: var(--success)">{{ $estadisticas['libre'] }}</div>
         <div class="stat-label">Libres</div>
     </a>
     <a href="{{ route('territorios.index', ['estado' => 'activo', 'search' => request('search'), 'tipo' => $tipoFiltro ?? 'todos']) }}" class="stat-card {{ request('estado') == 'activo' ? 'active' : '' }}">
         <div class="stat-number text-primary">{{ $estadisticas['activo'] }}</div>
-        <div class="stat-label">Activos</div>
+        <div class="stat-label">En plazo</div>
     </a>
     <a href="{{ route('territorios.index', ['estado' => 'atrasado', 'search' => request('search'), 'tipo' => $tipoFiltro ?? 'todos']) }}" class="stat-card {{ request('estado') == 'atrasado' ? 'active' : '' }}">
         <div class="stat-number" style="color: var(--warning, #f59e0b)">{{ $estadisticas['atrasado'] }}</div>
@@ -155,13 +155,13 @@
                             <div class="territorio-badge-estado territorio-badge-desktop
                                 @if($territorio->estaDisponibleParaAsignar()) badge-green
                                 @elseif($territorio->calcularEstado() == 'activo') badge-blue
-                                @elseif($territorio->calcularEstado() == 'atrasado') badge-red
+                                @elseif($territorio->calcularEstado() == 'atrasado') badge-yellow
                                 @else badge-gray
                                 @endif">
-                                @if($territorio->estaDisponibleParaAsignar()) Disponible
-                                @elseif($territorio->calcularEstado() == 'activo') Activo
-                                @elseif($territorio->calcularEstado() == 'atrasado') Atrasado
-                                @else En Archivo
+                                @if($territorio->estaDisponibleParaAsignar()) Libre
+                                @elseif($territorio->calcularEstado() == 'activo') En plazo
+                                @elseif($territorio->calcularEstado() == 'atrasado') ⚠ Atrasado
+                                @else Archivo
                                 @endif
                             </div>
                         </div>
@@ -191,12 +191,12 @@
             <div class="territorio-badge-estado territorio-badge-mobile
                 @if($territorio->estaDisponibleParaAsignar()) badge-green
                 @elseif($territorio->calcularEstado() == 'activo') badge-blue
-                @elseif($territorio->calcularEstado() == 'atrasado') badge-red
+                @elseif($territorio->calcularEstado() == 'atrasado') badge-yellow
                 @else badge-gray
                 @endif">
-                @if($territorio->estaDisponibleParaAsignar()) Disponible
-                @elseif($territorio->calcularEstado() == 'activo') Activo
-                @elseif($territorio->calcularEstado() == 'atrasado') Atrasado
+                @if($territorio->estaDisponibleParaAsignar()) Libre
+                @elseif($territorio->calcularEstado() == 'activo') En plazo
+                @elseif($territorio->calcularEstado() == 'atrasado') ⚠ Atrasado
                 @else Archivo
                 @endif
             </div>

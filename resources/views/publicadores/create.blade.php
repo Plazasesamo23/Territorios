@@ -27,7 +27,7 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Genero *</label>
+                <label class="form-label">Género *</label>
                 <select name="genero" class="form-input" required>
                     <option value="">-- Seleccionar --</option>
                     <option value="M" {{ old('genero') == 'M' ? 'selected' : '' }}>Hermano</option>
@@ -36,7 +36,7 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Telefono *</label>
+                <label class="form-label">Teléfono *</label>
                 <input type="tel" name="telefono" required value="{{ old('telefono') }}"
                        class="form-input" placeholder="+34 612 345 678">
             </div>

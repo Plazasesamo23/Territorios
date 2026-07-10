@@ -50,14 +50,15 @@
                         @if($tipoActual !== 'normal')
                         <span class="tipo-badge tipo-badge-{{ $tipoActual }}">
                             @if($tipoActual === 'campana')
-                                &#128227; Campana
+                                &#128227; Campaña
                             @else
                                 &#127970; Negocios
                             @endif
                         </span>
                         @endif
-                        <span class="estado-badge estado-{{ $territorio->calcularEstado() }}">
-                            {{ ucfirst($territorio->calcularEstado()) }}
+                        @php $estadoTerr = $territorio->calcularEstado(); @endphp
+                        <span class="estado-badge estado-{{ $estadoTerr }}">
+                            {{ ['libre' => 'Libre', 'activo' => 'En plazo', 'atrasado' => '⚠ Atrasado', 'archivo' => 'Archivo'][$estadoTerr] ?? ucfirst($estadoTerr) }}
                         </span>
                         @if(!$territorio->activo)
                             <span class="inactive-badge">Inactivo</span>
@@ -67,6 +68,7 @@
             </div>
         </div>
         
+        @if(auth()->user()->isAdmin())
         <div class="action-buttons">
             <button type="button" id="btn-editar" class="btn-primary">
                 <i class="icon">✏️</i> Editar
@@ -81,6 +83,7 @@
                 <i class="icon">🗑️</i> Eliminar
             </button>
         </div>
+        @endif
     </div>
 
     <!-- Formulario principal -->
@@ -335,10 +338,10 @@
     text-transform: uppercase;
 }
 
-.estado-libre { background: #dcfce7; color: #166534; }
-.estado-activo { background: #e8eef6; color: #2d4266; }
+.estado-libre { background: rgba(34,197,94,0.15); color: #4ade80; }
+.estado-activo { background: rgba(59,130,246,0.15); color: #93c5fd; }
 .estado-atrasado { background: rgba(245,158,11,0.18); color: #fbbf24; }
-.estado-archivo { background: #262626; color: #9ca3af; }
+.estado-archivo { background: rgba(107,114,128,0.15); color: #9ca3af; }
 
 .inactive-badge {
     background: #fef3c7;
@@ -375,8 +378,8 @@
 .btn-success { background: #4a6da7; color: white; }
 .btn-success:hover { background: #3d5a8a; }
 
-.btn-danger { background: #495057; color: white; }
-.btn-danger:hover { background: #343a40; }
+.btn-danger { background: #dc2626; color: white; }
+.btn-danger:hover { background: #b91c1c; }
 
 /* Grid de contenido */
 .content-grid {

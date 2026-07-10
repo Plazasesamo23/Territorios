@@ -195,7 +195,7 @@
 }
 
 .rs-datebar {
-    background: #2b6cb0;
+    background: #0f766e;
     color: #fff;
     font-weight: 700;
     font-size: 0.95rem;

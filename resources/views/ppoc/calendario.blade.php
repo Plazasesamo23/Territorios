@@ -1073,7 +1073,7 @@ html {
 }
 
 .calendar-day.today {
-    background: rgba(249, 115, 22, 0.1);
+    background: rgba(74, 109, 167, 0.15);
 }
 
 .calendar-day.other-month {
@@ -1111,12 +1111,13 @@ html {
 }
 
 .turno-item.completo {
-    border-left-color: #4a6da7;
-    background: rgba(16, 185, 129, 0.1);
+    border-left-color: #22c55e;
+    background: rgba(34, 197, 94, 0.12);
 }
 
 .turno-item.incompleto {
-    border-left-color: #4a6da7;
+    border-left-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.08);
 }
 
 .turno-header {
@@ -1131,11 +1132,11 @@ html {
 }
 
 .btn-delete-turno {
-    width: 18px;
-    height: 18px;
+    width: 26px;
+    height: 26px;
     border: none;
-    background: #e9ecef;
-    color: #343a40;
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
@@ -1143,7 +1144,7 @@ html {
 }
 
 .btn-delete-turno:hover {
-    background: #343a40;
+    background: #dc2626;
     color: white;
 }
 

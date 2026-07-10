@@ -16,11 +16,10 @@
 - **Contraseña:** `Bopo191210`
 
 ### GitHub
-- **Repo:** `https://github.com/Plazasesemo23/Territorios.git`
+- **Repo:** `https://github.com/Plazasesamo23/Territorios.git`
 - **Rama activa:** `definitivo-servicio`
 - **Rama backup pre-modularizacion:** `pre-modularizacion-backup` (en rama servidor)
-- **Token GitHub (marzo 2026):** `TOKEN-ELIMINADO-POR-SEGURIDAD`
-- **Remote con token:** `https://TOKEN-ELIMINADO-POR-SEGURIDAD@github.com/Plazasesemo23/Territorios.git`
+- **Token GitHub:** Guardado en git remote (no commitear tokens en archivos)
 
 ---
 
@@ -600,6 +599,41 @@ echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territo
 
 ## Historial de sesiones
 
+### 7 Abril 2026 - Fix calendario PPOC: dark mode + responsive movil
+
+**Problemas reportados:**
+- Calendario PPOC con fondo blanco — texto de voluntarios invisible (blanco sobre blanco)
+- No responsive para movil — grid de 7 columnas se aplastaba ilegible
+
+**Solucion aplicada:**
+
+1. **Dark mode directo (sin var() fallbacks):** Todos los estilos del calendario PPOC ahora usan colores dark hardcoded en lugar de `var(--bg-card, #fff)`, `var(--text-primary, #1f2937)`, etc. que fallaban cuando `[data-theme="dark"]` no aplicaba correctamente.
+
+2. **Texto voluntarios visible:** `.asignado` cambiado de `background: white` (sin color) a `background: #404040; color: #e5e5e5;`
+
+3. **Responsive movil:** Grid del calendario y weekdays con `min-width: 700px` + contenedor con `overflow-x: auto` para scroll horizontal en pantallas pequeñas.
+
+4. **Limpieza:** Eliminado todo el bloque `[data-theme="dark"]` (~300 lineas redundantes) ya que los colores dark estan directamente en los estilos base.
+
+**Paleta de colores dark aplicada:**
+| Elemento | Color |
+|----------|-------|
+| Fondo principal | `#171717` |
+| Fondo secundario | `#262626` |
+| Fondo terciario | `#0a0a0a` |
+| Bordes | `#262626` |
+| Texto primario | `#e5e5e5` / `#f5f5f5` |
+| Texto muted | `#a3a3a3` |
+| Acento | `#4a6da7` |
+| Voluntario bg | `#404040` |
+
+**Archivo modificado:**
+| Archivo | Cambio |
+|---------|--------|
+| `resources/views/ppoc/calendario.blade.php` | Dark mode directo + responsive + limpieza |
+
+---
+
 ### 2 Abril 2026 - Grupo emergencia VyM + bonus ancianos discurso_tesoros + UX autorizaciones
 
 **Grupo de emergencia VyM:**
@@ -828,6 +862,44 @@ POST /{reunione}/reemplazo-emergencia               → guardarReemplazoEmergenc
 - Quitados 3 links crear territorio en administracion (ya hay dropdown)
 - Quitados botones empty state redundantes
 - Quitados breadcrumbs "Dashboard" innecesarios
+
+### 8 Abril 2026 - Fix disponibilidad PPOC + Calendario movil
+
+**Fix critico: Disponibilidad PPOC no guardaba (global scope)**
+- Archivo: `app/Http/Controllers/PPOC/DisponibilidadPpocController.php`
+- Bug: El metodo `store()` usaba `Publicador::findOrFail()` y `Turno::where()` sin quitar el global scope de `BelongsToCongregacion`. Como los usuarios publicos no tienen sesion, el scope filtraba con `congregacion_id = 0` → no encontraba nada → error 404
+- Los metodos `form()` y `getDisponibilidad()` ya usaban `forCongregacion()` correctamente, solo `store()` fallaba
+- Fix: 3 queries cambiadas a usar `forCongregacion($congregacion->id)`:
+  - `Publicador::findOrFail(...)` → `Publicador::forCongregacion(...)->findOrFail(...)`
+  - `Turno::where('congregacion_id', ...)` → `Turno::forCongregacion(...)`
+  - `Turno::where('id', ...)->where('congregacion_id', ...)` → `Turno::forCongregacion(...)->where('id', ...)`
+
+**Cache anti-navegador en formulario disponibilidad**
+- Archivo: `resources/views/ppoc/disponibilidad/form.blade.php`
+- Añadidas meta tags `Cache-Control: no-cache, no-store, must-revalidate`, `Pragma: no-cache`, `Expires: 0` (misma solucion que login.blade.php)
+- El controller ya tenia headers anti-cache, ahora tambien las meta tags HTML
+
+**Calendario PPOC adaptado para movil**
+- Archivo: `resources/views/ppoc/calendario.blade.php`
+- Nueva vista agenda movil (`@media max-width: 768px`):
+  - Mini-calendario horizontal scrollable con todos los dias del mes (sticky en top)
+  - Dias con turnos marcados con punto indicador, tocables para saltar al dia
+  - Auto-scroll a dia actual al cargar la pagina
+  - Solo muestra dias que tienen turnos asignados (vista agenda vertical)
+  - Cada dia = tarjeta con header "Dia N" + turnos como sub-tarjetas
+  - Turnos muestran hora, ubicacion, asignados con badge de rol (C/V)
+  - Todos los botones admin funcionan (agregar, quitar, cambiar, eliminar turno)
+  - `overflow-x: hidden` en contenedores para evitar scroll horizontal
+  - `display: none !important` en grid desktop para que min-width:700px no afecte
+  - Botones accion y quick-links apilados verticalmente
+  - Modales touch-friendly con `font-size: 16px` en selects (evita zoom iOS)
+- Vista desktop sin cambios
+
+**Nota OPcache:** Para que los cambios se apliquen en OVH compartido, ademas de `php artisan view:clear` hay que resetear OPcache via HTTP (subir script temporal a /public/, ejecutar via web, borrar). Sin esto los cambios PHP no se reflejan.
+
+### 7 Abril 2026 - Fix calendario PPOC dark mode + responsive
+
+Documentado en commit 14c378c.
 
 ### 23 Marzo 2026 - Optimizacion movil + Rediseno asignaciones reuniones
 

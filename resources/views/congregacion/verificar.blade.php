@@ -12,13 +12,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0d0f11;
             padding: 1rem;
         }
         .verify-container {
-            background: white;
+            background: #151719;
             border-radius: 1rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.4); border: 1px solid #2d3339;
             padding: 2.5rem;
             width: 100%;
             max-width: 420px;
@@ -34,11 +34,11 @@
         .verify-title {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #1f2937;
+            color: #f1f3f5;
             margin-bottom: 0.5rem;
         }
         .verify-subtitle {
-            color: #6b7280;
+            color: #8b939c;
             font-size: 0.95rem;
         }
         .congregation-name {
@@ -56,13 +56,13 @@
         .form-label {
             display: block;
             font-weight: 600;
-            color: #374151;
+            color: #f1f3f5;
             margin-bottom: 0.5rem;
         }
         .form-input {
             width: 100%;
             padding: 0.875rem 1rem;
-            border: 2px solid #e5e7eb;
+            border: 2px solid #2d3339; background: #0d0f11; color: #f1f3f5;
             border-radius: 0.5rem;
             font-size: 1rem;
             transition: all 0.2s;
@@ -90,9 +90,9 @@
             box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
         }
         .error-message {
-            background: #e9ecef;
-            border: 1px solid #495057;
-            color: #212529;
+            background: rgba(239,68,68,0.12);
+            border: 1px solid rgba(239,68,68,0.4);
+            color: #f87171;
             padding: 0.75rem 1rem;
             border-radius: 0.5rem;
             margin-bottom: 1.5rem;
@@ -102,12 +102,12 @@
             display: block;
             text-align: center;
             margin-top: 1.5rem;
-            color: #6b7280;
+            color: #8b939c;
             text-decoration: none;
             font-size: 0.875rem;
         }
         .logout-link:hover {
-            color: #495057;
+            color: #f1f3f5;
         }
     </style>
 </head>
@@ -116,7 +116,7 @@
         <div class="verify-header">
             <div class="verify-icon">🔐</div>
             <h1 class="verify-title">Verificar Acceso</h1>
-            <p class="verify-subtitle">Ingresa la contraseña de tu congregacion para continuar</p>
+            <p class="verify-subtitle">Escribe la contraseña de tu congregación para continuar</p>
             <div class="congregation-name">{{ $congregacion->nombre }}</div>
         </div>
 

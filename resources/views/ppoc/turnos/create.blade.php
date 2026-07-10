@@ -69,9 +69,9 @@
                 </div>
                 <div class="input-row">
                     <div class="input-group-modern">
-                        <label for="dia_semana">Dia de la Semana</label>
+                        <label for="dia_semana">Día de la Semana</label>
                         <select name="dia_semana" id="dia_semana" class="input-modern" required>
-                            @foreach(['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'] as $i => $dia)
+                            @foreach(['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'] as $i => $dia)
                                 <option value="{{ $i }}" {{ old('dia_semana', $datos->dia_semana ?? '') == $i ? 'selected' : '' }}>{{ $dia }}</option>
                             @endforeach
                         </select>
@@ -79,9 +79,8 @@
                     <div class="input-group-modern">
                         <label for="numero_turno">Orden del Turno</label>
                         <select name="numero_turno" id="numero_turno" class="input-modern" required>
-                            <option value="1" {{ old('numero_turno', $datos->numero_turno ?? 1) == 1 ? 'selected' : '' }}>1er turno del dia</option>
-                            <option value="2" {{ old('numero_turno', $datos->numero_turno ?? '') == 2 ? 'selected' : '' }}>2do turno del dia</option>
-                            <option value="3" {{ old('numero_turno', $datos->numero_turno ?? '') == 3 ? 'selected' : '' }}>3er turno del dia</option>
+                            <option value="1" {{ old('numero_turno', $datos->numero_turno ?? 1) == 1 ? 'selected' : '' }}>1er turno del día</option>
+                            <option value="2" {{ old('numero_turno', $datos->numero_turno ?? '') == 2 ? 'selected' : '' }}>2do turno del día</option>
                         </select>
                     </div>
                 </div>

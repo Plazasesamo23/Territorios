@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Gestor de Congregacion')
+@section('title', 'Gestor de Congregación')
 @section('hide_nav', true)
 
 @section('content')
 
 <div class="inicio-page">
     <div class="inicio-header">
-        <h1 class="inicio-titulo">Gestor de Congregacion</h1>
+        <h1 class="inicio-titulo">Gestor de Congregación</h1>
         <p class="inicio-subtitulo">{{ $congregacionActiva->nombre ?? 'Tu congregacion' }}</p>
     </div>
 
@@ -72,6 +72,7 @@
             </div>
         </a>
 
+        @if(false) {{-- Oculto hasta que exista el módulo Departamentos --}}
         <div class="inicio-card inicio-card-orange inicio-card-disabled">
             <div class="inicio-card-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -84,6 +85,7 @@
             </div>
             <span class="inicio-card-badge">Pronto</span>
         </div>
+        @endif
     </div>
 </div>
 

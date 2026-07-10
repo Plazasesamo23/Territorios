@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Inicio - Gestor de Congregacion')
+@section('title', 'Inicio - Gestor de Congregación')
 
 @section('content')
 

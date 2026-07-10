@@ -7,7 +7,7 @@
     <div class="page-breadcrumbs">
         <a href="{{ route('dashboard') }}" class="breadcrumb-link">Inicio</a>
         <span class="breadcrumb-separator">/</span>
-        <a href="{{ route('administracion') }}" class="breadcrumb-link">Administracion</a>
+        <a href="{{ route('administracion') }}" class="breadcrumb-link">Administración</a>
         <span class="breadcrumb-separator">/</span>
         <a href="{{ route('publicadores.index') }}" class="breadcrumb-link">Publicadores</a>
         <span class="breadcrumb-separator">/</span>
@@ -70,7 +70,7 @@
 
 <!-- Estadisticas principales -->
 <div class="stats-section">
-    <h2 class="section-title">Estadisticas</h2>
+    <h2 class="section-title">Estadísticas</h2>
     <div class="stats-grid-4">
         <div class="stat-box">
             <div class="stat-icon stat-icon-total">
@@ -112,7 +112,7 @@
                 </svg>
             </div>
             <div class="stat-value">{{ $estadisticas['promedio_dias'] }}</div>
-            <div class="stat-label">Dias Promedio</div>
+            <div class="stat-label">Días Promedio</div>
         </div>
     </div>
 </div>
@@ -164,7 +164,7 @@
 
 <!-- Ano de servicio actual -->
 <div class="service-year-section">
-    <h2 class="section-title">Ano de Servicio {{ $anoServicio }}</h2>
+    <h2 class="section-title">Año de Servicio {{ $anoServicio }}</h2>
     <div class="stats-grid-3">
         <div class="stat-box-sm">
             <div class="stat-value-sm">{{ $estadisticasAno['territorios'] }}</div>
@@ -176,7 +176,7 @@
         </div>
         <div class="stat-box-sm">
             <div class="stat-value-sm">{{ $estadisticasAno['dias_servicio'] }}</div>
-            <div class="stat-label-sm">Dias Predicando</div>
+            <div class="stat-label-sm">Días Predicando</div>
         </div>
     </div>
 </div>
@@ -620,7 +620,7 @@ function toggleEditMode() {
 }
 
 .btn-history {
-    background: white;
+    background: var(--bg-hover);
     color: #4a6da7;
 }
 
@@ -821,10 +821,10 @@ function toggleEditMode() {
     font-weight: 600;
 }
 
-.estado-activo { background: #e8eef6; color: #2d4266; }
-.estado-libre { background: #dcfce7; color: #166534; }
-.estado-atrasado { background: #fef3c7; color: #92400e; }
-.estado-archivo { background: #e9ecef; color: #212529; }
+.estado-activo { background: rgba(59,130,246,0.15); color: #93c5fd; }
+.estado-libre { background: rgba(34,197,94,0.15); color: #4ade80; }
+.estado-atrasado { background: rgba(245,158,11,0.18); color: #fbbf24; }
+.estado-archivo { background: rgba(107,114,128,0.15); color: #9ca3af; }
 
 [data-theme="dark"] .estado-activo { background: rgba(59,130,246,0.2); color: #8aa8d6; }
 [data-theme="dark"] .estado-libre { background: rgba(34,197,94,0.2); color: #8aa8d6; }
@@ -1098,7 +1098,7 @@ function toggleEditMode() {
 }
 
 .checkbox-anciano input:checked + span {
-    color: #343a40;
+    color: var(--text);
     font-weight: 600;
 }
 
@@ -1140,7 +1140,7 @@ function toggleEditMode() {
 }
 
 .danger-zone h3 {
-    color: #343a40;
+    color: var(--text);
     margin: 0 0 0.5rem 0;
     font-size: 1rem;
 }
@@ -1152,7 +1152,7 @@ function toggleEditMode() {
 }
 
 .btn-danger {
-    background: #343a40;
+    background: #dc2626;
     color: white;
     border: none;
     padding: 0.6rem 1rem;
@@ -1162,7 +1162,7 @@ function toggleEditMode() {
 }
 
 .btn-danger:hover {
-    background: #212529;
+    background: #b91c1c;
 }
 
 /* Responsive */
@@ -1258,8 +1258,8 @@ function toggleEditMode() {
 }
 
 .family-rel-conyuge {
-    background: #fef3c7;
-    color: #92400e;
+    background: rgba(245,158,11,0.18);
+    color: #fbbf24;
 }
 
 .family-rel-progenitor {
@@ -1376,10 +1376,10 @@ function toggleEditMode() {
 .family-select {
     width: 100%;
     padding: 0.75rem;
-    border: 2px solid #e5e7eb;
+    border: 2px solid var(--border);
     border-radius: 8px;
     font-size: 0.875rem;
-    background: white;
+    background: var(--bg-white); color: var(--text);
     transition: border-color 0.2s;
 }
 

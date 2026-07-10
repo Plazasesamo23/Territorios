@@ -141,7 +141,7 @@
 }
 
 .btn-back:hover {
-    background: var(--bg-tertiary, #e5e7eb);
+    background: var(--bg-hover);
 }
 
 .page-header h1 {
@@ -177,7 +177,7 @@
 }
 
 .ano-card {
-    background: white;
+    background: var(--bg-white);
     border-radius: 12px;
     padding: 1rem;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
@@ -198,15 +198,15 @@
     align-items: center;
     justify-content: center;
     min-height: 140px;
-    border: 2px dashed #d1d5db;
-    background: #fafafa;
+    border: 2px dashed var(--border-medium);
+    background: var(--bg);
     color: #6b7280;
 }
 
 .ano-card-new:hover {
     border-color: #4a6da7;
     color: #4a6da7;
-    background: #f4f7fb;
+    background: rgba(59,130,246,0.10);
 }
 
 .ano-card-new svg {
@@ -260,7 +260,7 @@
     display: flex;
     gap: 0.5rem;
     padding-top: 0.5rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border);
 }
 
 .btn-edit, .btn-delete {
@@ -283,7 +283,7 @@
 
 .btn-delete:hover {
     background: #e9ecef;
-    color: #343a40;
+    color: var(--text);
 }
 
 /* Empty state */
@@ -323,7 +323,7 @@
 }
 
 .modal-content {
-    background: white;
+    background: var(--bg-white);
     border-radius: 12px;
     width: 90%;
     max-width: 400px;
@@ -335,7 +335,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border);
 }
 
 .modal-header h3 {
@@ -376,7 +376,7 @@
 .form-group select {
     width: 100%;
     padding: 0.6rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--border-medium);
     border-radius: 6px;
     font-size: 1rem;
 }
@@ -399,7 +399,7 @@
     justify-content: flex-end;
     gap: 0.5rem;
     padding: 1rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border);
 }
 
 .btn-cancel {
@@ -412,7 +412,7 @@
 }
 
 .btn-cancel:hover {
-    background: #e5e7eb;
+    background: var(--bg-hover);
 }
 
 /* Dark theme */
@@ -479,7 +479,7 @@ function editarAno(ano) {
 }
 
 function eliminarAno(ano) {
-    if (!confirm('¿Eliminar el historial del ano ' + ano + '? Esta accion no se puede deshacer.')) return;
+    if (!confirm('¿Eliminar el historial del año ' + ano + '? Esta acción no se puede deshacer.')) return;
 
     fetch('/grupos-predicacion/historial/' + encodeURIComponent(ano), {
         method: 'DELETE',

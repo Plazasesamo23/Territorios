@@ -15,7 +15,7 @@
 <!-- Titulo y descripcion -->
 <div class="page-header-section">
     <h1 class="page-title">Publicadores Aprobados para PPOC</h1>
-    <p class="page-subtitle">Gestiona que publicadores pueden participar en el Programa de Predicacion Organizada</p>
+    <p class="page-subtitle">Gestiona qué publicadores pueden participar en la predicación pública con carritos (PPOC)</p>
 </div>
 
 <!-- Estadisticas -->

@@ -76,12 +76,16 @@ class UsuarioController extends Controller
             $counter++;
         }
 
+        // Rol elegido en el formulario (solo roles no administrativos)
+        $role = in_array($request->role, ['user', 'territorios', 'ppoc']) ? $request->role : 'user';
+
         User::create([
             'name' => $request->name,
             'email' => $email,
             'password' => Hash::make($request->password),
             'congregacion_id' => $congregacionId,
-            'role' => 'user',
+            'role' => $role,
+            'puede_acceder_ppoc' => $role === 'ppoc',
         ]);
 
         return redirect()->route('usuarios.index')
@@ -155,10 +159,13 @@ class UsuarioController extends Controller
             $usuario->password = Hash::make($request->password);
         }
 
-        // Actualizar permisos (para todos los roles excepto admin/superadmin)
+        // Actualizar rol y permisos (para todos los roles excepto admin/superadmin)
         if (!in_array($usuario->role, ['admin', 'superadmin'])) {
+            if (in_array($request->role, ['user', 'territorios', 'ppoc'])) {
+                $usuario->role = $request->role;
+            }
             $usuario->puede_generar_s13 = $request->has('puede_generar_s13');
-            $usuario->puede_acceder_ppoc = $request->has('puede_acceder_ppoc');
+            $usuario->puede_acceder_ppoc = $request->has('puede_acceder_ppoc') || $usuario->role === 'ppoc';
         }
 
         $usuario->save();

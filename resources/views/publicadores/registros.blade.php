@@ -25,7 +25,7 @@
 <!-- Cabecera del publicador -->
 <div class="publicador-header">
     <div class="publicador-avatar">
-        {{ strtoupper(substr($publicador->nombre, 0, 1)) }}{{ strtoupper(substr($publicador->apellidos, 0, 1)) }}
+        {{ strtoupper(substr($publicador->nombre, 0, 1)) }}{{ strtoupper(substr($publicador->apellidos ?? '', 0, 1)) }}
     </div>
     <div class="publicador-info">
         <h1 class="publicador-nombre {{ $publicador->es_precursor ? 'text-precursor' : '' }}">
@@ -47,7 +47,7 @@
 
 <!-- Sistema de Filtros -->
 <div class="card mb-4 filtros-card">
-    <div class="card-title">Filtrar Estadisticas</div>
+    <div class="card-title">Filtrar Estadísticas</div>
     <form method="GET" action="{{ route('publicadores.registros', $publicador) }}" id="filtroForm">
         <div class="filtros-container">
             <!-- Tipo de filtro -->
@@ -58,7 +58,7 @@
                 </label>
                 <label class="filtro-radio {{ $filtroActivo === 'ano_servicio' ? 'active' : '' }}">
                     <input type="radio" name="filtro" value="ano_servicio" {{ $filtroActivo === 'ano_servicio' ? 'checked' : '' }} onchange="toggleFiltros()">
-                    <span class="radio-label">Ano de Servicio</span>
+                    <span class="radio-label">Año de Servicio</span>
                 </label>
                 <label class="filtro-radio {{ $filtroActivo === 'fechas' ? 'active' : '' }}">
                     <input type="radio" name="filtro" value="fechas" {{ $filtroActivo === 'fechas' ? 'checked' : '' }} onchange="toggleFiltros()">
@@ -109,7 +109,7 @@
 <!-- Panel de Estadisticas Visual -->
 <div class="stats-dashboard {{ ($estadisticas['tiene_filtro'] ?? false) ? 'stats-filtrado' : '' }}">
     <div class="stats-header">
-        <h2>{{ ($estadisticas['tiene_filtro'] ?? false) ? 'Estadisticas del Periodo' : 'Resumen de Actividad' }}</h2>
+        <h2>{{ ($estadisticas['tiene_filtro'] ?? false) ? 'Estadísticas del Período' : 'Resumen de Actividad' }}</h2>
         <p>{{ $estadisticas['periodo'] ?? 'Historico completo' }}</p>
     </div>
 
@@ -211,7 +211,8 @@
             $registro = $estadisticas['territorio_actual'];
             $estado = $registro->territorio->calcularEstado();
             $dias = $registro->fecha_salida->diffInDays(now());
-            $porcentaje = min(100, ($dias / 120) * 100);
+            $limiteDias = max(1, $registro->territorio->diasLimiteUso());
+            $porcentaje = min(100, ($dias / $limiteDias) * 100);
         @endphp
         <div class="territorio-actual-card">
             <div class="territorio-actual-info">
@@ -223,15 +224,15 @@
                 <div class="progreso-container">
                     <div class="progreso-label">
                         <span>Tiempo transcurrido</span>
-                        <span class="progreso-dias">{{ $dias }} dias</span>
+                        <span class="progreso-dias">{{ $dias }} días</span>
                     </div>
                     <div class="progreso-barra">
-                        <div class="progreso-fill {{ $estado === 'atrasado' ? 'progreso-danger' : ($dias > 60 ? 'progreso-warning' : 'progreso-success') }}" style="width: {{ $porcentaje }}%"></div>
+                        <div class="progreso-fill {{ $estado === 'atrasado' ? 'progreso-danger' : ($dias > $limiteDias / 2 ? 'progreso-warning' : 'progreso-success') }}" style="width: {{ $porcentaje }}%"></div>
                     </div>
                     <div class="progreso-escala">
                         <span>0</span>
-                        <span>60 dias</span>
-                        <span>120 dias</span>
+                        <span>{{ round($limiteDias / 2) }} días</span>
+                        <span>{{ $limiteDias }} días (límite)</span>
                     </div>
                 </div>
 
@@ -482,7 +483,7 @@ function toggleFiltros() {
     gap: 0.75rem;
     margin-top: 1rem;
     padding: 0.75rem 1rem;
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.35);
     border-radius: 8px;
     flex-wrap: wrap;
 }
@@ -689,7 +690,7 @@ function toggleFiltros() {
     align-items: center;
     gap: 1.5rem;
     padding: 1.5rem;
-    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    background: rgba(34,197,94,0.10); border: 1px solid rgba(34,197,94,0.3);
     border-radius: 12px;
 }
 .sin-asignar-icon {
@@ -700,13 +701,13 @@ function toggleFiltros() {
 }
 .sin-asignar-texto strong {
     display: block;
-    color: #166534;
+    color: #4ade80;
     font-size: 1.1rem;
     margin-bottom: 0.25rem;
 }
 .sin-asignar-texto p {
     margin: 0;
-    color: #15803d;
+    color: #86efac;
     font-size: 0.875rem;
 }
 

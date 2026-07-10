@@ -145,7 +145,7 @@
         }
         .turno-checkbox.checked {
             border-color: #4a6da7;
-            background: rgba(249, 115, 22, 0.1);
+            background: rgba(74, 109, 167, 0.15);
         }
         .turno-checkbox input {
             width: 20px;
@@ -195,12 +195,12 @@
         }
         .alert-success {
             background: rgba(34, 197, 94, 0.2);
-            border: 1px solid #4a6da7;
+            border: 1px solid #22c55e;
             color: #4ade80;
         }
         .alert-error {
             background: rgba(239, 68, 68, 0.2);
-            border: 1px solid #495057;
+            border: 1px solid #ef4444;
             color: #f87171;
         }
 
@@ -231,8 +231,13 @@
     <div class="container">
         <div class="card">
             <div class="header">
-                <h1>Disponibilidad PPOC</h1>
+                <h1>Disponibilidad para los carritos</h1>
                 <p>{{ $congregacion->nombre }}</p>
+            </div>
+
+            <div style="background: rgba(74,109,167,0.12); border: 1px solid rgba(74,109,167,0.35); border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-size: 0.92rem; line-height: 1.5;">
+                Indica en qué turnos de predicación pública (carritos) puedes participar:<br>
+                <strong>1.</strong> Busca tu nombre &nbsp;·&nbsp; <strong>2.</strong> Marca tus turnos &nbsp;·&nbsp; <strong>3.</strong> Pulsa Guardar
             </div>
 
             @if(session('success'))
@@ -322,9 +327,18 @@
         </div>
 
         <div class="footer">
-            Territorios - Sistema de gestion
+            Territorios - Sistema de gestión
         </div>
     </div>
+
+    <script>
+        document.getElementById('formDisponibilidad')?.addEventListener('submit', function(e) {
+            const marcados = this.querySelectorAll('input[type="checkbox"]:checked').length;
+            if (marcados === 0 && !confirm('No has marcado ningún turno. Se borrará tu disponibilidad anterior y quedarás sin turnos este mes. ¿Continuar?')) {
+                e.preventDefault();
+            }
+        });
+    </script>
 
     <script>
         const searchInput = document.getElementById('searchInput');

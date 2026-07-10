@@ -34,7 +34,7 @@
 @endif
 
 <div class="card">
-    <div class="card-title">Usuarios de la Congregacion</div>
+    <div class="card-title">Usuarios de la Congregación</div>
 
     @if($usuarios->count() > 0)
     <!-- Vista de tabla para desktop -->
@@ -55,7 +55,7 @@
                     <td data-label="Nombre">
                         <strong>{{ $usuario->name }}</strong>
                         @if($usuario->id === auth()->id())
-                        <span class="badge badge-info" style="font-size: 10px; margin-left: 5px;">(Tu)</span>
+                        <span class="badge badge-info" style="font-size: 10px; margin-left: 5px;">(Tú)</span>
                         @endif
                     </td>
                     <td data-label="Email">{{ $usuario->email }}</td>
@@ -64,6 +64,10 @@
                         <span class="badge badge-warning">Administrador</span>
                         @elseif($usuario->role === 'superadmin')
                         <span class="badge badge-danger">Super Admin</span>
+                        @elseif($usuario->role === 'territorios')
+                        <span class="badge badge-secondary">Territorios</span>
+                        @elseif($usuario->role === 'ppoc')
+                        <span class="badge badge-secondary">PPOC</span>
                         @else
                         <span class="badge badge-secondary">Usuario</span>
                         @endif
@@ -75,7 +79,7 @@
                             Editar
                         </a>
                         @if($usuario->id !== auth()->id() && !$usuario->isAdmin())
-                        <form action="{{ route('usuarios.destroy', $usuario) }}" method="POST" style="display: inline;" onsubmit="return confirm('Estas seguro de eliminar este usuario?')">
+                        <form action="{{ route('usuarios.destroy', $usuario) }}" method="POST" style="display: inline;" onsubmit="return confirm('¿Seguro que quieres eliminar este usuario?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
@@ -97,13 +101,17 @@
                 <div class="usuario-nombre">
                     {{ $usuario->name }}
                     @if($usuario->id === auth()->id())
-                    <span class="badge badge-info">(Tu)</span>
+                    <span class="badge badge-info">(Tú)</span>
                     @endif
                 </div>
                 @if($usuario->role === 'admin')
                 <span class="badge badge-warning">Admin</span>
                 @elseif($usuario->role === 'superadmin')
                 <span class="badge badge-danger">Super</span>
+                @elseif($usuario->role === 'territorios')
+                <span class="badge badge-secondary">Territorios</span>
+                @elseif($usuario->role === 'ppoc')
+                <span class="badge badge-secondary">PPOC</span>
                 @else
                 <span class="badge badge-secondary">Usuario</span>
                 @endif
@@ -124,7 +132,7 @@
                     Editar
                 </a>
                 @if($usuario->id !== auth()->id() && !$usuario->isAdmin())
-                <form action="{{ route('usuarios.destroy', $usuario) }}" method="POST" style="display: inline;" onsubmit="return confirm('Estas seguro de eliminar este usuario?')">
+                <form action="{{ route('usuarios.destroy', $usuario) }}" method="POST" style="display: inline;" onsubmit="return confirm('¿Seguro que quieres eliminar este usuario?')">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
@@ -136,15 +144,15 @@
         @endforeach
     </div>
     @else
-    <p style="text-align: center; color: #666; padding: 2rem;">
-        No hay usuarios en esta congregacion.<br>
+    <p style="text-align: center; color: var(--text-muted); padding: 2rem;">
+        No hay usuarios en esta congregación.<br>
         <a href="{{ route('usuarios.create') }}">Crear el primer usuario</a>
     </p>
     @endif
 </div>
 
 <div class="card mt-4">
-    <div class="card-title">Informacion sobre Roles</div>
+    <div class="card-title">Información sobre Roles</div>
     <div class="roles-grid">
         <div class="rol-card rol-admin">
             <div class="rol-header">
@@ -152,10 +160,10 @@
                 <span class="badge badge-warning">Administrador</span>
             </div>
             <ul class="rol-permisos">
-                <li>Gestion completa de territorios</li>
-                <li>Gestion completa de publicadores</li>
+                <li>Gestión completa de territorios</li>
+                <li>Gestión completa de publicadores</li>
                 <li>Crear y gestionar usuarios</li>
-                <li>Configuracion de la congregacion</li>
+                <li>Configuración de la congregación</li>
             </ul>
         </div>
         <div class="rol-card rol-user">
@@ -164,10 +172,31 @@
                 <span class="badge badge-secondary">Usuario</span>
             </div>
             <ul class="rol-permisos">
-                <li>Ver territorios</li>
-                <li>Ver y editar publicadores</li>
+                <li>Ver territorios y publicadores</li>
                 <li>Asignar/devolver territorios</li>
-                <li>Generar reporte S-13</li>
+                <li>Permisos extra activables: S-13 y PPOC</li>
+            </ul>
+        </div>
+        <div class="rol-card rol-user">
+            <div class="rol-header">
+                <span class="rol-icon">&#128506;</span>
+                <span class="badge badge-secondary">Usuario Territorios</span>
+            </div>
+            <ul class="rol-permisos">
+                <li>Solo ve el panel de territorios</li>
+                <li>Asignar y devolver territorios</li>
+                <li>Ideal para el hermano encargado de territorios</li>
+            </ul>
+        </div>
+        <div class="rol-card rol-user">
+            <div class="rol-header">
+                <span class="rol-icon">&#128722;</span>
+                <span class="badge badge-secondary">Usuario PPOC</span>
+            </div>
+            <ul class="rol-permisos">
+                <li>Solo ve el calendario de carritos (PPOC)</li>
+                <li>Gestiona turnos y disponibilidad</li>
+                <li>Ideal para el encargado de los carritos</li>
             </ul>
         </div>
     </div>
@@ -267,11 +296,11 @@
 }
 .rol-admin {
     border-color: #fbbf24;
-    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.3);
 }
 .rol-user {
     border-color: #9ca3af;
-    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    background: var(--bg-hover);
 }
 .rol-header {
     display: flex;

@@ -228,7 +228,7 @@ class RegistroController extends Controller
         // Preparar WhatsApp automático (solo si el publicador tiene teléfono)
         $whatsappListo = $this->enviarWhatsAppAsignacion($territorio, $publicador);
 
-        $redirect = redirect()->route('registros.index');
+        $redirect = redirect()->route('panel-territorios');
 
         if ($whatsappListo) {
             return $redirect
@@ -274,7 +274,7 @@ class RegistroController extends Controller
     {
         // Verificar que el registro esté activo
         if ($registro->fecha_entrada) {
-            return redirect()->route('registros.index')
+            return redirect()->route('panel-territorios')
                 ->with('error', 'Este registro ya está cerrado.');
         }
 
@@ -295,7 +295,7 @@ class RegistroController extends Controller
 
         $duracionDias = Carbon::parse($registro->fecha_salida)->diffInDays($fechaEntrada);
 
-        return redirect()->route('registros.index')
+        return redirect()->route('panel-territorios')
             ->with('success', "Territorio {$registro->territorio->numero_completo} devuelto por {$registro->publicador->nombre_completo}. Duracion: {$duracionDias} dias.");
     }
 
@@ -304,8 +304,8 @@ class RegistroController extends Controller
      */
     public function edit(Registro $registro)
     {
-        $registro->load(['territorio', 'publicador']);
-        return view('registros.edit', compact('registro'));
+        // La vista registros.edit no existe; la ficha (show) ya permite editar en linea.
+        return redirect()->route('registros.show', $registro);
     }
 
     /**

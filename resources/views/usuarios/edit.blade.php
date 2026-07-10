@@ -46,9 +46,9 @@
         <div class="form-group mb-4">
             <label for="role" class="form-label">Rol del Usuario *</label>
             @if($usuario->role === 'admin' || $usuario->role === 'superadmin')
-            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
+            <div style="background: var(--bg-hover); padding: 1rem; border-radius: 8px;">
                 <span class="badge badge-warning">{{ ucfirst($usuario->role) }}</span>
-                <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #666;">El rol de administrador no puede cambiarse desde aquí</p>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: var(--text-muted);">El rol de administrador no puede cambiarse desde aquí</p>
             </div>
             @else
             <select name="role" id="role" class="form-input @error('role') is-invalid @enderror" required>
@@ -72,17 +72,17 @@
         @if(!in_array($usuario->role, ['admin', 'superadmin']))
 
         <div style="margin-bottom: 1rem;">
-            <h4 style="margin: 0 0 0.75rem 0; font-size: 0.95rem; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">Permisos Adicionales</h4>
+            <h4 style="margin: 0 0 0.75rem 0; font-size: 0.95rem; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Permisos Adicionales</h4>
         </div>
 
         {{-- Permiso PPOC (no mostrar si ya es usuario PPOC, porque ya lo tiene) --}}
         @if($usuario->role !== 'ppoc')
-        <div class="form-group mb-4" style="background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%); padding: 1rem; border-radius: 8px; border: 1px solid #e879f9;">
+        <div class="form-group mb-4" style="background: rgba(168,85,247,0.08); padding: 1rem; border-radius: 8px; border: 1px solid rgba(168,85,247,0.35);">
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <div>
-                    <label class="form-label" style="margin-bottom: 0.25rem;">Acceso al modulo PPOC</label>
-                    <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">
-                        Permite acceder al Programa de Predicacion
+                    <label class="form-label" style="margin-bottom: 0.25rem;">Acceso al módulo PPOC</label>
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">
+                        Permite acceder al calendario de carritos (PPOC)
                     </p>
                 </div>
                 <label class="toggle-switch">
@@ -92,11 +92,11 @@
             </div>
         </div>
         @else
-        <div class="form-group mb-4" style="background: #f3f4f6; padding: 1rem; border-radius: 8px; border: 1px solid #d1d5db;">
+        <div class="form-group mb-4" style="background: var(--bg-hover); padding: 1rem; border-radius: 8px; border: 1px solid var(--border);">
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <div>
-                    <label class="form-label" style="margin-bottom: 0.25rem; color: #6b7280;">Acceso al modulo PPOC</label>
-                    <p style="margin: 0; font-size: 0.85rem; color: #9ca3af;">
+                    <label class="form-label" style="margin-bottom: 0.25rem; color: var(--text-muted);">Acceso al módulo PPOC</label>
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">
                         Incluido por ser Usuario PPOC
                     </p>
                 </div>
@@ -106,11 +106,11 @@
         @endif
 
         {{-- Permiso S-13 --}}
-        <div class="form-group mb-4" style="background: linear-gradient(135deg, #f4f7fb 0%, #e8eef6 100%); padding: 1rem; border-radius: 8px; border: 1px solid #bfdbfe;">
+        <div class="form-group mb-4" style="background: rgba(59,130,246,0.08); padding: 1rem; border-radius: 8px; border: 1px solid rgba(59,130,246,0.35);">
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <div>
                     <label class="form-label" style="margin-bottom: 0.25rem;">Permiso para generar S-13</label>
-                    <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">
                         Permite a este usuario generar el reporte S-13
                     </p>
                 </div>

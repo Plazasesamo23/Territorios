@@ -112,26 +112,6 @@
         </div>
     </form>
 
-    <div class="config-options mt-2">
-        <div class="config-row">
-            <div>
-                <div class="config-label">Notificaciones automaticas</div>
-                <div class="config-description">Avisar cuando los territorios esten proximos a vencer</div>
-            </div>
-            <input type="checkbox" checked disabled>
-        </div>
-        <div class="config-row">
-            <div>
-                <div class="config-label">Modo de visualizacion</div>
-                <div class="config-description">Formato de presentacion de territorios</div>
-            </div>
-            <select class="form-input" style="width: auto;" disabled>
-                <option>Tarjetas (Grid)</option>
-                <option>Lista</option>
-                <option>Tabla</option>
-            </select>
-        </div>
-    </div>
 </div>
 
 <!-- Configuración de WhatsApp -->
@@ -236,21 +216,14 @@ Imagen del territorio:
         <div class="card-description">Herramientas de administración del sistema</div>
 
         <div class="config-actions mt-2">
-            <a href="{{ route('referencia-ui') }}" class="btn btn-primary w-full">
-                Referencia Visual UI
+            @can('superadmin')
+            <a href="{{ route('referencia-ui') }}" class="btn btn-secondary w-full">
+                Referencia Visual UI (desarrollo)
             </a>
-            <button class="btn btn-secondary w-full" disabled>
-                Exportar Datos
-            </button>
-            <button class="btn btn-secondary w-full" disabled>
-                Importar Datos
-            </button>
-            <button class="btn btn-warning w-full" disabled>
-                Limpiar Registros Antiguos
-            </button>
-            <button class="btn btn-danger w-full" onclick="return confirm('PELIGRO: Esto eliminara todos los datos. ¿Estas seguro?')">
-                Reiniciar Base de Datos
-            </button>
+            @endcan
+            <div class="text-muted" style="font-size:0.85rem;">
+                Las herramientas de exportación e importación de datos estarán disponibles próximamente.
+            </div>
         </div>
     </div>
 

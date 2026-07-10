@@ -51,7 +51,7 @@
 
     @if($registrosArchivados->count() > 0)
         <!-- Header de tabla -->
-        <div style="display: grid; grid-template-columns: 120px 120px 1fr 1fr 120px 120px 120px; gap: 1rem; padding: 0.75rem 1rem; background: #1a1d21; border-bottom: 2px solid #2d3339; font-weight: 600; font-size: 0.875rem; color: #9ca3af;">
+        <div style="display: grid; grid-template-columns: 110px 110px 1fr 90px 130px 120px; gap: 1rem; padding: 0.75rem 1rem; background: #1a1d21; border-bottom: 2px solid #2d3339; font-weight: 600; font-size: 0.875rem; color: #9ca3af;">
             <div>FECHA SALIDA</div>
             <div>TERRITORIO</div>
             <div>PUBLICADOR</div>
@@ -63,7 +63,7 @@
         <!-- Filas de datos -->
         @foreach($registrosArchivados as $index => $registro)
             <a href="{{ route('registros.show', $registro) }}"
-               style="display: grid; grid-template-columns: 120px 120px 1fr 1fr 120px 120px 120px; gap: 1rem; padding: 0.75rem 1rem; border-bottom: 1px solid #2d3339; text-decoration: none; color: inherit; {{ $index % 2 == 0 ? 'background: #171717;' : 'background: #1f2024;' }}"
+               style="display: grid; grid-template-columns: 110px 110px 1fr 90px 130px 120px; gap: 1rem; padding: 0.75rem 1rem; border-bottom: 1px solid #2d3339; text-decoration: none; color: inherit; {{ $index % 2 == 0 ? 'background: #171717;' : 'background: #1f2024;' }}"
                onmouseover="this.style.backgroundColor='#262626'"
                onmouseout="this.style.backgroundColor='{{ $index % 2 == 0 ? '#171717' : '#1f2024' }}'">
                 

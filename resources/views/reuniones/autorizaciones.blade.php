@@ -20,7 +20,7 @@
     <div class="auth-guide">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
         <div>
-            <strong>Como funciona:</strong> Usa el boton <strong>+</strong> de cada panel para buscar y agregar publicadores. Haz <strong>clic en un nombre</strong> para ver sus estadisticas y quitarlo del panel.
+            <strong>Cómo funciona:</strong> Usa el botón <strong>+</strong> de cada panel para buscar y añadir publicadores. Toca <strong>un nombre</strong> para ver sus estadísticas o quitarlo del panel.
         </div>
     </div>
 
@@ -226,7 +226,7 @@
                         <span class="auth-panel-title">Publicadores</span>
                         <span class="auth-panel-count" data-count></span>
                     </div>
-                    <div class="auth-panel-info">Arrastra hacia la izquierda o usa los botones +</div>
+                    <div class="auth-panel-info">Usa el botón + de cada panel para añadir desde esta lista</div>
 
                     <div style="padding: 0 0.5rem;">
                         <input type="text" id="auth-search" class="form-input" placeholder="Buscar..." style="padding: 0.35rem 0.6rem; font-size: 0.8rem; width: 100%;">
@@ -288,7 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
         lector_estudio: 'Lector estudio', tesoros: 'Tesoros', perlas: 'Perlas',
         lectura: 'Lectura biblica', maestros: 'Partes de maestros', discurso_maestros: 'Discurso maestros',
         discurso_vida: 'Discurso Vida Cristiana', voluntario_emergencia: 'Voluntarios de emergencia',
-        excluido_reuniones: 'Excluir de reuniones'
+        excluido_reuniones: 'Excluidos de reuniones'
     };
 
     function getStatsParaPub(pubId, campo) {

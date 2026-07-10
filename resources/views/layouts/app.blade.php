@@ -87,14 +87,18 @@
         }
 
         .congregacion-badge {
-            padding: 0.1875rem 0.625rem;
+            padding: 0.25rem 0.625rem;
             background: rgba(107,143,199,0.15);
             color: #8aa8d6;
             border-radius: 20px;
-            font-size: 0.6875rem;
+            font-size: 0.8125rem;
             font-weight: 600;
             letter-spacing: 0.02em;
             border: 1px solid rgba(107,143,199,0.2);
+            white-space: nowrap;
+            max-width: 40vw;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .header-buttons {
@@ -367,12 +371,16 @@
             }
 
             .nav-link {
-                padding: 0.25rem 0.5rem;
-                font-size: 0.75rem;
+                padding: 0.55rem 0.75rem;
+                font-size: 0.875rem;
+                min-height: 42px;
+                display: inline-flex;
+                align-items: center;
             }
 
             .congregacion-badge {
-                display: none;
+                font-size: 0.75rem;
+                max-width: 34vw;
             }
 
             .main {
@@ -411,16 +419,15 @@
                             @endif
                         @elseif($enTerritorios)
                             <a href="{{ route('dashboard') }}" class="nav-link">Inicio</a>
-                            <a href="{{ route('panel-territorios') }}" class="nav-link {{ request()->routeIs('panel-territorios') ? 'active' : '' }}">Panel</a>
+                            <a href="{{ route('panel-territorios') }}" class="nav-link {{ request()->routeIs('panel-territorios') || request()->routeIs('registros.*') ? 'active' : '' }}">Panel</a>
                             <a href="{{ route('territorios.index') }}" class="nav-link {{ request()->routeIs('territorios.*') ? 'active' : '' }}">Todos</a>
-                            <a href="{{ route('registros.index') }}" class="nav-link {{ request()->routeIs('registros.*') ? 'active' : '' }}">Asignaciones</a>
                             <a href="{{ route('s13.index') }}" class="nav-link {{ request()->routeIs('s13.*') ? 'active' : '' }}">S-13</a>
                         @elseif($enReuniones)
                             <a href="{{ route('dashboard') }}" class="nav-link">Inicio</a>
                             <a href="{{ route('reuniones.index') }}" class="nav-link {{ request()->routeIs('reuniones.index') || request()->routeIs('reuniones.edit') || request()->routeIs('reuniones.show') || request()->routeIs('reuniones.create') ? 'active' : '' }}">VyM</a>
                             <a href="{{ route('reuniones.asignaciones') }}" class="nav-link {{ request()->routeIs('reuniones.asignaciones') || request()->routeIs('reuniones.historial') ? 'active' : '' }}">Asignaciones</a>
                             <a href="{{ route('reuniones.autorizaciones') }}" class="nav-link {{ request()->routeIs('reuniones.autorizaciones') ? 'active' : '' }}">Autorizaciones</a>
-                            <a href="{{ route('reuniones.generos') }}" class="nav-link {{ request()->routeIs('reuniones.generos') ? 'active' : '' }}">Generos</a>
+                            <a href="{{ route('reuniones.generos') }}" class="nav-link {{ request()->routeIs('reuniones.generos') ? 'active' : '' }}">Géneros</a>
                         @elseif($enPPOC)
                             <a href="{{ route('dashboard') }}" class="nav-link">Inicio</a>
                             <a href="{{ route('ppoc.calendario') }}" class="nav-link active">PPOC</a>
@@ -429,6 +436,7 @@
                             <a href="{{ route('administracion') }}" class="nav-link {{ request()->routeIs('administracion') ? 'active' : '' }}">Panel</a>
                             <a href="{{ route('publicadores.index') }}" class="nav-link {{ request()->routeIs('publicadores.*') ? 'active' : '' }}">Publicadores</a>
                             <a href="{{ route('grupos-predicacion.index') }}" class="nav-link {{ request()->routeIs('grupos-predicacion.*') ? 'active' : '' }}">Grupos</a>
+                            <a href="{{ route('usuarios.index') }}" class="nav-link {{ request()->routeIs('usuarios.*') ? 'active' : '' }}">Usuarios</a>
                             <a href="{{ route('configuracion') }}" class="nav-link {{ request()->is('configuracion') ? 'active' : '' }}">Config</a>
                         @else
                             <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">Inicio</a>
@@ -438,7 +446,7 @@
                             @endif
                             @if(Auth::user()->isAdmin())
                             <a href="{{ route('reuniones.index') }}" class="nav-link">Reuniones</a>
-                            <a href="{{ route('administracion') }}" class="nav-link">Administracion</a>
+                            <a href="{{ route('administracion') }}" class="nav-link">Administración</a>
                             @endif
                             <a href="{{ route('tareas.index') }}" class="nav-link {{ request()->routeIs('tareas.*') ? 'active' : '' }}">Tareas</a>
                             @can('superadmin')
@@ -495,7 +503,7 @@
                             </form>
                         </div>
                     @else
-                        <a href="{{ route('login') }}" class="nav-link">Iniciar Sesion</a>
+                        <a href="{{ route('login') }}" class="nav-link">Iniciar Sesión</a>
                     @endauth
                 </div>
             </div>

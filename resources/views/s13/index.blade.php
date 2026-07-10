@@ -53,7 +53,7 @@
                 📄 Generar PDF
             </button>
             <a href="{{ route('s13.importar') }}" class="btn btn-secondary">
-                📥 Importar registros
+                ✏️ Añadir registros a mano
             </a>
         </div>
     </form>

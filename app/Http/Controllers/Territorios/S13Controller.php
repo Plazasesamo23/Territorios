@@ -175,6 +175,10 @@ class S13Controller extends Controller
      */
     public function generarPdf(Request $request)
     {
+        if (!auth()->user()->canGenerateS13()) {
+            abort(403, 'No tienes permisos para acceder al reporte S-13.');
+        }
+
         $añoServicio = (int) $request->get('año', $request->get('ano', $this->añoServicioActual()));
         $añoSiguiente = $añoServicio + 1;
         $congregacionId = $this->getCongregacionActivaId();
@@ -225,6 +229,10 @@ class S13Controller extends Controller
      */
     public function vistaPrevia(Request $request)
     {
+        if (!auth()->user()->canGenerateS13()) {
+            abort(403, 'No tienes permisos para acceder al reporte S-13.');
+        }
+
         $añoServicio = (int) $request->get('año', $request->get('ano', $this->añoServicioActual()));
         $añoSiguiente = $añoServicio + 1;
         $congregacionId = $this->getCongregacionActivaId();

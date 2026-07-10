@@ -21,6 +21,41 @@
 <div class="simple-panel">
     <h1 class="simple-h1">Territorios</h1>
 
+    @if(session('mostrar_whatsapp') && session('whatsapp_url'))
+        <div class="alert-banner mb-2" style="flex-direction: column; gap: 0.5rem; text-align: left;">
+            <strong>Territorio asignado</strong>
+            <span>Envía el territorio a {{ session('whatsapp_publicador') }} por WhatsApp</span>
+            <div class="flex gap-1 mt-1">
+                <button id="copyMessageBtn" onclick="copyMessageAndOpenWhatsApp()" class="btn btn-secondary">
+                    Copiar Mensaje y Abrir WhatsApp
+                </button>
+                <button onclick="openTerritorioImage()" class="btn btn-secondary">
+                    Ver Imagen
+                </button>
+            </div>
+        </div>
+        <script>
+            function copyMessageAndOpenWhatsApp() {
+                var mensaje = {!! json_encode(session('whatsapp_mensaje', 'Hola, te envio el territorio asignado.')) !!};
+                var whatsappUrl = "{{ session('whatsapp_url') }}";
+                // whatsappUrl ya incluye el mensaje (?text=...); abrimos esa URL directamente
+                var abrir = function() { window.open(whatsappUrl, '_blank'); };
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(mensaje).then(function() {
+                        document.getElementById('copyMessageBtn').innerHTML = 'Copiado!';
+                        setTimeout(abrir, 400);
+                    }).catch(abrir);
+                } else {
+                    abrir();
+                }
+            }
+            function openTerritorioImage() {
+                var imageUrl = "{{ session('whatsapp_imagen_url', '') }}";
+                if (imageUrl) window.open(imageUrl, '_blank');
+            }
+        </script>
+    @endif
+
     <!-- Dos acciones grandes -->
     <div class="acciones-grandes">
         <a href="{{ route('registros.create') }}" class="accion-card accion-asignar">
@@ -31,7 +66,7 @@
         <a href="#lista-fuera" class="accion-card accion-devolver">
             <span class="accion-icono">&#x21A9;</span>
             <span class="accion-titulo">Devolver territorio</span>
-            <span class="accion-sub">Cuando alguien te lo entrega</span>
+            <span class="accion-sub">Baja a la lista y pulsa Devolver</span>
         </a>
     </div>
 
@@ -48,7 +83,7 @@
                 <!-- Filtro rápido por estado -->
                 <div class="fuera-chips">
                     <button type="button" class="chip activo" data-nivel="">Todos <span class="chip-n">{{ $fuera->count() }}</span></button>
-                    <button type="button" class="chip chip-pasado" data-nivel="pasado">Vencidos <span class="chip-n">{{ $conteoNivel['pasado'] }}</span></button>
+                    <button type="button" class="chip chip-pasado" data-nivel="pasado">Atrasados <span class="chip-n">{{ $conteoNivel['pasado'] }}</span></button>
                     <button type="button" class="chip chip-uso" data-nivel="en_uso">En plazo <span class="chip-n">{{ $conteoNivel['en_uso'] }}</span></button>
                 </div>
 
@@ -80,7 +115,7 @@
                         $limite = $territorio->diasLimiteUso();
                         $deMas = max(0, $dias - $limite);
                         $etiquetas = [
-                            'pasado' => '⚠ Vencido',
+                            'pasado' => '⚠ Atrasado',
                             'en_uso' => '✓ En plazo',
                         ];
                     @endphp
@@ -103,11 +138,12 @@
                             </span>
                             <span class="fuera-dias">{{ $dias }} días fuera</span>
                         </div>
-                        <form action="{{ route('registros.entrada', $reg) }}" method="POST" style="margin:0"
-                              onsubmit="return confirm('¿Devolver el territorio {{ $territorio->numero_completo }} de {{ $nombrePub }}?');">
-                            @csrf
-                            <button type="submit" class="btn-devolver-grande">Devolver</button>
-                        </form>
+                        <button type="button" class="btn-devolver-grande"
+                                data-action="{{ route('registros.entrada', $reg) }}"
+                                data-terr="{{ $territorio->numero_completo }}"
+                                data-pub="{{ $nombrePub !== '' ? $nombrePub : 'Sin nombre' }}"
+                                data-salida="{{ $reg->fecha_salida->format('Y-m-d') }}"
+                                onclick="abrirModalDevolver(this)">Devolver</button>
                     </div>
                 @endforeach
             </div>
@@ -121,6 +157,25 @@
                 <div>Ahora mismo no hay ningún territorio fuera.</div>
             </div>
         @endif
+    </div>
+</div>
+
+<!-- Modal: devolver eligiendo la fecha -->
+<div id="modal-devolver" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+        <h3 class="modal-titulo">Devolver territorio</h3>
+        <p class="modal-texto" id="modal-texto"></p>
+        <form id="modal-form" method="POST" action="">
+            @csrf
+            <label class="modal-label" for="modal-fecha">¿Qué día te lo devolvieron?</label>
+            <input type="date" name="fecha_entrada" id="modal-fecha" class="modal-fecha"
+                   value="{{ now()->format('Y-m-d') }}" max="{{ now()->format('Y-m-d') }}" required>
+            <p class="modal-ayuda">Por defecto es hoy. Cámbialo solo si fue otro día.</p>
+            <div class="modal-botones">
+                <button type="button" class="modal-btn-cancelar" onclick="cerrarModalDevolver()">Cancelar</button>
+                <button type="submit" class="modal-btn-confirmar">Devolver</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -236,8 +291,8 @@
 }
 
 .chip.activo { border-color: #6b8fc7; color: #fff; background: #233047; }
-.chip-pasado.activo { border-color: #dc2626; background: rgba(220,38,38,0.18); color: #fca5a5; }
-.chip-uso.activo { border-color: #22c55e; background: rgba(34,197,94,0.15); color: #86efac; }
+.chip-pasado.activo { border-color: #f59e0b; background: rgba(245,158,11,0.18); color: #fbbf24; }
+.chip-uso.activo { border-color: #3b82f6; background: rgba(59,130,246,0.15); color: #93c5fd; }
 
 .fuera-filtros { display: flex; gap: 0.6rem; flex-wrap: wrap; }
 
@@ -270,8 +325,8 @@
 }
 
 /* Distintivo por nivel (borde izquierdo) */
-.fuera-item.nivel-pasado { border-left-color: #dc2626; background: rgba(220,38,38,0.06); }
-.fuera-item.nivel-en_uso { border-left-color: #22c55e; }
+.fuera-item.nivel-pasado { border-left-color: #f59e0b; background: rgba(245,158,11,0.06); }
+.fuera-item.nivel-en_uso { border-left-color: #3b82f6; }
 
 .fuera-info { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
 
@@ -290,8 +345,8 @@
     border-radius: 6px;
     margin: 0.1rem 0;
 }
-.nivel-badge-pasado { background: rgba(220,38,38,0.18); color: #fca5a5; }
-.nivel-badge-en_uso { background: rgba(34,197,94,0.15); color: #86efac; }
+.nivel-badge-pasado { background: rgba(245,158,11,0.18); color: #fbbf24; }
+.nivel-badge-en_uso { background: rgba(59,130,246,0.15); color: #93c5fd; }
 
 .btn-devolver-grande {
     flex-shrink: 0;
@@ -318,6 +373,53 @@
 }
 
 .fuera-vacio-icono { font-size: 2.5rem; margin-bottom: 0.5rem; }
+
+/* Modal devolver con fecha */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+.modal-box {
+    background: #1c1f22;
+    border: 1px solid #2d3339;
+    border-radius: 16px;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 420px;
+}
+.modal-titulo { font-size: 1.3rem; color: #f1f3f5; margin: 0 0 0.5rem; }
+.modal-texto { color: #cbd5e1; margin: 0 0 1.1rem; font-size: 1.05rem; }
+.modal-label { display: block; color: #f1f3f5; font-weight: 600; margin-bottom: 0.4rem; }
+.modal-fecha {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    border: 1px solid #2d3339;
+    background: #151719;
+    color: #f1f3f5;
+}
+.modal-fecha:focus { outline: none; border-color: #6b8fc7; }
+.modal-ayuda { color: #9ca3af; font-size: 0.85rem; margin: 0.5rem 0 1.25rem; }
+.modal-botones { display: flex; gap: 0.75rem; }
+.modal-btn-cancelar, .modal-btn-confirmar {
+    flex: 1;
+    padding: 0.9rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+.modal-btn-cancelar { background: #2d3339; color: #cbd5e1; }
+.modal-btn-confirmar { background: #4a6da7; color: #fff; }
+.modal-btn-confirmar:hover { background: #3d5a8a; }
 
 /* Móvil */
 @media (max-width: 600px) {
@@ -386,6 +488,32 @@
             aplicar();
         });
     });
+})();
+
+// Modal de devolución con fecha
+function abrirModalDevolver(btn) {
+    var modal = document.getElementById('modal-devolver');
+    var form = document.getElementById('modal-form');
+    var fecha = document.getElementById('modal-fecha');
+    if (!modal || !form || !fecha) return;
+    form.setAttribute('action', btn.getAttribute('data-action'));
+    document.getElementById('modal-texto').textContent =
+        'Territorio ' + btn.getAttribute('data-terr') + ' · ' + btn.getAttribute('data-pub');
+    var salida = btn.getAttribute('data-salida');
+    if (salida) { fecha.setAttribute('min', salida); }
+    modal.style.display = 'flex';
+}
+function cerrarModalDevolver() {
+    var modal = document.getElementById('modal-devolver');
+    if (modal) modal.style.display = 'none';
+}
+(function() {
+    var overlay = document.getElementById('modal-devolver');
+    if (overlay) {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) cerrarModalDevolver();
+        });
+    }
 })();
 </script>
 

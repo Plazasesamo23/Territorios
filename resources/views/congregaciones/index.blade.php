@@ -64,9 +64,13 @@
                                 <div><strong>Usuario:</strong> {{ $congregacion->usuario ?? $congregacion->codigo }}</div>
                                 <div>
                                     <strong>Clave:</strong>
-                                    <span class="password-field">
-                                        {{ $congregacion->password_plain ?? 'No establecida' }}
-                                    </span>
+                                    @if($congregacion->password_plain)
+                                    <span class="password-field" data-clave="{{ $congregacion->password_plain }}">••••••</span>
+                                    <button type="button" class="btn btn-sm btn-ghost" style="padding:0.1rem 0.4rem;min-height:auto;"
+                                            onclick="var f=this.previousElementSibling; var oculta=f.textContent.trim()==='••••••'; f.textContent=oculta?f.dataset.clave:'••••••'; this.textContent=oculta?'Ocultar':'Mostrar';">Mostrar</button>
+                                    @else
+                                    <span class="password-field">No establecida</span>
+                                    @endif
                                 </div>
                             </div>
                         </td>

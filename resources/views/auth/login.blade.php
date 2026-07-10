@@ -243,7 +243,7 @@
         </script>
 
         <p class="login-footer">
-            Gestor de Congregacion &copy; {{ date('Y') }}
+            Gestor de Congregación &copy; {{ date('Y') }}
         </p>
     </div>
 </body>

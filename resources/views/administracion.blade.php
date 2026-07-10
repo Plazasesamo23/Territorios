@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Administracion')
+@section('title', 'Administración')
 
 @section('content')
 
 <div class="admin-page">
-    <h1 class="page-title">Administracion</h1>
-    <p class="page-subtitle">Gestiona todos los aspectos de tu congregacion</p>
+    <h1 class="page-title">Administración</h1>
+    <p class="page-subtitle">Gestiona todos los aspectos de tu congregación</p>
 
     <div class="admin-grid">
         <!-- Territorios -->
@@ -21,7 +21,7 @@
         <div class="admin-section">
             <div class="section-header">Publicadores</div>
             <a href="{{ route('publicadores.index') }}" class="admin-link">Ver Publicadores</a>
-            <a href="{{ route('grupos-predicacion.index') }}" class="admin-link">Grupos de Predicacion</a>
+            <a href="{{ route('grupos-predicacion.index') }}" class="admin-link">Grupos de Predicación</a>
         </div>
 
         <!-- Usuarios -->
@@ -46,13 +46,13 @@
         <div class="admin-section">
             <div class="section-header">S-13</div>
             <a href="{{ route('s13.index') }}" class="admin-link">Ver S-13</a>
-            <a href="{{ route('s13.importar') }}" class="admin-link">Importar S-13</a>
+            <a href="{{ route('s13.importar') }}" class="admin-link">Añadir registros a mano (S-13)</a>
         </div>
 
         <!-- Sistema -->
         <div class="admin-section">
             <div class="section-header">Sistema</div>
-            <a href="{{ route('configuracion') }}" class="admin-link">Configuracion</a>
+            <a href="{{ route('configuracion') }}" class="admin-link">Configuración</a>
             <a href="{{ route('cambiar-usuario.index') }}" class="admin-link">Cambiar Usuario</a>
         </div>
     </div>

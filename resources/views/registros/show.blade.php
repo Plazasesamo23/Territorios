@@ -39,13 +39,13 @@
         Asignación #{{ $registro->id }}
         <div style="float: right;">
             @if($registro->fecha_entrada)
-                <span class="badge" style="background: #dcfce7; color: #166534;">✅ DEVUELTO</span>
+                <span class="badge badge-green">✅ DEVUELTO</span>
             @else
                 @php $estado = $registro->territorio->calcularEstado(); @endphp
-                @if($estado === 'activo')
-                    <span class="badge" style="background: #e8eef6; color: #2d4266;">🔵 ACTIVO</span>
-                @elseif($estado === 'atrasado')
-                    <span class="badge" style="background: #f8f9fa; color: #343a40;">🔴 ATRASADO</span>
+                @if($estado === 'atrasado')
+                    <span class="badge badge-yellow">⚠️ ATRASADO</span>
+                @else
+                    <span class="badge badge-blue">🔵 EN PLAZO</span>
                 @endif
             @endif
         </div>
@@ -60,14 +60,14 @@
             <div>
                 <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Fecha de Salida:</label>
                 <input type="date" name="fecha_salida" value="{{ $registro->fecha_salida->format('Y-m-d') }}" 
-                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px;">
+                       style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-white); color: var(--text);">
             </div>
             
             @if($registro->fecha_entrada)
                 <div>
                     <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Fecha de Entrada:</label>
                     <input type="date" name="fecha_entrada" value="{{ $registro->fecha_entrada->format('Y-m-d') }}" 
-                           style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px;">
+                           style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-white); color: var(--text);">
                 </div>
             @endif
         </div>
@@ -75,7 +75,7 @@
         <div class="mb-4">
             <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Notas:</label>
             <textarea name="notas" rows="3" 
-                      style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px;">{{ $registro->notas }}</textarea>
+                      style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-white); color: var(--text);">{{ $registro->notas }}</textarea>
         </div>
     </form>
 
@@ -179,9 +179,9 @@
     </div>
 
     <!-- Zona de peligro (solo visible en modo edición) -->
-    <div id="dangerZone" style="display: none; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #495057;">
+    <div id="dangerZone" style="display: none; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(239,68,68,0.4);">
         <div style="margin-bottom: 1rem;">
-            <strong style="color: #495057;">⚠️ Zona de Peligro</strong>
+            <strong style="color: #f87171;">⚠️ Zona de Peligro</strong>
             <div style="font-size: 0.875rem; color: #9ca3af;">Estas acciones no se pueden deshacer</div>
         </div>
         
@@ -189,7 +189,7 @@
               onsubmit="return confirm('¿Estás COMPLETAMENTE SEGURO de eliminar este registro? Esta acción no se puede deshacer.')">
             @csrf
             @method('DELETE')
-            <button type="submit" class="btn" style="background: #495057; color: white; padding: 0.75rem 1.5rem;">
+            <button type="submit" class="btn" style="background: #dc2626; color: white; padding: 0.75rem 1.5rem;">
                 🗑️ Eliminar Asignación
             </button>
         </form>
@@ -206,7 +206,7 @@
             <div style="margin-bottom: 1.5rem;">
                 <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Fecha de Devolución:</label>
                 <input type="date" name="fecha_entrada" value="{{ date('Y-m-d') }}" 
-                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px;">
+                       style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-white); color: var(--text);">
             </div>
             
             <div style="display: flex; gap: 1rem; justify-content: flex-end;">

@@ -91,7 +91,7 @@
                 <th class="hide-mobile">Fecha</th>
                 <th>Territorio</th>
                 <th>Publicador</th>
-                <th>Dias</th>
+                <th>Días</th>
                 <th>Estado</th>
                 <th class="text-center">Acción</th>
             </tr>
@@ -108,10 +108,10 @@
                 <td>{{ $registro->publicador->nombre_completo }}</td>
                 <td class="text-center">{{ round($registro->fecha_salida->diffInDays(now())) }}</td>
                 <td>
-                    @if($estado === 'activo')
-                        <span class="text-primary font-medium">Activo</span>
-                    @elseif($estado === 'atrasado')
-                        <span class="font-medium" style="color: var(--warning, #f59e0b)">Atrasado</span>
+                    @if($estado === 'atrasado')
+                        <span class="badge badge-yellow">⚠ Atrasado</span>
+                    @else
+                        <span class="badge badge-blue">En plazo</span>
                     @endif
                 </td>
                 <td class="text-center">

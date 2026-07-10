@@ -57,7 +57,7 @@
             <h3 class="reunion-seccion-titulo">Roles generales</h3>
             <div class="grid-2">
                 <div class="form-group">
-                    <label class="form-label">Presidente <button type="button" class="btn-rec" onclick="recomendar('presidente','[name=presidente_id]')" title="Ver recomendaciones">?</button></label>
+                    <label class="form-label">Presidente <button type="button" class="btn-rec" onclick="recomendar('presidente','[name=presidente_id]')" title="Ver a quién le toca">Sugerir</button></label>
                     @php $__autIds = $autPorTipo['presidente'] ?? []; @endphp
                     <select name="presidente_id" class="form-input">
                         <option value="">-- Sin asignar --</option>
@@ -75,7 +75,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Oracion de inicio <button type="button" class="btn-rec" onclick="recomendar('oracion_inicio','[name=oracion_inicio_id]')" title="Ver recomendaciones">?</button></label>
+                    <label class="form-label">Oración de inicio <button type="button" class="btn-rec" onclick="recomendar('oracion_inicio','[name=oracion_inicio_id]')" title="Ver a quién le toca">Sugerir</button></label>
                     @php $__autIds = $autPorTipo['oracion'] ?? []; @endphp
                     <select name="oracion_inicio_id" class="form-input">
                         <option value="">-- Sin asignar --</option>
@@ -93,7 +93,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Conductor estudio <button type="button" class="btn-rec" onclick="recomendar('conductor_estudio','[name=conductor_estudio_id]')" title="Ver recomendaciones">?</button></label>
+                    <label class="form-label">Conductor estudio <button type="button" class="btn-rec" onclick="recomendar('conductor_estudio','[name=conductor_estudio_id]')" title="Ver a quién le toca">Sugerir</button></label>
                     @php $__autIds = $autPorTipo['conductor_estudio'] ?? []; @endphp
                     <select name="conductor_estudio_id" class="form-input">
                         <option value="">-- Sin asignar --</option>
@@ -111,7 +111,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Lector estudio <button type="button" class="btn-rec" onclick="recomendar('lector_estudio','[name=lector_estudio_id]')" title="Ver recomendaciones">?</button></label>
+                    <label class="form-label">Lector estudio <button type="button" class="btn-rec" onclick="recomendar('lector_estudio','[name=lector_estudio_id]')" title="Ver a quién le toca">Sugerir</button></label>
                     @php $__autIds = $autPorTipo['lector_estudio'] ?? []; @endphp
                     <select name="lector_estudio_id" class="form-input">
                         <option value="">-- Sin asignar --</option>
@@ -129,7 +129,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Oracion final <button type="button" class="btn-rec" onclick="recomendar('oracion_final','[name=oracion_final_id]')" title="Ver recomendaciones">?</button></label>
+                    <label class="form-label">Oración final <button type="button" class="btn-rec" onclick="recomendar('oracion_final','[name=oracion_final_id]')" title="Ver a quién le toca">Sugerir</button></label>
                     @php $__autIds = $autPorTipo['oracion'] ?? []; @endphp
                     <select name="oracion_final_id" class="form-input">
                         <option value="">-- Sin asignar --</option>
@@ -239,7 +239,7 @@
                 <div class="grid-2">
                     <div class="form-group">
                         <label class="form-label">Estudiante
-                            <button type="button" class="btn-rec btn-emergency" onclick="recomendarEmergencia('{{ $parte->tipo }}', {{ $parte->id }})" title="Reemplazo de emergencia">&#9889;</button>
+                            <button type="button" class="btn-rec btn-emergency" onclick="recomendarEmergencia('{{ $parte->tipo }}', {{ $parte->id }})" title="Buscar sustituto de emergencia">&#9889; Sustituto</button>
                         </label>
                         <input type="hidden" name="emergencia[{{ $parte->id }}]" id="emergencia-{{ $parte->id }}" value="">
                         @php $__autIds = $autPorTipo['maestros'] ?? []; $__otros = $publicadores->filter(fn($p) => !in_array($p->id, $__autIds) && $p->genero); @endphp
@@ -398,15 +398,15 @@ async function recomendar(tipoParte, selectId) {
 
         let html = '<div class="list-flat">';
         data.candidatos.forEach((c, i) => {
-            const diasTexto = c.dias_desde_ultima !== null ? c.dias_desde_ultima + ' dias' : 'Nunca';
-            const semanaTexto = c.esta_semana > 0 ? ` · ${c.esta_semana} esta semana` : '';
+            const diasTexto = c.dias_desde_ultima !== null ? 'hace ' + c.dias_desde_ultima + ' días' : 'nunca la ha hecho';
+            const semanaTexto = c.esta_semana > 0 ? ` · ya tiene ${c.esta_semana} esta semana` : '';
             html += `
                 <a href="#" class="list-item" onclick="seleccionarRecomendado(${c.id});return false;">
                     <span class="content">
                         <span class="title">${i === 0 ? '⭐ ' : ''}${c.nombre}</span>
-                        <span class="subtitle">${c.total_asignaciones} asignaciones · Ultima: ${diasTexto}${semanaTexto}</span>
+                        <span class="subtitle">${c.total_asignaciones} asignaciones · Última vez: ${diasTexto}${semanaTexto}</span>
                     </span>
-                    <span class="meta">${c.puntuacion > 0 ? '+' : ''}${c.puntuacion}</span>
+                    ${i === 0 ? '<span class="meta" style="color:var(--teal);font-weight:600;">Le toca</span>' : ''}
                 </a>`;
         });
         html += '</div>';

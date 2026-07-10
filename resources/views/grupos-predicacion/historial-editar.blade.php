@@ -163,7 +163,7 @@
 
 /* Grupos */
 .grupos-section {
-    background: white;
+    background: var(--bg-white);
     border-radius: 10px;
     padding: 1rem;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
@@ -176,7 +176,7 @@
 }
 
 .grupo-box {
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border);
     border-radius: 8px;
     overflow: hidden;
 }
@@ -218,7 +218,7 @@
     max-height: 300px;
     overflow-y: auto;
     padding: 0.4rem;
-    background: #fafafa;
+    background: var(--bg);
 }
 
 .grupo-lista.drag-over {
@@ -231,7 +231,7 @@
     justify-content: space-between;
     padding: 0.3rem 0.4rem;
     margin-bottom: 0.25rem;
-    background: white;
+    background: var(--bg-white);
     border-radius: 4px;
     font-size: 0.75rem;
     cursor: grab;
@@ -247,15 +247,15 @@
 }
 
 .pub-item.superintendente {
-    color: #343a40;
+    color: var(--text);
     font-weight: 600;
-    background: #f8f9fa;
+    background: var(--bg-hover);
 }
 
 .pub-item.auxiliar {
     color: #3d5a8a;
     font-weight: 600;
-    background: #f4f7fb;
+    background: rgba(59,130,246,0.10);
 }
 
 .pub-item.precursor {
@@ -278,10 +278,10 @@
 
 .select-rol {
     padding: 0.15rem 0.25rem;
-    font-size: 0.65rem;
-    border: 1px solid #d1d5db;
+    font-size: 0.78rem;
+    border: 1px solid var(--border-medium);
     border-radius: 3px;
-    background: white;
+    background: var(--bg-white);
     cursor: pointer;
 }
 
@@ -294,7 +294,7 @@
     border: none;
     border-radius: 3px;
     background: #e9ecef;
-    color: #343a40;
+    color: var(--text);
     cursor: pointer;
 }
 
@@ -307,10 +307,10 @@
     align-items: center;
     gap: 0.4rem;
     padding: 0.35rem 0.5rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border);
     font-size: 0.7rem;
     font-weight: 600;
-    background: white;
+    background: var(--bg-white);
 }
 
 .total-label {
@@ -318,14 +318,14 @@
 }
 
 .total-num {
-    background: #e5e7eb;
+    background: var(--bg-hover);
     padding: 0.1rem 0.4rem;
     border-radius: 3px;
 }
 
 /* Panel disponibles */
 .panel-disponibles {
-    background: white;
+    background: var(--bg-white);
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     overflow: hidden;
@@ -359,13 +359,13 @@
 
 .panel-search {
     padding: 0.5rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border);
 }
 
 .panel-search input {
     width: 100%;
     padding: 0.4rem 0.6rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border);
     border-radius: 4px;
     font-size: 0.8rem;
 }
@@ -391,7 +391,7 @@
     color: white;
     padding: 0.1rem 0.25rem;
     border-radius: 3px;
-    font-size: 0.55rem;
+    font-size: 0.72rem;
     font-weight: 700;
 }
 
@@ -400,7 +400,7 @@
     text-align: center;
     font-size: 0.75rem;
     color: #9ca3af;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border);
 }
 
 /* Dark theme */

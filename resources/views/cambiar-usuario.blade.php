@@ -6,7 +6,7 @@
 
 <div class="selector-container">
     <div class="selector-header">
-        <h1 class="selector-title">¿Quien esta usando el sistema?</h1>
+        <h1 class="selector-title">¿Quién está usando el sistema?</h1>
 
         @if(isset($usuarioOriginal))
         <div class="usuario-original-banner">
@@ -183,10 +183,10 @@ document.addEventListener('DOMContentLoaded', function() {
     align-items: center;
     gap: 1rem;
     padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, #e8eef6 0%, #bfdbfe 100%);
+    background: rgba(74,109,167,0.15);
     border: 2px solid #4a6da7;
     border-radius: 12px;
-    color: #2d4266;
+    color: #93c5fd;
     flex-wrap: wrap;
     justify-content: center;
 }
@@ -223,10 +223,10 @@ document.addEventListener('DOMContentLoaded', function() {
     align-items: center;
     gap: 0.75rem;
     padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    background: rgba(245,158,11,0.12);
     border: 1px solid #4a6da7;
     border-radius: 10px;
-    color: #92400e;
+    color: #fbbf24;
     font-size: 0.95rem;
 }
 
@@ -307,8 +307,8 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .usuario-badge.admin {
-    background: linear-gradient(135deg, #fecaca 0%, #ced4da 100%);
-    color: #212529;
+    background: rgba(239,68,68,0.15);
+    color: #f87171;
 }
 
 .usuario-badge.superadmin {
@@ -318,12 +318,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .usuario-badge.territorios {
     background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 100%);
-    color: #2d4266;
+    color: #93c5fd;
 }
 
 .usuario-badge.user {
-    background: linear-gradient(135deg, #bfdbfe 0%, #8aa8d6 100%);
-    color: #2d4266;
+    background: rgba(74,109,167,0.2);
+    color: #93c5fd;
 }
 
 .usuario-actual-badge {
@@ -472,8 +472,8 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .modal-error {
-    background: #e9ecef;
-    color: #212529;
+    background: rgba(239,68,68,0.12);
+    color: #f87171;
     padding: 0.75rem 1rem;
     border-radius: 8px;
     font-size: 0.875rem;

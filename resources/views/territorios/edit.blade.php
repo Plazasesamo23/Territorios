@@ -142,7 +142,7 @@
                             <div class="upload-text">
                                 <strong>Haz clic para seleccionar</strong> o arrastra una imagen aqui
                             </div>
-                            <div class="upload-hint">JPG, JPEG o PNG. Maximo 2MB</div>
+                            <div class="upload-hint">JPG, JPEG o PNG. Máximo 2MB</div>
                         </div>
                         <input
                             type="file"
@@ -299,14 +299,14 @@
     font-size: 0.95rem;
 }
 .tipo-indicator.tipo-campana {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    background: rgba(245,158,11,0.15);
     border: 2px solid #4a6da7;
-    color: #92400e;
+    color: #fbbf24;
 }
 .tipo-indicator.tipo-negocios {
-    background: linear-gradient(135deg, #e8eef6 0%, #bfdbfe 100%);
+    background: rgba(59,130,246,0.12);
     border: 2px solid #4a6da7;
-    color: #2d4266;
+    color: #93c5fd;
 }
 .tipo-icon {
     font-size: 1.5rem;
@@ -331,7 +331,7 @@
 
 /* Imagen actual */
 .imagen-actual {
-    background: #f3f4f6;
+    background: var(--bg-hover);
     border-radius: 12px;
     padding: 1rem;
 }
@@ -357,8 +357,8 @@
     flex: 1;
     min-width: 120px;
     padding: 0.75rem 1rem;
-    border: 2px solid #e5e7eb;
-    background: #f9fafb;
+    border: 2px solid var(--border);
+    background: var(--bg-hover);
     border-radius: 8px;
     cursor: pointer;
     font-weight: 500;
@@ -378,13 +378,13 @@
 
 /* Area de upload */
 .upload-area {
-    border: 2px dashed #d1d5db;
+    border: 2px dashed var(--border-medium);
     border-radius: 12px;
     padding: 2rem;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
-    background: #fafafa;
+    background: var(--bg);
 }
 .upload-area:hover {
     border-color: #4a6da7;
@@ -392,7 +392,7 @@
 }
 .upload-area.dragover {
     border-color: #4a6da7;
-    background: #e8eef6;
+    background: rgba(59,130,246,0.12);
 }
 .upload-icon {
     font-size: 3rem;
@@ -416,13 +416,13 @@
     margin-top: 1rem;
     border-radius: 12px;
     overflow: hidden;
-    border: 2px solid #e5e7eb;
+    border: 2px solid var(--border);
 }
 .imagen-preview img {
     width: 100%;
     max-height: 300px;
     object-fit: contain;
-    background: #f3f4f6;
+    background: var(--bg-hover);
 }
 .remove-image-btn {
     position: absolute;
@@ -456,8 +456,8 @@
 
 /* Mantener actual */
 .mantener-info {
-    background: #e8eef6;
-    color: #2d4266;
+    background: rgba(59,130,246,0.12);
+    color: #93c5fd;
     padding: 1rem;
     border-radius: 8px;
     font-weight: 500;
@@ -498,7 +498,7 @@ function previewImagen(input) {
 
         // Validar tamano (2MB max)
         if (file.size > 2 * 1024 * 1024) {
-            alert('La imagen es demasiado grande. Maximo 2MB.');
+            alert('La imagen es demasiado grande. Máximo 2MB.');
             input.value = '';
             return;
         }

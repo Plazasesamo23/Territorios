@@ -244,7 +244,7 @@
     font-size: 0.75rem;
     font-weight: 500;
     opacity: 0.7;
-    text-transform: lowercase;
+
 }
 
 .ri-add__more {
