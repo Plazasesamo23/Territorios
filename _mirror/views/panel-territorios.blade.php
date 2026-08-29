@@ -25,11 +25,14 @@
         <div class="alert-banner mb-2" style="flex-direction: column; gap: 0.5rem; text-align: left;">
             <strong>Territorio asignado</strong>
             <span>Envía el territorio a {{ session('whatsapp_publicador') }} por WhatsApp</span>
-            <div class="flex gap-1 mt-1">
-                <button id="copyMessageBtn" onclick="copyMessageAndOpenWhatsApp()" class="btn btn-secondary">
-                    Copiar Mensaje y Abrir WhatsApp
+            <div class="flex gap-1 mt-1" style="flex-wrap: wrap;">
+                <button id="shareFotoBtn" onclick="compartirFotoYMensaje()" class="btn btn-primary" style="display: none;">
+                    📤 Enviar foto y mensaje
                 </button>
-                <button onclick="openTerritorioImage()" class="btn btn-secondary">
+                <button id="copyMessageBtn" onclick="copyMessageAndOpenWhatsApp()" class="btn btn-secondary">
+                    Abrir chat (solo texto)
+                </button>
+                <button id="verImagenBtn" onclick="openTerritorioImage()" class="btn btn-secondary">
                     Ver Imagen
                 </button>
             </div>
@@ -52,6 +55,87 @@
             function openTerritorioImage() {
                 var imageUrl = "{{ session('whatsapp_imagen_url', '') }}";
                 if (imageUrl) window.open(imageUrl, '_blank');
+            }
+
+            // ===== Enviar foto y mensaje juntos (compartir nativo del móvil) =====
+            // Compone la imagen del territorio + una franja con los datos, y la entrega
+            // a WhatsApp como FOTO adjunta con el mensaje como texto, en un solo mensaje.
+            (function() {
+                // Mostrar el botón solo si el navegador puede compartir archivos (móvil)
+                try {
+                    var prueba = new File([new Blob([''], {type: 'image/jpeg'})], 't.jpg', {type: 'image/jpeg'});
+                    if (navigator.canShare && navigator.canShare({files: [prueba]})) {
+                        document.getElementById('shareFotoBtn').style.display = '';
+                        // Con el botón de foto, "Ver Imagen" sobra
+                        document.getElementById('verImagenBtn').style.display = 'none';
+                    }
+                } catch (e) { /* navegador sin soporte: se quedan los botones clásicos */ }
+            })();
+
+            async function compartirFotoYMensaje() {
+                var btn = document.getElementById('shareFotoBtn');
+                var textoOriginal = btn.innerHTML;
+                btn.innerHTML = 'Preparando foto…';
+                btn.disabled = true;
+                try {
+                    var imgUrl = {!! json_encode(session('whatsapp_imagen_url', '')) !!};
+                    var titulo = 'Territorio ' + {!! json_encode(session('whatsapp_territorio', '')) !!};
+                    var para = {!! json_encode(session('whatsapp_publicador', '')) !!};
+                    var mensaje = {!! json_encode(session('whatsapp_mensaje_foto', session('whatsapp_mensaje', ''))) !!};
+                    var fecha = '{{ now()->format('d/m/Y') }}';
+
+                    var resp = await fetch(imgUrl, {mode: 'cors'});
+                    if (!resp.ok) throw new Error('imagen no disponible');
+                    var blob = await resp.blob();
+                    var bitmap = await createImageBitmap(blob);
+
+                    // Canvas: imagen + franja inferior con los datos
+                    var W = bitmap.width, H = bitmap.height;
+                    var franja = Math.max(80, Math.round(W * 0.10));
+                    var canvas = document.createElement('canvas');
+                    canvas.width = W;
+                    canvas.height = H + franja;
+                    var ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, W, H); // fondo blanco por si el PNG tiene transparencia
+                    ctx.drawImage(bitmap, 0, 0);
+                    ctx.fillStyle = '#1a1d21';
+                    ctx.fillRect(0, H, W, franja);
+
+                    var margen = Math.round(W * 0.04);
+                    ctx.textBaseline = 'middle';
+                    // Línea 1: número de territorio (reduce la fuente si no cabe)
+                    var fs = Math.round(franja * 0.36);
+                    do {
+                        ctx.font = '700 ' + fs + 'px sans-serif';
+                        fs -= 2;
+                    } while (ctx.measureText(titulo).width > W - margen * 2 && fs > 10);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(titulo, margen, H + Math.round(franja * 0.30));
+                    // Línea 2: publicador y fecha
+                    var linea2 = 'Para: ' + para + ' · ' + fecha;
+                    fs = Math.round(franja * 0.26);
+                    do {
+                        ctx.font = fs + 'px sans-serif';
+                        fs -= 2;
+                    } while (ctx.measureText(linea2).width > W - margen * 2 && fs > 9);
+                    ctx.fillStyle = '#cbd5e1';
+                    ctx.fillText(linea2, margen, H + Math.round(franja * 0.72));
+
+                    var fotoBlob = await new Promise(function(res) { canvas.toBlob(res, 'image/jpeg', 0.92); });
+                    if (!fotoBlob) throw new Error('canvas');
+                    var archivo = new File([fotoBlob], 'territorio_' + {!! json_encode(session('whatsapp_territorio', '')) !!}.replace(/[^A-Za-z0-9_-]/g, '') + '.jpg', {type: 'image/jpeg'});
+
+                    await navigator.share({files: [archivo], text: mensaje});
+                } catch (e) {
+                    if (!e || e.name !== 'AbortError') {
+                        alert('No se pudo preparar la foto. Usa "Abrir chat (solo texto)" y adjunta la imagen desde "Ver Imagen".');
+                        document.getElementById('verImagenBtn').style.display = '';
+                    }
+                } finally {
+                    btn.innerHTML = textoOriginal;
+                    btn.disabled = false;
+                }
             }
         </script>
     @endif

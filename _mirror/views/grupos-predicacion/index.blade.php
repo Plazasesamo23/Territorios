@@ -57,7 +57,7 @@
 
     <div class="grupos-hint no-print" style="display:flex;align-items:flex-start;gap:0.5rem;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.9rem;color:var(--text-muted);">
         <span aria-hidden="true">&#128161;</span>
-        <div><strong style="color:var(--text);">Cómo funciona:</strong> arrastra un publicador de un grupo a otro para moverlo (en ordenador). Los botones <strong>S</strong> y <strong>A</strong> junto a cada nombre marcan al superintendente y al auxiliar del grupo.</div>
+        <div><strong style="color:var(--text);">Cómo funciona:</strong> toca el nombre de un publicador para moverlo a otro grupo (en ordenador también puedes arrastrarlo). Los botones <strong>S</strong> y <strong>A</strong> marcan al superintendente y al auxiliar del grupo.</div>
     </div>
 
     <!-- Layout principal -->
@@ -782,16 +782,108 @@
 }
 </style>
 
+<!-- Modal mover publicador (alternativa tactil al drag & drop) -->
+<div id="modal-mover" class="mover-overlay" style="display:none;" onclick="if(event.target===this) cerrarMoverModal()">
+    <div class="mover-modal">
+        <div class="mover-titulo">Mover a <strong id="mover-nombre"></strong> a:</div>
+        <div class="mover-opciones" id="mover-opciones"></div>
+        <button type="button" class="mover-cancelar" onclick="cerrarMoverModal()">Cancelar</button>
+    </div>
+</div>
+
+<style>
+.mover-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;
+}
+.mover-modal {
+    background: var(--bg-white); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.25rem; width: 100%; max-width: 340px; max-height: 80vh; overflow-y: auto;
+}
+.mover-titulo { margin-bottom: 0.85rem; color: var(--text); font-size: 0.95rem; }
+.mover-opciones { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 0.5rem; margin-bottom: 0.85rem; }
+.mover-opcion {
+    min-height: 46px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg-hover); color: var(--text); font-weight: 600; cursor: pointer; font-size: 0.9rem;
+}
+.mover-opcion:hover { border-color: var(--primary); }
+.mover-opcion.sin { grid-column: 1 / -1; background: transparent; color: var(--text-muted); font-weight: 400; }
+.mover-cancelar {
+    width: 100%; min-height: 44px; background: transparent; border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text-muted); cursor: pointer;
+}
+</style>
+
 <script>
 const csrfToken = '{{ csrf_token() }}';
 let draggedElement = null;
+let moverPubItem = null;
 
 document.addEventListener('DOMContentLoaded', initDragDrop);
+
+function abrirMoverModal(item) {
+    moverPubItem = item;
+    document.getElementById('mover-nombre').textContent = item.dataset.nombre || '';
+    const cont = document.getElementById('mover-opciones');
+    cont.innerHTML = '';
+    document.querySelectorAll('.grupo-box').forEach(box => {
+        const gid = box.dataset.grupoId;
+        const num = box.querySelector('.grupo-num') ? box.querySelector('.grupo-num').textContent.trim() : gid;
+        const zonaActual = item.closest('.grupo-lista');
+        if (zonaActual && zonaActual.dataset.grupoId === gid) return; // no ofrecer el grupo actual
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'mover-opcion';
+        b.textContent = 'Grupo ' + num;
+        b.onclick = () => moverPublicadorA(gid);
+        cont.appendChild(b);
+    });
+    if (item.closest('.grupo-lista')) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'mover-opcion sin';
+        b.textContent = 'Quitar del grupo (dejar sin grupo)';
+        b.onclick = () => moverPublicadorA(null);
+        cont.appendChild(b);
+    }
+    document.getElementById('modal-mover').style.display = 'flex';
+}
+
+function cerrarMoverModal() {
+    document.getElementById('modal-mover').style.display = 'none';
+    moverPubItem = null;
+}
+
+function moverPublicadorA(grupoId) {
+    if (!moverPubItem) return;
+    const zona = grupoId
+        ? document.querySelector('.grupo-lista[data-grupo-id="' + grupoId + '"]')
+        : document.querySelector('.panel-lista');
+    if (!zona) { cerrarMoverModal(); return; }
+    const item = moverPubItem;
+    zona.appendChild(item);
+    item.classList.remove('lider', 'sin-grupo');
+    if (!grupoId) item.classList.add('sin-grupo');
+    const actions = item.querySelector('.pub-actions');
+    if (actions) actions.style.display = grupoId ? '' : 'none';
+    updateCounters();
+    fetch('/grupos-predicacion/mover', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+        body: JSON.stringify({ publicador_id: item.dataset.id, grupo_id: grupoId })
+    });
+    cerrarMoverModal();
+}
 
 function initDragDrop() {
     document.querySelectorAll('.pub-item').forEach(el => {
         el.addEventListener('dragstart', handleDragStart);
         el.addEventListener('dragend', handleDragEnd);
+        // Alternativa tactil: tocar el nombre abre el selector de grupo
+        el.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-rol')) return;
+            abrirMoverModal(this);
+        });
     });
 
     document.querySelectorAll('.grupo-lista, .panel-lista').forEach(zone => {

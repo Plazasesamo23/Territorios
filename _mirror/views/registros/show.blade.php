@@ -29,6 +29,13 @@
             <button onclick="showDateModal()" class="btn btn-primary">
                 ✅ Marcar Devuelto
             </button>
+            <form action="{{ route('registros.deshacer', $registro) }}" method="POST" class="inline"
+                  onsubmit="return confirm('¿Quitar esta asignación? El territorio {{ $registro->territorio->numero_completo }} volverá a estar disponible y no quedará en el historial de {{ $registro->publicador->nombre_completo }}. Úsalo solo si te equivocaste al asignarlo.')">
+                @csrf
+                <button type="submit" class="btn" style="background: transparent; border: 1px solid rgba(220,38,38,0.5); color: #f87171;">
+                    🗑️ Quitar asignación
+                </button>
+            </form>
         @endif
     </div>
 </nav>

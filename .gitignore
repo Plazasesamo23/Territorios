@@ -1,0 +1,8 @@
+# Copias de seguridad y temporales de trabajo (el codigo vivo esta en el servidor)
+*.backup
+*.backup-*
+*.srv
+_tmp_srv/
+_server_actual/
+_mirror_backup_*/
+usuario_visual.php

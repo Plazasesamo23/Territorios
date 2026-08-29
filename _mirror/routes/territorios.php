@@ -22,6 +22,7 @@ Route::middleware(['auth', 'congregacion'])->group(function () {
     Route::post('registros', [RegistroController::class, 'store'])->name('registros.store');
     Route::get('registros/{registro}', [RegistroController::class, 'show'])->name('registros.show');
     Route::post('registros/{registro}/marcar-entrada', [RegistroController::class, 'marcarEntrada'])->name('registros.entrada');
+    Route::post('registros/{registro}/deshacer', [RegistroController::class, 'deshacer'])->name('registros.deshacer');
     Route::get('registros-archivados', [RegistroController::class, 'archivados'])->name('registros.archivados');
 
     // S13

@@ -300,6 +300,32 @@ class RegistroController extends Controller
     }
 
     /**
+     * Quitar una asignación activa hecha por error.
+     * El territorio vuelve a estar disponible al momento y no queda rastro
+     * en el historial del publicador. Los registros ya cerrados (historial)
+     * NUNCA se tocan desde aquí.
+     */
+    public function deshacer(Registro $registro)
+    {
+        // El scope de congregación deja territorio en null si el registro es de otra congregación
+        $territorio = $registro->territorio;
+        if (!$territorio) {
+            abort(404);
+        }
+
+        if ($registro->fecha_entrada) {
+            return redirect()->route('panel-territorios')
+                ->with('error', 'Esta asignación ya está cerrada y forma parte del historial, no se puede quitar.');
+        }
+
+        $nombrePublicador = $registro->publicador->nombre_completo ?? 'el publicador';
+        $registro->delete();
+
+        return redirect()->route('panel-territorios')
+            ->with('success', "Asignación quitada. El territorio {$territorio->numero_completo} vuelve a estar disponible y no queda en el historial de {$nombrePublicador}.");
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
     public function edit(Registro $registro)
@@ -354,9 +380,16 @@ class RegistroController extends Controller
             return false;
         }
 
+        // wa.me necesita prefijo de país: móviles españoles de 9 dígitos → anteponer 34
+        if (strlen($telefono) === 9 && in_array($telefono[0], ['6', '7'])) {
+            $telefono = '34' . $telefono;
+        }
+
         // Obtener el mensaje personalizado de la congregación
         $congregacion = $territorio->congregacion;
         $mensaje = $congregacion->getMensajeWhatsappFormateado($publicador, $territorio);
+        // Variante sin la URL de la imagen: para "Enviar foto y mensaje" (la foto va adjunta)
+        $mensajeFoto = $congregacion->getMensajeWhatsappFormateado($publicador, $territorio, false);
 
         $whatsappUrl = "https://wa.me/{$telefono}?text=" . urlencode($mensaje);
 
@@ -366,6 +399,7 @@ class RegistroController extends Controller
         session(['whatsapp_territorio' => $territorio->numero_completo]);
         session(['whatsapp_imagen_url' => $territorio->getImagenUrl()]);
         session(["whatsapp_mensaje" => $mensaje]);
+        session(['whatsapp_mensaje_foto' => $mensajeFoto]);
 
         // Registrar el envío
         \Log::info("WhatsApp preparado para {$publicador->telefono}: {$mensaje}");

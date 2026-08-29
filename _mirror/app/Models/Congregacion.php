@@ -68,15 +68,32 @@ class Congregacion extends Model
     /**
      * Obtiene el mensaje de WhatsApp formateado con los datos del territorio y publicador
      */
-    public function getMensajeWhatsappFormateado($publicador, $territorio): string
+    public function getMensajeWhatsappFormateado($publicador, $territorio, bool $incluirImagen = true): string
     {
         $mensaje = $this->mensaje_whatsapp ?? "Hola {nombre}, te envío el territorio {numero}.\n\nImagen del territorio:\n{imagen_url}";
+
+        // Si la imagen va adjunta como foto (compartir nativo), quitar del texto
+        // las líneas con la URL de la imagen (y su línea de encabezado tipo "Imagen del territorio:").
+        if (!$incluirImagen) {
+            $lineas = preg_split("/\r?\n/", $mensaje);
+            $borrar = [];
+            foreach ($lineas as $i => $linea) {
+                if (str_contains($linea, '{imagen_url}')) {
+                    $borrar[] = $i;
+                    if ($i > 0 && str_ends_with(rtrim($lineas[$i - 1]), ':')) {
+                        $borrar[] = $i - 1;
+                    }
+                }
+            }
+            $lineas = array_diff_key($lineas, array_flip($borrar));
+            $mensaje = trim(implode("\n", $lineas));
+        }
 
         // Reemplazar variables
         $mensaje = str_replace('{nombre}', $publicador->nombre, $mensaje);
         $mensaje = str_replace('{nombre_completo}', $publicador->nombre_completo, $mensaje);
         $mensaje = str_replace('{numero}', $territorio->numero, $mensaje);
-        $mensaje = str_replace('{territorio_nombre}', $territorio->nombre ?? '', $mensaje);
+        $mensaje = str_replace('{territorio_nombre}', $territorio->zona ?? '', $mensaje);
         $mensaje = str_replace('{imagen_url}', $territorio->getImagenUrl(), $mensaje);
 
         return $mensaje;

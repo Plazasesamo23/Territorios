@@ -202,6 +202,11 @@ class Territorio extends Model
     {
         // 1. Usar URL de la base de datos si existe
         if (!empty($this->imagen_url)) {
+            // Si es una ruta relativa (imagen subida desde la app, ej. "imagenes/1_100.jpg"),
+            // convertirla en URL absoluta; si no, el enlace en WhatsApp sale roto.
+            if (!preg_match('#^https?://#i', $this->imagen_url)) {
+                return asset(ltrim($this->imagen_url, '/'));
+            }
             return $this->convertirUrlDirecta($this->imagen_url);
         }
 

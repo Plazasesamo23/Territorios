@@ -86,10 +86,23 @@
         @endif
     </div>
 
+    @if($errors->any())
+    <div class="form-errors">
+        <strong>No se pudo guardar:</strong>
+        <ul>
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     <!-- Formulario principal -->
     <form id="form-territorio" action="{{ route('territorios.update', $territorio) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
+        {{-- El controlador exige el tipo al guardar; sin este campo la validacion falla y no se guarda nada --}}
+        <input type="hidden" name="tipo" value="{{ $tipoActual }}">
         
         <div class="content-grid">
             <!-- Columna izquierda: Imagen -->
@@ -216,10 +229,24 @@
                         </div>
                     </div>
                     
-                    @if($territorio->publicadorActual())
+                    @if($territorio->registroActivo())
+                        @php $regActivo = $territorio->registroActivo(); @endphp
                         <div class="field-group">
                             <label>Asignado a</label>
-                            <span class="field-value">{{ $territorio->publicadorActual()->nombre }}</span>
+                            <div class="asignacion-actual">
+                                <div class="asignacion-datos">
+                                    <span class="field-value">{{ $regActivo->publicador->nombre_completo ?? 'Sin nombre' }}</span>
+                                    <small class="asignacion-fecha">Desde el {{ $regActivo->fecha_salida->format('d/m/Y') }} ({{ round($regActivo->fecha_salida->diffInDays(now())) }} días)</small>
+                                </div>
+                                <form action="{{ route('registros.deshacer', $regActivo) }}" method="POST"
+                                      onsubmit="return confirm('¿Quitar esta asignación? El territorio {{ $territorio->numero_completo }} volverá a estar disponible ahora mismo y no quedará en el historial de {{ $regActivo->publicador->nombre_completo ?? 'este publicador' }}. Úsalo solo si te equivocaste al asignarlo.')">
+                                    @csrf
+                                    <button type="submit" class="btn-quitar-asignacion">🗑️ Quitar asignación</button>
+                                </form>
+                            </div>
+                            <small class="field-help">
+                                💡 Si te equivocaste al asignarlo, "Quitar asignación" lo deja disponible al momento y no cuenta en el historial. Para una devolución normal usa el botón "Devolver" del panel.
+                            </small>
                         </div>
                     @endif
                 </div>
@@ -247,6 +274,22 @@
 </form>
 
 <style>
+/* Aviso de errores al guardar */
+.form-errors {
+    background: #3b1418;
+    border: 1px solid #dc2626;
+    color: #fecaca;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+.form-errors ul {
+    margin: 0.5rem 0 0 1.25rem;
+    padding: 0;
+}
+.form-errors li { margin-bottom: 0.25rem; }
+
 /* Contenedor principal */
 .territorio-detail-container {
     max-width: 1200px;
@@ -540,6 +583,50 @@
     font-size: 0.8rem;
     margin-top: 0.5rem;
     font-style: italic;
+}
+
+/* Asignación actual con opción de quitar */
+.asignacion-actual {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.asignacion-datos {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+    flex: 1;
+}
+
+.asignacion-fecha {
+    color: #9ca3af;
+    font-size: 0.8rem;
+}
+
+.btn-quitar-asignacion {
+    flex-shrink: 0;
+    background: transparent;
+    border: 1px solid rgba(220,38,38,0.5);
+    color: #f87171;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-quitar-asignacion:hover {
+    background: rgba(220,38,38,0.12);
+}
+
+@media (max-width: 600px) {
+    .asignacion-actual { flex-direction: column; align-items: stretch; }
+    .btn-quitar-asignacion { width: 100%; padding: 0.85rem; }
 }
 
 /* Modal */
