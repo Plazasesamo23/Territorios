@@ -599,6 +599,27 @@ echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territo
 
 ## Historial de sesiones
 
+### 31 Agosto 2026 - Fix "Quitar asignación" (form anidado) + devoluciones silenciosas + correcciones de datos
+
+**Correcciones de datos (registros de territorios):**
+- Registro 832 (territorio 31, salida 31/08): asignado por error a Miguel Pauner (75) → corregido a Maria Jose De Muñoz (140).
+- **Renovación Congregación Inglesa** (publicador ficticio 367, "la inglesa"): sus 6 territorios (113, 114, 130, 137, 170, 195, fuera desde 13/04) se cerraron con entrada 31/08 y se reabrieron el mismo día (registros nuevos 833-838). Es el procedimiento estándar cuando Bryan pide "renovar los de la inglesa".
+- **Cierre encadenado Maria Jose De Muñoz**: tenía 4 abiertos a la vez; se cerró cada uno con la fecha en que cogió el siguiente → terr 140 devuelto 01/07, terr 20 devuelto 11/07, terr 12 devuelto 31/08. Queda solo con el 31.
+- Todo con mysqldump previo de `registros` (3 volcados en `storage/backup_registros_20260831*.sql` del servidor) y vía script PHP temporal (subir → ejecutar → borrar).
+
+**Bug raíz "no puedo quitar territorios":** en `territorios/show.blade.php` el `<form>` de "🗑️ Quitar asignación" (`registros.deshacer`) estaba ANIDADO dentro del `<form id="form-territorio">` de edición. HTML no admite formularios anidados: el navegador descartaba el interno y el botón enviaba el formulario de guardar el territorio. Fix: botón `type="button"` + formulario oculto `#form-quitar-asignacion` al final de la página (fuera del form principal, junto a `#form-eliminar`), disparado por JS con confirm. Ojo futuro: no meter forms dentro de `#form-territorio`.
+
+**Auditoría "¿se apuntan bien las devoluciones?":** BD sana — 0 territorios con doble asignación abierta, 0 registros huérfanos, 0 fechas futuras (solo 2 registros de la importación de sep-2025 con entrada < salida, sin tocar). Hallazgo: las 34 asignaciones abiertas de la congregación 2 (Sabadell) son de la importación del 26/01/2026 y nadie las mantiene — NO son devoluciones perdidas. Causas reales de pérdidas silenciosas, corregidas:
+1. `layouts/app.blade.php` no pintaba `$errors`: si la validación fallaba, volvías al panel sin aviso creyendo que se había guardado. Ahora sale alerta roja "No se ha podido guardar" con los motivos (toda la app).
+2. `SESSION_LIFETIME=120` (2 h) → POST de "Devolver" con sesión caducada (419) se perdía; típico dejando el panel abierto en el móvil. Subido a 43200 (30 días) en `.env`.
+3. Mensajes de validación de `marcarEntrada` en castellano y explícitos ("La devolución NO se ha apuntado: ...") — `APP_LOCALE=en` y no hay carpeta `lang/`, así que el resto de la app valida en inglés.
+
+**Verificación:** php -l y compilación Blade OK (truco: script con `Blade::compileString` + `php -l` del resultado), cachés limpiadas, login 200. Backups `.backup-20260831` en servidor de: `territorios/show.blade.php`, `layouts/app.blade.php`, `RegistroController.php`, `.env`.
+
+**Pendiente (backlog):** el modal "Devolver" del panel no permite fecha anterior a la salida (caso real: le devolvieron el territorio antes de apuntar la asignación, porque `fecha_salida` siempre es "hoy" al asignar); cerrar en bloque las 34 de Sabadell si algún día lo piden; valorar traducir la validación global (lang/es) ya que APP_LOCALE=en.
+
+---
+
 ### 10 Julio 2026 - Auditoría global "golpe de vista" + 42 archivos desplegados + agentes .md
 
 **Auditoría con 6 subagentes** (shell/nav, Territorios, Reuniones, PPOC, Admin, CSS global) sobre el código vivo bajado a `_mirror/`. Se implementó y desplegó en producción:
