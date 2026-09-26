@@ -123,11 +123,8 @@
             <div>
                 <strong>Duración:</strong>
                 <div style="margin-top: 0.5rem; font-size: 1.25rem; font-weight: 600;">
-                    @if($registro->fecha_entrada)
-                        {{ $registro->fecha_salida->diffInDays($registro->fecha_entrada) }} días
-                    @else
-                        {{ $registro->fecha_salida->diffInDays(now()) }} días
-                    @endif
+                    @php $diasDuracion = (int) round($registro->fecha_salida->diffInDays($registro->fecha_entrada ?? now())); @endphp
+                    {{ $diasDuracion }} {{ $diasDuracion === 1 ? 'día' : 'días' }}
                 </div>
                 <div style="font-size: 0.875rem; color: #9ca3af;">
                     @if($registro->fecha_entrada)

@@ -414,6 +414,7 @@
 
                         @if(Auth::user()->isTerritoriosUser())
                             <a href="{{ route('panel-territorios') }}" class="nav-link {{ request()->routeIs('panel-territorios') || request()->routeIs('registros.*') ? 'active' : '' }}">Territorios</a>
+                            <a href="{{ route('territorios.index') }}" class="nav-link {{ request()->routeIs('territorios.*') ? 'active' : '' }}">Todos</a>
                             @if(Auth::user()->canGenerateS13())
                             <a href="{{ route('s13.index') }}" class="nav-link {{ request()->routeIs('s13.*') ? 'active' : '' }}">S-13</a>
                             @endif
@@ -523,6 +524,22 @@
     <div class="flash-container">
         <div class="alert alert-error">
             <span>{{ session('error') }}</span>
+            <button type="button" class="alert-dismiss" onclick="this.parentElement.remove()">&times;</button>
+        </div>
+    </div>
+    @endif
+
+    {{-- Errores de validacion: antes eran invisibles y el usuario creia que
+         la accion (p. ej. devolver un territorio) se habia guardado cuando no. --}}
+    @if($errors->any())
+    <div class="flash-container">
+        <div class="alert alert-error">
+            <span>
+                <strong>No se ha podido guardar.</strong>
+                @foreach($errors->all() as $mensajeError)
+                    <br>{{ $mensajeError }}
+                @endforeach
+            </span>
             <button type="button" class="alert-dismiss" onclick="this.parentElement.remove()">&times;</button>
         </div>
     </div>

@@ -85,7 +85,7 @@
 
     @if($registrosActivos->count() > 0)
     <div class="table-responsive">
-    <table class="table-flat">
+    <table class="table-flat table-cards">
         <thead>
             <tr>
                 <th class="hide-mobile">Fecha</th>
@@ -104,17 +104,17 @@
                 data-tipo="{{ $registro->territorio->tipo }}"
                 data-search="{{ strtolower($registro->territorio->numero_completo . ' ' . $registro->publicador->nombre_completo . ' ' . ($registro->territorio->zona ?? '')) }}">
                 <td class="text-muted hide-mobile">{{ $registro->fecha_salida->format('d/m/Y') }}</td>
-                <td><strong>{{ $registro->territorio->numero_completo }}</strong></td>
-                <td>{{ $registro->publicador->nombre_completo }}</td>
-                <td class="text-center">{{ round($registro->fecha_salida->diffInDays(now())) }}</td>
-                <td>
+                <td class="td-territorio"><strong>{{ $registro->territorio->numero_completo }}</strong></td>
+                <td class="td-publicador">{{ $registro->publicador->nombre_completo }}</td>
+                <td class="text-center td-dias" data-label="Días fuera">{{ round($registro->fecha_salida->diffInDays(now())) }}</td>
+                <td class="td-estado">
                     @if($estado === 'atrasado')
                         <span class="badge badge-yellow">⚠ Atrasado</span>
                     @else
                         <span class="badge badge-blue">En plazo</span>
                     @endif
                 </td>
-                <td class="text-center">
+                <td class="text-center td-accion">
                     <form action="{{ route('registros.entrada', $registro) }}" method="POST" style="margin:0"
                           onsubmit="event.stopPropagation(); return confirm('¿Devolver el territorio {{ $registro->territorio->numero_completo }} de {{ $registro->publicador->nombre_completo }}?');">
                         @csrf

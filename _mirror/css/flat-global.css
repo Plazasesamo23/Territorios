@@ -2601,6 +2601,89 @@ a.list-item:hover .arrow {
 }
 
 /* ============================================
+   RESPONSIVE — Móvil (≤ 640px)
+   Filas de botones, filtros y tablas-tarjeta
+   ============================================ */
+@media (max-width: 640px) {
+  /* Filas de botones: nunca desbordan, cada botón ocupa todo el ancho */
+  .form-actions,
+  .page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: stretch;
+    width: 100%;
+    gap: 0.5rem;
+  }
+  .form-actions .btn,
+  .page-actions .btn,
+  .page-actions form,
+  .page-actions .dropdown {
+    flex: 1 1 100%;
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+  .page-actions form .btn { width: 100%; }
+  .page-actions .dropdown .btn { width: 100%; }
+
+  /* Filtros por tipo: rejilla 2x2 en vez de fila desbordada */
+  .tipo-filtros {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    overflow: visible;
+    padding-bottom: 0;
+  }
+  .tipo-filtro {
+    justify-content: center;
+    min-height: 44px;
+    padding: 0.5rem 0.5rem;
+  }
+  .tipo-filtro .tipo-icono { display: none; }
+
+  /* Pestañas: se reparten en varias filas en vez de cortarse */
+  .tabs-flat {
+    flex-wrap: wrap;
+    overflow: visible;
+    gap: 0.25rem;
+  }
+  .tabs-flat .tab-item { flex: 1 1 auto; text-align: center; min-height: 44px; }
+
+  /* Tabla-tarjeta: cada fila se convierte en una tarjeta legible */
+  .table-cards thead { display: none; }
+  .table-cards,
+  .table-cards tbody { display: block; width: 100%; }
+  .table-cards tbody tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "territorio estado"
+      "publicador publicador"
+      "dias dias"
+      "accion accion";
+    gap: 0.25rem 0.75rem;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.625rem;
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .table-cards tbody tr:nth-child(even),
+  .table-cards tbody tr:hover { background: var(--bg-white); }
+  .table-cards td { display: block; padding: 0; border: 0; font-size: 0.9rem; text-align: left; }
+  .table-cards td.hide-mobile { display: none; }
+  .table-cards td.td-territorio { grid-area: territorio; font-size: 1.15rem; }
+  .table-cards td.td-estado { grid-area: estado; text-align: right; }
+  .table-cards td.td-publicador { grid-area: publicador; }
+  .table-cards td.td-dias { grid-area: dias; color: var(--text-muted); font-size: 0.85rem; }
+  .table-cards td.td-dias::before { content: attr(data-label) ": "; }
+  .table-cards td.td-accion { grid-area: accion; margin-top: 0.25rem; }
+  .table-cards td.td-accion form { width: 100%; }
+  .table-cards td.td-accion .btn { width: 100%; justify-content: center; min-height: 44px; font-size: 0.95rem; }
+}
+
+/* ============================================
    PRINT STYLES
    ============================================ */
 @media print {

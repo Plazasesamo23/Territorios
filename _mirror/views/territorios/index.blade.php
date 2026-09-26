@@ -9,8 +9,9 @@
         <span class="breadcrumb-current">Territorios</span>
     </div>
 
+    @if(Auth::user()->canEditTerritorios())
     <div class="page-actions">
-        <!-- Dropdown para crear nuevo territorio -->
+        <!-- Dropdown para crear nuevo territorio (solo admin) -->
         <div class="dropdown">
             <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownCrear" onclick="toggleDropdown('dropdownMenuCrear')">
                 + Nuevo Territorio
@@ -28,6 +29,7 @@
             </div>
         </div>
     </div>
+    @endif
 </div>
 
 <!-- Filtros por tipo de territorio -->
@@ -232,8 +234,10 @@
         <div class="desc">
             @if(($tipoFiltro ?? 'todos') !== 'todos')
                 No hay territorios de tipo "{{ ucfirst($tipoFiltro ?? '') }}" en esta congregación.
+            @elseif(Auth::user()->canEditTerritorios())
+                Usa el botón "+ Nuevo Territorio" de arriba para empezar.
             @else
-                Usa el boton "+ Nuevo Territorio" de arriba para empezar.
+                Todavía no hay territorios en esta congregación.
             @endif
         </div>
     </div>
