@@ -607,6 +607,8 @@ echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territo
 
 **Verificado en servidor** con script temporal (borrado): cong 1, 214 territorios. 2025-26: 180 con referencia, 34 sin (9 con >=4 en el año, el resto sin historial previo a 09/2025). 2026-27: los 214 con referencia o asignación arrastrada, sin duplicados. Backup: `_mirror/.../S13Controller.php.backup-20260926`. OPcache: `opcache_reset()` sigue bloqueado por OVH; los cambios se aplican solos por `validate_timestamps`.
 
+**Datos (cong 1, vía script PHP temporal, mysqldump previo en `storage/backup_partida_20260926_212216.sql`):** el publicador 119 "Super" (inactivo, sin apellidos, tel "+34") pasa a ser **Daniel Partida** (M, activo, tel NULL). Alta de **Pili Partida** (id 372, F, activa, sin teléfono ni grupo). A Daniel se le asignan con salida 26/09/2026 los 4 normales que llevaban más tiempo libres (7, 173, 200, 191; registros 887-890) y el de negocios **N-10** (registro 891). Regla de Bryan: los negocios N1-N9 están entregados físicamente aunque la app los muestre libres → no asignarlos. Imágenes copiadas a `C:\Users\bryan\Desktop\Territorios Daniel Partida\`.
+
 ---
 
 ### 2 Septiembre 2026 - Fix relleno del S-13 + cierre de 12 devoluciones perdidas
