@@ -110,7 +110,7 @@ class S13Controller extends Controller
 
         foreach ($territorios as $territorio) {
             $fechaInicioAñoServicio = Carbon::create($añoServicio, 9, 1);
-            $fechaFinAñoServicio = Carbon::create($añoSiguiente, 8, 31);
+            $fechaFinAñoServicio = Carbon::create($añoSiguiente, 8, 31)->endOfDay();
 
             // IMPORTANTE: Cargar publicador SIN el global scope para evitar filtrado
             $withPublicador = ['publicador' => function($query) {
@@ -132,35 +132,27 @@ class S13Controller extends Controller
                 ->orderBy('fecha_salida', 'desc')
                 ->get();
 
-            // 3. Registros historicos si faltan
-            $registrosHistoricos = collect();
-            $totalRegistros = $registrosAñoActual->count() + $registrosActivosAnteriores->count();
+            // 3. Referencia del año anterior: SIEMPRE una casilla con la asignacion
+            // MAS RECIENTE anterior al 1 de septiembre (indica donde se quedo el
+            // territorio). Si esa asignacion sigue abierta ya entra en el paso 2,
+            // asi que se excluye aqui para no duplicarla.
+            $registrosHistoricos = $territorio->registros()
+                ->where('fecha_salida', '<', $fechaInicioAñoServicio)
+                ->with($withPublicador)
+                ->orderBy('fecha_salida', 'desc')
+                ->take(1)
+                ->get()
+                ->whereNotIn('id', $registrosActivosAnteriores->pluck('id'))
+                ->values();
 
-            if ($totalRegistros < 4) {
-                $registrosHistoricos = $territorio->registros()
-                    ->where('fecha_salida', '<', $fechaInicioAñoServicio)
-                    ->whereNotNull('fecha_entrada')
-                    ->with($withPublicador)
-                    ->orderBy('fecha_salida', 'desc')
-                    ->take(4 - $totalRegistros)
-                    ->get();
-            }
-
-            // 4. Si no hay registros, tomar cualquier historico
-            if ($totalRegistros == 0 && $registrosHistoricos->count() == 0) {
-                $registrosHistoricos = $territorio->registros()
-                    ->with($withPublicador)
-                    ->orderBy('fecha_salida', 'desc')
-                    ->take(4)
-                    ->get();
-            }
-
-            // Combinar registros
+            // Combinar registros; si hay mas de 4, conservar los 4 MAS RECIENTES
+            // (con 4 o mas registros en el año la referencia se cae; el dato real pesa mas)
             $registrosCombinados = $registrosHistoricos
                 ->concat($registrosActivosAnteriores)
                 ->concat($registrosAñoActual)
-                ->sortBy('fecha_salida')
+                ->sortByDesc('fecha_salida')
                 ->take(4)
+                ->sortBy('fecha_salida')
                 ->values();
 
             $territorio->registros = $registrosCombinados;

@@ -599,6 +599,26 @@ echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territo
 
 ## Historial de sesiones
 
+### 26 Septiembre 2026 - Fix S-13: la referencia del año anterior faltaba en el 2025-2026
+
+**Problema (secuela del fix del 2 Sept):** al cambiar la condición de relleno a "solo si el año tiene CERO registros", los territorios con 1-3 registros en el año elegido perdían la casilla de referencia (la última asignación del año anterior, que indica dónde se quedó el territorio). El S-13 del 2025-2026 salía sin esa primera casilla.
+
+**Regla definitiva (acordada con Bryan):** la casilla 1 es SIEMPRE la asignación MÁS RECIENTE con salida anterior al 1 de septiembre del año elegido, tenga o no registros el año. Si esa asignación sigue abierta ya entra como "arrastrada" y no se duplica (se toma la más reciente y se descarta si coincide, sin buscar otra). Con 4 o más registros en el propio año la referencia se cae (se conservan los 4 más recientes). Bryan confirma que en la práctica no se llega a 5 porque cada territorio descansa ~3 meses entre salidas.
+
+**Verificado en servidor** con script temporal (borrado): cong 1, 214 territorios. 2025-26: 180 con referencia, 34 sin (9 con >=4 en el año, el resto sin historial previo a 09/2025). 2026-27: los 214 con referencia o asignación arrastrada, sin duplicados. Backup: `_mirror/.../S13Controller.php.backup-20260926`. OPcache: `opcache_reset()` sigue bloqueado por OVH; los cambios se aplican solos por `validate_timestamps`.
+
+---
+
+### 2 Septiembre 2026 - Fix relleno del S-13 + cierre de 12 devoluciones perdidas
+
+**Fix S-13 (`S13Controller.php`, desplegado y verificado):** el informe rellenaba hasta 4 casillas por territorio con asignaciones cerradas de años anteriores (por eso el S-13 del 2026-2027 recién estrenado salía lleno de registros del 2025-2026). Nueva regla acordada con Bryan: solo si el territorio NO tiene ningún registro del año elegido (ni asignación abierta arrastrada) se rellena UNA casilla con su última asignación como referencia; si ya hay alguno, nada de relleno. De propina, 2 bugs corregidos: con >4 registros en el año ahora se conservan los 4 MÁS RECIENTES (antes `sortBy`+`take(4)` descartaba justo el último), y el fin del año de servicio usa `endOfDay()` (las salidas del 31/08 quedaban fuera). Las vistas no se tocaron (pintan casillas fijas; las vacías quedan en blanco). La lógica es paramétrica por año: aplica igual a años futuros. Backup: `_mirror/.../S13Controller.php.backup`.
+
+**Auditoría de devoluciones + cierre encadenado (12 registros, cong 1):** publicadores con >1 asignación abierta y fechas escalonadas → el territorio antiguo se cierra con la fecha en que cogieron el siguiente (regla confirmada por Bryan, incluidos los casos dudosos: "solo el último"). Cerrados: Mario Fuentes 194→08/08 (¡abierto desde febrero!); Noemi De Pauner 95→11/07; Patricia Hernández 59→11/07 y 11→22/08 (queda el 110); Zurama Peña 7→10/06; Maricarmen De Caballero 161→26/08; Manolo Ortiz 182→09/07, 181→11/07, 13→18/07 (queda solo el 60); Nelson Cicery 176→23/07 (queda el 44); Zoe Chávez 116→15/07 (queda el 185); Raphaela Rivas 111→30/05 (queda el 49). mysqldump previo en el servidor: `storage/backup_registros_20260902_devoluciones.sql`; vía script PHP temporal (subir→ejecutar→borrar). Para revertir un caso: poner su `fecha_entrada` a NULL.
+
+**Quedan con >1 abierta y son legítimas** (cogidas el mismo día, NO tocar): Cristina Rodríguez (167+69), Dirciline, Francisco Muñoz, Lidia, Nunci, Rafa Rivera, Rebeca, Sergi Pacheco (x3), Ismael Quirós (x3), más "la inglesa" (367) con sus 6. Sin señales de fallo nuevo en devoluciones: la acumulación era anterior a los fixes del 31/08.
+
+---
+
 ### 31 Agosto 2026 - Fix "Quitar asignación" (form anidado) + devoluciones silenciosas + correcciones de datos
 
 **Correcciones de datos (registros de territorios):**
