@@ -243,10 +243,14 @@ class TurnoController extends Controller
         $service = new AsignacionPpocService($congregacion->id);
         $alertasData = $service->getAlertas($year, $month);
 
+        // Quien sale 2+ veces en la misma semana (lunes a domingo), para marcarlo
+        // en el calendario de la app. El PDF no lo usa.
+        $repetidosSemana = $service->getRepetidosPorSemana($year, $month);
+
         return view('ppoc.calendario', compact(
             'turnosGenerados', 'plantillas', 'publicadores',
             'year', 'month', 'semanas', 'nombreMes', 'prevMonth', 'nextMonth',
-            'mesGenerado', 'alertasData'
+            'mesGenerado', 'alertasData', 'repetidosSemana'
         ));
     }
 
@@ -406,6 +410,18 @@ class TurnoController extends Controller
         // Actualizar estado del turno si está completo
         if ($turnoGenerado->estaCompleto()) {
             $turnoGenerado->update(['estado' => 'completo']);
+        }
+
+        // Avisar si con esta asignación sale 2 veces en la misma semana (se permite, pero se marca)
+        $inicioSemana = $turnoGenerado->fecha->copy()->startOfWeek(Carbon::MONDAY);
+        $finSemana = $turnoGenerado->fecha->copy()->endOfWeek(Carbon::SUNDAY);
+        $turnosSemana = TurnoAsignacion::where('publicador_id', $publicador->id)
+            ->whereBetween('fecha', [$inicioSemana, $finSemana])
+            ->whereHas('turnoGenerado', fn($q) => $q->where('congregacion_id', $turnoGenerado->congregacion_id))
+            ->count();
+
+        if ($turnosSemana >= 2) {
+            return back()->with('success', "Publicador asignado. Ojo: {$publicador->nombre_completo} sale {$turnosSemana} veces esta semana.");
         }
 
         return back()->with('success', 'Publicador asignado correctamente.');
@@ -591,8 +607,19 @@ class TurnoController extends Controller
             ->pluck('total', 'publicador_id')
             ->toArray();
 
+        // Quien ya sale esa misma semana (lunes a domingo), sin contar este turno
+        $inicioSemana = $turnoGenerado->fecha->copy()->startOfWeek(Carbon::MONDAY);
+        $finSemana = $turnoGenerado->fecha->copy()->endOfWeek(Carbon::SUNDAY);
+        $salenEstaSemana = TurnoAsignacion::whereBetween('fecha', [$inicioSemana, $finSemana])
+            ->where('turno_generado_id', '!=', $turnoGenerado->id)
+            ->whereHas('turnoGenerado', fn($q) => $q->where('congregacion_id', $congregacionId))
+            ->pluck('publicador_id')
+            ->unique()
+            ->flip()
+            ->toArray();
+
         // Preparar respuesta con puntuacion
-        $sugerencias = $candidatos->map(function($pub) use ($turnosPorPublicador, $rolBuscado) {
+        $sugerencias = $candidatos->map(function($pub) use ($turnosPorPublicador, $rolBuscado, $salenEstaSemana) {
             $turnos = $turnosPorPublicador[$pub->id] ?? 0;
 
             return [
@@ -603,11 +630,13 @@ class TurnoController extends Controller
                 'es_capitan' => $pub->es_capitan_ppoc,
                 'es_precursor' => $pub->es_precursor,
                 'turnos_mes' => $turnos,
+                'sale_esta_semana' => isset($salenEstaSemana[$pub->id]),
             ];
         });
 
-        // Ordenar: menos turnos primero, precursores primero si empatan
+        // Ordenar: los que no salen esta semana primero, luego menos turnos, precursores si empatan
         $sugerencias = $sugerencias->sortBy([
+            ['sale_esta_semana', 'asc'],
             ['turnos_mes', 'asc'],
             ['es_precursor', 'desc'],
         ])->values();

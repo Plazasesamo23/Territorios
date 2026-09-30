@@ -599,6 +599,20 @@ echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territo
 
 ## Historial de sesiones
 
+### 30 Septiembre 2026 - PPOC: nadie sale dos veces en la misma semana
+
+**Regla nueva (pedida por Bryan):** "Rellenar huecos" no debe poner a la misma persona en dos turnos de la misma semana (lunes a domingo). Si aun así ocurre (a mano o por error), se marca SOLO en el calendario de la app; el PDF sale igual que siempre.
+
+**`AsignacionPpocService.php`:** mapa `turnosPorSemana` (clave ISO `o-W` → publicador → nº turnos) cargado con semanas completas aunque pisen otro mes; `seleccionarCapitan`/`seleccionarVoluntario` descartan a quien ya sale esa semana (regla dura, sin fallback); `crearAsignacion` suma y el borrado de asignaciones parciales resta. Para que la regla no deje turnos cojos, los turnos se atienden **por escasez** (menos disponibles en plantilla primero; antes era por fecha): con orden por fecha el jueves 09:00 (15 disponibles) se quedaba con 2 personas. Nuevo `getRepetidosPorSemana($y,$m)` público y aviso ámbar en `getAlertas` ("Sale(n) 2 veces en la misma semana: nombres").
+
+**`TurnoController.php`:** `calendario` pasa `$repetidosSemana` a la vista; `asignar` (manual) lo permite pero avisa "Ojo: X sale N veces esta semana"; `getSugerencias` añade `sale_esta_semana` y ordena esos candidatos al final.
+
+**`ppoc/calendario.blade.php`:** clase `repite-semana` (borde ámbar `--warning`) + badge "2× semana" en la rejilla de escritorio y en la agenda móvil; en el modal Sugerir, badge "Ya sale esta semana". `ppoc/pdf.blade.php` NO se toca.
+
+**Verificado en servidor** con script temporal dentro de transacción con rollback (borrado): 10 pasadas (sep y oct 2026, cong 1) → todos los turnos completos y 0 repetidos; repetido forzado → 1 detectado, calendario renderizado con 4 badges (2 vistas × 2 turnos) y aviso con el nombre; sugerencias con el repetido marcado y al final. Datos reales sin cambios (159 asignaciones oct). Backups `.backup-20260930` en `_mirror` y en servidor de los 3 archivos. Ojo al probar por CLI: hay que fijar `session(['congregacion_activa_id'=>1])` o el scope global deja las consultas vacías.
+
+**Pendiente:** el git del servidor tiene ~19 archivos modificados sin commitear desde julio (no se tocó).
+
 ### 26 Septiembre 2026 - Fix S-13: la referencia del año anterior faltaba en el 2025-2026
 
 **Problema (secuela del fix del 2 Sept):** al cambiar la condición de relleno a "solo si el año tiene CERO registros", los territorios con 1-3 registros en el año elegido perdían la casilla de referencia (la última asignación del año anterior, que indica dónde se quedó el territorio). El S-13 del 2025-2026 salía sin esa primera casilla.

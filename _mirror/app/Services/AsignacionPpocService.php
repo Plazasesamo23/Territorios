@@ -18,10 +18,79 @@ class AsignacionPpocService
     private array $turnosAsignadosMes = [];
     private array $conyuges = [];
     private array $turnosConConyuge = [];
+    // Cuantos turnos tiene cada publicador en cada semana (lunes a domingo).
+    // Clave: semana ISO ('2026-40') => [publicador_id => nº de turnos]
+    private array $turnosPorSemana = [];
 
     public function __construct(int $congregacionId)
     {
         $this->congregacionId = $congregacionId;
+    }
+
+    /**
+     * Clave de semana (lunes a domingo) de una fecha. Formato ISO 'año-semana'.
+     */
+    public static function claveSemana($fecha): string
+    {
+        return Carbon::parse($fecha)->format('o-W');
+    }
+
+    /**
+     * Cargar los turnos que ya tiene cada publicador en cada semana del rango.
+     * Se cargan semanas completas (aunque empiecen o acaben en otro mes) para
+     * que una persona que salio el martes 30 no repita el sabado 3.
+     */
+    private function cargarTurnosPorSemana(Carbon $desde, Carbon $hasta): void
+    {
+        $inicio = $desde->copy()->startOfWeek(Carbon::MONDAY);
+        $fin = $hasta->copy()->endOfWeek(Carbon::SUNDAY);
+
+        $asignaciones = TurnoAsignacion::whereBetween('fecha', [$inicio, $fin])
+            ->whereHas('turnoGenerado', fn($q) => $q->where('congregacion_id', $this->congregacionId)
+                                                    ->where('estado', '!=', 'cancelado'))
+            ->get(['publicador_id', 'fecha']);
+
+        $this->turnosPorSemana = [];
+        foreach ($asignaciones as $asig) {
+            $this->sumarTurnoSemana($asig->publicador_id, $asig->fecha, 1);
+        }
+    }
+
+    private function sumarTurnoSemana(int $publicadorId, $fecha, int $delta): void
+    {
+        $semana = self::claveSemana($fecha);
+        $actual = $this->turnosPorSemana[$semana][$publicadorId] ?? 0;
+        $this->turnosPorSemana[$semana][$publicadorId] = max(0, $actual + $delta);
+    }
+
+    /**
+     * ¿El publicador ya tiene algun turno en la semana de esa fecha?
+     */
+    private function yaSaleEsaSemana(int $publicadorId, $fecha): bool
+    {
+        $semana = self::claveSemana($fecha);
+        return ($this->turnosPorSemana[$semana][$publicadorId] ?? 0) > 0;
+    }
+
+    /**
+     * Publicadores que salen 2 o mas veces en la misma semana, para marcarlos
+     * en el calendario de la app (no en el PDF).
+     * Devuelve ['2026-40' => [publicador_id => nº de turnos], ...] solo con los repetidos.
+     */
+    public function getRepetidosPorSemana(int $year, int $month): array
+    {
+        $primerDia = Carbon::create($year, $month, 1);
+        $this->cargarTurnosPorSemana($primerDia, $primerDia->copy()->endOfMonth());
+
+        $repetidos = [];
+        foreach ($this->turnosPorSemana as $semana => $publicadores) {
+            foreach ($publicadores as $publicadorId => $turnos) {
+                if ($turnos >= 2) {
+                    $repetidos[$semana][$publicadorId] = $turnos;
+                }
+            }
+        }
+        return $repetidos;
     }
 
     public function generarMes(int $year, int $month): array
@@ -49,16 +118,33 @@ class AsignacionPpocService
 
         $this->cargarHistorialParejas($year, $month);
         $this->cargarConyuges();
+        $this->cargarTurnosPorSemana($turnosGenerados->first()->fecha, $turnosGenerados->last()->fecha);
         $this->turnosAsignadosMes = [];
         $this->turnosConConyuge = [];
 
+        // Atender primero los turnos con menos publicadores disponibles: como nadie
+        // puede repetir semana, si se dejan para el final se quedan sin candidatos.
+        $disponiblesPorTurno = DisponibilidadPpoc::whereIn('turno_id', $turnosGenerados->pluck('turno_id')->unique())
+            ->selectRaw('turno_id, COUNT(*) as total')
+            ->groupBy('turno_id')
+            ->pluck('total', 'turno_id');
+        $turnosGenerados = $turnosGenerados->sortBy([
+            fn($a, $b) => ($disponiblesPorTurno[$a->turno_id] ?? 0) <=> ($disponiblesPorTurno[$b->turno_id] ?? 0),
+            fn($a, $b) => $a->fecha <=> $b->fecha,
+            fn($a, $b) => strcmp($a->hora_inicio, $b->hora_inicio),
+        ])->values();
+
         foreach ($turnosGenerados as $turnoGenerado) {
-            $asignacionesExistentes = TurnoAsignacion::where('turno_generado_id', $turnoGenerado->id)->count();
-            if ($asignacionesExistentes >= 3) {
+            $asignacionesExistentes = TurnoAsignacion::where('turno_generado_id', $turnoGenerado->id)->get();
+            if ($asignacionesExistentes->count() >= 3) {
                 continue;
             }
 
-            if ($asignacionesExistentes > 0) {
+            if ($asignacionesExistentes->isNotEmpty()) {
+                // Las asignaciones parciales se rehacen: descontarlas del conteo semanal
+                foreach ($asignacionesExistentes as $existente) {
+                    $this->sumarTurnoSemana($existente->publicador_id, $turnoGenerado->fecha, -1);
+                }
                 TurnoAsignacion::where('turno_generado_id', $turnoGenerado->id)->delete();
             }
 
@@ -150,6 +236,9 @@ class AsignacionPpocService
 
     private function seleccionarCapitan(Collection $capitanes, TurnoGenerado $turno, Collection $voluntariosDisponibles): ?Publicador
     {
+        // REGLA 0: nadie sale dos veces en la misma semana (lunes a domingo)
+        $capitanes = $capitanes->reject(fn($p) => $this->yaSaleEsaSemana($p->id, $turno->fecha));
+
         if ($capitanes->isEmpty()) {
             return null;
         }
@@ -193,6 +282,9 @@ class AsignacionPpocService
     private function seleccionarVoluntario(Collection $voluntarios, array $yaAsignados, TurnoGenerado $turno, Publicador $capitan): ?Publicador
     {
         $voluntarios = $voluntarios->reject(fn($p) => in_array($p->id, $yaAsignados));
+
+        // REGLA 0: nadie sale dos veces en la misma semana (lunes a domingo)
+        $voluntarios = $voluntarios->reject(fn($p) => $this->yaSaleEsaSemana($p->id, $turno->fecha));
 
         if ($voluntarios->isEmpty()) {
             return null;
@@ -334,6 +426,7 @@ class AsignacionPpocService
         ]);
 
         $this->turnosAsignadosMes[$publicador->id] = ($this->turnosAsignadosMes[$publicador->id] ?? 0) + 1;
+        $this->sumarTurnoSemana($publicador->id, $turnoGenerado->fecha, 1);
     }
 
     public function getAlertas(int $year, int $month): array
@@ -425,6 +518,25 @@ class AsignacionPpocService
             $alertasList[] = [
                 'tipo' => 'danger',
                 'mensaje' => "Hay {$turnosIncompletos} turnos incompletos"
+            ];
+        }
+
+        // Aviso: alguien sale 2 o mas veces en la misma semana (se marca en el calendario)
+        $repetidosSemana = $this->getRepetidosPorSemana($year, $month);
+        $nombresRepetidos = [];
+        foreach ($repetidosSemana as $semana => $pubs) {
+            foreach (array_keys($pubs) as $pubId) {
+                $pub = $publicadores->firstWhere('id', $pubId);
+                if ($pub) {
+                    $nombresRepetidos[$pubId] = $pub->nombre_completo;
+                }
+            }
+        }
+        if (!empty($nombresRepetidos)) {
+            $lista = implode(', ', array_values($nombresRepetidos));
+            $alertasList[] = [
+                'tipo' => 'warning',
+                'mensaje' => (count($nombresRepetidos) === 1 ? 'Sale' : 'Salen') . " 2 veces en la misma semana: {$lista}"
             ];
         }
 

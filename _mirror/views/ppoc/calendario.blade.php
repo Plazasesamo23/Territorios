@@ -165,8 +165,9 @@
                                                     @endif
                                                     <div class="turno-asignados">
                                                         @foreach($turno->asignaciones as $asig)
-                                                            <div class="asignado {{ $asig->rol }}">
-                                                                <span class="asignado-nombre">{{ $asig->publicador->nombre ?? 'N/A' }}</span>
+                                                            @php $repite = isset($repetidosSemana[\App\Services\AsignacionPpocService::claveSemana($turno->fecha)][$asig->publicador_id]); @endphp
+                                                            <div class="asignado {{ $asig->rol }} {{ $repite ? 'repite-semana' : '' }}" @if($repite) title="Sale 2 veces esta semana" @endif>
+                                                                <span class="asignado-nombre">{{ $asig->publicador->nombre ?? 'N/A' }}@if($repite) <span class="repite-badge">2× semana</span>@endif</span>
                                                                 <div class="asignado-btns">
                                                                     <button type="button" class="btn-cambiar-asig" title="Cambiar" onclick="abrirModalSugerencias({{ $asig->id }})">&#x21C4;</button>
                                                                     <form action="{{ route('ppoc.asignaciones.destroy', $asig) }}" method="POST" class="remove-asig">
@@ -246,8 +247,9 @@
                                         </div>
                                         <div class="agenda-asignados">
                                             @foreach($turno->asignaciones as $asig)
-                                                <div class="agenda-asignado {{ $asig->rol }}">
-                                                    <span class="agenda-nombre">{{ $asig->publicador->nombre ?? 'N/A' }}</span>
+                                                @php $repite = isset($repetidosSemana[\App\Services\AsignacionPpocService::claveSemana($turno->fecha)][$asig->publicador_id]); @endphp
+                                                <div class="agenda-asignado {{ $asig->rol }} {{ $repite ? 'repite-semana' : '' }}">
+                                                    <span class="agenda-nombre">{{ $asig->publicador->nombre ?? 'N/A' }}@if($repite) <span class="repite-badge">2× semana</span>@endif</span>
                                                     <span class="agenda-rol-badge">{{ $asig->rol === 'capitan' ? 'C' : 'V' }}</span>
                                                     <div class="asignado-btns">
                                                         <button type="button" class="btn-cambiar-asig" title="Cambiar" onclick="abrirModalSugerencias({{ $asig->id }})">&#x21C4;</button>
@@ -506,8 +508,9 @@ function abrirModalSugerencias(asignacionId) {
                 let badges = '';
                 if (pub.es_capitan) badges += '<span class="sug-badge capitan">C</span>';
                 if (pub.es_precursor) badges += '<span class="sug-badge precursor">P</span>';
+                if (pub.sale_esta_semana) badges += '<span class="repite-badge">Ya sale esta semana</span>';
 
-                html += '<div class="sugerencia-item" onclick="seleccionarReemplazo(' + pub.id + ', \'' + pub.nombre_completo.replace(/'/g, "\\'") + '\')">' +
+                html += '<div class="sugerencia-item' + (pub.sale_esta_semana ? ' repite-semana' : '') + '" onclick="seleccionarReemplazo(' + pub.id + ', \'' + pub.nombre_completo.replace(/'/g, "\\'") + '\')">' +
                     '<div class="sug-nombre">' + pub.nombre_completo + '</div>' +
                     '<div class="sug-meta">' +
                         '<span class="sug-turnos">' + pub.turnos_mes + ' turnos este mes</span>' +
@@ -1172,6 +1175,26 @@ html {
 .asignado.capitan {
     background: linear-gradient(135deg, #4a6da7 0%, #2d4266 100%);
     color: white;
+}
+
+/* Sale 2 veces en la misma semana: solo en la app, el PDF no lo marca */
+.asignado.repite-semana,
+.agenda-asignado.repite-semana,
+.sugerencia-item.repite-semana {
+    box-shadow: inset 0 0 0 2px var(--warning, #f59e0b);
+}
+.repite-badge {
+    display: inline-block;
+    margin-left: 0.3rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background: var(--warning, #f59e0b);
+    color: #1a1d21;
+    font-size: 0.65rem;
+    font-weight: 700;
+    line-height: 1.5;
+    white-space: nowrap;
+    vertical-align: middle;
 }
 
 .asignado-nombre {
