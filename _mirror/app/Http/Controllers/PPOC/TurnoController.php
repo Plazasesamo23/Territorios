@@ -857,8 +857,11 @@ class TurnoController extends Controller
         ];
         $nombreMes = $mesesEspanol[$month];
 
+        // Quien sale 2+ veces en la misma semana: en el PDF solo lleva un asterisco discreto
+        $repetidosSemana = (new AsignacionPpocService($congregacion->id))->getRepetidosPorSemana($year, $month);
+
         // Renderizar vista a HTML
-        $html = view('ppoc.pdf', compact(
+        $html = view('ppoc.pdf', compact('repetidosSemana', 
             'semanas',
             'diasSemana',
             'congregacion',

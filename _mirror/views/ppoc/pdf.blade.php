@@ -169,6 +169,10 @@
     </style>
 </head>
 <body>
+    @php
+        // Asterisco discreto si la persona sale 2 o mas veces en esa misma semana (lunes a domingo)
+        $marca = fn($asig) => isset($repetidosSemana[\App\Services\AsignacionPpocService::claveSemana($asig->fecha)][$asig->publicador_id]) ? ' *' : '';
+    @endphp
     <div class="header">
         <h1>PROGRAMA PPOC</h1>
         <div class="subtitulo">{{ strtoupper($nombreMes) }} {{ $year }}</div>
@@ -227,10 +231,10 @@
                                         $voluntarios = $turnoManana['asignaciones']->where('rol', 'voluntario');
                                     @endphp
                                     @if($capitan)
-                                        <div class="capitan">{{ $capitan->publicador->nombre }} {{ $capitan->publicador->apellidos }}</div>
+                                        <div class="capitan">{{ $capitan->publicador->nombre }} {{ $capitan->publicador->apellidos }}{{ $marca($capitan) }}</div>
                                     @endif
                                     @foreach($voluntarios as $vol)
-                                        <div class="voluntario">{{ $vol->publicador->nombre }} {{ $vol->publicador->apellidos }}</div>
+                                        <div class="voluntario">{{ $vol->publicador->nombre }} {{ $vol->publicador->apellidos }}{{ $marca($vol) }}</div>
                                     @endforeach
                                 @endif
                             </td>
@@ -243,10 +247,10 @@
                                         $voluntarios = $turnoTarde['asignaciones']->where('rol', 'voluntario');
                                     @endphp
                                     @if($capitan)
-                                        <div class="capitan">{{ $capitan->publicador->nombre }} {{ $capitan->publicador->apellidos }}</div>
+                                        <div class="capitan">{{ $capitan->publicador->nombre }} {{ $capitan->publicador->apellidos }}{{ $marca($capitan) }}</div>
                                     @endif
                                     @foreach($voluntarios as $vol)
-                                        <div class="voluntario">{{ $vol->publicador->nombre }} {{ $vol->publicador->apellidos }}</div>
+                                        <div class="voluntario">{{ $vol->publicador->nombre }} {{ $vol->publicador->apellidos }}{{ $marca($vol) }}</div>
                                     @endforeach
                                 @endif
                             </td>
@@ -287,10 +291,10 @@
                                 $voluntarios = $turnoManana['asignaciones']->where('rol', 'voluntario');
                             @endphp
                             @if($capitan)
-                                <div class="capitan">{{ $capitan->publicador->nombre }} {{ $capitan->publicador->apellidos }}</div>
+                                <div class="capitan">{{ $capitan->publicador->nombre }} {{ $capitan->publicador->apellidos }}{{ $marca($capitan) }}</div>
                             @endif
                             @foreach($voluntarios as $vol)
-                                <div class="voluntario">{{ $vol->publicador->nombre }} {{ $vol->publicador->apellidos }}</div>
+                                <div class="voluntario">{{ $vol->publicador->nombre }} {{ $vol->publicador->apellidos }}{{ $marca($vol) }}</div>
                             @endforeach
                         @endif
                     </td>
@@ -302,10 +306,10 @@
                                 $voluntarios = $turnoTarde['asignaciones']->where('rol', 'voluntario');
                             @endphp
                             @if($capitan)
-                                <div class="capitan">{{ $capitan->publicador->nombre }} {{ $capitan->publicador->apellidos }}</div>
+                                <div class="capitan">{{ $capitan->publicador->nombre }} {{ $capitan->publicador->apellidos }}{{ $marca($capitan) }}</div>
                             @endif
                             @foreach($voluntarios as $vol)
-                                <div class="voluntario">{{ $vol->publicador->nombre }} {{ $vol->publicador->apellidos }}</div>
+                                <div class="voluntario">{{ $vol->publicador->nombre }} {{ $vol->publicador->apellidos }}{{ $marca($vol) }}</div>
                             @endforeach
                         @endif
                     </td>
@@ -342,10 +346,10 @@
                                 $voluntarios = $turnoManana['asignaciones']->where('rol', 'voluntario');
                             @endphp
                             @if($capitan)
-                                <div class="capitan">{{ $capitan->publicador->nombre }} {{ $capitan->publicador->apellidos }}</div>
+                                <div class="capitan">{{ $capitan->publicador->nombre }} {{ $capitan->publicador->apellidos }}{{ $marca($capitan) }}</div>
                             @endif
                             @foreach($voluntarios as $vol)
-                                <div class="voluntario">{{ $vol->publicador->nombre }} {{ $vol->publicador->apellidos }}</div>
+                                <div class="voluntario">{{ $vol->publicador->nombre }} {{ $vol->publicador->apellidos }}{{ $marca($vol) }}</div>
                             @endforeach
                         @endif
                     </td>
@@ -362,6 +366,9 @@
         <div class="leyenda">
             <span><span class="bold-example">Nombre en negrita</span> = Capitan</span>
             <span>Nombre normal = Voluntario</span>
+            @if(!empty($repetidosSemana))
+            <span>* = Sale dos veces esa semana</span>
+            @endif
         </div>
     </div>
 </body>

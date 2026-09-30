@@ -611,6 +611,8 @@ echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territo
 
 **Verificado en servidor** con script temporal dentro de transacción con rollback (borrado): 10 pasadas (sep y oct 2026, cong 1) → todos los turnos completos y 0 repetidos; repetido forzado → 1 detectado, calendario renderizado con 4 badges (2 vistas × 2 turnos) y aviso con el nombre; sugerencias con el repetido marcado y al final. Datos reales sin cambios (159 asignaciones oct). Backups `.backup-20260930` en `_mirror` y en servidor de los 3 archivos. Ojo al probar por CLI: hay que fijar `session(['congregacion_activa_id'=>1])` o el scope global deja las consultas vacías.
 
+**PDF (segunda petición de Bryan, mismo día):** en `ppoc/pdf.blade.php` el repetido lleva un asterisco discreto tras el nombre (" *", helper `$marca` en el `@php` del `<body>`, aplicado en los 8 sitios donde se pinta capitán/voluntario) y en el pie aparece la leyenda "* = Sale dos veces esa semana" solo si hay alguno. `exportarPdf` calcula `$repetidosSemana` con el mismo `getRepetidosPorSemana`. Verificado generando el PDF real con Dompdf en transacción con rollback: sin forzar nada ya salía "Jessenia Arizaga *" (tiene un turno a finales de septiembre y otro en la semana del 28/09-04/10: la regla cuenta semanas de lunes a domingo aunque crucen de mes); con un repetido forzado, 2 asteriscos más y leyenda. Backup `pdf.blade.php.backup-20260930` en `_mirror` y servidor. OJO al escribir vistas con `sed`: se come las barras de `\App\Services\...`; usar el editor.
+
 **Pendiente:** el git del servidor tiene ~19 archivos modificados sin commitear desde julio (no se tocó).
 
 ### 26 Septiembre 2026 - Fix S-13: la referencia del año anterior faltaba en el 2025-2026
