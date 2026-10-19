@@ -238,11 +238,9 @@
                                     <span class="field-value">{{ $regActivo->publicador->nombre_completo ?? 'Sin nombre' }}</span>
                                     <small class="asignacion-fecha">Desde el {{ $regActivo->fecha_salida->format('d/m/Y') }} ({{ round($regActivo->fecha_salida->diffInDays(now())) }} días)</small>
                                 </div>
-                                <form action="{{ route('registros.deshacer', $regActivo) }}" method="POST"
-                                      onsubmit="return confirm('¿Quitar esta asignación? El territorio {{ $territorio->numero_completo }} volverá a estar disponible ahora mismo y no quedará en el historial de {{ $regActivo->publicador->nombre_completo ?? 'este publicador' }}. Úsalo solo si te equivocaste al asignarlo.')">
-                                    @csrf
-                                    <button type="submit" class="btn-quitar-asignacion">🗑️ Quitar asignación</button>
-                                </form>
+                                {{-- El formulario real esta al final de la pagina, fuera del formulario
+                                     del territorio: HTML no admite formularios anidados. --}}
+                                <button type="button" class="btn-quitar-asignacion" onclick="quitarAsignacion()">🗑️ Quitar asignación</button>
                             </div>
                             <small class="field-help">
                                 💡 Si te equivocaste al asignarlo, "Quitar asignación" lo deja disponible al momento y no cuenta en el historial. Para una devolución normal usa el botón "Devolver" del panel.
@@ -272,6 +270,24 @@
     @csrf
     @method('DELETE')
 </form>
+
+{{-- Formulario oculto para quitar la asignacion activa.
+     Tiene que vivir FUERA de #form-territorio: al estar anidado, el navegador lo
+     descartaba y el boton acababa guardando el territorio en vez de quitar la asignacion. --}}
+@if($territorio->registroActivo())
+    @php $regQuitar = $territorio->registroActivo(); @endphp
+    <form id="form-quitar-asignacion" action="{{ route('registros.deshacer', $regQuitar) }}" method="POST" style="display: none;">
+        @csrf
+    </form>
+    <script>
+        function quitarAsignacion() {
+            var mensaje = {!! json_encode('¿Quitar esta asignación? El territorio ' . $territorio->numero_completo . ' volverá a estar disponible ahora mismo y no quedará en el historial de ' . ($regQuitar->publicador->nombre_completo ?? 'este publicador') . '. Úsalo solo si te equivocaste al asignarlo.') !!};
+            if (confirm(mensaje)) {
+                document.getElementById('form-quitar-asignacion').submit();
+            }
+        }
+    </script>
+@endif
 
 <style>
 /* Aviso de errores al guardar */
@@ -343,15 +359,16 @@
     font-size: 0.75rem;
     font-weight: 700;
 }
+/* Badges en modo oscuro (antes fondo amarillo/azul claro: fuga de modo claro) */
 .tipo-badge-campana {
-    background: #fef3c7;
-    color: #92400e;
-    border: 1px solid #4a6da7;
+    background: rgba(245, 158, 11, 0.18);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.35);
 }
 .tipo-badge-negocios {
-    background: #e8eef6;
-    color: #2d4266;
-    border: 1px solid #4a6da7;
+    background: rgba(59, 130, 246, 0.15);
+    color: #93c5fd;
+    border: 1px solid rgba(59, 130, 246, 0.35);
 }
 .header-tipo-campana {
     border-left: 4px solid #4a6da7;
@@ -387,8 +404,9 @@
 .estado-archivo { background: rgba(107,114,128,0.15); color: #9ca3af; }
 
 .inactive-badge {
-    background: #fef3c7;
-    color: #92400e;
+    background: rgba(245, 158, 11, 0.18);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.35);
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
     font-size: 0.75rem;
@@ -461,13 +479,13 @@
      max-height: 400px;
      object-fit: contain;
      border-radius: 8px;
-     border: 2px solid #e5e7eb;
+     border: 2px solid var(--border);
  }
 
 .upload-container {
     margin-top: 1rem;
     padding: 1rem;
-    border: 2px dashed #d1d5db;
+    border: 2px dashed var(--border);
     border-radius: 8px;
     text-align: center;
 }

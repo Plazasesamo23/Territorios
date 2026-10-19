@@ -21,7 +21,7 @@
             <button type="button" id="btn-importar-jw" class="btn btn-secondary" onclick="importarDesdeJw()">Traer titulos de jw.org</button>
             <form action="{{ route('reuniones.auto-asignar', $programa) }}" method="POST" style="display:inline;">
                 @csrf
-                <button type="submit" class="btn btn-teal" onclick="return confirm('Rellenar automaticamente las partes que estan vacias. Las que ya tienen publicador no se tocan. Continuar?')">Rellenar huecos</button>
+                <button type="submit" class="btn btn-teal" onclick="return confirm('Se rellenarán automáticamente las partes que están vacías. Las que ya tienen publicador GUARDADO no se tocan.\n\nOJO: si has cambiado algo a mano y aún no has pulsado \'Guardar cambios\', esos cambios se perderán. ¿Continuar?')">Rellenar huecos</button>
             </form>
             <a href="{{ route('reuniones.show', $programa) }}" class="btn btn-secondary">Ver para imprimir</a>
             <a href="{{ route('reuniones.index') }}" class="btn btn-ghost">Volver</a>

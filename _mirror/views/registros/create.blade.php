@@ -56,6 +56,7 @@
                         <option value="">-- Selecciona --</option>
                         @foreach($territoriosDisponibles->sortBy('numero') as $territorio)
                             <option value="{{ $territorio->id }}"
+                                    {{ $territorio->id === ($territorioPreseleccionado ?? 0) ? 'selected' : '' }}
                                     data-tipo="{{ $territorio->tipo }}"
                                     data-zona="{{ $territorio->zona }}"
                                     data-numero="{{ $territorio->numero_completo }}">
@@ -94,6 +95,9 @@
             <button type="submit" class="btn btn-primary btn-lg btn-full" id="btn-submit" disabled>
                 Asignar territorio
             </button>
+            <p id="ayuda-asignar" class="text-muted" style="text-align: center; margin-top: 0.5rem; font-size: 0.9rem;">
+                Elige un territorio (paso 1) y un publicador (paso 2) para poder asignar.
+            </p>
         </form>
     @endif
 </div>
@@ -171,6 +175,11 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSubmitButton();
     });
 
+    // Si se llega con un territorio ya elegido (botón "Asignar" de la ficha o del listado), mostrarlo
+    if (territorioSelect.value) {
+        territorioSelect.dispatchEvent(new Event('change'));
+    }
+
     if (buscarInput) {
         buscarInput.addEventListener('input', function() {
             const busqueda = this.value.toLowerCase().trim();
@@ -193,7 +202,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateSubmitButton() {
-        btnSubmit.disabled = !(territorioSelect.value && publicadorInput.value);
+        const listo = !!(territorioSelect.value && publicadorInput.value);
+        btnSubmit.disabled = !listo;
+        const ayuda = document.getElementById('ayuda-asignar');
+        if (ayuda) {
+            if (listo) {
+                ayuda.style.display = 'none';
+            } else if (territorioSelect.value) {
+                ayuda.textContent = 'Ya tienes el territorio. Ahora elige al publicador (paso 2).';
+                ayuda.style.display = '';
+            } else if (publicadorInput.value) {
+                ayuda.textContent = 'Ya tienes al publicador. Ahora elige el territorio (paso 1).';
+                ayuda.style.display = '';
+            } else {
+                ayuda.textContent = 'Elige un territorio (paso 1) y un publicador (paso 2) para poder asignar.';
+                ayuda.style.display = '';
+            }
+        }
     }
 });
 </script>
@@ -218,10 +243,9 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .col-header {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
     margin-bottom: 0.75rem;
 }
 

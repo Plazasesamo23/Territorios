@@ -287,6 +287,14 @@ class TerritorioController extends Controller
             abort(403, 'No tienes permisos para eliminar territorios.');
         }
 
+        // NUNCA borrar historial: si el territorio tiene asignaciones (abiertas o cerradas) no se elimina.
+        // La clave foránea borraría en cascada todos sus registros y desaparecerían del S-13.
+        $asignaciones = $territorio->registros()->count();
+        if ($asignaciones > 0) {
+            return redirect()->route('territorios.show', $territorio)
+                ->with('error', "No se puede eliminar el territorio {$territorio->numero_completo}: tiene {$asignaciones} " . ($asignaciones === 1 ? 'asignación' : 'asignaciones') . " en su historial. Si ya no se usa, edítalo y desmarca la casilla \"Activo\": así se conserva su historial para el S-13.");
+        }
+
         $tipo = $territorio->tipo;
         $territorio->delete();
 

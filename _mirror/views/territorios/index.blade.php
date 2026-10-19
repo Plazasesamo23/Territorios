@@ -183,9 +183,11 @@
                     <a href="{{ route('territorios.show', $territorio) }}" class="btn-icon">
                         Ver
                     </a>
-                    <a href="{{ route('registros.create') }}?territorio_id={{ $territorio->id }}" class="btn-icon">
-                        Asignar
-                    </a>
+                    @if(auth()->user()->canAssignTerritorios() && $territorio->estaDisponibleParaAsignar())
+                        <a href="{{ route('registros.create', ['territorio_id' => $territorio->id]) }}" class="btn-icon">
+                            Asignar
+                        </a>
+                    @endif
                 </div>
             </div>
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Territorios;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\Registro;
 use App\Models\Territorio;
 use App\Models\Publicador;
@@ -167,22 +168,28 @@ class RegistroController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
+        // Una sola consulta con los registros precargados (el modelo calcula el estado sin más consultas)
+        $todos = Territorio::with('registros')->get();
+
         // Solo territorios disponibles para asignar (que cumplan regla de 90 días)
-        $territoriosDisponibles = Territorio::get()->filter(function($territorio) {
+        $territoriosDisponibles = $todos->filter(function($territorio) {
             return $territorio->estaDisponibleParaAsignar();
         });
 
         // Territorios no disponibles (para mostrar información)
-        $territoriosNoDisponibles = Territorio::get()->filter(function($territorio) {
+        $territoriosNoDisponibles = $todos->filter(function($territorio) {
             return !$territorio->estaDisponibleParaAsignar() && $territorio->calcularEstado() === 'libre';
         });
 
         // Solo publicadores activos
         $publicadoresActivos = Publicador::where('activo', true)->get();
 
-        return view('registros.create', compact('territoriosDisponibles', 'territoriosNoDisponibles', 'publicadoresActivos'));
+        // Territorio preseleccionado cuando se llega desde el botón "Asignar" de un territorio concreto
+        $territorioPreseleccionado = (int) $request->query('territorio_id', 0);
+
+        return view('registros.create', compact('territoriosDisponibles', 'territoriosNoDisponibles', 'publicadoresActivos', 'territorioPreseleccionado'));
     }
 
     /**
@@ -196,14 +203,8 @@ class RegistroController extends Controller
             'notas' => 'nullable|string|max:1000'
         ]);
 
-        // Verificar que el territorio esté disponible (libre + cumple 90 días)
+        // findOrFail con el scope de congregación: un id de otra congregación da 404
         $territorio = Territorio::findOrFail($request->territorio_id);
-        if (!$territorio->estaDisponibleParaAsignar()) {
-            $motivo = $territorio->motivoNoDisponible();
-            return redirect()->back()
-                ->withInput()
-                ->with('error', "El territorio seleccionado no está disponible para asignar. Motivo: {$motivo}");
-        }
 
         // Verificar que el publicador esté activo
         $publicador = Publicador::findOrFail($request->publicador_id);
@@ -216,14 +217,34 @@ class RegistroController extends Controller
         // RESTRICCIÓN ELIMINADA: Los publicadores pueden tener múltiples territorios
         // Algunos hermanos pueden manejar 2-3 territorios simultáneamente
 
-        // Crear el registro
-        $registro = Registro::create([
-            'territorio_id' => $request->territorio_id,
-            'publicador_id' => $request->publicador_id,
-            'fecha_salida' => now(),
-            'fecha_entrada' => null,
-            'notas' => $request->notas
-        ]);
+        // Transacción con bloqueo de la fila del territorio: si dos personas asignan el
+        // mismo territorio a la vez, la segunda espera a que termine la primera y entonces
+        // ve que ya no está disponible. Sin esto podía quedar asignado dos veces.
+        $resultado = DB::transaction(function () use ($request, $territorio) {
+            $territorioBloqueado = Territorio::whereKey($territorio->id)->lockForUpdate()->first();
+
+            if (!$territorioBloqueado || !$territorioBloqueado->estaDisponibleParaAsignar()) {
+                return ['error' => $territorioBloqueado ? $territorioBloqueado->motivoNoDisponible() : 'no encontrado'];
+            }
+
+            $registro = Registro::create([
+                'territorio_id' => $territorioBloqueado->id,
+                'publicador_id' => $request->publicador_id,
+                'fecha_salida' => now(),
+                'fecha_entrada' => null,
+                'notas' => $request->notas
+            ]);
+
+            return ['registro' => $registro];
+        });
+
+        if (isset($resultado['error'])) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', "El territorio seleccionado no está disponible para asignar. Motivo: {$resultado['error']}");
+        }
+
+        $registro = $resultado['registro'];
 
         // Preparar WhatsApp automático (solo si el publicador tiene teléfono)
         $whatsappListo = $this->enviarWhatsAppAsignacion($territorio, $publicador);
@@ -246,7 +267,10 @@ class RegistroController extends Controller
     public function show(Registro $registro)
     {
         $registro->load(['territorio', 'publicador']);
-        
+
+        // El scope de congregación deja territorio en null si el registro es de otra congregación
+        abort_if(!$registro->territorio, 404);
+
         // Calcular estadísticas del registro
         $estadisticas = [
             'dias_transcurridos' => null,
@@ -272,6 +296,9 @@ class RegistroController extends Controller
      */
     public function marcarEntrada(Request $request, Registro $registro)
     {
+        // El scope de congregación deja territorio en null si el registro es de otra congregación
+        abort_if(!$registro->territorio, 404);
+
         // Verificar que el registro esté activo
         if ($registro->fecha_entrada) {
             return redirect()->route('panel-territorios')
@@ -282,6 +309,10 @@ class RegistroController extends Controller
         if ($request->has('fecha_entrada')) {
             $request->validate([
                 'fecha_entrada' => 'required|date|after_or_equal:' . $registro->fecha_salida->format('Y-m-d')
+            ], [
+                'fecha_entrada.required' => 'Falta la fecha de devolución, así que NO se ha apuntado. Vuelve a darle a "Devolver".',
+                'fecha_entrada.date' => 'La fecha de devolución no es válida, así que NO se ha apuntado. Vuelve a darle a "Devolver".',
+                'fecha_entrada.after_or_equal' => 'La devolución NO se ha apuntado: la fecha no puede ser anterior al día en que salió el territorio (' . $registro->fecha_salida->format('d/m/Y') . ').',
             ]);
             $fechaEntrada = Carbon::parse($request->fecha_entrada);
         } else {
@@ -339,6 +370,9 @@ class RegistroController extends Controller
      */
     public function update(Request $request, Registro $registro)
     {
+        // El scope de congregación deja territorio en null si el registro es de otra congregación
+        abort_if(!$registro->territorio, 404);
+
         $request->validate([
             'notas' => 'nullable|string|max:1000',
             'fecha_salida' => 'required|date',
@@ -362,7 +396,10 @@ class RegistroController extends Controller
     {
         $territorio = $registro->territorio;
         $publicador = $registro->publicador;
-        
+
+        // El scope de congregación deja territorio en null si el registro es de otra congregación
+        abort_if(!$territorio, 404);
+
         $registro->delete();
 
         return redirect()->route('registros.index')

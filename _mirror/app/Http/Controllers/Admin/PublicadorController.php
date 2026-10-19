@@ -457,6 +457,21 @@ class PublicadorController extends Controller
                 ->with('error', 'No se puede eliminar un publicador con territorios asignados.');
         }
 
+        // NUNCA borrar historial: si tiene asignaciones de territorio, turnos de carrito o
+        // partes de reunión en su historial, no se elimina (las claves foráneas borrarían
+        // todo en cascada y desaparecería del S-13 y de las estadísticas). Se desactiva.
+        $historial = array_filter([
+            'asignaciones de territorio' => $publicador->registros()->count(),
+            'turnos de carrito' => \App\Models\TurnoAsignacion::where('publicador_id', $publicador->id)->count(),
+            'asignaciones de reunión' => $publicador->reunionHistorial()->count(),
+        ]);
+
+        if (!empty($historial)) {
+            $detalle = implode(', ', array_map(fn ($n, $k) => "{$n} {$k}", $historial, array_keys($historial)));
+            return redirect()->route('publicadores.show', $publicador)
+                ->with('error', "No se puede eliminar a {$publicador->nombre_completo}: tiene historial ({$detalle}). Si ya no está en la congregación, desactívalo: así se conserva su historial para el S-13 y las estadísticas.");
+        }
+
         $publicador->delete();
 
         return redirect()->route('publicadores.index')

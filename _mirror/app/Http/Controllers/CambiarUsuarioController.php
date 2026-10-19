@@ -79,40 +79,49 @@ class CambiarUsuarioController extends Controller
 
         $currentUser = auth()->user();
         $targetUser = User::findOrFail($request->usuario_id);
-        $congregacionId = session('congregacion_activa_id');
+        $congregacionId = (int) session('congregacion_activa_id');
         $usuarioOriginalId = session('usuario_original_id');
+
+        // Si hay un usuario original guardado, usar sus permisos (los reales, no los del usuario "prestado")
+        $usuarioConPermisos = ($usuarioOriginalId ? User::find($usuarioOriginalId) : null) ?? $currentUser;
+        $esSuperAdminReal = $usuarioConPermisos->isSuperAdmin();
+
+        // Barreras que no se saltan ni con contraseña:
+        //  - solo un superadmin real puede pasar a ser superadmin
+        //  - nadie salvo el superadmin puede saltar a un usuario de OTRA congregación
+        if (!$esSuperAdminReal) {
+            if ($targetUser->isSuperAdmin() || (int) $targetUser->congregacion_id !== $congregacionId) {
+                return redirect()->route('cambiar-usuario.index')
+                    ->with('error', 'No puedes cambiar a ese usuario.');
+            }
+        }
 
         // Verificar permisos
         $puedesCambiarSinPassword = false;
 
-        // Si hay un usuario original guardado, usar sus permisos
-        $usuarioConPermisos = $usuarioOriginalId ? User::find($usuarioOriginalId) : $currentUser;
-
         // Superadmin puede cambiar a cualquier usuario
-        if ($usuarioConPermisos && $usuarioConPermisos->isSuperAdmin()) {
+        if ($esSuperAdminReal) {
             $puedesCambiarSinPassword = true;
         }
-        // Admin puede cambiar a usuarios de su congregacion (excepto superadmin)
-        elseif ($usuarioConPermisos && $usuarioConPermisos->isAdmin()) {
-            if ($targetUser->congregacion_id == $usuarioConPermisos->congregacion_id && !$targetUser->isSuperAdmin()) {
-                $puedesCambiarSinPassword = true;
-            }
+        // Admin puede cambiar a usuarios de su congregacion (excepto superadmin, ya filtrado arriba)
+        elseif ($usuarioConPermisos->isAdmin()) {
+            $puedesCambiarSinPassword = true;
         }
         // Usuario de territorios cambiando a otro usuario de territorios (mismo nivel)
-        elseif ($usuarioConPermisos && $usuarioConPermisos->isTerritoriosUser()) {
-            // Solo puede cambiar a otro usuario territorios sin password
-            if ($targetUser->isTerritoriosUser() && $targetUser->congregacion_id == $usuarioConPermisos->congregacion_id) {
-                $puedesCambiarSinPassword = true;
-            }
+        elseif ($usuarioConPermisos->isTerritoriosUser() && $targetUser->isTerritoriosUser()) {
+            $puedesCambiarSinPassword = true;
         }
 
-        // Si no puede cambiar sin password, verificar la contraseña del admin
+        // Si no puede cambiar sin password, vale la contraseña de CUALQUIER administrador de la congregación
         if (!$puedesCambiarSinPassword) {
-            $admin = User::where('congregacion_id', $congregacionId)
+            $admins = User::where('congregacion_id', $congregacionId)
                 ->where('role', 'admin')
-                ->first();
+                ->get();
 
-            if (!$admin || !Hash::check($request->password, $admin->password)) {
+            $passwordOk = $request->filled('password')
+                && $admins->contains(fn ($admin) => Hash::check($request->password, $admin->password));
+
+            if (!$passwordOk) {
                 return redirect()->route('cambiar-usuario.index')
                     ->with('error', 'Contraseña incorrecta')
                     ->with('usuario_id_intento', $request->usuario_id);

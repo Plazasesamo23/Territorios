@@ -599,6 +599,35 @@ echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territo
 
 ## Historial de sesiones
 
+### 19 Octubre 2026 (2ª parte) - Auditoría global: parches de seguridad, historial protegido, transacción al asignar, panel sin N+1
+
+Auditoría completa (UX + técnica) con dos agentes; informe entregado a Bryan en chat. **Decisiones de Bryan:** el repo de GitHub (público, con credenciales y volcados .sql) se queda COMO ESTÁ por ahora; las rutas de familiares (`add-familiar/remove-familiar`) se quedan solo con login, sin rol. Todo lo demás aprobado y desplegado:
+
+**Seguridad**
+- `CambiarUsuarioController::cambiar`: quien no es superadmin real ya no puede saltar a un superadmin ni a un usuario de otra congregación (ni con contraseña). La contraseña vale la de CUALQUIER admin de la congregación (antes solo la del primero). Ruta POST con `throttle:5,1` (`routes/web.php`).
+- `Registro`, `TurnoAsignacion` no llevan el trait de congregación: `RegistroController` show/marcarEntrada/update/destroy y `TurnoController` desasignar/actualizarEstado/getSugerencias/reemplazar hacen `abort_if(!$x->territorio|turnoGenerado, 404)` (la relación sale null por el scope si es de otra congregación). `actualizarEstado` además llamaba sin `checkAccess()`.
+- `routes/reuniones.php`: todo el módulo con `role:admin` (el menú ya lo ocultaba; la URL no).
+- `bootstrap/app.php`: quitada la excepción CSRF `s13/importar/*` (los 2 formularios reales ya envían `@csrf`; las rutas procesar/procesar-ocr no se usan desde ninguna vista).
+
+**Historial protegido (regla nº 1 de negocio)**
+- BD: 4 claves foráneas pasadas de `ON DELETE CASCADE` a `RESTRICT`: `registros.publicador_id`, `registros.territorio_id`, `reuniones_historial.publicador_id`, `turno_asignaciones.publicador_id`. Dump completo previo: `backups/trastos1_full_2026-10-19_pre-fk-restrict.sql` (servidor). Siguen en CASCADE (correcto, no es historial): disponibilidad_ppoc, relaciones_familiares, reuniones_autorizaciones, grupos_historico, coincidencias_historico.
+- `PublicadorController::destroy`: si tiene asignaciones de territorio, turnos de carrito o historial VyM → error en lenguaje llano que invita a desactivar. `publicadores/show`: la "Zona de peligro" ya no muestra el botón Eliminar si hay historial. `TerritorioController::destroy`: igual si tiene asignaciones.
+
+**Integridad y rendimiento**
+- `RegistroController::store`: `DB::transaction` + `lockForUpdate()` sobre la fila del territorio y recomprobación de disponibilidad dentro del bloqueo → imposible asignar dos veces el mismo territorio a la vez.
+- `Territorio`: `ultimoRegistro()`, `registroActivo()`, `calcularEstado()`, `estaDisponibleParaAsignar()` usan la colección `registros` si viene precargada (`relationLoaded`), y la congregación se cachea por petición (`obtenerCongregacion()`). Verificado en servidor: 375 territorios, 0 diferencias entre resultado con y sin precarga; el panel pasa de ~1000 consultas a **3**. `RegistroController::create` ahora precarga registros (una consulta en vez de dos barridos).
+
+**UX (lo más gordo del informe)**
+- Listado "Todos": el botón "Asignar" solo sale si el usuario puede asignar y el territorio está disponible, y ahora SÍ preselecciona el territorio en el formulario (`create()` lee `territorio_id`, la vista marca `selected` y dispara `change`).
+- Formulario asignar: texto de ayuda bajo el botón apagado ("Elige un territorio (paso 1) y un publicador (paso 2)…", cambia según lo que falte); cabeceras "1. Territorio / 2. Publicador" a 1rem y color de texto normal.
+- Reuniones: el confirm de "Rellenar huecos" avisa de que los cambios manuales sin guardar se pierden (con tildes).
+- PPOC calendario: la "×" de quitar pide confirmación con el nombre; botones Cambiar/Quitar a 32px (escritorio) y 44px (móvil), antes 16px.
+- Ficha territorio: badges campaña/negocios/inactivo y bordes de imagen en colores dark (quitados #fef3c7/#e8eef6/#e5e7eb/#d1d5db).
+
+**Verificación:** `php -l` en todo, `view:cache` compila, smoke test renderizando como usuarios reales (territorios/admin/user cong 1 y admin cong 2): registros de la otra congregación → 404, /reuniones y /ppoc → 403 para no admin, resto 200. Backups locales `*.backup-20261019` en `_mirror/` (ahora `_mirror/bootstrap/app.php` y `_mirror/views/panel-territorios.blade.php` también bajados del servidor).
+
+**Pendiente del informe (no hecho hoy):** contraseña de congregación en claro (`password_plain`), mass assignment en `TerritorioController` (`$request->except`), transacciones en reimportar títulos VyM (pierde asignaciones) y PPOC, backups automáticos de BD (no hay cron), git del servidor sin commit desde julio, 3 `.backup` dentro de `app/` en producción, PDF PPOC con `stream()` directo (2 errores en log por descarga), `lang/` en español, fecha de salida editable al asignar, tildes masivas, leyenda de siglas, "Limpiar Mes" como botón fantasma.
+
 ### 19 Octubre 2026 - Foto del territorio 85 + blindaje de enlaces de imagen mal pegados
 
 **Síntoma:** el territorio 85 (cong 1) no mostraba la foto. **Causa:** `imagen_url` en BD tenía una letra sobrante delante del esquema: `vhttps://drive.google.com/...`. Como no empieza por `http`, `getImagenUrl()` lo pasaba por `asset()`, que lo devolvía tal cual (filter_var lo acepta como URL con esquema "vhttps") y el navegador no lo cargaba. Es la segunda vez que pasa (enlace pegado a mano con basura delante).

@@ -163,6 +163,27 @@ class Territorio extends Model
     }
 
     /**
+     * Cache por petición de las congregaciones: evita una consulta por territorio
+     * en los listados (panel, "Todos", S-13) al calcular límites de días.
+     */
+    protected static array $congregacionesCache = [];
+
+    protected function obtenerCongregacion()
+    {
+        if ($this->relationLoaded('congregacion')) {
+            return $this->congregacion;
+        }
+        $id = $this->congregacion_id;
+        if (!$id) {
+            return null;
+        }
+        if (!array_key_exists($id, static::$congregacionesCache)) {
+            static::$congregacionesCache[$id] = Congregacion::find($id);
+        }
+        return static::$congregacionesCache[$id];
+    }
+
+    /**
      * Relacion: Un territorio tiene muchos registros
      */
     public function registros()
@@ -171,18 +192,41 @@ class Territorio extends Model
     }
 
     /**
-     * Obtener el ultimo registro del territorio
+     * Clave de orden por fecha (más reciente primero) con desempate por id,
+     * para ordenar colecciones ya cargadas igual que haría latest().
+     */
+    private static function claveOrdenFecha($registro, string $campo): string
+    {
+        $ts = $registro->{$campo} ? Carbon::parse($registro->{$campo})->getTimestamp() : 0;
+        return sprintf('%011d_%011d', $ts, $registro->id ?? 0);
+    }
+
+    /**
+     * Obtener el ultimo registro del territorio.
+     * Si los registros ya vienen cargados (with('registros')), no lanza consulta.
      */
     public function ultimoRegistro()
     {
+        if ($this->relationLoaded('registros')) {
+            return $this->registros
+                ->sortByDesc(fn ($r) => self::claveOrdenFecha($r, 'fecha_salida'))
+                ->first();
+        }
         return $this->registros()->latest('fecha_salida')->first();
     }
 
     /**
-     * Obtener el registro activo (sin fecha de entrada)
+     * Obtener el registro activo (sin fecha de entrada).
+     * Si los registros ya vienen cargados (with('registros')), no lanza consulta.
      */
     public function registroActivo()
     {
+        if ($this->relationLoaded('registros')) {
+            return $this->registros
+                ->whereNull('fecha_entrada')
+                ->sortByDesc(fn ($r) => self::claveOrdenFecha($r, 'fecha_salida'))
+                ->first();
+        }
         return $this->registros()->whereNull('fecha_entrada')->first();
     }
 
@@ -310,9 +354,8 @@ class Territorio extends Model
         $diasMaximos = $this->getDiasLimiteActivo();
         $diasArchivo = $this->getDiasArchivo();
 
-        $ultimoRegistro = $this->registros()
-            ->latest('fecha_salida')
-            ->first();
+        // Usa la colección cargada si existe (sin consulta extra por territorio)
+        $ultimoRegistro = $this->ultimoRegistro();
 
         if (!$ultimoRegistro) {
             return 'libre';
@@ -424,7 +467,7 @@ class Territorio extends Model
      */
     protected function getDiasArchivo()
     {
-        $congregacion = $this->congregacion;
+        $congregacion = $this->obtenerCongregacion();
         if (!$congregacion) {
             return 90;
         }
@@ -441,7 +484,7 @@ class Territorio extends Model
      */
     protected function getDiasLimiteActivo()
     {
-        $congregacion = $this->congregacion;
+        $congregacion = $this->obtenerCongregacion();
         if (!$congregacion) {
             return 60;
         }
@@ -466,10 +509,17 @@ class Territorio extends Model
 
         $diasArchivo = $this->getDiasArchivo();
 
-        $ultimoRegistroDevuelto = $this->registros()
-            ->whereNotNull('fecha_entrada')
-            ->latest('fecha_entrada')
-            ->first();
+        if ($this->relationLoaded('registros')) {
+            $ultimoRegistroDevuelto = $this->registros
+                ->whereNotNull('fecha_entrada')
+                ->sortByDesc(fn ($r) => self::claveOrdenFecha($r, 'fecha_entrada'))
+                ->first();
+        } else {
+            $ultimoRegistroDevuelto = $this->registros()
+                ->whereNotNull('fecha_entrada')
+                ->latest('fecha_entrada')
+                ->first();
+        }
 
         if ($ultimoRegistroDevuelto) {
             $fechaDevolucion = Carbon::parse($ultimoRegistroDevuelto->fecha_entrada);

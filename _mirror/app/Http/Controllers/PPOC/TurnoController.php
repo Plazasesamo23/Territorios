@@ -435,6 +435,9 @@ class TurnoController extends Controller
         $this->checkAccess();
 
         $turnoGenerado = $asignacion->turnoGenerado;
+        // El scope de congregación deja turnoGenerado en null si la asignación es de otra congregación
+        abort_if(!$turnoGenerado, 404);
+
         $asignacion->delete();
 
         // Reabrir turno si estaba completo
@@ -450,6 +453,9 @@ class TurnoController extends Controller
      */
     public function actualizarEstado(Request $request, TurnoAsignacion $asignacion)
     {
+        $this->checkAccess();
+        abort_if(!$asignacion->turnoGenerado, 404);
+
         $validated = $request->validate([
             'estado' => 'required|in:pendiente,confirmado,completado,cancelado',
         ]);
@@ -565,6 +571,7 @@ class TurnoController extends Controller
         $this->checkAccess();
 
         $turnoGenerado = $asignacion->turnoGenerado;
+        abort_if(!$turnoGenerado, 404);
         $turnoPlantilla = $turnoGenerado->turno;
         $congregacionId = session('congregacion_activa_id');
         $rolBuscado = $asignacion->rol;
@@ -664,6 +671,7 @@ class TurnoController extends Controller
 
         $nuevoPublicador = Publicador::findOrFail($validated['nuevo_publicador_id']);
         $turnoGenerado = $asignacion->turnoGenerado;
+        abort_if(!$turnoGenerado, 404);
 
         // Verificar que el nuevo publicador no este ya asignado
         $yaAsignado = TurnoAsignacion::where('turno_generado_id', $turnoGenerado->id)

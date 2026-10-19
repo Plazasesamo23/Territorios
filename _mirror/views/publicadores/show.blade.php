@@ -450,14 +450,23 @@
 </div>
 
 <!-- Zona de peligro -->
+@php
+    $tieneHistorial = $publicador->registros()->exists()
+        || $publicador->reunionHistorial()->exists()
+        || \App\Models\TurnoAsignacion::where('publicador_id', $publicador->id)->exists();
+@endphp
 <div class="danger-zone">
-    <h3>Zona de Peligro</h3>
-    <p>Eliminar este publicador borrara todos sus registros. Esta accion no se puede deshacer.</p>
-    <form method="POST" action="{{ route('publicadores.destroy', $publicador) }}" onsubmit="return confirm('¿Estas seguro de eliminar este publicador?')">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="btn btn-danger">Eliminar Publicador</button>
-    </form>
+    <h3>Zona de peligro</h3>
+    @if($tieneHistorial)
+        <p>Este publicador tiene historial (territorios, carritos o reuniones), así que no se puede eliminar: se perdería del S-13 y de las estadísticas. Si ya no está en la congregación, desmarca la casilla "Activo" al editarlo.</p>
+    @else
+        <p>Eliminar este publicador es definitivo y no se puede deshacer. Solo tiene sentido si se creó por error.</p>
+        <form method="POST" action="{{ route('publicadores.destroy', $publicador) }}" onsubmit="return confirm('¿Seguro que quieres eliminar a este publicador? Esta acción no se puede deshacer.')">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger">Eliminar publicador</button>
+        </form>
+    @endif
 </div>
 @endif
 

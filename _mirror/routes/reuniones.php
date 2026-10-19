@@ -3,7 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Reuniones\ReunionController;
 
-Route::middleware(['auth', 'congregacion'])->prefix('reuniones')->group(function () {
+// El módulo Reuniones es solo para administradores (el menú ya lo ocultaba al resto;
+// ahora la URL también lo exige, antes cualquier usuario logueado podía crear/borrar programas)
+Route::middleware(['auth', 'congregacion', 'role:admin'])->prefix('reuniones')->group(function () {
 
     // VyM (entre semana)
     Route::get('/', [ReunionController::class, 'index'])->name('reuniones.index');

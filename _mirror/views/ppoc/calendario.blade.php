@@ -170,7 +170,7 @@
                                                                 <span class="asignado-nombre">{{ $asig->publicador->nombre ?? 'N/A' }}@if($repite) <span class="repite-badge">2× semana</span>@endif</span>
                                                                 <div class="asignado-btns">
                                                                     <button type="button" class="btn-cambiar-asig" title="Cambiar" onclick="abrirModalSugerencias({{ $asig->id }})">&#x21C4;</button>
-                                                                    <form action="{{ route('ppoc.asignaciones.destroy', $asig) }}" method="POST" class="remove-asig">
+                                                                    <form action="{{ route('ppoc.asignaciones.destroy', $asig) }}" method="POST" class="remove-asig" onsubmit="return confirm('¿Quitar a {{ addslashes($asig->publicador->nombre ?? 'esta persona') }} de este turno?')">
                                                                         @csrf
                                                                         @method('DELETE')
                                                                         <button type="submit" class="btn-remove-asig" title="Quitar">×</button>
@@ -253,7 +253,7 @@
                                                     <span class="agenda-rol-badge">{{ $asig->rol === 'capitan' ? 'C' : 'V' }}</span>
                                                     <div class="asignado-btns">
                                                         <button type="button" class="btn-cambiar-asig" title="Cambiar" onclick="abrirModalSugerencias({{ $asig->id }})">&#x21C4;</button>
-                                                        <form action="{{ route('ppoc.asignaciones.destroy', $asig) }}" method="POST" class="remove-asig">
+                                                        <form action="{{ route('ppoc.asignaciones.destroy', $asig) }}" method="POST" class="remove-asig" onsubmit="return confirm('¿Quitar a {{ addslashes($asig->publicador->nombre ?? 'esta persona') }} de este turno?')">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="btn-remove-asig" title="Quitar">×</button>
@@ -1207,15 +1207,16 @@ html {
     align-items: center;
 }
 
+/* Botones Cambiar/Quitar: mínimo 32px en escritorio (antes 16px, imposible de acertar con el dedo) */
 .btn-cambiar-asig {
-    width: 18px;
-    height: 16px;
+    min-width: 32px;
+    min-height: 32px;
     border: none;
     background: rgba(59, 130, 246, 0.2);
     color: #4a6da7;
-    border-radius: 3px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 10px;
+    font-size: 14px;
     line-height: 1;
     transition: all 0.2s;
 }
@@ -1235,15 +1236,19 @@ html {
 }
 
 .btn-remove-asig {
-    width: 16px;
-    height: 16px;
+    min-width: 32px;
+    min-height: 32px;
     border: none;
-    background: rgba(0,0,0,0.1);
-    color: inherit;
-    border-radius: 3px;
+    background: rgba(239, 68, 68, 0.18);
+    color: #fca5a5;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 16px;
     line-height: 1;
+}
+.btn-remove-asig:hover {
+    background: rgba(239, 68, 68, 0.4);
+    color: white;
 }
 
 .btn-add-pub {
@@ -1694,15 +1699,16 @@ html {
         color: white;
     }
     .agenda-asignado .asignado-btns { margin-left: auto; }
+    /* Móvil: zona táctil de 44px */
     .agenda-asignado .btn-cambiar-asig {
-        width: 24px;
-        height: 24px;
-        font-size: 12px;
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 16px;
     }
     .agenda-asignado .btn-remove-asig {
-        width: 24px;
-        height: 24px;
-        font-size: 14px;
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 20px;
     }
     .agenda-asignados .btn-add-pub {
         padding: 0.3rem;

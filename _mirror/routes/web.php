@@ -29,7 +29,8 @@ Route::middleware(['auth', 'congregacion'])->group(function () {
 
     // Cambiar usuario (estilo Netflix)
     Route::get('cambiar-usuario', [CambiarUsuarioController::class, 'index'])->name('cambiar-usuario.index');
-    Route::post('cambiar-usuario', [CambiarUsuarioController::class, 'cambiar'])->name('cambiar-usuario.cambiar');
+    // throttle: máximo 5 intentos por minuto (evita probar contraseñas de admin a lo loco)
+    Route::post('cambiar-usuario', [CambiarUsuarioController::class, 'cambiar'])->middleware('throttle:5,1')->name('cambiar-usuario.cambiar');
     Route::get('cambiar-usuario/volver', [CambiarUsuarioController::class, 'volver'])->name('cambiar-usuario.volver');
 
     // Ruta de referencia UI (desarrollo)
