@@ -599,6 +599,20 @@ echo y | plink -pw Bopo191210 trastos@ssh.cluster100.hosting.ovh.net "cd Territo
 
 ## Historial de sesiones
 
+### 19 Octubre 2026 - Foto del territorio 85 + blindaje de enlaces de imagen mal pegados
+
+**Síntoma:** el territorio 85 (cong 1) no mostraba la foto. **Causa:** `imagen_url` en BD tenía una letra sobrante delante del esquema: `vhttps://drive.google.com/...`. Como no empieza por `http`, `getImagenUrl()` lo pasaba por `asset()`, que lo devolvía tal cual (filter_var lo acepta como URL con esquema "vhttps") y el navegador no lo cargaba. Es la segunda vez que pasa (enlace pegado a mano con basura delante).
+
+**Corrección de datos:** mysqldump previo en servidor `backups/territorios_2026-10-19_pre-fix85.sql`; UPDATE por script PHP temporal (borrado). Revisadas las 375 `imagen_url` de ambas congregaciones: formato correcto en todas y las 375 responden `200 image/*` (139 Dropbox, 196 Drive, 40 locales); 18 sin URL usan el fichero `imagenes/{cong}_{numero}.jpg`.
+
+**Blindaje (para que no vuelva a pasar):**
+- `Territorio::normalizarImagenUrl($url)` (estático): trim, quita todo espacio/salto y recorta cualquier basura delante del primer `http://`/`https://`. Vacío → `null`.
+- Mutator `setImagenUrlAttribute`: toda escritura pasa por el normalizador (create/update, cualquier controller).
+- `getImagenUrl()` también normaliza en lectura (protege datos antiguos sin tocar BD).
+- `TerritorioController` store/update: regla closure en `imagen_url`; si tras normalizar no empieza por `https?://` ni `imagenes/`, error en lenguaje llano: "El enlace de la imagen no es válido. Copia el enlace completo de Drive o Dropbox (empieza por https://)."
+
+Verificado en servidor: `php -l` OK, script de prueba con 8 casos (vhttps, espacios, "URL: ", salto de línea, ruta local, vacío, null, texto) y smoke HTTP 200/302. Backups locales `_mirror/.../Territorio.php.backup` y `TerritorioController.php.backup`.
+
 ### 30 Septiembre 2026 - PPOC: nadie sale dos veces en la misma semana
 
 **Regla nueva (pedida por Bryan):** "Rellenar huecos" no debe poner a la misma persona en dos turnos de la misma semana (lunes a domingo). Si aun así ocurre (a mano o por error), se marca SOLO en el calendario de la app; el PDF sale igual que siempre.

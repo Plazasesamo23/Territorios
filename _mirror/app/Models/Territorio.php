@@ -196,18 +196,47 @@ class Territorio extends Model
     }
 
     /**
+     * Limpiar un enlace de imagen pegado a mano.
+     * Quita espacios y cualquier basura delante del esquema (ej. "vhttps://..." o "URL: https://...").
+     * Devuelve null si queda vacío.
+     */
+    public static function normalizarImagenUrl($url)
+    {
+        if ($url === null) {
+            return null;
+        }
+        $url = preg_replace('/\s+/u', '', trim((string) $url));
+        if ($url === '') {
+            return null;
+        }
+        if (preg_match('#https?://#i', $url, $m, PREG_OFFSET_CAPTURE)) {
+            $url = substr($url, $m[0][1]);
+        }
+        return $url;
+    }
+
+    /**
+     * Mutator: toda escritura de imagen_url pasa por el normalizador
+     */
+    public function setImagenUrlAttribute($value)
+    {
+        $this->attributes['imagen_url'] = self::normalizarImagenUrl($value);
+    }
+
+    /**
      * Obtener la URL de la imagen del territorio
      */
     public function getImagenUrl()
     {
-        // 1. Usar URL de la base de datos si existe
-        if (!empty($this->imagen_url)) {
+        // 1. Usar URL de la base de datos si existe (normalizada por si hay datos antiguos mal pegados)
+        $url = self::normalizarImagenUrl($this->imagen_url);
+        if (!empty($url)) {
             // Si es una ruta relativa (imagen subida desde la app, ej. "imagenes/1_100.jpg"),
             // convertirla en URL absoluta; si no, el enlace en WhatsApp sale roto.
-            if (!preg_match('#^https?://#i', $this->imagen_url)) {
-                return asset(ltrim($this->imagen_url, '/'));
+            if (!preg_match('#^https?://#i', $url)) {
+                return asset(ltrim($url, '/'));
             }
-            return $this->convertirUrlDirecta($this->imagen_url);
+            return $this->convertirUrlDirecta($url);
         }
 
         // 2. Devolver siempre la URL local (file_exists no funciona bien en hosting compartido)

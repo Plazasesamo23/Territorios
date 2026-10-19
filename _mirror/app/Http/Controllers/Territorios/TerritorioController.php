@@ -145,7 +145,12 @@ class TerritorioController extends Controller
             'coordenadas_lng' => 'nullable|numeric|between:-180,180',
             'estado' => 'required|in:libre,activo,archivo,atrasado',
             'imagen' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
-            'imagen_url' => 'nullable|string|max:1000',
+            'imagen_url' => ['nullable', 'string', 'max:1000', function ($attr, $value, $fail) {
+                $limpia = Territorio::normalizarImagenUrl($value);
+                if ($limpia !== null && !preg_match('#^(https?://|imagenes/)#i', $limpia)) {
+                    $fail('El enlace de la imagen no es válido. Copia el enlace completo de Drive o Dropbox (empieza por https://).');
+                }
+            }],
             'notas' => 'nullable|string'
         ]);
 
@@ -237,7 +242,12 @@ class TerritorioController extends Controller
             'coordenadas_lng' => 'nullable|numeric|between:-180,180',
             'estado' => 'required|in:libre,activo,archivo,atrasado',
             'imagen' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
-            'imagen_url' => 'nullable|string|max:1000',
+            'imagen_url' => ['nullable', 'string', 'max:1000', function ($attr, $value, $fail) {
+                $limpia = Territorio::normalizarImagenUrl($value);
+                if ($limpia !== null && !preg_match('#^(https?://|imagenes/)#i', $limpia)) {
+                    $fail('El enlace de la imagen no es válido. Copia el enlace completo de Drive o Dropbox (empieza por https://).');
+                }
+            }],
             'notas' => 'nullable|string'
         ]);
 
