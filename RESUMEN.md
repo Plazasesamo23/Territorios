@@ -1217,3 +1217,19 @@ Documentado en commit 14c378c.
 - Estandarizar max-width entre paginas (actualmente varia: 800px, 900px, 1000px, 1200px)
 - Revisar scroll vertical en todas las paginas internas en movil (aplicar mismos fixes dvh/overflow)
 - Auditar paginas con vistas propias (como login) que no usan layouts.app y pueden tener CSS desactualizado
+
+### 21 Octubre 2026 - Grupos de predicación 2026/27 desde el PDF oficial (cong 1)
+
+Bryan trajo el PDF "Grupos predi.pdf" (24-sep-2026, 6 grupos, 111 publicadores). Cruce nombre a nombre contra `publicadores` cong 1 y aplicado en BD con script PHP temporal (borrado). **Solo datos, ningún cambio de código.** Backup previo en servidor: `backups/publicadores_2026-10-21_pre-grupos-pdf.sql` (`mysqldump --no-tablespaces`, el flag es obligatorio en OVH). El histórico 2025/2026 ya estaba guardado en `grupos_historico` (110 filas), así que la distribución anterior se conserva.
+
+**Equivalencias confirmadas por Bryan:** "Antonio López" = Toni Lopez (103); "Palina Poznisheva" = Polina Poznisheva (116); "Mari Carmen García" = Maricarmen De Caballero (123). El PDF escribe a las esposas como "Nombre (Apellido marido) Apellido propio"; en BD van como "Nombre De Marido".
+
+**Altas (4, genero M, notas "Alta desde PDF grupos 24-sep-2026"):** 373 Yeray Benitez (g1), 374 Ali Sotillo (g4), 375 Luis Moncada (g5), 376 Leoncio Pulido (g6). "Mercedes Peña" (g1 del PDF) NO se creó: Bryan dice que ya no está.
+
+**Sin grupo (activos, no salen en el PDF, Bryan decide no desactivar):** 17 Adrian Rivera (era SUP g6), 32 Carmen Nuñez, 58 Kata Abarca, 59 Laude Manjon, 72 Mario Fuentes, 80 Montse De Fuentes, 119 Daniel Partida, 143 Jhonaiker, 372 Pili Partida. (367 Congregación Inglesa sigue sin grupo como siempre.)
+
+**Roles de grupo (es_superintendente / es_auxiliar) según PDF:** g1 Noguera/B. Abarca, g2 J. López/H. Alvarado, g3 F. Muñoz/B. Andrade, g4 J. Morón/J. Cortés, g5 R. Rivera/N. Pauner, g6 I. Quirós/E. Mayordomo. Quitados: SUP a Antonio Milan y Adrian Rivera; AUX a Jose Martinez y Manolo Mateos. `orden_grupo` = orden del PDF. Resultado: 17+19+18+19+19+18 = 110 en grupos.
+
+**NO tocado (diferencias de nombramientos PDF vs BD, pendiente de que Bryan confirme):** Harold Alvarado y Nacho Pauner salen PR en el PDF (BD es_precursor=0); Manolo Ortiz y Nelson Cicery salen SM (BD es_siervo_ministerial=0); Sergi Pacheco sin siglas en PDF (BD anciano+precursor); Ismael Quirós es PE (precursor especial, no hay campo; queda es_precursor=1). Los PA (precursor auxiliar: Zurama Peña, José Martínez, Carmen Ortiz, Amparo Sánchez, Sebastiana López) no tienen campo en BD.
+
+Verificado: render como admin cong 1 de /grupos-predicacion, /publicadores y fichas 373/376 → 200.
